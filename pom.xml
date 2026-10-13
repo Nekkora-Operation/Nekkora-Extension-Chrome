@@ -13,6 +13,7 @@
 
   <modules>
     <module>java-core/core</module>
+    <module>java-core/native-host</module>
   </modules>
 
   <properties>

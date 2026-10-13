@@ -39,7 +39,7 @@ public record Classification(
         return kind.category();
     }
 
-    public boolean isInteractive() {
+    public boolean interactive() {
         return kind.category() == ElementCategory.INTERACTIVE;
     }
 

@@ -21,7 +21,7 @@ public record NodeChange(String nodeId, Map<String, List<String>> attributeChang
         stateChanges = List.copyOf(stateChanges);
     }
 
-    public boolean isEmpty() {
+    public boolean noChanges() {
         return attributeChanges.isEmpty() && textBefore == null && textAfter == null && stateChanges.isEmpty() && !childrenChanged;
     }
 }

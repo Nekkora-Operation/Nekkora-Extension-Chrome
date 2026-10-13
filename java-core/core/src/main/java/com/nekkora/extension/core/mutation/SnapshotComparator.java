@@ -67,7 +67,7 @@ public final class SnapshotComparator {
                     continue;
                 }
                 NodeChange ch = diff(na, nb);
-                if (!ch.isEmpty()) {
+                if (!ch.noChanges()) {
                     changedCount++;
                     if (isRelevantChange(ch, after.semantics().get(nb.id()))) {
                         relevant = true;
