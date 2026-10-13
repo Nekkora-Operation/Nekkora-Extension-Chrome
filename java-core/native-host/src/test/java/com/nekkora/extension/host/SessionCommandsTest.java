@@ -170,6 +170,41 @@ class SessionCommandsTest {
     }
 
     @Test
+    void frameDeltasRequireAttachment() throws Exception {
+        call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
+        ObjectNode d = (ObjectNode) m.readTree(delta(1, 1, "ps-do-frame", "x"));
+        d.put("source", "x7");
+        d.putArray("upserts");
+        JsonNode r = call("capture.session.delta", "{\"sessionId\":\"s1\",\"delta\":" + d + "}");
+        assertEquals("FRAME_NOT_ATTACHED", r.at("/error/code").asText(), "delta de frame sem anexação prévia é recusado");
+    }
+
+    @Test
+    void newCommandsConformToTheNativeProtocol() throws Exception {
+        com.networknt.schema.JsonSchema protocol = com.networknt.schema.JsonSchemaFactory.getInstance(com.networknt.schema.SpecVersion.VersionFlag.V202012)
+                .getSchema(com.networknt.schema.SchemaLocation.of("classpath:contracts/native-protocol.schema.json"));
+        List<String[]> calls = List.of(
+                new String[]{"capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}"},
+                new String[]{"capture.session.delta", "{\"sessionId\":\"s1\",\"delta\":" + delta(1, 1, "ps-fixture-1", "Ana") + "}"},
+                new String[]{"capture.session.delta", "{\"sessionId\":\"s1\",\"delta\":" + delta(1, 5, "ps-fixture-1", "Ana") + "}"},
+                new String[]{"capture.pin", "{\"tabKey\":\"t1\"}"},
+                new String[]{"capture.session.status", "{\"sessionId\":\"s1\"}"},
+                new String[]{"capture.session.list", "{}"},
+                new String[]{"export.session", "{\"sessionId\":\"s1\",\"operationId\":\"p\"}"},
+                new String[]{"host.memory", "{}"},
+                new String[]{"capture.session.stop", "{\"sessionId\":\"s1\"}"});
+        for (String[] c : calls) {
+            ObjectNode req = m.createObjectNode().put("protocol", ChunkCodec.PROTOCOL).put("id", "p" + ids.incrementAndGet()).put("type", c[0]);
+            req.set("payload", m.readTree(c[1]));
+            assertTrue(protocol.validate(req).isEmpty(), "requisição " + c[0] + ": " + protocol.validate(req));
+            for (String frame : host.processor().process(req.toString())) {
+                JsonNode f = m.readTree(frame);
+                assertTrue(protocol.validate(f).isEmpty(), "resposta " + c[0] + ": " + protocol.validate(f));
+            }
+        }
+    }
+
+    @Test
     void stopReleasesResources() throws Exception {
         call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
         assertEquals(1, call("host.memory", "{}").at("/payload/retainedCaptures/t1").asInt());

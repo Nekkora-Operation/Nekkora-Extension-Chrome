@@ -78,5 +78,40 @@ class FrameSourcesTest {
                 null, null, List.of(), 1, 1, null, "s1", "top", 1, 2);
         RawSnapshot removed = new DeltaApplier().apply(again, rm);
         assertFalse(removed.nodes().stream().anyMatch(x -> x.id().startsWith("x12")));
+        assertFalse(removed.frames().stream().anyMatch(f -> Sources.frameOwner(f.frameId()).equals("x12")),
+                "entradas de frame da fonte removida descartadas (iframe removido)");
+    }
+
+    @Test
+    void frameSourceDeltaKeepsHostAndTopDocument() {
+        HtmlSnapshot h = HtmlSnapshot.of("<p>topo</p><iframe id=cross data-fixture-frame=missing></iframe>");
+        RawSnapshot top = h.capture();
+        String host = h.idOf("#cross");
+        RawSnapshot merged = new FrameMerger().attach(top, host, childFrame("x12", "Pagar"), "x12", "cap-m1");
+        // O content script do frame re-descreve a própria raiz (sem conhecer o hospedeiro) e muda o botão.
+        RawSnapshot child = childFrame("x12", "Pagar agora");
+        com.nekkora.extension.core.snapshot.DocumentInfo frameDoc = new com.nekkora.extension.core.snapshot.DocumentInfo(
+                "http://localhost:18766/x.html", "frame", "complete", null, "MUTATION", "ps-frame");
+        SnapshotDelta d = new SnapshotDelta(null, "cap-f1", "t", frameDoc, List.of(child.nodes().get(0), child.nodes().get(2)), List.of(),
+                child.frames(), List.of(), List.of(), 1, 1, null, "s1", "x12", 1, 1);
+        RawSnapshot after = new DeltaApplier().apply(merged, d);
+        RawNode root = after.nodes().stream().filter(x -> x.id().equals("x12n1")).findFirst().orElseThrow();
+        assertEquals(host, root.parentId(), "raiz do frame continua anexada ao iframe hospedeiro");
+        assertEquals(merged.document(), after.document(), "documento principal não é substituído pelo do frame");
+        FrameInfo f = after.frames().stream().filter(x -> x.frameId().equals("c12")).findFirst().orElseThrow();
+        assertEquals(host, f.hostNodeId(), "frame raiz da fonte mantém o hospedeiro");
+        assertEquals("Pagar agora", Engine.analyze(after).semantics().get("x12n3").name().name());
+    }
+
+    @Test
+    void detachedShadowRootsArePruned() {
+        HtmlSnapshot h = HtmlSnapshot.of("<div id=zona><nk-card id=c><template shadowrootmode=open><button>Interno</button></template></nk-card></div>");
+        RawSnapshot base = h.capture();
+        String card = h.idOf("#c");
+        assertTrue(base.shadowRoots().stream().anyMatch(s -> card.equals(s.hostNodeId())), "shadow root declarado na base");
+        SnapshotDelta rm = new SnapshotDelta(null, "cap-r1", "t", base.document(), List.of(), List.of(card),
+                null, null, List.of(), 1, 1, null, "s1", "top", 1, 1);
+        RawSnapshot after = new DeltaApplier().apply(base, rm);
+        assertFalse(after.shadowRoots().stream().anyMatch(s -> card.equals(s.hostNodeId())), "shadow root do host removido não é mais declarado");
     }
 }
