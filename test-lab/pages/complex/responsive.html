@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Responsivo</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    header { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #ddd; padding: 8px; }
+    .mobile-menu { display: none; }
+    @media (max-width: 700px) {
+      .desktop-nav { display: none; }
+      .mobile-menu { display: block; }
+    }
+    #alvo-movel { transition: none; }
+    .espaco { height: 1400px; }
+  </style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <header>
+    <strong>Loja</strong>
+    <nav class="desktop-nav" id="desktop-nav" aria-label="Principal"><a id="minha-conta" href="#conta">Minha conta</a></nav>
+    <div class="mobile-menu" id="mobile-menu"></div>
+  </header>
+  <h1>Alterações responsivas</h1>
+  <section>
+    <button type="button" id="mover">Mover alvo</button>
+    <button type="button" id="redimensionar">Redimensionar alvo</button>
+    <button type="button" id="rerender-alvo">Re-renderizar alvo</button>
+    <div id="area" style="padding: 10px; background:#fff; border:1px solid #ddd">
+      <button type="button" id="alvo-movel" style="margin-left: 0; width: 160px">Finalizar compra</button>
+    </div>
+  </section>
+  <div class="espaco"></div>
+  <p id="rodape">Fim da página</p>
+  <script src="/lab/lab.js"></script>
+  <script>
+    // Ao estreitar a janela, o MESMO link é movido do menu desktop para o menu móvel (re-parent).
+    const link = document.getElementById('minha-conta');
+    function place() {
+      const mobile = window.innerWidth <= 700;
+      const host = document.getElementById(mobile ? 'mobile-menu' : 'desktop-nav');
+      if (link.parentElement !== host) host.appendChild(link);
+    }
+    window.addEventListener('resize', place);
+    place();
+    document.getElementById('mover').onclick = () => {
+      const b = document.getElementById('alvo-movel');
+      b.style.marginLeft = (parseInt(b.style.marginLeft || '0', 10) + 120) + 'px';
+    };
+    document.getElementById('redimensionar').onclick = () => {
+      const b = document.getElementById('alvo-movel');
+      b.style.width = (parseInt(b.style.width, 10) + 80) + 'px';
+      b.style.height = '48px';
+    };
+    document.getElementById('rerender-alvo').onclick = () => {
+      document.getElementById('area').innerHTML = '<button type="button" id="alvo-movel" style="margin-left: 40px; width: 200px">Finalizar compra</button>';
+    };
+  </script>
+</body>
+</html>

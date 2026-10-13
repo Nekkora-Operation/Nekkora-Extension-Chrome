@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Nekkora Test Lab</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <h1>Nekkora Test Lab</h1>
+  <p class="muted">Laboratório local de simulação da missão NEKKORA-CHROME-001. Todas as páginas são servidas por
+    <code>127.0.0.1</code> e contêm somente dados fictícios.</p>
+
+  <h2>Cenários simples</h2>
+  <ul>
+    <li><a href="/lab/simple/form-basics.html">Formulário básico</a> — ids estáveis, sem id, sem name, labels, textarea, botões, links, checkbox, radio, select, textos, contenteditable, campos sensíveis</li>
+  </ul>
+
+  <h2>Cenários intermediários</h2>
+  <ul>
+    <li><a href="/lab/intermediate/forms-groups.html">Formulários com grupos e campos repetidos</a> — endereço de cobrança × entrega</li>
+    <li><a href="/lab/intermediate/tables.html">Tabelas de clientes e pedidos</a></li>
+    <li><a href="/lab/intermediate/widgets.html">Modais, abas, menus, dropdown personalizado, ocultos, desabilitados, somente leitura</a></li>
+  </ul>
+
+  <h2>Cenários complexos</h2>
+  <ul>
+    <li><a href="/lab/complex/duplicated-ids.html">IDs duplicados, names duplicados, textos duplicados, reordenação</a></li>
+    <li><a href="/lab/complex/dynamic-ids.html">Laboratório de IDs dinâmicos e alteração semântica</a></li>
+    <li><a href="/lab/complex/rerender.html">Remoção, substituição, re-renderização e mutações frequentes</a></li>
+    <li><a href="/lab/complex/shadow-iframes.html">Shadow DOM aberto/fechado e iframes acessíveis/inacessíveis</a></li>
+    <li><a href="/lab/complex/dropdowns.html">Dropdowns personalizados, portal, carregamento dinâmico e lista virtualizada</a></li>
+    <li><a href="/lab/complex/responsive.html">Alterações responsivas, scroll e reposicionamento</a></li>
+    <li><a href="/lab/spa/clientes">Aplicação SPA (mudança de rota)</a></li>
+  </ul>
+
+  <h2>Pesquisa e resultados</h2>
+  <ul>
+    <li><a href="/clientes?nome=ana&amp;status=ativo">/clientes?nome=ana&amp;status=ativo</a> — pesquisa, filtros, paginação, modal de edição, ações por linha</li>
+    <li><a href="/lab/inspector/actions.html">Ações com efeito colateral (modo inspector)</a></li>
+  </ul>
+
+  <h2>Desempenho</h2>
+  <ul>
+    <li><a href="/generated/large?n=100">100 elementos</a> · <a href="/generated/large?n=1000">1.000</a> ·
+      <a href="/generated/large?n=5000">5.000</a> · <a href="/generated/large?n=10000">10.000</a></li>
+  </ul>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>

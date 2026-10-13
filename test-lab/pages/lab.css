@@ -1,0 +1,24 @@
+/* Estilo neutro do laboratório (deliberadamente sem a identidade Nekkora, para não confundir com a extensão). */
+* { box-sizing: border-box; }
+body { font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; margin: 0; padding: 16px 24px 80px; color: #222; background: #fafafa; }
+h1 { font-size: 22px; margin: 4px 0 12px; }
+h2 { font-size: 17px; margin: 22px 0 8px; }
+section { margin-bottom: 18px; }
+label { display: inline-block; margin: 6px 6px 2px 0; }
+input, select, textarea, button { font: inherit; padding: 4px 8px; margin: 2px 4px 2px 0; }
+button { cursor: pointer; }
+table { border-collapse: collapse; background: #fff; margin: 6px 0; }
+th, td { border: 1px solid #ccc; padding: 4px 10px; text-align: left; }
+.card { border: 1px solid #ccc; background: #fff; padding: 8px 12px; margin: 6px 0; border-radius: 6px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.muted { color: #666; font-size: 13px; }
+.field-error { color: #b00020; }
+.hint { color: #555; font-size: 13px; }
+nav.lab { margin-bottom: 12px; font-size: 13px; }
+pre#action-log { background: #fff; border: 1px dashed #bbb; min-height: 24px; padding: 4px 8px; font-size: 12px; }
+[role="listbox"] { border: 1px solid #aaa; background: #fff; max-height: 180px; overflow: auto; min-width: 180px; }
+[role="option"] { padding: 3px 8px; cursor: pointer; }
+[role="option"][aria-selected="true"] { background: #e8e8ff; }
+[role="combobox"] { display: inline-block; border: 1px solid #888; padding: 4px 10px; min-width: 160px; background: #fff; cursor: pointer; }
+dialog { border: 1px solid #888; border-radius: 8px; padding: 16px 20px; }
+dialog::backdrop { background: rgba(0, 0, 0, .25); }

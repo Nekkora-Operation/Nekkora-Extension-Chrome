@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>IDs dinâmicos</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Laboratório de IDs dinâmicos</h1>
+
+  <!-- §17 / T005 -->
+  <section>
+    <h2>Cadastro com id instável</h2>
+    <button type="button" id="rerender-form">Re-renderizar formulário</button>
+    <div id="form-host"></div>
+  </section>
+
+  <!-- T040 / Caso C -->
+  <section>
+    <h2>Id estável, significado variável</h2>
+    <button type="button" id="trocar-significado">Trocar significado</button>
+    <button type="button" id="trocar-controle">Substituir por botão</button>
+    <form id="form-semantica" onsubmit="event.preventDefault()">
+      <label for="campo-principal" id="rotulo-principal">Nome</label>
+      <input id="campo-principal" name="campoPrincipal">
+      <label for="email-contato">E-mail de contato</label>
+      <input id="email-contato" type="email" name="emailContato">
+    </form>
+  </section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    let renders = 0;
+    const ids = [18731, 93482, 50291, 72016, 33158];
+    function renderForm() {
+      const suffix = ids[renders % ids.length];
+      renders++;
+      document.getElementById('form-host').innerHTML =
+        `<form id="cadastro" onsubmit="event.preventDefault()">` +
+        `<label for="customer-name-${suffix}">Nome do cliente</label> ` +
+        `<input id="customer-name-${suffix}" name="customerName"> ` +
+        `<button type="submit">Salvar</button></form>`;
+    }
+    renderForm();
+    document.getElementById('rerender-form').onclick = renderForm;
+    document.getElementById('trocar-significado').onclick = () => {
+      document.getElementById('rotulo-principal').textContent = 'CPF do titular';
+    };
+    document.getElementById('trocar-controle').onclick = () => {
+      const old = document.getElementById('email-contato');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.id = 'email-contato';
+      b.textContent = 'Enviar e-mail';
+      old.replaceWith(b);
+    };
+    NekkoraLab.hooks({ getRenderCount: () => renders });
+  </script>
+</body>
+</html>

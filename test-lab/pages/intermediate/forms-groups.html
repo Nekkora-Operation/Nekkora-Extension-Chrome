@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Formulários com grupos</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Checkout</h1>
+  <form id="checkout" onsubmit="event.preventDefault()">
+    <div class="row">
+      <fieldset id="cobranca">
+        <legend>Endereço de cobrança</legend>
+        <label for="rua-c">Rua</label><input id="rua-c" name="billing_street"><br>
+        <label for="cidade-c">Cidade</label><input id="cidade-c" name="billing_city"><br>
+        <label for="estado-c">Estado</label>
+        <select id="estado-c" name="billing_state"><option>SP</option><option>RJ</option><option>MG</option></select>
+      </fieldset>
+      <fieldset id="entrega">
+        <legend>Endereço de entrega</legend>
+        <label for="rua-e">Rua</label><input id="rua-e" name="shipping_street"><br>
+        <label for="cidade-e">Cidade</label><input id="cidade-e" name="shipping_city"><br>
+        <label for="estado-e">Estado</label>
+        <select id="estado-e" name="shipping_state"><option>SP</option><option>RJ</option><option>MG</option></select>
+      </fieldset>
+    </div>
+    <h2>Contatos adicionais</h2>
+    <div class="card" data-contact="1"><h3>Contato 1</h3><label>Telefone <input name="telefone[]"></label></div>
+    <div class="card" data-contact="2"><h3>Contato 2</h3><label>Telefone <input name="telefone[]"></label></div>
+    <button type="submit">Finalizar pedido</button>
+  </form>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>

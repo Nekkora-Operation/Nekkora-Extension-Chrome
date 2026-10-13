@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Ações com efeito colateral</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Ações com efeito colateral (T039)</h1>
+  <p class="muted">No modo inspector, clicar nestes elementos deve apenas SELECIONÁ-LOS. Nenhuma ação pode ocorrer.</p>
+  <p>Contador: <output id="contador">0</output></p>
+  <button type="button" id="incrementar">Incrementar</button>
+  <table id="registros"><tr data-id="1"><td>Registro 1</td><td><button type="button" id="excluir-registro">Excluir registro</button></td></tr></table>
+  <a id="sair" href="/lab/index.html">Sair desta página</a>
+  <form id="form-envio" action="/lab/index.html"><button type="submit" id="enviar">Enviar formulário</button></form>
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    let count = 0;
+    document.getElementById('incrementar').addEventListener('click', () => {
+      count++;
+      document.getElementById('contador').textContent = String(count);
+      NekkoraLab.logAction('incrementar');
+    });
+    document.getElementById('excluir-registro').addEventListener('click', (e) => {
+      e.target.closest('tr').remove();
+      NekkoraLab.logAction('excluir-registro');
+    });
+    document.getElementById('form-envio').addEventListener('submit', () => NekkoraLab.logAction('submit'));
+  </script>
+</body>
+</html>

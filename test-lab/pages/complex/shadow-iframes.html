@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Shadow DOM e iframes</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Shadow DOM e iframes</h1>
+
+  <section>
+    <h2>Shadow DOM aberto (T017)</h2>
+    <nk-open-card id="cartao-aberto"></nk-open-card>
+  </section>
+
+  <section>
+    <h2>Shadow DOM fechado (T018)</h2>
+    <nk-closed-card id="cartao-fechado"></nk-closed-card>
+  </section>
+
+  <section>
+    <h2>Iframe acessível (T019 / Caso D)</h2>
+    <button type="button" id="isolar">Isolar iframe de pagamento</button>
+    <iframe id="frame-pagamento" title="Pagamento" src="/lab/complex/frame-inner.html" width="420" height="140"></iframe>
+  </section>
+
+  <section>
+    <h2>Iframes inacessíveis (T020)</h2>
+    <iframe id="frame-cross" title="Outra origem" width="420" height="140"></iframe>
+    <iframe id="frame-sandbox" title="Isolado" sandbox="allow-scripts" src="/lab/complex/frame-inner.html" width="420" height="140"></iframe>
+  </section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    class OpenCard extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = `<style>div{border:1px solid #999;padding:8px;background:#fff}</style>
+          <div><h3>Cartão aberto</h3><label for="cupom">Cupom</label><input id="cupom" name="cupom">
+          <button type="button" id="aplicar">Aplicar cupom</button></div>`;
+        root.getElementById('aplicar').addEventListener('click', () => NekkoraLab.logAction('aplicar-cupom'));
+      }
+    }
+    class ClosedCard extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'closed' });
+        root.innerHTML = `<div style="border:1px solid #999;padding:8px;background:#fff"><h3>Cartão fechado</h3>
+          <button type="button">Ação encapsulada</button></div>`;
+      }
+    }
+    customElements.define('nk-open-card', OpenCard);
+    customElements.define('nk-closed-card', ClosedCard);
+    const other = location.hostname === '127.0.0.1' ? 'localhost' : '127.0.0.1';
+    document.getElementById('frame-cross').src = `${location.protocol}//${other}:${location.port}/lab/complex/frame-inner.html`;
+    document.getElementById('isolar').onclick = () => {
+      const f = document.getElementById('frame-pagamento');
+      f.setAttribute('sandbox', 'allow-scripts');
+      f.src = f.src; // recarrega com origem opaca: a DOM deixa de ser acessível
+      NekkoraLab.logAction('iframe-isolado');
+    };
+  </script>
+</body>
+</html>

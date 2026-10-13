@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Formulário básico</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Cadastro básico</h1>
+  <p id="intro">Preencha os dados do cliente.</p>
+
+  <form id="customer-form" name="customer" onsubmit="event.preventDefault(); NekkoraLab.logAction('submit');">
+    <section>
+      <!-- T001: id estável -->
+      <label for="customer-name">Nome</label>
+      <input id="customer-name" name="customerName" required>
+      <!-- T002: sem id (label envolvente) -->
+      <label>E-mail <input type="email" name="email"></label>
+    </section>
+    <section>
+      <!-- T003: sem id e sem name -->
+      <div class="field"><span class="field-label">Telefone</span> <input type="tel" placeholder="(11) 99999-9999"></div>
+      <label for="obs">Observações</label>
+      <textarea id="obs" name="obs" rows="2"></textarea>
+    </section>
+    <fieldset>
+      <legend>Preferências</legend>
+      <label><input type="checkbox" name="newsletter" value="sim"> Receber novidades</label>
+      <label><input type="radio" name="contato" value="email" checked> E-mail</label>
+      <label><input type="radio" name="contato" value="telefone"> Telefone</label>
+    </fieldset>
+    <section>
+      <!-- T010: select nativo -->
+      <label for="uf">Estado</label>
+      <select id="uf" name="uf">
+        <option value="">Selecione</option>
+        <option value="SP" selected>São Paulo</option>
+        <option value="RJ" disabled>Rio de Janeiro</option>
+        <option value="MG">Minas Gerais</option>
+      </select>
+      <!-- T011: optgroup -->
+      <label for="segmento">Segmento</label>
+      <select id="segmento" name="segmento">
+        <optgroup label="Varejo"><option>Moda</option><option>Alimentos</option></optgroup>
+        <optgroup label="Serviços" disabled><option>Consultoria</option></optgroup>
+      </select>
+    </section>
+    <section>
+      <!-- T033: dados sensíveis fictícios que NUNCA podem aparecer na exportação -->
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" name="senha" value="S3nh@Secreta!">
+      <label for="cartao">Cartão</label>
+      <input id="cartao" name="cartao" autocomplete="cc-number" value="4111111111111111">
+      <label for="apelido">Apelido</label>
+      <input id="apelido" name="apelido">
+      <label for="codigo">Código</label>
+      <input id="codigo" name="codigo" readonly value="ABC-123">
+      <input type="hidden" name="csrf" value="tok-csrf-998877">
+    </section>
+    <section>
+      <!-- T030: contenteditable -->
+      <div id="bio-label">Biografia</div>
+      <div id="bio" contenteditable="true" aria-labelledby="bio-label" style="border:1px solid #aaa; padding:4px; min-height:24px; background:#fff">Texto editável</div>
+    </section>
+    <section>
+      <button type="submit" id="salvar">Salvar</button>
+      <!-- T027: botão desabilitado -->
+      <button type="button" id="excluir-conta" disabled>Excluir conta</button>
+      <a href="#ajuda" id="link-ajuda">Ajuda</a>
+    </section>
+  </form>
+
+  <!-- T028: texto isolado -->
+  <span id="nota-solta">Texto isolado sem contexto de controle</span>
+  <p class="hint" id="dica">Campos com * são obrigatórios.</p>
+  <div role="alert" id="erro-geral" class="field-error">Revise o campo e-mail.</div>
+
+  <!-- T029: label externo, distante do campo -->
+  <div id="external-label-zone"><label for="cidade-externa">Cidade (label externo)</label></div>
+  <h2 id="ajuda">Ajuda</h2>
+  <p>Texto de ajuda com instruções gerais.</p>
+  <section><div><div><input id="cidade-externa" name="cidade"></div></div></section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    // Valor digitado pelo "usuário" (propriedade, não atributo): também não pode ser exportado.
+    document.getElementById('apelido').value = 'Apelido Privado';
+  </script>
+</body>
+</html>

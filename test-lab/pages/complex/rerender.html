@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Re-renderização</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Remoção, substituição e mutações</h1>
+
+  <section id="item-zona">
+    <h2>Item removível (T025)</h2>
+    <button type="button" id="remover">Remover item</button>
+    <div class="card" id="item"><h3>Relatório mensal</h3><button type="button" id="baixar">Baixar relatório</button></div>
+  </section>
+
+  <section>
+    <h2>Elemento substituído (T026)</h2>
+    <button type="button" id="substituir">Re-renderizar botão</button>
+    <form id="form-cidade" onsubmit="event.preventDefault()">
+      <label for="cidade">Cidade</label><input id="cidade" name="cidade">
+      <span id="slot-salvar"><button type="submit" class="salvar">Salvar cidade</button></span>
+    </form>
+  </section>
+
+  <section>
+    <h2>Mutações frequentes (T037)</h2>
+    <button type="button" id="iniciar-relogio">Iniciar relógio</button>
+    <button type="button" id="parar-relogio">Parar relógio</button>
+    <p>Atualizações: <span id="contador">0</span> · <span id="relogio">--:--:--.---</span></p>
+    <ul id="feed"></ul>
+  </section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    document.getElementById('remover').onclick = () => document.getElementById('item').remove();
+    document.getElementById('substituir').onclick = () => {
+      document.getElementById('slot-salvar').innerHTML = '<button type="submit" class="salvar">Salvar cidade</button>';
+    };
+    let timer = null;
+    let ticks = 0;
+    document.getElementById('iniciar-relogio').onclick = () => {
+      if (timer) return;
+      timer = setInterval(() => {
+        ticks++;
+        document.getElementById('contador').textContent = String(ticks);
+        document.getElementById('relogio').textContent = new Date().toISOString().slice(11, 23);
+        document.getElementById('relogio').className = ticks % 2 ? 'impar' : 'par';
+        if (ticks % 25 === 0) {
+          const li = document.createElement('li');
+          li.textContent = 'Evento ' + ticks;
+          document.getElementById('feed').prepend(li);
+        }
+      }, 20);
+    };
+    document.getElementById('parar-relogio').onclick = () => { clearInterval(timer); timer = null; };
+    NekkoraLab.hooks({ getRenderCount: () => ticks });
+  </script>
+</body>
+</html>

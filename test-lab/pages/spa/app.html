@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>SPA — Nekkora Lab</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <nav aria-label="Aplicação" id="app-nav">
+    <a href="/lab/spa/clientes" data-route>Clientes</a> ·
+    <a href="/lab/spa/pedidos" data-route>Pedidos</a> ·
+    <a href="/lab/spa/pedidos?status=aberto" data-route>Pedidos abertos</a>
+  </nav>
+  <main id="view"></main>
+  <script src="/lab/lab.js"></script>
+  <script>
+    // Roteamento por history.pushState (sem recarregar o documento).
+    const views = {
+      clientes: () => `<h1>Clientes</h1><table id="tabela"><tr data-client="101"><td>Ana</td><td><button>Abrir</button></td></tr></table>`,
+      pedidos: (q) => `<h1>Pedidos</h1><p>Filtro: ${q.get('status') || 'todos'}</p><table id="tabela"><tr data-order="1"><td>PED-0001</td><td><button>Abrir</button></td></tr></table>`,
+    };
+    let renders = 0;
+    function render() {
+      const route = location.pathname.split('/').filter(Boolean).pop() || 'clientes';
+      const q = new URLSearchParams(location.search);
+      document.getElementById('view').innerHTML = (views[route] || views.clientes)(q);
+      document.title = route.charAt(0).toUpperCase() + route.slice(1) + ' — SPA';
+      renders++;
+    }
+    document.getElementById('app-nav').addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-route]');
+      if (!a) return;
+      e.preventDefault();
+      history.pushState({}, '', a.getAttribute('href'));
+      render();
+    });
+    window.addEventListener('popstate', render);
+    render();
+    NekkoraLab.hooks({ getRenderCount: () => renders, getRoute: () => location.pathname + location.search });
+  </script>
+</body>
+</html>

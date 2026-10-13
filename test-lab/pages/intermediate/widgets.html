@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Componentes</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Componentes de interface</h1>
+
+  <section>
+    <h2>Modal</h2>
+    <button id="abrir-modal" type="button">Editar cliente</button>
+    <button id="salvar-pagina" type="button" onclick="NekkoraLab.logAction('salvar-pagina')">Salvar</button>
+    <dialog id="modal-editar" aria-labelledby="modal-titulo">
+      <h2 id="modal-titulo">Editar cliente</h2>
+      <form method="dialog" id="form-modal">
+        <label for="modal-nome">Nome</label><input id="modal-nome" name="nome" value="Ana"><br>
+        <button value="salvar" id="salvar-modal">Salvar</button>
+        <button value="cancelar" id="fechar-modal">Cancelar</button>
+      </form>
+    </dialog>
+  </section>
+
+  <section>
+    <h2>Abas</h2>
+    <div role="tablist" aria-label="Seções do cliente">
+      <button role="tab" id="aba-dados" aria-selected="true" aria-controls="painel-dados" tabindex="0">Dados</button>
+      <button role="tab" id="aba-pedidos" aria-selected="false" aria-controls="painel-pedidos" tabindex="-1">Pedidos</button>
+    </div>
+    <div role="tabpanel" id="painel-dados" aria-labelledby="aba-dados"><p>Dados cadastrais do cliente.</p></div>
+    <div role="tabpanel" id="painel-pedidos" aria-labelledby="aba-pedidos" hidden><p>Lista de pedidos.</p><button>Novo pedido</button></div>
+  </section>
+
+  <section>
+    <h2>Menu</h2>
+    <button id="menu-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-acoes">Ações</button>
+    <ul role="menu" id="menu-acoes" hidden>
+      <li role="menuitem" tabindex="-1">Duplicar</li>
+      <li role="menuitem" tabindex="-1">Arquivar</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Dropdown personalizado</h2>
+    <span id="prioridade-label">Prioridade</span>
+    <div id="prioridade" role="combobox" tabindex="0" aria-labelledby="prioridade-label" aria-expanded="false" aria-controls="prioridade-lista">Selecione</div>
+    <div id="prioridade-lista" role="listbox" hidden>
+      <div role="option" aria-selected="false">Baixa</div>
+      <div role="option" aria-selected="false">Média</div>
+      <div role="option" aria-selected="false">Alta</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Estados</h2>
+    <button id="btn-oculto-display" style="display:none">Oculto por display</button>
+    <button id="btn-oculto-attr" hidden>Oculto por atributo</button>
+    <button id="btn-oculto-visibility" style="visibility:hidden">Oculto por visibility</button>
+    <button id="btn-desabilitado" disabled>Desabilitado</button>
+    <label for="campo-ro">Somente leitura</label><input id="campo-ro" readonly value="fixo">
+    <div role="button" id="falso-botao">Parece botão (sem tabindex)</div>
+    <div role="button" id="div-botao" tabindex="0" onclick="NekkoraLab.logAction('div-botao')">Botão em div</div>
+  </section>
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const modal = document.getElementById('modal-editar');
+    document.getElementById('abrir-modal').addEventListener('click', () => { modal.showModal(); NekkoraLab.logAction('abrir-modal'); });
+    modal.addEventListener('close', () => NekkoraLab.logAction('modal-fechado:' + modal.returnValue));
+    document.querySelectorAll('[role=tab]').forEach((tab) => tab.addEventListener('click', () => {
+      document.querySelectorAll('[role=tab]').forEach((t) => { t.setAttribute('aria-selected', String(t === tab)); t.tabIndex = t === tab ? 0 : -1; });
+      document.querySelectorAll('[role=tabpanel]').forEach((p) => { p.hidden = p.id !== tab.getAttribute('aria-controls'); });
+    }));
+    const menuBtn = document.getElementById('menu-btn');
+    menuBtn.addEventListener('click', () => {
+      const m = document.getElementById('menu-acoes');
+      m.hidden = !m.hidden;
+      menuBtn.setAttribute('aria-expanded', String(!m.hidden));
+    });
+    const combo = document.getElementById('prioridade');
+    const lista = document.getElementById('prioridade-lista');
+    combo.addEventListener('click', () => { lista.hidden = !lista.hidden; combo.setAttribute('aria-expanded', String(!lista.hidden)); });
+    lista.addEventListener('click', (e) => {
+      const opt = e.target.closest('[role=option]');
+      if (!opt) return;
+      lista.querySelectorAll('[role=option]').forEach((o) => o.setAttribute('aria-selected', String(o === opt)));
+      combo.textContent = opt.textContent;
+      lista.hidden = true;
+      combo.setAttribute('aria-expanded', 'false');
+    });
+    NekkoraLab.hooks({ isModalOpen: () => modal.open });
+  </script>
+</body>
+</html>

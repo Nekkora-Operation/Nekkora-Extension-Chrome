@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>IDs duplicados</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>IDs, names e textos duplicados</h1>
+  <p class="muted">IDs duplicados são inválidos em HTML, mas ocorrem em aplicações reais. O motor não pode tratá-los como a mesma identidade.</p>
+
+  <!-- §8.1 / T004 / T007 -->
+  <section id="duas-tabelas">
+    <h2>Clientes ativos</h2>
+    <table id="clientes-ativos">
+      <tr data-client="101"><td>Ana</td><td><button id="excluir" onclick="NekkoraLab.logAction('excluir-101')">Excluir</button></td></tr>
+    </table>
+    <h2>Clientes inativos</h2>
+    <table id="clientes-inativos">
+      <tr data-client="202"><td>Maria</td><td><button id="excluir" onclick="NekkoraLab.logAction('excluir-202')">Excluir</button></td></tr>
+    </table>
+  </section>
+
+  <!-- T008 / T009 / Caso E -->
+  <section id="mesma-tabela">
+    <h2>Mesma tabela, linhas diferentes</h2>
+    <button type="button" id="reordenar">Reordenar linhas</button>
+    <button type="button" id="rerenderizar">Re-renderizar tabela</button>
+    <button type="button" id="esqueleto">Modo esqueleto</button>
+    <button type="button" id="remover-ana">Remover Ana</button>
+    <table id="clientes">
+      <thead><tr><th>Nome</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="clientes-corpo"></tbody>
+    </table>
+  </section>
+
+  <!-- T032 / Caso A -->
+  <section id="indistinguiveis">
+    <h2>Confirmações</h2>
+    <div class="row"><button type="button" class="confirmar">Confirmar</button><button type="button" class="confirmar">Confirmar</button></div>
+  </section>
+
+  <!-- names e textos duplicados -->
+  <section id="contatos">
+    <h2>Contatos</h2>
+    <div class="card" data-contact="principal"><h3>Principal</h3><label>Telefone <input name="telefone"></label><button type="button">Remover</button></div>
+    <div class="card" data-contact="secundario"><h3>Secundário</h3><label>Telefone <input name="telefone"></label><button type="button">Remover</button></div>
+  </section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const DATA = [
+      { id: 101, nome: 'Ana', status: 'Ativo' },
+      { id: 202, nome: 'Maria', status: 'Ativo' },
+      { id: 303, nome: 'João', status: 'Inativo' },
+    ];
+    let order = DATA.slice();
+    let renders = 0;
+    const tbody = document.getElementById('clientes-corpo');
+    function render() {
+      renders++;
+      tbody.innerHTML = order.map((c) => `<tr data-client="${c.id}"><td>${c.nome}</td><td>${c.status}</td>` +
+        `<td><button id="excluir" onclick="NekkoraLab.logAction('excluir-${c.id}')">Excluir</button></td></tr>`).join('');
+    }
+    render();
+    document.getElementById('reordenar').onclick = () => {
+      // Move os MESMOS nós (sem re-renderizar): João, Ana, Maria
+      const rows = Array.from(tbody.children);
+      const byId = Object.fromEntries(rows.map((r) => [r.dataset.client, r]));
+      ['303', '101', '202'].forEach((id) => byId[id] && tbody.appendChild(byId[id]));
+      order = ['303', '101', '202'].map((id) => DATA.find((d) => String(d.id) === id)).filter(Boolean);
+    };
+    document.getElementById('rerenderizar').onclick = () => { order = order.slice().reverse(); render(); };
+    document.getElementById('esqueleto').onclick = () => {
+      tbody.innerHTML = '<tr><td></td><td></td><td><button id="excluir">Excluir</button></td></tr>';
+    };
+    document.getElementById('remover-ana').onclick = () => {
+      const r = tbody.querySelector('tr[data-client="101"]');
+      if (r) r.remove();
+      order = order.filter((c) => c.id !== 101);
+    };
+    NekkoraLab.hooks({ getRenderCount: () => renders });
+  </script>
+</body>
+</html>

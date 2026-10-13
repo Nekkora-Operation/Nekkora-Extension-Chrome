@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Clientes — pesquisa</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Clientes</h1>
+
+  <form id="form-pesquisa" role="search" onsubmit="event.preventDefault(); pesquisarClientes();">
+    <label for="pesquisa">Nome</label>
+    <input id="pesquisa" name="pesquisa" type="text" autocomplete="off">
+    <label for="filtro-status">Status</label>
+    <select id="filtro-status" name="status">
+      <option value="">Todos</option>
+      <option value="ativo">Ativo</option>
+      <option value="inativo">Inativo</option>
+    </select>
+    <button type="button" id="btn-pesquisar" onclick="pesquisarClientes()">Pesquisar</button>
+    <button type="button" id="btn-limpar">Limpar</button>
+  </form>
+
+  <p id="resumo" aria-live="polite" class="muted"></p>
+  <div class="row">
+    <button type="button" id="btn-ordenar">Reordenar</button>
+    <button type="button" id="btn-novos-ids">Alterar identificadores</button>
+  </div>
+
+  <table id="resultados" aria-label="Resultados da pesquisa">
+    <thead><tr><th>Nome</th><th>Cidade</th><th>Status</th><th>Ações</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <nav aria-label="Paginação" id="paginacao">
+    <button type="button" id="pagina-anterior">Anterior</button>
+    <span id="pagina-atual">1</span>
+    <button type="button" id="pagina-proxima">Próxima</button>
+  </nav>
+
+  <dialog id="modal-cliente" aria-labelledby="modal-cliente-titulo">
+    <h2 id="modal-cliente-titulo">Editar cliente</h2>
+    <form method="dialog">
+      <label for="edit-nome">Nome</label><input id="edit-nome" name="nome"><br>
+      <label for="edit-cidade">Cidade</label><input id="edit-cidade" name="cidade"><br>
+      <button value="salvar" id="modal-salvar">Salvar</button>
+      <button value="cancelar" id="modal-cancelar">Cancelar</button>
+    </form>
+  </dialog>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const state = { filters: { nome: '', status: '' }, page: 1, size: 5, sort: 'nome', items: [], total: 0, lastApiQuery: null, renders: 0, idSeed: 0 };
+    const tbody = document.querySelector('#resultados tbody');
+
+    function readUrl() {
+      const q = new URLSearchParams(location.search);
+      state.filters.nome = q.get('nome') || '';
+      state.filters.status = q.get('status') || '';
+      state.page = Number(q.get('page') || 1);
+      document.getElementById('pesquisa').value = state.filters.nome;
+      document.getElementById('filtro-status').value = state.filters.status;
+    }
+
+    function writeUrl() {
+      const q = new URLSearchParams();
+      if (state.filters.nome) q.set('nome', state.filters.nome);
+      if (state.filters.status) q.set('status', state.filters.status);
+      if (state.page > 1) q.set('page', String(state.page));
+      const url = location.pathname + (q.toString() ? '?' + q : '');
+      history.pushState({}, '', url);
+    }
+
+    async function load() {
+      const q = new URLSearchParams({ nome: state.filters.nome, status: state.filters.status, page: String(state.page), size: String(state.size), sort: state.sort, delay: '150' });
+      state.lastApiQuery = '/api/clientes?' + q;
+      const r = await fetch(state.lastApiQuery);
+      const data = await r.json();
+      state.items = data.items;
+      state.total = data.total;
+      render();
+    }
+
+    function render() {
+      state.renders++;
+      const seed = state.idSeed;
+      tbody.innerHTML = state.items.map((c) =>
+        `<tr data-client="${c.id}"><td>${c.nome}</td><td>${c.cidade}</td><td>${c.status === 'ativo' ? 'Ativo' : 'Inativo'}</td>` +
+        `<td><button type="button" class="editar" id="editar-${c.id + seed}">Editar</button> ` +
+        `<button type="button" class="excluir" id="excluir-${c.id + seed}">Excluir</button></td></tr>`).join('');
+      document.getElementById('resumo').textContent = state.total + ' cliente(s) encontrado(s)';
+      document.getElementById('pagina-atual').textContent = String(state.page);
+    }
+
+    // Função chamada pelo botão Pesquisar (o teste usa CLIQUE, não chamada direta).
+    async function pesquisarClientes() {
+      state.filters.nome = document.getElementById('pesquisa').value.trim();
+      state.filters.status = document.getElementById('filtro-status').value;
+      state.page = 1;
+      writeUrl();
+      NekkoraLab.logAction('pesquisar:' + state.filters.nome + '|' + state.filters.status);
+      await load();
+    }
+    window.pesquisarClientes = pesquisarClientes;
+
+    document.getElementById('btn-limpar').onclick = async () => {
+      document.getElementById('pesquisa').value = '';
+      document.getElementById('filtro-status').value = '';
+      await pesquisarClientes();
+    };
+    document.getElementById('pagina-proxima').onclick = async () => {
+      if (state.page * state.size < state.total) { state.page++; writeUrl(); await load(); }
+    };
+    document.getElementById('pagina-anterior').onclick = async () => {
+      if (state.page > 1) { state.page--; writeUrl(); await load(); }
+    };
+    document.getElementById('btn-ordenar').onclick = async () => {
+      state.sort = state.sort === 'nome' ? '-nome' : 'nome';
+      await load();
+    };
+    document.getElementById('btn-novos-ids').onclick = () => { state.idSeed += 7; render(); };
+    tbody.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr');
+      if (!tr) return;
+      const c = state.items.find((x) => String(x.id) === tr.dataset.client);
+      if (e.target.matches('.editar')) {
+        document.getElementById('edit-nome').value = c.nome;
+        document.getElementById('edit-cidade').value = c.cidade;
+        document.getElementById('modal-cliente').showModal();
+        NekkoraLab.logAction('editar:' + c.id);
+      } else if (e.target.matches('.excluir')) {
+        NekkoraLab.logAction('excluir:' + c.id);
+        tr.remove();
+      }
+    });
+    window.addEventListener('popstate', () => { readUrl(); load(); });
+
+    NekkoraLab.hooks({
+      getCurrentFilters: () => ({ ...state.filters, page: state.page, sort: state.sort }),
+      getVisibleResultCount: () => tbody.querySelectorAll('tr').length,
+      getLastApiQuery: () => state.lastApiQuery,
+      getRenderCount: () => state.renders,
+    });
+    readUrl();
+    load();
+  </script>
+</body>
+</html>

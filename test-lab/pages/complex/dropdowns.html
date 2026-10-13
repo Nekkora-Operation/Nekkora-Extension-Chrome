@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Dropdowns</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    #virtual { position: relative; height: 200px; overflow-y: auto; }
+    #virtual .spacer { position: relative; }
+    #virtual [role=option] { position: absolute; left: 0; right: 0; height: 24px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Dropdowns e listas</h1>
+
+  <section>
+    <h2>Combobox com lista adjacente (T012)</h2>
+    <div role="combobox" id="estado" tabindex="0" aria-controls="lista-estados" aria-expanded="false">Estado</div>
+    <div id="lista-estados" role="listbox" hidden>
+      <div role="option">São Paulo</div>
+      <div role="option">Rio de Janeiro</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Combobox com portal (T013)</h2>
+    <form id="form-entrega" onsubmit="event.preventDefault()">
+      <span id="pais-label">País de entrega</span>
+      <div role="combobox" id="pais" tabindex="0" aria-labelledby="pais-label" aria-controls="lista-paises" aria-expanded="false">Selecione</div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Lista carregada dinamicamente (T014)</h2>
+    <span id="cidade-label">Cidade</span>
+    <div role="combobox" id="cidade" tabindex="0" aria-labelledby="cidade-label" aria-controls="lista-cidades" aria-expanded="false">Escolha a cidade</div>
+    <div id="lista-cidades" role="listbox" hidden></div>
+  </section>
+
+  <section>
+    <h2>Lista virtualizada (T021)</h2>
+    <div id="virtual" role="listbox" aria-label="Produtos"><div class="spacer"></div></div>
+  </section>
+
+  <div id="portal-root">
+    <div id="lista-paises" role="listbox" hidden>
+      <div role="option">Brasil</div><div role="option">Portugal</div><div role="option">Angola</div>
+    </div>
+  </div>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    function wire(comboId, listId, onOpen) {
+      const combo = document.getElementById(comboId);
+      const list = document.getElementById(listId);
+      combo.addEventListener('click', async () => {
+        const open = list.hidden;
+        if (open && onOpen) await onOpen(list);
+        list.hidden = !open;
+        combo.setAttribute('aria-expanded', String(open));
+      });
+      list.addEventListener('click', (e) => {
+        const opt = e.target.closest('[role=option]');
+        if (!opt) return;
+        combo.textContent = opt.textContent;
+        list.hidden = true;
+        combo.setAttribute('aria-expanded', 'false');
+        NekkoraLab.logAction(comboId + '=' + opt.textContent);
+      });
+    }
+    wire('estado', 'lista-estados');
+    wire('pais', 'lista-paises');
+    let loads = 0;
+    wire('cidade', 'lista-cidades', async (list) => {
+      list.setAttribute('aria-busy', 'true');
+      list.innerHTML = '<div class="muted">Carregando...</div>';
+      list.hidden = false;
+      const r = await fetch('/api/cidades?delay=300');
+      const data = await r.json();
+      loads++;
+      list.innerHTML = data.items.map((c) => `<div role="option">${c}</div>`).join('');
+      list.removeAttribute('aria-busy');
+      list.hidden = true; // wire() alterna a visibilidade
+    });
+
+    // Virtualização: 1000 itens, ~20 materializados.
+    const TOTAL = 1000, H = 24, WINDOW = 20;
+    const v = document.getElementById('virtual');
+    const spacer = v.querySelector('.spacer');
+    spacer.style.height = (TOTAL * H) + 'px';
+    function renderVirtual() {
+      const first = Math.floor(v.scrollTop / H);
+      spacer.innerHTML = '';
+      for (let i = first; i < Math.min(TOTAL, first + WINDOW); i++) {
+        const o = document.createElement('div');
+        o.setAttribute('role', 'option');
+        o.setAttribute('aria-posinset', String(i + 1));
+        o.setAttribute('aria-setsize', String(TOTAL));
+        o.style.top = (i * H) + 'px';
+        o.textContent = 'Produto ' + (i + 1);
+        spacer.appendChild(o);
+      }
+    }
+    v.addEventListener('scroll', renderVirtual, { passive: true });
+    renderVirtual();
+    NekkoraLab.hooks({ getRenderCount: () => loads });
+  </script>
+</body>
+</html>

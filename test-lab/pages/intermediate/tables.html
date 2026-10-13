@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Tabelas</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Clientes e pedidos</h1>
+  <h2>Clientes</h2>
+  <table id="tabela-clientes">
+    <caption>Clientes cadastrados</caption>
+    <thead><tr><th>Nome</th><th>Status</th><th>Ações</th></tr></thead>
+    <tbody>
+      <tr data-client="101"><td>Ana</td><td>Ativo</td><td><button>Editar</button> <button>Excluir</button></td></tr>
+      <tr data-client="202"><td>Maria</td><td>Ativo</td><td><button>Editar</button> <button>Excluir</button></td></tr>
+      <tr data-client="303"><td>João</td><td>Inativo</td><td><button>Editar</button> <button>Excluir</button></td></tr>
+    </tbody>
+  </table>
+  <h2>Pedidos</h2>
+  <table id="tabela-pedidos">
+    <thead><tr><th>Número</th><th>Cliente</th><th>Total</th><th>Ações</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">PED-0001</th><td>Ana</td><td>R$ 120,00</td><td><button>Editar</button></td></tr>
+      <tr><th scope="row">PED-0002</th><td>Maria</td><td>R$ 89,90</td><td><button>Editar</button></td></tr>
+    </tbody>
+  </table>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>
