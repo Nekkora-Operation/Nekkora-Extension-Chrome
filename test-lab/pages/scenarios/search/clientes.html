@@ -141,6 +141,8 @@
       getVisibleResultCount: () => tbody.querySelectorAll('tr').length,
       getLastApiQuery: () => state.lastApiQuery,
       getRenderCount: () => state.renders,
+      // Função com efeito colateral, FORA da lista permitida: a extensão nunca pode chamá-la.
+      resetarDados: () => { window.__nekkoraForbiddenHookCalled = true; state.items = []; render(); },
     });
     readUrl();
     load();

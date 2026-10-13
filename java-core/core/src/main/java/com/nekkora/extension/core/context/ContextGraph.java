@@ -232,7 +232,8 @@ public final class ContextGraph {
                 return f;
             }
         }
-        return firstAncestor(ancestors, a -> kind(a) == ElementKind.FORM, a -> false);
+        // Um <form> continua dono dos controles mesmo com papel ARIA próprio (ex.: role=search).
+        return firstAncestor(ancestors, a -> kind(a) == ElementKind.FORM || a.tag().equals("form"), a -> false);
     }
 
     private interface Test {

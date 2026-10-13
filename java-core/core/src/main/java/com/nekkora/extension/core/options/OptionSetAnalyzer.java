@@ -91,11 +91,17 @@ public final class OptionSetAnalyzer {
             }
         }
 
-        boolean outside = list != null && list != control && !m.isAncestor(control, list) && !m.isAncestor(list, control);
-        if (outside) {
+        // Portal: a lista está fora do contêiner imediato do controle (ancestral comum além do avô).
+        // Uma lista irmã do controle no mesmo contêiner NÃO é portal.
+        boolean outside = false;
+        if (list != null && list != control && !m.isAncestor(control, list) && !m.isAncestor(list, control)) {
             RawNode common = commonAncestor(m, control, list);
-            evidence.add("lista renderizada fora da subárvore do controle (portal)"
-                    + (common == null ? "" : "; ancestral comum: <" + common.tag() + ">"));
+            RawNode parent = m.parent(control).orElse(null);
+            RawNode grandparent = parent == null ? null : m.parent(parent).orElse(null);
+            outside = common == null || (common != parent && common != grandparent);
+            evidence.add(outside
+                    ? "lista renderizada fora do contêiner do controle (portal); ancestral comum: <" + (common == null ? "?" : common.tag()) + ">"
+                    : "lista adjacente ao controle no mesmo contêiner <" + common.tag() + ">");
         }
 
         List<OptionSet.OptionItem> items = new ArrayList<>();
@@ -153,8 +159,9 @@ public final class OptionSetAnalyzer {
         Set<String> observed = new LinkedHashSet<>();
         items.forEach(i -> observed.add(TextNormalizer.fold(i.text())));
         String key = OptionHistory.keyOf(control, cls);
+        boolean seenBefore = history != null && history.seen(key);
         Set<String> previous = history == null ? Set.of() : history.observed(key);
-        boolean countChanged = !previous.isEmpty() && !new HashSet<>(previous).equals(observed);
+        boolean countChanged = seenBefore && !new HashSet<>(previous).equals(observed);
         observed.addAll(previous);
         if (history != null) {
             history.record(key, observed);

@@ -75,6 +75,15 @@ class ContextGraphTest {
     }
 
     @Test
+    void formWithLandmarkRoleStillOwnsControls() {
+        HtmlSnapshot h = HtmlSnapshot.of("<form id=busca role=search><label for=q>Nome</label><input id=q><button>Pesquisar</button></form>");
+        PageAnalysis a = Engine.analyze(h);
+        assertEquals("busca", a.graph().family(h.idOf("#q")).form().idAttr());
+        assertEquals("busca", a.graph().family(h.idOf("button")).form().idAttr());
+        assertEquals(ElementKind.LANDMARK, a.semantics().get(h.idOf("#busca")).kind());
+    }
+
+    @Test
     void portalListboxIsLogicallyAssociated() { // T013
         HtmlSnapshot h = HtmlSnapshot.of("""
                 <form><div id="cb" role="combobox" tabindex="0" aria-controls="lista-estados" aria-expanded="true">Estado</div></form>

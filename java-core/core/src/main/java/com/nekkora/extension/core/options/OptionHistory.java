@@ -27,6 +27,11 @@ public final class OptionHistory {
         return Set.copyOf(observed.getOrDefault(key, Set.of()));
     }
 
+    /** O controle já foi observado (mesmo que com lista vazia)? */
+    public synchronized boolean seen(String key) {
+        return observed.containsKey(key);
+    }
+
     public synchronized void record(String key, Set<String> values) {
         observed.computeIfAbsent(key, k -> new LinkedHashSet<>()).addAll(values);
     }

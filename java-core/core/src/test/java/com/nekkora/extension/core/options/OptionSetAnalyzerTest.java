@@ -55,7 +55,7 @@ class OptionSetAnalyzerTest {
     @Test
     void portalCustomDropdown() { // T012 / T013
         HtmlSnapshot h = HtmlSnapshot.of("""
-                <div id=cb role=combobox tabindex=0 aria-controls=lista-estados>Estado</div>
+                <main><form><div class=field><div id=cb role=combobox tabindex=0 aria-controls=lista-estados>Estado</div></div></form></main>
                 <div id=portal><div id=lista-estados role=listbox><div role=option>São Paulo</div><div role=option>Rio de Janeiro</div></div></div>""");
         PageAnalysis a = Engine.analyze(h);
         OptionSet s = analyzer.analyze(h.idOf("#cb"), a.graph(), new OptionHistory());
@@ -65,6 +65,14 @@ class OptionSetAnalyzerTest {
         assertEquals("UNKNOWN", s.completeness(), "componente personalizado não comprova completude");
         // listbox controlado não gera conjunto duplicado
         assertEquals(1, analyzer.analyzeAll(a.graph(), new OptionHistory()).size());
+    }
+
+    @Test
+    void adjacentListIsNotPortal() {
+        HtmlSnapshot h = HtmlSnapshot.of("<section><div id=cb role=combobox tabindex=0 aria-controls=l>Estado</div>"
+                + "<div id=l role=listbox><div role=option>SP</div></div></section>");
+        OptionSet s = analyzeNow(h, "#cb", new OptionHistory());
+        assertFalse(s.listOutsideControlTree());
     }
 
     @Test
@@ -79,6 +87,7 @@ class OptionSetAnalyzerTest {
         h.dom().selectFirst("#l").removeAttr("aria-busy").html("<div role=option>Campinas</div><div role=option>Santos</div>");
         OptionSet second = analyzeNow(h, "#cb", history);
         assertEquals(2, second.materializedCount());
+        assertTrue(second.dynamicLoading(), "lista vazia observada antes e agora com opções: carregamento dinâmico");
         h.dom().selectFirst("#l").html("<div role=option>Sorocaba</div>");
         OptionSet third = analyzeNow(h, "#cb", history);
         assertEquals(1, third.materializedCount());
