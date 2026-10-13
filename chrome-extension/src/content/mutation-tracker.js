@@ -23,6 +23,7 @@
   const MAX_DELTA_NODES = 5000;
   const MAX_PENDING = 50000;
   const RECONCILE_MS = 1000;
+  const GEOMETRY_DEBOUNCE_MS = 300;
   const SUBTREE_ATTRS = new Set(['class', 'style', 'hidden', 'open', 'inert']);
   const SKIP = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'title', 'base']);
 
@@ -42,8 +43,11 @@
   let requestsSeen = 0;
   let pendingNavigation = null;
   let overflow = false;
-  const stats = { deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
-    shadowRootsDiscovered: 0, resyncs: 0, lastError: null, lastDeltaAt: 0 };
+  let geometryTimer = null;
+  let keepLast = false;         // instrumento de homologação (DEV): guarda o último delta enviado
+  let lastDelta = null;
+  const stats = { geometryRefreshes: 0, geometryChanged: 0, deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
+    shadowRootsDiscovered: 0, resyncs: 0, swept: 0, lastError: null, lastDeltaAt: 0 };
 
   function insideOverlay(node) {
     for (let n = node; n; n = n.parentNode || (n instanceof ShadowRoot ? n.host : null)) {
@@ -171,6 +175,36 @@
     }
   }
 
+  /** Marca elementos cuja geometria mudou (rolagem, redimensionamento, deslocamento de layout). */
+  function refreshGeometry() {
+    if (mode !== 'ACTIVE' && mode !== 'BUFFER') {
+      return 0;
+    }
+    const changed = NS.capture.geometryChanges(MAX_DELTA_NODES);
+    stats.geometryRefreshes++;
+    stats.geometryChanged += changed.length;
+    for (const el of changed) {
+      mark(el, false);
+    }
+    if (changed.length) {
+      if (!firstAt) {
+        firstAt = performance.now();
+      }
+      schedule();
+    }
+    return changed.length;
+  }
+
+  function onLayoutEvent() {
+    if (geometryTimer) {
+      clearTimeout(geometryTimer);
+    }
+    geometryTimer = setTimeout(() => {
+      geometryTimer = null;
+      refreshGeometry();
+    }, GEOMETRY_DEBOUNCE_MS);
+  }
+
   async function flush(force) {
     if (inFlight) {
       await inFlight; // um delta por vez: a sequência é estritamente crescente
@@ -247,11 +281,17 @@
       seq,
     };
     pendingNavigation = null;
+    if (keepLast) {
+      lastDelta = delta;
+    }
     inFlight = (async () => {
       try {
         const ack = await sink(delta);
         if (ack && ack.ok) {
           stats.deltasSent++;
+          if (stats.deltasSent % 50 === 0) {
+            stats.swept += NS.registry.sweep(); // ids de nós desconectados não se acumulam em sessões longas
+          }
           stats.lastDeltaAt = Date.now();
           return { sent: true, seq };
         }
@@ -284,6 +324,12 @@
       clearInterval(reconcileTimer);
       reconcileTimer = null;
     }
+    if (geometryTimer) {
+      clearTimeout(geometryTimer);
+      geometryTimer = null;
+    }
+    root.removeEventListener('scroll', onLayoutEvent, true);
+    root.removeEventListener('resize', onLayoutEvent);
   }
 
   NS.tracker = {
@@ -304,6 +350,8 @@
       requestsSeen = NS.capture.observedRequests().length;
       observeRoots();
       reconcileTimer = setInterval(reconcileScopes, RECONCILE_MS);
+      root.addEventListener('scroll', onLayoutEvent, { capture: true, passive: true });
+      root.addEventListener('resize', onLayoutEvent, { passive: true });
     },
     /** Base aceita pelo motor: o acumulado durante a captura vira o delta #1. */
     confirmBase(cfg) {
@@ -357,6 +405,9 @@
     },
     /** Barreira: envia o pendente e aguarda a confirmação. */
     async flushNow(options) {
+      if (options && options.geometry) {
+        refreshGeometry(); // barreira de exportação: geometria atual incluída no estado consolidado
+      }
       const r = await flush(!!(options && options.force));
       if (inFlight) {
         await inFlight;
@@ -370,6 +421,13 @@
     debugSkipSeq() {
       seq++;
       return seq;
+    },
+    debugKeepLast(on) {
+      keepLast = !!on;
+      lastDelta = on ? lastDelta : null;
+    },
+    debugLastDelta() {
+      return lastDelta;
     },
     stats() {
       return { ...stats, active: mode !== 'OFF', mode, sessionId: session ? session.sessionId : null, epoch: session ? session.epoch : null,

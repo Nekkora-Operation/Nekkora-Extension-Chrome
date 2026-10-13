@@ -29,6 +29,7 @@
   const openShadowRoots = new Set();   // shadow roots abertos já vistos (observáveis pelo tracker)
   const knownShadows = new Map();      // host -> ShadowRootInfo (lista atual enviada nos deltas)
   const knownFrames = new Map();       // iframe host -> FrameInfo (lista atual enviada nos deltas)
+  const geometry = new WeakMap();      // Element -> chave de geometria (rect + inViewport) do último envio
   let frameCounter = 0;
   let captureSeq = 0;
   /**
@@ -182,6 +183,7 @@
     const vw = win.innerWidth;
     const vh = win.innerHeight;
     const inViewport = rect.width > 0 && rect.height > 0 && rect.x < vw && rect.y < vh && rect.x + rect.width > 0 && rect.y + rect.height > 0;
+    geometry.set(el, rect.x + ',' + rect.y + ',' + rect.width + ',' + rect.height + ',' + inViewport);
     const isFormControl = FORM_CONTROLS.has(tag);
     const type = (el.getAttribute('type') || 'text').toLowerCase();
     const textEntry = tag === 'textarea' || (tag === 'input' && !TEXT_ENTRY_EXCLUDED.has(type));
@@ -688,6 +690,33 @@
         }
       }
       return roots;
+    },
+    /**
+     * Elementos cuja geometria (retângulo / dentro do viewport) mudou desde o último envio. Deslocamentos de layout
+     * (rolagem, redimensionamento, conteúdo inserido acima) não são mutações DOM e não chegam ao MutationObserver.
+     */
+    geometryChanges(limit) {
+      const out = [];
+      for (const el of NS.registry.connectedElements()) {
+        const last = geometry.get(el);
+        if (last === undefined || isOverlay(el)) {
+          continue;
+        }
+        const r = el.getBoundingClientRect();
+        const win = el.ownerDocument.defaultView;
+        const x = round(r.x);
+        const y = round(r.y);
+        const w = round(r.width);
+        const h = round(r.height);
+        const inViewport = w > 0 && h > 0 && x < win.innerWidth && y < win.innerHeight && x + w > 0 && y + h > 0;
+        if (last !== x + ',' + y + ',' + w + ',' + h + ',' + inViewport) {
+          out.push(el);
+          if (out.length >= limit) {
+            break;
+          }
+        }
+      }
+      return out;
     },
     frameOffset(el) {
       // Deslocamento acumulado de iframes até o documento principal (coordenadas do viewport principal).

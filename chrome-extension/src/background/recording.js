@@ -86,7 +86,7 @@ async function finish(id, r, reason) {
   } else {
     try {
       // Barreira: alterações pendentes (inclusive as feitas até este instante) entram antes da consolidação.
-      const sync = await capture.synchronize(r.tabId);
+      const sync = await capture.synchronize(r.tabId, { geometry: true });
       if (rec.status === 'ACTIVE') {
         rec.status = 'FINALIZING';
       }

@@ -163,6 +163,13 @@
       if (a.action === 'skipSeq') {
         return { seq: NS.tracker.debugSkipSeq() };
       }
+      if (a.action === 'keepLastDelta') {
+        NS.tracker.debugKeepLast(true);
+        return { ok: true };
+      }
+      if (a.action === 'lastDelta') {
+        return { delta: NS.tracker.debugLastDelta() };
+      }
       return { error: 'UNKNOWN_DEBUG_ACTION' };
     },
     'cs.session.status': () => ({ tracker: NS.tracker.stats(), inspectorMode: NS.inspector.mode(), url: location.href,

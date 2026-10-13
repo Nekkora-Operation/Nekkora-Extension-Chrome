@@ -27,6 +27,13 @@ window.nekkora = {
     const all = await chrome.tabs.query({});
     return all.length ? Math.max(...all.map((t) => t.id)) : null;
   },
+  /** Contextos abertos da extensão (ex.: SIDE_PANEL) — comprova o painel lateral NATIVO. */
+  async contexts(types) {
+    return chrome.runtime.getContexts({ contextTypes: types || ['SIDE_PANEL'] });
+  },
+  async panel(cmd, extra) {
+    return chrome.runtime.sendMessage({ target: 'panel', cmd, ...(extra || {}) });
+  },
   events(name) {
     return window.nekkoraEvents.filter((e) => !name || e.event === name);
   },

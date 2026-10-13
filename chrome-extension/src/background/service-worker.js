@@ -97,7 +97,7 @@ const commands = {
   // Sessão de captura (comandos internos; contrato para o futuro Studio)
   'session.status': async (a) => capture.status(a.tabId),
   'session.list': async () => capture.list(),
-  'session.synchronize': async (a) => capture.synchronize(a.tabId),
+  'session.synchronize': async (a) => capture.synchronize(a.tabId, { geometry: !!a.geometry }),
   'session.forceFull': async (a) => {
     const rec = capture.get(a.tabId);
     if (!rec) {
@@ -182,7 +182,7 @@ const commands = {
     const s = inspection.get(a.tabId);
     let sync = null;
     if (capture.isActive(a.tabId)) {
-      sync = await capture.synchronize(a.tabId);
+      sync = await capture.synchronize(a.tabId, { geometry: true });
     } else if (!s.captures.length || a.fresh) {
       await inspection.captureOnce(a.tabId);
     }

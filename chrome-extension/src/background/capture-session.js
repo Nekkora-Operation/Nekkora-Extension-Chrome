@@ -186,7 +186,7 @@ async function establish(rec, reason, options = {}) {
     rec.fullCaptures++;
     rec.lastCapture = {
       captureId: res.captureId, reason, nodes: res.nodes, interactive: res.interactive, text: res.text,
-      captureMs: snapshot.stats.durationMs, mode: snapshot.stats.mode, slices: snapshot.stats.slices, maxSliceMs: snapshot.stats.maxSliceMs,
+      captureMs: snapshot.stats.durationMs, mode: snapshot.stats.mode, slices: snapshot.stats.slices, maxSliceMs: snapshot.stats.maxSliceMs, consistency: snapshot.stats.consistency,
       browserMs: round(t1 - t0), hostMs: round(t2 - t1), totalMs: round(performance.now() - t0), buffered: confirm.buffered,
       navigation: res.navigation, coverage: res.coverage, timings: res.timings, at: new Date().toISOString(),
     };
@@ -393,7 +393,7 @@ export function rebase(tabId, reason, options = {}) {
  * Barreira de sincronização: envia as mutações pendentes de todos os frames e aguarda o motor aplicá-las.
  * @returns estado de sincronização (SYNCHRONIZED | DEGRADED | PENDING | NO_SESSION | ERROR)
  */
-export async function synchronize(tabId) {
+export async function synchronize(tabId, options = {}) {
   let rec = sessions.get(tabId);
   if (!rec) {
     return { syncState: 'NO_SESSION' };
@@ -410,7 +410,7 @@ export async function synchronize(tabId) {
     pending = 0;
     paused = false;
     const frames = [0, ...Object.values(rec.frames).map((x) => x.frameId)];
-    const results = await Promise.all(frames.map((f) => toContent(tabId, 'cs.session.flush', {}, f).catch((e) => ({ error: e.code }))));
+    const results = await Promise.all(frames.map((f) => toContent(tabId, 'cs.session.flush', { geometry: !!options.geometry }, f).catch((e) => ({ error: e.code }))));
     results.forEach((r, i) => {
       if (frames[i] !== 0 && r.error === 'CONTENT_UNAVAILABLE') {
         // Frame removido da página (o delta do pai já descartou os nós): deixa de ser sincronizado.

@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nekkora.dev/contracts/capture-session/0.1.0",
+  "title": "Nekkora — contratos de captura contínua, sessão, inspeção, finalização e exportação (CHROME-002)",
+  "description": "Contratos SEPARADOS por responsabilidade: SequencedDelta (rastreamento), CaptureSessionStatus (sessão de captura no navegador), HostSessionStatus (sessão no motor Java), InspectionState (inspeção visual), RecordingEvent (finalização vinda da plataforma) e ExportResult/RecordingExportResult (exportação). O PageMap exportado continua regido por page-map.schema.json 0.1.0.",
+  "oneOf": [
+    { "$ref": "#/$defs/SequencedDelta" },
+    { "$ref": "#/$defs/CaptureSessionStatus" },
+    { "$ref": "#/$defs/HostSessionStatus" },
+    { "$ref": "#/$defs/InspectionState" },
+    { "$ref": "#/$defs/RecordingEvent" },
+    { "$ref": "#/$defs/RecordingExportResult" },
+    { "$ref": "#/$defs/ExportResult" }
+  ],
+  "$defs": {
+    "str": { "type": ["string", "null"] },
+    "SequencedDelta": {
+      "description": "Delta incremental de UMA fonte (top ou x<frameId>). O motor aceita somente epoch = época corrente e seq = último aceito + 1 da fonte; caso contrário recusa (DELTA_STALE, DELTA_GAP, DOCUMENT_MISMATCH, FRAME_NOT_ATTACHED, SESSION_STOPPED).",
+      "type": "object",
+      "required": ["captureId", "capturedAt", "document", "upserts", "removed", "sessionId", "source", "epoch", "seq"],
+      "properties": {
+        "baseCaptureId": { "$ref": "#/$defs/str" },
+        "captureId": { "type": "string", "pattern": "^cap-" },
+        "capturedAt": { "type": "string" },
+        "document": { "type": "object", "required": ["url", "pageSessionId", "navigationKind"] },
+        "upserts": { "type": "array", "items": { "type": "object", "required": ["id", "tag"] } },
+        "removed": { "type": "array", "items": { "type": "string", "pattern": "^(x[0-9]+)?n[0-9]+$" } },
+        "frames": { "type": "array" },
+        "shadowRoots": { "type": "array" },
+        "requests": { "type": "array" },
+        "rawMutationCount": { "type": "integer", "minimum": 0 },
+        "batchCount": { "type": "integer", "minimum": 0 },
+        "stats": { "type": "object" },
+        "sessionId": { "type": "string", "pattern": "^cs-" },
+        "source": { "type": "string", "pattern": "^(top|x[0-9]+)$" },
+        "epoch": { "type": "integer", "minimum": 1 },
+        "seq": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "CaptureSessionStatus": {
+      "description": "Sessão de captura de uma aba no navegador (service worker). Estados: IDLE, STARTING, ACTIVE, PAUSED, RECOVERING, FINALIZING, COMPLETED, ERROR.",
+      "type": "object",
+      "required": ["sessionId", "tabId", "status", "consumers", "epoch", "nodes", "deltasApplied", "fullCaptures", "resyncs", "hostState", "frames"],
+      "properties": {
+        "sessionId": { "type": "string", "pattern": "^cs-" },
+        "tabId": { "type": "integer" },
+        "status": { "enum": ["IDLE", "STARTING", "ACTIVE", "PAUSED", "RECOVERING", "FINALIZING", "COMPLETED", "ERROR"] },
+        "consumers": { "type": "array", "items": { "type": "string", "pattern": "^(inspection|tracking|manual|perf|recording:.+)$" } },
+        "documentId": { "$ref": "#/$defs/str" },
+        "url": { "$ref": "#/$defs/str" },
+        "epoch": { "type": "integer", "minimum": 0 },
+        "baseCaptureId": { "$ref": "#/$defs/str" },
+        "latestCaptureId": { "$ref": "#/$defs/str" },
+        "nodes": { "type": "integer", "minimum": 0 },
+        "deltasApplied": { "type": "integer", "minimum": 0 },
+        "deltasRejected": { "type": "integer", "minimum": 0 },
+        "deltasStale": { "type": "integer", "minimum": 0 },
+        "lastDeltaAt": { "$ref": "#/$defs/str" },
+        "lastUpdateAt": { "$ref": "#/$defs/str" },
+        "startedAt": { "type": "string" },
+        "endedAt": { "$ref": "#/$defs/str" },
+        "fullCaptures": { "type": "integer", "minimum": 0 },
+        "resyncs": { "type": "integer", "minimum": 0 },
+        "hostState": { "enum": ["UNKNOWN", "OK", "DEGRADED"] },
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["frameId", "source", "status"],
+            "properties": {
+              "frameId": { "type": "integer" },
+              "source": { "type": "string", "pattern": "^x[0-9]+$" },
+              "status": { "enum": ["PENDING", "ATTACHED", "CAPTURED_BY_PARENT", "NOT_ATTACHED", "FAILED"] },
+              "hostNodeId": { "$ref": "#/$defs/str" },
+              "reason": { "$ref": "#/$defs/str" }
+            }
+          }
+        },
+        "initialCapture": { "type": ["object", "null"] },
+        "lastCapture": { "type": ["object", "null"] },
+        "lastExport": { "type": ["object", "null"] },
+        "reason": { "$ref": "#/$defs/str" },
+        "error": { "type": ["object", "null"] }
+      }
+    },
+    "HostSessionStatus": {
+      "description": "Sessão de captura no motor Java (capture.session.status/start/stop).",
+      "type": "object",
+      "required": ["sessionId", "tabKey", "status", "epoch", "lastSeq", "deltasApplied", "deltasRejected", "fullCaptures"],
+      "properties": {
+        "sessionId": { "type": "string" },
+        "tabKey": { "type": "string" },
+        "status": { "enum": ["ACTIVE", "FINALIZING", "STOPPED"] },
+        "pageSessionId": { "$ref": "#/$defs/str" },
+        "epoch": { "type": "integer", "minimum": 0 },
+        "baseCaptureId": { "$ref": "#/$defs/str" },
+        "latestCaptureId": { "$ref": "#/$defs/str" },
+        "lastSeq": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "deltasApplied": { "type": "integer" },
+        "deltasRejected": { "type": "integer" },
+        "lastRejection": { "$ref": "#/$defs/str" },
+        "fullCaptures": { "type": "integer" },
+        "frameAttachments": { "type": "integer" },
+        "startedAt": { "type": "string" },
+        "lastUpdateAt": { "type": "string" },
+        "exports": { "type": "integer" },
+        "endReason": { "$ref": "#/$defs/str" }
+      }
+    },
+    "InspectionState": {
+      "description": "Inspeção visual de uma aba (botão único). Uma falha nunca é representada como ativa.",
+      "type": "object",
+      "required": ["tabId", "state", "active"],
+      "properties": {
+        "tabId": { "type": "integer" },
+        "state": { "enum": ["INACTIVE", "ACTIVATING", "ACTIVE", "DEACTIVATING", "DEGRADED", "ERROR"] },
+        "active": { "type": "boolean" },
+        "error": { "type": ["object", "null"] },
+        "capture": { "type": ["object", "null"] }
+      },
+      "allOf": [
+        { "if": { "properties": { "state": { "enum": ["INACTIVE", "ACTIVATING", "ERROR"] } } }, "then": { "properties": { "active": { "const": false } } } }
+      ]
+    },
+    "RecordingEvent": {
+      "description": "Evento de ciclo de vida da gravação emitido pela plataforma (simulado pelo harness nesta missão).",
+      "type": "object",
+      "required": ["type", "sessionId", "tabId"],
+      "properties": {
+        "type": { "enum": ["recording.session.started", "recording.session.finished", "recording.session.cancelled"] },
+        "sessionId": { "type": "string", "minLength": 1 },
+        "tabId": { "type": "integer" },
+        "reason": { "enum": ["USER_FINISHED", "USER_CANCELLED", "PLATFORM", "TIMEOUT"] }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "recording.session.finished" } } }, "then": { "required": ["reason"] } }
+      ]
+    },
+    "RecordingExportResult": {
+      "description": "Resultado de recording.session.finished. Idempotente por gravação: repetições devolvem o mesmo resultado com duplicate=true. Somente o sucesso é memorizado.",
+      "type": "object",
+      "required": ["recordingId", "sessionId", "tabId", "status", "schemaVersion", "captureId", "elementCount", "path", "complete", "syncState", "errors", "sha256", "duplicate"],
+      "properties": {
+        "recordingId": { "type": ["string", "null"] },
+        "sessionId": { "$ref": "#/$defs/str" },
+        "tabId": { "type": ["integer", "null"] },
+        "status": { "enum": ["EXPORTED", "FAILED"] },
+        "schemaVersion": { "type": ["string", "null"], "enum": ["0.1.0", null] },
+        "captureId": { "$ref": "#/$defs/str" },
+        "elementCount": { "type": "integer", "minimum": 0 },
+        "path": { "$ref": "#/$defs/str" },
+        "complete": { "type": "boolean" },
+        "coverage": { "type": ["array", "null"] },
+        "syncState": { "enum": ["SYNCHRONIZED", "PENDING", "DEGRADED", "NO_SESSION", "ERROR", "UNKNOWN"] },
+        "validation": { "type": ["object", "null"] },
+        "errors": { "type": "array", "items": { "type": "object", "required": ["code", "message"] } },
+        "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer" },
+        "exportMs": { "type": "number" },
+        "duplicate": { "type": "boolean" },
+        "finishedAt": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "EXPORTED" } } }, "then": { "properties": { "path": { "type": "string" }, "sha256": { "type": "string" }, "errors": { "maxItems": 0 } } } },
+        { "if": { "properties": { "status": { "const": "FAILED" } } }, "then": { "properties": { "path": { "type": "null" }, "errors": { "minItems": 1 } } } }
+      ]
+    },
+    "ExportResult": {
+      "description": "Resultado do comando export.session do motor Java (escrita temporária + movimento atômico + SHA-256 + validação do schema).",
+      "type": "object",
+      "required": ["sessionId", "operationId", "status", "schemaVersion", "elementCount", "path", "bytes", "sha256", "complete", "syncState", "validation", "duplicate"],
+      "properties": {
+        "sessionId": { "type": "string" },
+        "operationId": { "type": "string" },
+        "status": { "enum": ["EXPORTED", "FAILED"] },
+        "reason": { "$ref": "#/$defs/str" },
+        "schemaVersion": { "type": ["string", "null"] },
+        "captureId": { "$ref": "#/$defs/str" },
+        "elementCount": { "type": "integer" },
+        "path": { "$ref": "#/$defs/str" },
+        "bytes": { "type": "integer" },
+        "sha256": { "type": ["string", "null"] },
+        "complete": { "type": "boolean" },
+        "syncState": { "type": "string" },
+        "coverageLimitations": { "type": ["array", "null"] },
+        "validation": { "type": ["object", "null"] },
+        "duplicate": { "type": "boolean" },
+        "error": { "type": ["object", "null"] },
+        "exportMs": { "type": "number" },
+        "exportedAt": { "$ref": "#/$defs/str" }
+      }
+    }
+  }
+}

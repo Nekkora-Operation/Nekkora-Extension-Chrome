@@ -8,7 +8,7 @@
  * consumidor (uma gravação em andamento mantém a captura). A seleção reutiliza o snapshot mantido pelos
  * deltas, após a barreira de sincronização — sem captura completa por clique.
  */
-import { host, toContent, tabKey, broadcast, withLock, assertAllowed, frameOfNode, errorInfo, HostError } from './runtime.js';
+import { client, host, toContent, tabKey, broadcast, withLock, assertAllowed, frameOfNode, errorInfo, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
 
 const KEY = 'nk.insp.';
@@ -132,7 +132,8 @@ export async function captureOnce(tabId, options = {}) {
   const t0 = performance.now();
   const snapshot = await toContent(tabId, 'cs.capture', { maxNodes: options.maxNodes, navigationKind: options.navigationKind });
   const t1 = performance.now();
-  const res = await host('snapshot.submit', { tabKey: tabKey(tabId), snapshot, compareWithPrevious: !!options.compareWithPrevious });
+  const reply = await client.request('snapshot.submit', { tabKey: tabKey(tabId), snapshot, compareWithPrevious: !!options.compareWithPrevious });
+  const res = reply.payload;
   const t2 = performance.now();
   s.captures.push(res.captureId);
   if (s.captures.length > 20) {
@@ -143,6 +144,7 @@ export async function captureOnce(tabId, options = {}) {
     roundTripMs: Math.round((t1 - t0) * 100) / 100,
     hostRoundTripMs: Math.round((t2 - t1) * 100) / 100,
     snapshotBytes: JSON.stringify(snapshot).length,
+    chunked: reply.chunked,
   };
   broadcast('captured', { tabId, captureId: res.captureId, nodes: res.nodes, browser: res.browser, automatic: false });
   return res;
@@ -242,7 +244,9 @@ capture.on('onAutoResolution', async (rec, list) => {
   const s = stateOf(rec.tabId);
   for (const r of list) {
     if (s.selected && r.targetId === s.selected.targetId) {
-      if (r.status === 'RESOLVED') {
+      if (r.status === 'RESOLVED' && r.resolvedNodeId === s.selected.nodeId) {
+        // Mesmo nó (ex.: somente a geometria mudou): o destaque atual continua correto.
+      } else if (r.status === 'RESOLVED') {
         await highlightOnly(rec.tabId, r.resolvedNodeId, 'RESOLVED · re-render', r.targetId).catch(() => {});
         s.selected = { nodeId: r.resolvedNodeId, targetId: r.targetId, frameId: frameOfNode(r.resolvedNodeId) };
       } else {

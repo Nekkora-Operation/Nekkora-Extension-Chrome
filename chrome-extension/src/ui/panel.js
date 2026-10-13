@@ -215,6 +215,29 @@ async function refreshState() {
   }
 }
 
+/**
+ * Homologação do painel NATIVO (side panel não é uma janela controlável pelo WebDriver): páginas internas da
+ * extensão podem pedir o estado visível do painel e acionar um botão dele. Mensagens de páginas web não chegam aqui.
+ */
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.target !== 'panel' || sender.id !== chrome.runtime.id) {
+    return false;
+  }
+  if (msg.cmd === 'panel.snapshot') {
+    const b = $('btn-inspect');
+    sendResponse({ url: location.href, tabId, mode, button: b.textContent, pressed: b.getAttribute('aria-pressed'),
+      capture: $('st-capture').textContent, nodes: $('st-nodes').textContent, deltas: $('st-deltas').textContent,
+      updated: $('st-updated').textContent, host: $('host-status').textContent, devTools: !!$('dev-tools'),
+      element: $('element-info').textContent, width: innerWidth, height: innerHeight });
+  } else if (msg.cmd === 'panel.click' && $(msg.id)) {
+    $(msg.id).click();
+    sendResponse({ clicked: msg.id });
+  } else {
+    sendResponse({ error: 'UNKNOWN_PANEL_COMMAND' });
+  }
+  return false;
+});
+
 chrome.runtime.onMessage.addListener((msg) => {
   if (!msg || msg.source !== 'background') {
     return;

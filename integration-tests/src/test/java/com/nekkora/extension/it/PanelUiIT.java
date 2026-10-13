@@ -26,18 +26,20 @@ class PanelUiIT extends LabIT {
     @Test
     @DisplayName("C-9 — Painel: inspecionar, família, localizadores, reencontro, comparação, exportação e desativação")
     void panelActions() throws Exception {
+        // CHROME-002: "Ativar/Desativar inspeção" é um botão único; "Capturar página" virou "Forçar captura
+        // completa" (área DEV) e "Acompanhar mutações" deixou de existir (captura contínua automática).
         Page p = open("/lab/simple/form-basics.html");
         String panel = lab.openExtensionPage("src/ui/panel.html?tabId=" + p.tabId());
         WebDriver d = lab.driver();
         try {
-            waitText(d, "host-status", "host Java 21");
+            waitText(d, "host-status", "Java 21");
 
             d.findElement(By.id("btn-capture")).click();
-            waitText(d, "page-info", "cap-");
-            assertTrue(text(d, "page-info").contains("form-basics"));
+            waitText(d, "message", "Captura completa");
 
             d.findElement(By.id("btn-inspect")).click();
-            waitText(d, "message", "Inspeção ativa");
+            waitText(d, "btn-inspect", "Desativar inspeção");
+            waitText(d, "st-capture", "Automática ativa");
 
             // Seleção por clique real na página (o painel é atualizado pelo service worker).
             lab.click(p, By.id("customer-name"));
@@ -60,9 +62,10 @@ class PanelUiIT extends LabIT {
             d.findElement(By.id("btn-export")).click();
             waitText(d, "message", "PageMap exportado");
 
-            d.findElement(By.id("btn-disable")).click();
-            waitText(d, "message", "Inspeção desativada");
+            d.findElement(By.id("btn-inspect")).click();
+            waitText(d, "btn-inspect", "Ativar inspeção");
             assertTrue(lab.call("page.diagnostics", p).at("/listeners").asInt() == 0);
+            assertTrue(lab.call("page.diagnostics", p).at("/observers").asInt() == 0);
         } finally {
             lab.closeWindow(panel);
         }
