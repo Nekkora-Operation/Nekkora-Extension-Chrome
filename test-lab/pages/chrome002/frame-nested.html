@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Frame intermediário</title>
+  <style>body{font:14px system-ui;margin:8px} iframe{width:95%;height:200px;border:1px solid #999}</style>
+</head>
+<body>
+  <h3>Frame intermediário (<span id="origem"></span>)</h3>
+  <button type="button" id="botao-intermediario">Botão intermediário</button>
+  <iframe id="frame-neto" title="Frame neto"></iframe>
+  <script>
+    document.getElementById('origem').textContent = location.host;
+    // Neto em OUTRA origem permitida (troca de host mantendo a porta do frame intermediário).
+    const other = location.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+    document.getElementById('frame-neto').src = location.protocol + '//' + other + ':' + location.port + '/lab/chrome002/frame-child.html?neto=1';
+  </script>
+</body>
+</html>

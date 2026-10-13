@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Shadow DOM dinâmico</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Shadow DOM dinâmico</h1>
+  <p class="muted">Componentes criados após a captura inicial, shadow roots aninhados, conteúdo alterado dentro do shadow root,
+    remoção do host, slots e <code>attachShadow()</code> chamado em host JÁ conectado.</p>
+
+  <button type="button" id="criar">Criar componente</button>
+  <button type="button" id="aninhado">Criar componente aninhado</button>
+  <button type="button" id="alterar">Alterar conteúdo interno</button>
+  <button type="button" id="remover">Remover componente</button>
+  <button type="button" id="tardio">attachShadow em host existente</button>
+  <button type="button" id="fechado">Criar componente fechado</button>
+
+  <div id="zona"></div>
+  <div id="host-tardio" class="card">Host existente (sem shadow root até o clique)</div>
+  <nk-slotted id="com-slot"><span slot="titulo">Título projetado</span><button type="button" slot="acao">Ação projetada</button></nk-slotted>
+
+  <script src="/lab/lab.js"></script>
+  <script>
+    class NkPanel extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        const r = this.attachShadow({ mode: 'open' });
+        r.innerHTML = '<div class="p"><h3>Painel dinâmico</h3><label for="campo">Campo interno</label><input id="campo"><button type="button" id="confirmar">Confirmar painel</button></div>';
+      }
+    }
+    class NkOuter extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        const r = this.attachShadow({ mode: 'open' });
+        r.innerHTML = '<section><h3>Externo</h3><nk-panel id="interno"></nk-panel></section>';
+      }
+    }
+    class NkSlotted extends HTMLElement {
+      constructor() {
+        super();
+        const r = this.attachShadow({ mode: 'open' });
+        r.innerHTML = '<div class="card"><strong><slot name="titulo"></slot></strong> <slot name="acao"></slot></div>';
+      }
+    }
+    class NkClosed extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'closed' }).innerHTML = '<button type="button">Botão fechado dinâmico</button>';
+      }
+    }
+    customElements.define('nk-panel', NkPanel);
+    customElements.define('nk-outer', NkOuter);
+    customElements.define('nk-slotted', NkSlotted);
+    customElements.define('nk-closed-dyn', NkClosed);
+    const zona = document.getElementById('zona');
+    document.getElementById('criar').onclick = () => { const p = document.createElement('nk-panel'); p.id = 'painel'; zona.appendChild(p); };
+    document.getElementById('aninhado').onclick = () => { const o = document.createElement('nk-outer'); o.id = 'externo'; zona.appendChild(o); };
+    document.getElementById('alterar').onclick = () => {
+      const p = document.getElementById('painel');
+      p.shadowRoot.querySelector('h3').textContent = 'Painel alterado';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.id = 'extra';
+      b.textContent = 'Botão interno novo';
+      p.shadowRoot.querySelector('.p').appendChild(b);
+    };
+    document.getElementById('remover').onclick = () => { const p = document.getElementById('painel'); if (p) p.remove(); };
+    document.getElementById('tardio').onclick = () => {
+      const h = document.getElementById('host-tardio');
+      const r = h.attachShadow({ mode: 'open' });
+      r.innerHTML = '<p>Conteúdo do shadow root tardio</p><button type="button" id="tardio-btn">Botão do shadow tardio</button>';
+      window.__attachedAt = performance.now();
+    };
+    document.getElementById('fechado').onclick = () => zona.appendChild(document.createElement('nk-closed-dyn'));
+  </script>
+</body>
+</html>

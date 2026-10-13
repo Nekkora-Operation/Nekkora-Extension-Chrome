@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Nomes acessíveis</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Nomes acessíveis (AccName 1.2 / HTML-AAM)</h1>
+
+  <section>
+    <h2>aria-labelledby</h2>
+    <span id="lb-a">Remessa</span> <span id="lb-b">internacional</span>
+    <button type="button" id="b-multiplo" aria-labelledby="lb-a lb-b">x</button>
+    <div id="lb-rec" aria-labelledby="lb-rec-2">ignorado</div><span id="lb-rec-2">Dados <span aria-labelledby="lb-a">interno</span></span>
+    <button type="button" id="b-recursivo" aria-labelledby="lb-rec">x</button>
+    <span id="circ-1" aria-labelledby="circ-2">Ciclo um</span><span id="circ-2" aria-labelledby="circ-1">Ciclo dois</span>
+    <button type="button" id="b-circular" aria-labelledby="circ-1 circ-2">x</button>
+    <span id="lb-oculto" hidden>Rótulo oculto referenciado</span>
+    <button type="button" id="b-oculto" aria-labelledby="lb-oculto">x</button>
+    <button type="button" id="b-self" aria-labelledby="b-self lb-b" aria-label="Enviar">x</button>
+  </section>
+
+  <section>
+    <h2>Botões com ícone</h2>
+    <button type="button" id="b-svg"><svg width="16" height="16" role="img"><title>Excluir registro</title><rect width="16" height="16"/></svg></button>
+    <button type="button" id="b-img"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Imprimir"></button>
+    <button type="button" id="b-icone-oculto"><span aria-hidden="true">★</span> Favoritar</button>
+    <button type="button" id="b-title" title="Configurações"><span aria-hidden="true">⚙</span></button>
+    <button type="button" id="b-aria-label" aria-label="Fechar diálogo">×</button>
+  </section>
+
+  <section>
+    <h2>Controles embutidos e descrição</h2>
+    <label id="l-embutido">Repetir a cada <input id="c-dias" type="number" value="3" aria-label="dias"> dias</label>
+    <label>Prioridade <select id="c-prioridade"><option>Alta</option><option selected>Média</option></select></label>
+    <input id="c-placeholder" placeholder="Pesquisar clientes">
+    <input id="c-title" title="Código do cliente">
+    <input id="c-descrito" aria-label="E-mail" aria-describedby="desc-email">
+    <span id="desc-email">Usaremos para notificações</span>
+    <fieldset id="fs-endereco"><legend>Endereço de entrega</legend><label for="c-rua">Rua</label><input id="c-rua"></fieldset>
+    <figure id="fig"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""><figcaption>Gráfico de vendas</figcaption></figure>
+    <table id="t-caption"><caption>Pedidos recentes</caption><tr><th>Nº</th></tr><tr><td>1</td></tr></table>
+    <a id="a-texto" href="#ancora">Ver <strong>detalhes</strong> do pedido</a>
+    <div role="button" id="r-botao" tabindex="0">Atualizar lista</div>
+  </section>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>

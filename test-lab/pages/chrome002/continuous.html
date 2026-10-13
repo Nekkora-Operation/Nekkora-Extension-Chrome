@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Captura contínua</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Captura contínua (CHROME-002)</h1>
+  <p class="muted">Mutações controladas pela página (sem recaptura completa): adicionar, alterar, remover, re-renderizar e conteúdo sensível.</p>
+
+  <section>
+    <h2>Lista de tarefas</h2>
+    <button type="button" id="adicionar">Adicionar tarefa</button>
+    <button type="button" id="adicionar-10">Adicionar 10 tarefas</button>
+    <button type="button" id="renomear">Renomear primeira</button>
+    <button type="button" id="remover">Remover última</button>
+    <ul id="tarefas">
+      <li data-k="1"><span class="titulo">Revisar contrato</span> <button type="button" class="concluir">Concluir</button></li>
+      <li data-k="2"><span class="titulo">Enviar proposta</span> <button type="button" class="concluir">Concluir</button></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Componente re-renderizado</h2>
+    <button type="button" id="rerender">Re-renderizar cartão</button>
+    <div id="slot-cartao"><div class="card" id="cartao"><h3>Pedido 4411</h3><button type="button" id="aprovar">Aprovar pedido</button></div></div>
+  </section>
+
+  <section>
+    <h2>Ambiguidade após mutação</h2>
+    <button type="button" id="duplicar">Duplicar botão Exportar</button>
+    <button type="button" id="rerender-duplicado">Re-renderizar com dois botões idênticos</button>
+    <div id="exportacoes"><button type="button" class="exportar">Exportar</button></div>
+  </section>
+
+  <section>
+    <h2>Conteúdo sensível alterado dinamicamente</h2>
+    <form id="form-acesso" onsubmit="event.preventDefault()">
+      <label for="usuario">Usuário</label><input id="usuario" name="usuario">
+      <label for="senha">Senha</label><input id="senha" name="senha" type="password">
+      <label for="token-api">Token</label><input id="token-api" name="token" autocomplete="one-time-code">
+    </form>
+    <button type="button" id="preencher-sensivel">Preencher dados sensíveis</button>
+  </section>
+
+  <pre id="action-log"></pre>
+  <script src="/lab/lab.js"></script>
+  <script>
+    let k = 3;
+    const ul = document.getElementById('tarefas');
+    function addTask(text) {
+      const li = document.createElement('li');
+      li.dataset.k = String(k++);
+      li.innerHTML = '<span class="titulo"></span> <button type="button" class="concluir">Concluir</button>';
+      li.querySelector('.titulo').textContent = text;
+      ul.appendChild(li);
+    }
+    document.getElementById('adicionar').onclick = () => addTask('Tarefa ' + k);
+    document.getElementById('adicionar-10').onclick = () => { for (let i = 0; i < 10; i++) addTask('Tarefa ' + k); };
+    document.getElementById('renomear').onclick = () => {
+      ul.querySelector('li .titulo').textContent = 'Revisar contrato (v2)';
+      ul.querySelector('li .concluir').textContent = 'Concluir revisão';
+    };
+    document.getElementById('remover').onclick = () => { if (ul.lastElementChild) ul.lastElementChild.remove(); };
+    document.getElementById('rerender').onclick = () => {
+      document.getElementById('slot-cartao').innerHTML = '<div class="card" id="cartao"><h3>Pedido 4411</h3><button type="button" id="aprovar">Aprovar pedido</button></div>';
+    };
+    document.getElementById('duplicar').onclick = () => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'exportar';
+      b.textContent = 'Exportar';
+      document.getElementById('exportacoes').appendChild(b);
+    };
+    document.getElementById('rerender-duplicado').onclick = () => {
+      document.getElementById('exportacoes').innerHTML = '<button type="button" class="exportar">Exportar</button><button type="button" class="exportar">Exportar</button>';
+    };
+    // Valores fictícios (marcadores verificados pelos testes: nunca podem aparecer no PageMap/deltas).
+    document.getElementById('preencher-sensivel').onclick = () => {
+      document.getElementById('senha').value = 'SENHA-FICTICIA-0042';
+      document.getElementById('senha').setAttribute('value', 'SENHA-FICTICIA-0042');
+      document.getElementById('token-api').setAttribute('value', 'TOKEN-FICTICIO-9911');
+      document.getElementById('usuario').setAttribute('value', 'USUARIO-FICTICIO');
+    };
+  </script>
+</body>
+</html>

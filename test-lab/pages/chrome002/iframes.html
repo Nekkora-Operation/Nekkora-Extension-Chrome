@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Iframes dinâmicos</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe{width:46%;height:230px;border:1px solid #999;margin:4px}</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Iframes de origens locais</h1>
+  <p class="muted">Mesma origem, outra origem local permitida (porta +1), aninhado, com Shadow DOM, ids duplicados,
+    origem sem permissão (127.0.0.2), sandbox e frames inseridos, removidos e substituídos dinamicamente.</p>
+  <button type="button" id="pagar">Pagar (página principal)</button>
+  <button type="button" id="inserir">Inserir iframe</button>
+  <button type="button" id="remover">Remover iframe dinâmico</button>
+  <button type="button" id="substituir">Substituir documento do iframe</button>
+  <div id="frames">
+    <iframe id="f-mesma" title="Mesma origem" src="/lab/chrome002/frame-child.html?mesma=1"></iframe>
+    <iframe id="f-outra" title="Outra origem local"></iframe>
+    <iframe id="f-aninhado" title="Aninhado"></iframe>
+    <iframe id="f-sem-permissao" title="Sem permissão"></iframe>
+    <iframe id="f-sandbox" title="Sandbox" sandbox="allow-scripts"></iframe>
+  </div>
+  <div id="dinamicos"></div>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const port = Number(location.port);
+    const other = (location.hostname === '127.0.0.1' ? 'localhost' : '127.0.0.1');
+    const otherOrigin = location.protocol + '//' + other + ':' + (port + 1);
+    window.labOrigins = { otherOrigin, noPermission: 'http://127.0.0.2:' + port };
+    document.getElementById('f-outra').src = otherOrigin + '/lab/chrome002/frame-child.html?outra=1';
+    document.getElementById('f-aninhado').src = otherOrigin + '/lab/chrome002/frame-nested.html';
+    document.getElementById('f-sem-permissao').src = 'http://127.0.0.2:' + port + '/lab/chrome002/frame-child.html?sem=1';
+    document.getElementById('f-sandbox').src = otherOrigin + '/lab/chrome002/frame-child.html?sandbox=1';
+    document.getElementById('inserir').onclick = () => {
+      const f = document.createElement('iframe');
+      f.id = 'f-dinamico';
+      f.title = 'Dinâmico';
+      f.src = otherOrigin + '/lab/chrome002/frame-child.html?dinamico=1';
+      document.getElementById('dinamicos').appendChild(f);
+    };
+    document.getElementById('remover').onclick = () => { const f = document.getElementById('f-dinamico'); if (f) f.remove(); };
+    document.getElementById('substituir').onclick = () => {
+      document.getElementById('f-outra').src = otherOrigin + '/lab/chrome002/frame-child.html?outra=2';
+    };
+  </script>
+</body>
+</html>
