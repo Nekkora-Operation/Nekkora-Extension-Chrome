@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nekkora.dev/contracts/page-map/0.1.0",
+  "title": "Nekkora PageMap",
+  "description": "Representação estruturada de uma página observada pela Nekkora Extension Chrome. Versão 0.1.0. Identificadores de nó (nodeId) são TEMPORÁRIOS e valem apenas na sessão de página (pageSessionId); identidades lógicas estão em targets[].targetId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "generatedAt", "generator", "snapshot", "document", "coverage", "elements", "relations", "optionSets", "targets", "resolutions", "mutations", "evidence", "metrics"],
+  "properties": {
+    "schema": { "const": "nekkora.pagemap" },
+    "version": { "const": "0.1.0" },
+    "generatedAt": { "type": "string" },
+    "generator": { "type": "object", "additionalProperties": { "type": "string" } },
+    "snapshot": { "$ref": "#/$defs/PageSnapshot" },
+    "document": { "$ref": "#/$defs/DocumentContext" },
+    "coverage": { "$ref": "#/$defs/CoverageReport" },
+    "elements": { "type": "array", "items": { "$ref": "#/$defs/ElementDescriptor" } },
+    "relations": { "type": "array", "items": { "$ref": "#/$defs/ContextRelation" } },
+    "optionSets": { "type": "array", "items": { "$ref": "#/$defs/OptionSet" } },
+    "targets": { "type": "array", "items": { "$ref": "#/$defs/TargetIdentity" } },
+    "resolutions": { "type": "array", "items": { "$ref": "#/$defs/ResolutionResult" } },
+    "mutations": { "type": "array", "items": { "$ref": "#/$defs/MutationRecord" } },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/InspectionEvidence" } },
+    "metrics": { "type": "object", "additionalProperties": { "type": "number" } }
+  },
+  "$defs": {
+    "str": { "type": ["string", "null"] },
+    "strings": { "type": "array", "items": { "type": "string" } },
+    "stringMap": { "type": "object", "additionalProperties": { "type": ["string", "null"] } },
+    "nullableStringPairs": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": ["string", "null"] } } },
+    "elementKind": {
+      "enum": ["TEXT_INPUT", "EMAIL_INPUT", "PASSWORD_INPUT", "NUMBER_INPUT", "DATE_INPUT", "SEARCH_INPUT", "TEL_INPUT", "URL_INPUT", "OTHER_INPUT",
+        "TEXTAREA", "CONTENTEDITABLE", "FILE_INPUT", "BUTTON", "LINK", "CHECKBOX", "RADIO", "SWITCH", "SLIDER", "SELECT", "OPTION", "OPTGROUP",
+        "COMBOBOX", "LISTBOX", "CUSTOM_DROPDOWN", "MENU", "MENUITEM", "TAB", "TABLIST", "TABPANEL", "FORM", "FIELDSET", "GROUP", "LEGEND", "LABEL",
+        "TABLE", "TABLE_HEAD", "TABLE_BODY", "TABLE_FOOT", "TABLE_ROW", "TABLE_HEADER_CELL", "TABLE_CELL", "CAPTION", "LIST", "LIST_ITEM", "DIALOG",
+        "MODAL", "LANDMARK", "HEADING", "PARAGRAPH", "TEXT", "ALERT", "STATUS", "VALIDATION_MESSAGE", "DESCRIPTION", "INSTRUCTION", "IMAGE", "IFRAME",
+        "HIDDEN_INPUT", "GENERIC_CONTAINER", "UNKNOWN"]
+    },
+    "condition": { "enum": ["PRESENT", "VISIBLE", "HIDDEN", "OUT_OF_VIEWPORT", "ENABLED", "DISABLED", "READ_ONLY", "REQUIRED", "INTERACTIVE", "NON_INTERACTIVE", "NOT_MATERIALIZED", "INACCESSIBLE", "UNKNOWN_STATE"] },
+    "stability": { "enum": ["OBSERVED_STABLE", "HEURISTIC_STABLE", "UNKNOWN", "HEURISTIC_UNSTABLE", "OBSERVED_UNSTABLE"] },
+    "strategy": { "enum": ["TEST_ATTRIBUTE", "ID", "NAME", "LABEL", "ROLE_NAME", "CONTEXTUAL", "ROW_CONTEXT", "ATTRIBUTE", "TEXT", "XPATH_RELATIVE", "POSITIONAL"] },
+    "identityFeature": { "enum": ["TEST_ATTRIBUTE", "ROW_KEY", "TABLE", "DIALOG", "FORM", "FIELD_GROUP", "LABEL", "CONTAINER_HEADING", "ROW_TEXTS", "COLUMN", "REGION", "CONTEXT_TEXTS", "NAME", "TEXT", "NAME_ATTRIBUTE", "ID_ATTRIBUTE", "TYPE_ATTRIBUTE", "SCOPE"] },
+    "resolutionStatus": { "enum": ["RESOLVED", "NOT_FOUND", "AMBIGUOUS", "IDENTITY_MISMATCH", "STALE_TARGET", "SCOPE_UNAVAILABLE", "INSUFFICIENT_EVIDENCE"] },
+
+    "Rect": {
+      "type": ["object", "null"], "additionalProperties": false, "required": ["x", "y", "width", "height"],
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "width": { "type": "number" }, "height": { "type": "number" } }
+    },
+    "CaptureStats": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["elementsVisited", "nodesEmitted", "durationMs", "truncated", "maxNodes"],
+      "properties": {
+        "elementsVisited": { "type": "integer" }, "nodesEmitted": { "type": "integer" }, "durationMs": { "type": "number" },
+        "truncated": { "type": "boolean" }, "maxNodes": { "type": "integer" }
+      }
+    },
+    "FrameInfo": {
+      "type": "object", "additionalProperties": false, "required": ["frameId", "accessible"],
+      "properties": {
+        "frameId": { "type": "string" }, "parentFrameId": { "$ref": "#/$defs/str" }, "hostNodeId": { "$ref": "#/$defs/str" },
+        "url": { "$ref": "#/$defs/str" }, "accessible": { "type": "boolean" }, "reason": { "$ref": "#/$defs/str" }
+      }
+    },
+    "ShadowRootInfo": {
+      "type": "object", "additionalProperties": false, "required": ["hostNodeId", "mode", "inspected"],
+      "properties": {
+        "hostNodeId": { "type": "string" }, "mode": { "enum": ["open", "closed"] }, "inspected": { "type": "boolean" },
+        "detection": { "enum": ["ELEMENT_SHADOW_ROOT", "EXTENSION_API", "HEURISTIC", null] }, "reason": { "$ref": "#/$defs/str" }
+      }
+    },
+    "ObservedRequest": {
+      "type": "object", "additionalProperties": false, "required": ["url", "initiatorType"],
+      "properties": { "url": { "type": "string" }, "initiatorType": { "type": "string" }, "startTime": { "type": "number" }, "duration": { "type": "number" } }
+    },
+    "PageSnapshot": {
+      "description": "Estado da página no momento da observação.",
+      "type": "object", "additionalProperties": false, "required": ["captureId", "capturedAt", "pageSessionId", "mode", "stats"],
+      "properties": {
+        "captureId": { "type": "string" }, "capturedAt": { "$ref": "#/$defs/str" }, "pageSessionId": { "$ref": "#/$defs/str" },
+        "mode": { "enum": ["FULL", "INCREMENTAL"] }, "stats": { "$ref": "#/$defs/CaptureStats" }
+      }
+    },
+    "NavigationContext": {
+      "description": "observed = fatos lidos da URL; inferred = interpretações (tela, filtros) rotuladas como inferência.",
+      "type": ["object", "null"], "additionalProperties": false, "required": ["observed", "inferred"],
+      "properties": {
+        "observed": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "href": { "$ref": "#/$defs/str" }, "origin": { "$ref": "#/$defs/str" }, "protocol": { "$ref": "#/$defs/str" }, "host": { "$ref": "#/$defs/str" },
+            "hostname": { "$ref": "#/$defs/str" }, "port": { "$ref": "#/$defs/str" }, "pathname": { "$ref": "#/$defs/str" }, "search": { "$ref": "#/$defs/str" },
+            "query": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+            "fragment": { "$ref": "#/$defs/str" }, "title": { "$ref": "#/$defs/str" }
+          }
+        },
+        "inferred": {
+          "type": "object", "additionalProperties": false, "required": ["caveat"],
+          "properties": {
+            "screen": { "$ref": "#/$defs/str" }, "filters": { "$ref": "#/$defs/stringMap" }, "pagination": { "$ref": "#/$defs/stringMap" },
+            "sort": { "$ref": "#/$defs/stringMap" }, "basis": { "$ref": "#/$defs/strings" }, "caveat": { "type": "string" }
+          }
+        }
+      }
+    },
+    "DocumentContext": {
+      "description": "Identificação do documento, URL e navegação.",
+      "type": "object", "additionalProperties": false, "required": ["url", "navigation", "frames", "shadowRoots", "observedRequests"],
+      "properties": {
+        "url": { "$ref": "#/$defs/str" }, "title": { "$ref": "#/$defs/str" }, "readyState": { "$ref": "#/$defs/str" },
+        "navigation": { "$ref": "#/$defs/NavigationContext" },
+        "frames": { "type": "array", "items": { "$ref": "#/$defs/FrameInfo" } },
+        "shadowRoots": { "type": "array", "items": { "$ref": "#/$defs/ShadowRootInfo" } },
+        "observedRequests": { "type": "array", "items": { "$ref": "#/$defs/ObservedRequest" } }
+      }
+    },
+    "ScopeCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["id", "kind", "inspected", "elements"],
+      "properties": {
+        "id": { "type": "string" }, "hostNodeId": { "$ref": "#/$defs/str" }, "kind": { "enum": ["FRAME", "SHADOW_ROOT_OPEN", "SHADOW_ROOT_CLOSED"] },
+        "inspected": { "type": "boolean" }, "elements": { "type": "integer" }, "reason": { "$ref": "#/$defs/str" }, "url": { "$ref": "#/$defs/str" }
+      }
+    },
+    "CoverageReport": {
+      "description": "Cobertura da captura e regiões inacessíveis.",
+      "type": "object", "additionalProperties": false,
+      "required": ["elementCount", "byCategory", "byKind", "visible", "hidden", "unknownState", "lowConfidence", "unclassified", "frames", "shadowRoots", "truncated", "maxNodes", "captureDurationMs", "limitations"],
+      "properties": {
+        "elementCount": { "type": "integer" },
+        "byCategory": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "byKind": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "visible": { "type": "integer" }, "hidden": { "type": "integer" }, "unknownState": { "type": "integer" },
+        "lowConfidence": { "type": "integer" }, "unclassified": { "type": "integer" },
+        "frames": { "type": "array", "items": { "$ref": "#/$defs/ScopeCoverage" } },
+        "shadowRoots": { "type": "array", "items": { "$ref": "#/$defs/ScopeCoverage" } },
+        "truncated": { "type": "boolean" }, "maxNodes": { "type": "integer" }, "captureDurationMs": { "type": "number" },
+        "limitations": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "NodeRef": {
+      "type": ["object", "null"], "additionalProperties": false, "required": ["nodeId", "tag", "kind", "name"],
+      "properties": {
+        "nodeId": { "type": "string" }, "tag": { "type": "string" }, "kind": { "$ref": "#/$defs/elementKind" }, "name": { "type": "string" },
+        "idAttr": { "$ref": "#/$defs/str" }, "keyAttributes": { "$ref": "#/$defs/stringMap" }
+      }
+    },
+    "ContextRelation": {
+      "description": "Relacionamento estrutural ou semântico.",
+      "type": "object", "additionalProperties": false, "required": ["type", "fromNodeId", "toNodeId", "basis"],
+      "properties": {
+        "type": { "enum": ["PARENT_OF", "LABELS", "LABELLED_BY", "DESCRIBED_BY", "ERROR_MESSAGE", "CONTROLS", "OWNS", "ACTIVE_DESCENDANT", "FORM_OWNER", "IN_FORM", "IN_FIELD_GROUP", "IN_TABLE", "IN_ROW", "IN_COLUMN", "IN_LIST_ITEM", "IN_DIALOG", "IN_REGION", "IN_CONTAINER", "HEADED_BY", "OPTION_OF", "HOSTS_SHADOW_ROOT", "HOSTS_FRAME"] },
+        "fromNodeId": { "type": "string" }, "toNodeId": { "type": "string" },
+        "basis": { "enum": ["DOM_STRUCTURE", "ARIA_ATTRIBUTE", "HTML_ATTRIBUTE", "HEURISTIC"] }, "detail": { "$ref": "#/$defs/str" }
+      }
+    },
+    "ElementFamily": {
+      "description": "Estruturas relacionadas ao elemento.",
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["nodeId", "children", "ancestors", "siblings", "labels", "contextualTexts", "scopeChain", "relations"],
+      "properties": {
+        "nodeId": { "type": "string" },
+        "parent": { "$ref": "#/$defs/NodeRef" },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/NodeRef" } },
+        "ancestors": { "type": "array", "items": { "$ref": "#/$defs/NodeRef" } },
+        "siblings": { "type": "array", "items": { "$ref": "#/$defs/NodeRef" } },
+        "form": { "$ref": "#/$defs/NodeRef" }, "fieldGroup": { "$ref": "#/$defs/NodeRef" },
+        "labels": { "type": "array", "items": { "$ref": "#/$defs/NodeRef" } },
+        "description": { "$ref": "#/$defs/str" }, "region": { "$ref": "#/$defs/NodeRef" }, "dialog": { "$ref": "#/$defs/NodeRef" },
+        "table": { "$ref": "#/$defs/NodeRef" },
+        "row": {
+          "type": ["object", "null"], "additionalProperties": false, "required": ["rowNodeId", "positionHint", "rowKey", "rowKeySource", "cellTexts"],
+          "properties": {
+            "rowNodeId": { "type": "string" }, "positionHint": { "type": "integer" }, "rowKey": { "$ref": "#/$defs/stringMap" },
+            "rowKeySource": { "enum": ["DATA_ATTRIBUTE", "ROW_ID", "ROW_HEADER", "FIRST_CELL_TEXT", "NONE"] }, "cellTexts": { "$ref": "#/$defs/strings" }
+          }
+        },
+        "column": {
+          "type": ["object", "null"], "additionalProperties": false, "required": ["index", "basis"],
+          "properties": { "index": { "type": "integer" }, "headerText": { "$ref": "#/$defs/str" }, "headerNodeId": { "$ref": "#/$defs/str" }, "basis": { "enum": ["HEADERS_ATTRIBUTE", "THEAD", "FIRST_ROW_TH", "NONE"] } }
+        },
+        "listItem": { "$ref": "#/$defs/NodeRef" }, "logicalContainer": { "$ref": "#/$defs/NodeRef" },
+        "containerHeading": { "$ref": "#/$defs/str" }, "visualContainer": { "$ref": "#/$defs/NodeRef" },
+        "contextualTexts": { "$ref": "#/$defs/strings" },
+        "scopeChain": { "type": "array", "items": { "$ref": "#/$defs/NodeRef" } },
+        "relations": { "type": "array", "items": { "$ref": "#/$defs/ContextRelation" } }
+      }
+    },
+    "Predicate": {
+      "type": "object", "required": ["type"],
+      "oneOf": [
+        { "properties": { "type": { "const": "ATTR_EQUALS" }, "name": { "type": "string" }, "value": { "type": "string" } }, "required": ["name", "value"], "additionalProperties": false },
+        { "properties": { "type": { "const": "ATTR_PRESENT" }, "name": { "type": "string" } }, "required": ["name"], "additionalProperties": false },
+        { "properties": { "type": { "const": "TEXT_EQUALS" }, "text": { "type": "string" } }, "required": ["text"], "additionalProperties": false },
+        { "properties": { "type": { "const": "HAS_CHILD_TEXT" }, "tag": { "$ref": "#/$defs/str" }, "text": { "type": "string" } }, "required": ["text"], "additionalProperties": false },
+        { "properties": { "type": { "const": "NTH_OF_TYPE" }, "position": { "type": "integer", "minimum": 1 } }, "required": ["position"], "additionalProperties": false },
+        { "properties": { "type": { "const": "LABEL_TEXT_EQUALS" }, "text": { "type": "string" }, "wrapping": { "type": "boolean" } }, "required": ["text", "wrapping"], "additionalProperties": false },
+        { "properties": { "type": { "const": "ROLE_IS" }, "role": { "type": "string" } }, "required": ["role"], "additionalProperties": false },
+        { "properties": { "type": { "const": "NAME_EQUALS" }, "name": { "type": "string" } }, "required": ["name"], "additionalProperties": false }
+      ]
+    },
+    "LocatorQuery": {
+      "description": "Localizador estruturado (reexecutável pelo motor e renderizável em CSS/XPath).",
+      "type": ["object", "null"], "additionalProperties": false, "required": ["steps"],
+      "properties": {
+        "steps": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["axis", "predicates"],
+            "properties": { "axis": { "enum": ["DESCENDANT", "CHILD"] }, "tag": { "$ref": "#/$defs/str" }, "predicates": { "type": "array", "items": { "$ref": "#/$defs/Predicate" } } }
+          }
+        }
+      }
+    },
+    "LocatorScope": {
+      "type": "object", "additionalProperties": false, "required": ["type", "scopeId", "chain"],
+      "properties": {
+        "type": { "enum": ["MAIN_DOCUMENT", "FRAME", "SHADOW_ROOT"] }, "scopeId": { "type": "string" }, "frameId": { "$ref": "#/$defs/str" },
+        "chain": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["kind", "hostNodeId"],
+            "properties": {
+              "kind": { "enum": ["FRAME", "SHADOW_HOST"] }, "hostNodeId": { "type": "string" }, "css": { "$ref": "#/$defs/str" },
+              "xpath": { "$ref": "#/$defs/str" }, "matchCount": { "type": "integer" }, "query": { "$ref": "#/$defs/LocatorQuery" }
+            }
+          }
+        }
+      }
+    },
+    "LocatorDescriptor": {
+      "description": "Localizador e evidências. A identidade do alvo NÃO depende do seletor: 'expected' descreve o que deve ser encontrado.",
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["strategy", "semantic", "query", "scope", "matchCount", "matchesTarget", "matchedNodeIds", "stability", "stabilityBasis", "stabilityReasons", "score", "expected", "warnings"],
+      "properties": {
+        "strategy": { "$ref": "#/$defs/strategy" }, "css": { "$ref": "#/$defs/str" }, "xpath": { "$ref": "#/$defs/str" },
+        "semantic": { "type": "string" }, "query": { "$ref": "#/$defs/LocatorQuery" }, "scope": { "$ref": "#/$defs/LocatorScope" },
+        "matchCount": { "type": "integer", "minimum": 0 }, "matchesTarget": { "type": "boolean" }, "matchedNodeIds": { "$ref": "#/$defs/strings" },
+        "stability": { "$ref": "#/$defs/stability" }, "stabilityBasis": { "enum": ["HEURISTIC", "OBSERVED"] },
+        "stabilityReasons": { "$ref": "#/$defs/strings" }, "score": { "type": "number" },
+        "expected": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "kind": { "type": "string" }, "role": { "$ref": "#/$defs/str" }, "name": { "$ref": "#/$defs/str" }, "form": { "$ref": "#/$defs/str" },
+            "table": { "$ref": "#/$defs/str" }, "rowKey": { "$ref": "#/$defs/stringMap" }, "dialog": { "$ref": "#/$defs/str" }, "heading": { "$ref": "#/$defs/str" }
+          }
+        },
+        "warnings": { "$ref": "#/$defs/strings" },
+        "live": {
+          "type": ["object", "null"], "additionalProperties": false,
+          "properties": { "cssCount": { "type": "integer" }, "xpathCount": { "type": "integer" }, "cssMatchesTarget": { "type": "boolean" }, "xpathMatchesTarget": { "type": "boolean" }, "error": { "$ref": "#/$defs/str" } }
+        }
+      }
+    },
+    "LocatorSet": {
+      "type": ["object", "null"], "additionalProperties": false, "required": ["nodeId", "primary", "fallbacks", "warnings"],
+      "properties": {
+        "nodeId": { "type": "string" }, "primary": { "$ref": "#/$defs/LocatorDescriptor" },
+        "fallbacks": { "type": "array", "items": { "$ref": "#/$defs/LocatorDescriptor" } }, "warnings": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "ElementDescriptor": {
+      "description": "Identidade e propriedades de um elemento.",
+      "type": "object", "additionalProperties": false,
+      "required": ["nodeId", "tag", "scopeId", "frameId", "kind", "category", "nativeSemantics", "confidence", "text", "attributes", "conditions", "sensitive", "evidence", "uncertainties"],
+      "properties": {
+        "nodeId": { "type": "string" }, "tag": { "type": "string" }, "scopeId": { "type": "string" }, "frameId": { "type": "string" },
+        "parentNodeId": { "$ref": "#/$defs/str" }, "kind": { "$ref": "#/$defs/elementKind" },
+        "category": { "enum": ["INTERACTIVE", "TEXT", "STRUCTURAL", "CONTAINER", "OTHER"] }, "role": { "$ref": "#/$defs/str" },
+        "nativeSemantics": { "type": "boolean" }, "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+        "text": {
+          "type": "object", "additionalProperties": false, "required": ["own", "accessibleName", "accessibleNameSource", "contextual"],
+          "properties": {
+            "own": { "type": "string" }, "descendant": { "$ref": "#/$defs/str" }, "accessibleName": { "type": "string" },
+            "accessibleNameSource": { "enum": ["ARIA_LABELLEDBY", "ARIA_LABEL", "LABEL_ELEMENT", "WRAPPING_LABEL", "CONTENT", "VALUE", "ALT", "LEGEND", "CAPTION", "TITLE", "PLACEHOLDER", "NONE"] },
+            "accessibleDescription": { "$ref": "#/$defs/str" }, "contextual": { "$ref": "#/$defs/strings" }
+          }
+        },
+        "attributes": { "$ref": "#/$defs/stringMap" },
+        "conditions": { "type": "array", "items": { "$ref": "#/$defs/condition" } },
+        "sensitive": { "type": "boolean" }, "rect": { "$ref": "#/$defs/Rect" },
+        "family": { "$ref": "#/$defs/ElementFamily" }, "locators": { "$ref": "#/$defs/LocatorSet" },
+        "evidence": { "$ref": "#/$defs/strings" }, "uncertainties": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "OptionSet": {
+      "type": "object", "additionalProperties": false,
+      "required": ["controlNodeId", "association", "listOutsideControlTree", "multiple", "options", "groups", "observedCount", "materializedCount", "dynamicLoading", "virtualizationSuspected", "completeness", "evidence"],
+      "properties": {
+        "controlNodeId": { "type": "string" }, "listNodeId": { "$ref": "#/$defs/str" },
+        "association": { "enum": ["NATIVE", "SELF", "ARIA_CONTROLS", "ARIA_OWNS", "DESCENDANT", "NOT_FOUND"] },
+        "listOutsideControlTree": { "type": "boolean" }, "multiple": { "type": "boolean" },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["nodeId", "text", "disabled"],
+            "properties": {
+              "nodeId": { "type": "string" }, "text": { "type": "string" }, "value": { "$ref": "#/$defs/str" }, "disabled": { "type": "boolean" },
+              "selected": { "type": ["boolean", "null"] }, "group": { "$ref": "#/$defs/str" }, "posInSet": { "type": ["integer", "null"] }
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": false, "properties": { "nodeId": { "type": "string" }, "label": { "type": "string" }, "disabled": { "type": "boolean" }, "optionCount": { "type": "integer" } } }
+        },
+        "observedCount": { "type": "integer" }, "materializedCount": { "type": "integer" }, "announcedSetSize": { "type": ["integer", "null"] },
+        "dynamicLoading": { "type": "boolean" }, "virtualizationSuspected": { "type": "boolean" },
+        "completeness": { "enum": ["COMPLETE", "INCOMPLETE", "UNKNOWN"] }, "evidence": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "IdentitySignature": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "compatibility"],
+      "properties": {
+        "kind": { "type": "string" }, "compatibility": { "type": "string" }, "role": { "$ref": "#/$defs/str" }, "tag": { "$ref": "#/$defs/str" },
+        "name": { "$ref": "#/$defs/str" }, "text": { "$ref": "#/$defs/str" }, "idAttribute": { "$ref": "#/$defs/str" }, "nameAttribute": { "$ref": "#/$defs/str" },
+        "testAttribute": { "$ref": "#/$defs/str" }, "typeAttribute": { "$ref": "#/$defs/str" }, "label": { "$ref": "#/$defs/str" }, "form": { "$ref": "#/$defs/str" },
+        "fieldGroup": { "$ref": "#/$defs/str" }, "table": { "$ref": "#/$defs/str" }, "rowKey": { "$ref": "#/$defs/stringMap" }, "rowKeySource": { "$ref": "#/$defs/str" },
+        "rowTexts": { "$ref": "#/$defs/strings" }, "column": { "$ref": "#/$defs/str" }, "dialog": { "$ref": "#/$defs/str" }, "region": { "$ref": "#/$defs/str" },
+        "containerHeading": { "$ref": "#/$defs/str" }, "contextTexts": { "$ref": "#/$defs/strings" }, "scopePath": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "TargetIdentity": {
+      "description": "Condições que definem a identidade lógica de um alvo (não ligada permanentemente a um nó DOM).",
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["targetId", "schemaVersion", "registeredAt", "signature", "discriminators", "lookalikeCount", "locators", "attributeHistory", "warnings"],
+      "properties": {
+        "targetId": { "type": "string", "pattern": "^tgt-" }, "schemaVersion": { "const": "0.1.0" }, "registeredAt": { "type": "string" },
+        "origin": { "$ref": "#/$defs/str" }, "signature": { "$ref": "#/$defs/IdentitySignature" },
+        "discriminators": { "type": "array", "items": { "$ref": "#/$defs/identityFeature" }, "uniqueItems": true },
+        "lookalikeCount": { "type": "integer", "minimum": 0 }, "locators": { "$ref": "#/$defs/LocatorSet" },
+        "lastNodeId": { "$ref": "#/$defs/str" }, "lastPageSessionId": { "$ref": "#/$defs/str" }, "lastCaptureId": { "$ref": "#/$defs/str" },
+        "attributeHistory": { "$ref": "#/$defs/nullableStringPairs" }, "warnings": { "$ref": "#/$defs/strings" }
+      }
+    },
+    "ResolutionResult": {
+      "description": "Resultado de uma tentativa de reencontro. Somente RESOLVED autoriza o uso do elemento.",
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "targetId", "status", "score", "nodeReplaced", "scope", "locatorChecks", "candidates", "attributeChanges", "evidence"],
+      "properties": {
+        "schemaVersion": { "const": "0.1.0" }, "targetId": { "type": "string" }, "captureId": { "$ref": "#/$defs/str" },
+        "status": { "$ref": "#/$defs/resolutionStatus" }, "resolvedNodeId": { "$ref": "#/$defs/str" }, "score": { "type": "number" },
+        "nodeReplaced": { "type": "boolean" }, "scope": { "type": "string" },
+        "locatorChecks": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": false, "properties": { "strategy": { "type": "string" }, "semantic": { "type": "string" }, "matchCount": { "type": "integer" }, "matchedNodeIds": { "$ref": "#/$defs/strings" } } }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["nodeId", "verdict", "score"],
+            "properties": {
+              "nodeId": { "type": "string" }, "verdict": { "enum": ["CONFIRMED", "VIABLE", "DISQUALIFIED", "INCOMPATIBLE"] }, "score": { "type": "number" },
+              "foundBy": { "$ref": "#/$defs/strings" }, "reasons": { "$ref": "#/$defs/strings" },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object", "additionalProperties": false,
+                  "properties": {
+                    "feature": { "$ref": "#/$defs/identityFeature" }, "outcome": { "enum": ["MATCH", "PARTIAL", "MISMATCH", "ABSENT", "NOT_APPLICABLE"] },
+                    "quality": { "type": "number" }, "expected": { "$ref": "#/$defs/str" }, "actual": { "$ref": "#/$defs/str" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "attributeChanges": { "$ref": "#/$defs/nullableStringPairs" }, "evidence": { "$ref": "#/$defs/strings" },
+        "updatedLocators": { "$ref": "#/$defs/LocatorSet" }, "updatedIdentity": { "$ref": "#/$defs/TargetIdentity" }
+      }
+    },
+    "MutationRecord": {
+      "description": "Alterações relevantes observadas entre duas capturas.",
+      "type": "object", "additionalProperties": false,
+      "required": ["baseCaptureId", "captureId", "mode", "addedCount", "removedCount", "changedCount", "relevant", "relevanceReasons", "affectedTargets"],
+      "properties": {
+        "baseCaptureId": { "type": "string" }, "captureId": { "type": "string" }, "mode": { "enum": ["FULL", "INCREMENTAL"] },
+        "rawMutationCount": { "type": "integer" }, "batchCount": { "type": "integer" },
+        "added": { "$ref": "#/$defs/strings" }, "addedCount": { "type": "integer" }, "removed": { "$ref": "#/$defs/strings" }, "removedCount": { "type": "integer" },
+        "changed": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "properties": {
+              "nodeId": { "type": "string" }, "attributeChanges": { "$ref": "#/$defs/nullableStringPairs" }, "textBefore": { "$ref": "#/$defs/str" },
+              "textAfter": { "$ref": "#/$defs/str" }, "stateChanges": { "$ref": "#/$defs/strings" }, "childrenChanged": { "type": "boolean" }
+            }
+          }
+        },
+        "changedCount": { "type": "integer" },
+        "replaced": { "type": "array", "items": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 } },
+        "relevant": { "type": "boolean" }, "relevanceReasons": { "$ref": "#/$defs/strings" }, "affectedTargets": { "$ref": "#/$defs/strings" },
+        "processingMs": { "type": "number" }
+      }
+    },
+    "InspectionEvidence": {
+      "description": "Evidência com a FONTE da informação (DOM, motor, navegador ao vivo, Resource Timing ou instrumentação de teste).",
+      "type": "object", "additionalProperties": false, "required": ["subject", "kind", "source", "statements"],
+      "properties": {
+        "subject": { "type": "string" }, "kind": { "type": "string" },
+        "source": { "enum": ["DOM", "ENGINE", "BROWSER_LIVE", "RESOURCE_TIMING", "TEST_INSTRUMENTATION", "MIXED"] },
+        "statements": { "$ref": "#/$defs/strings" }, "recordedAt": { "$ref": "#/$defs/str" }
+      }
+    }
+  }
+}

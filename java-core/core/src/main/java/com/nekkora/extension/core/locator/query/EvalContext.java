@@ -13,6 +13,8 @@ public final class EvalContext {
     private final PageModel model;
     private final SemanticIndex semantics;
     private final Map<String, Integer> nthCache = new HashMap<>();
+    private Map<String, java.util.List<RawNode>> roleIndex;
+    private Map<String, java.util.List<RawNode>> roleNameIndex;
 
     public EvalContext(PageModel model, SemanticIndex semantics) {
         this.model = model;
@@ -25,6 +27,36 @@ public final class EvalContext {
 
     public SemanticIndex semantics() {
         return semantics;
+    }
+
+    /** Nós de um papel acessível dentro de um escopo (índice construído sob demanda). */
+    public java.util.List<RawNode> byRole(String scopeId, String role) {
+        if (roleIndex == null) {
+            roleIndex = new HashMap<>();
+            for (RawNode n : model.nodes()) {
+                semantics.find(n.id()).ifPresent(c -> {
+                    if (c.role() != null) {
+                        roleIndex.computeIfAbsent(n.scopeId() + "|" + c.role(), k -> new java.util.ArrayList<>()).add(n);
+                    }
+                });
+            }
+        }
+        return roleIndex.getOrDefault(scopeId + "|" + role, java.util.List.of());
+    }
+
+    /** Nós com papel E nome acessível exatos dentro de um escopo. */
+    public java.util.List<RawNode> byRoleAndName(String scopeId, String role, String name) {
+        if (roleNameIndex == null) {
+            roleNameIndex = new HashMap<>();
+            for (RawNode n : model.nodes()) {
+                semantics.find(n.id()).ifPresent(c -> {
+                    if (c.role() != null) {
+                        roleNameIndex.computeIfAbsent(n.scopeId() + "|" + c.role() + "|" + c.name().name(), k -> new java.util.ArrayList<>()).add(n);
+                    }
+                });
+            }
+        }
+        return roleNameIndex.getOrDefault(scopeId + "|" + role + "|" + name, java.util.List.of());
     }
 
     /** Posição base 1 do nó entre os irmãos de mesma tag no mesmo escopo. */

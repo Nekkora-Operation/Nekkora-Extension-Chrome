@@ -181,7 +181,7 @@ async function onDelta(tabId, delta) {
         broadcast('resolution', { tabId, result: r, automatic: true });
       }
     }
-    broadcast('delta', { tabId, captureId: res.captureId, mutation: res.mutation, timings: res.timings });
+    broadcast('delta', { tabId, captureId: res.captureId, nodes: res.nodes, mutation: res.mutation, timings: res.timings });
     return { ok: true, captureId: res.captureId };
   } catch (e) {
     return { ok: false, error: e.code || String(e) };
@@ -199,6 +199,11 @@ const commands = {
   },
   'host.status': async () => client.status(),
   'page.capture': async (a) => capture(a.tabId, a),
+  /** Snapshot bruto do content script (validação de contrato e diagnóstico). */
+  'page.rawSnapshot': async (a) => {
+    await assertAllowed(a.tabId);
+    return toContent(a.tabId, 'cs.capture', { maxNodes: a.maxNodes });
+  },
   'page.inspect.start': async (a) => {
     await assertAllowed(a.tabId);
     tabState(a.tabId).inspecting = true;

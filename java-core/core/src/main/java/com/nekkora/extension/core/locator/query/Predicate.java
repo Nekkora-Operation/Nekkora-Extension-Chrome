@@ -213,10 +213,13 @@ public sealed interface Predicate {
 
     /** Nome acessível calculado pelo motor (comparação normalizada exata). */
     record NameEquals(String name) implements Predicate {
+        public NameEquals {
+            name = TextNormalizer.normalize(name); // normalizado uma única vez
+        }
+
         @Override
         public boolean test(RawNode node, EvalContext ctx) {
-            return ctx.semantics().find(node.id())
-                    .map(c -> TextNormalizer.normalize(name).equals(c.name().name())).orElse(false);
+            return ctx.semantics().find(node.id()).map(c -> name.equals(c.name().name())).orElse(false);
         }
 
         @Override

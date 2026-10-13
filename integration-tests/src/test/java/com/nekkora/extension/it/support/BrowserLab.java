@@ -105,7 +105,11 @@ public final class BrowserLab {
         o.setBinary(chrome.chrome().toFile());
         o.addArguments("--load-extension=" + ext, "--disable-extensions-except=" + ext, "--window-size=1366,900",
                 "--no-first-run", "--no-default-browser-check", "--disable-search-engine-choice-screen",
-                "--user-data-dir=" + profile, "--lang=pt-BR");
+                "--user-data-dir=" + profile, "--lang=pt-BR",
+                // Harness e página ficam em JANELAS separadas: sem estas opções o Chrome trataria a janela
+                // coberta como oculta (sem requestAnimationFrame e com timers estrangulados).
+                "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",
+                "--disable-background-timer-throttling", "--disable-features=CalculateNativeWinOcclusion");
         if (Boolean.getBoolean("nekkora.headless")) {
             o.addArguments("--headless=new");
         }
@@ -200,7 +204,7 @@ public final class BrowserLab {
 
     public Page open(String path) {
         String url = url(path);
-        driver.switchTo().newWindow(WindowType.TAB);
+        driver.switchTo().newWindow(WindowType.WINDOW);
         driver.get(url);
         String handle = driver.getWindowHandle();
         String current = driver.getCurrentUrl();

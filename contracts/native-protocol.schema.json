@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nekkora.dev/contracts/native-protocol/1",
+  "title": "Nekkora Native Messaging envelope (nekkora-nm/1)",
+  "description": "Mensagens trocadas entre a extensão e o host Java. Cada mensagem é enquadrada pelo Chrome (32 bits little-endian + JSON UTF-8). Saída do host <= 1 MiB por mensagem; mensagens maiores usam envelopes 'chunk'.",
+  "oneOf": [
+    { "$ref": "#/$defs/Request" },
+    { "$ref": "#/$defs/Response" },
+    { "$ref": "#/$defs/Chunk" }
+  ],
+  "$defs": {
+    "Request": {
+      "type": "object", "additionalProperties": false, "required": ["protocol", "id", "type", "payload"],
+      "properties": {
+        "protocol": { "const": "nekkora-nm/1" },
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": ["host.ping", "host.echo", "host.generate", "host.fail", "snapshot.submit", "snapshot.delta", "snapshot.compare",
+            "session.reset", "element.inspect", "locators.verify", "target.register", "target.resolve", "target.list", "target.get",
+            "pagemap.export", "interaction.observe"]
+        },
+        "payload": { "type": "object" }
+      }
+    },
+    "Response": {
+      "type": "object", "additionalProperties": false, "required": ["protocol", "id", "type", "requestType", "ok", "payload", "error", "timing"],
+      "properties": {
+        "protocol": { "const": "nekkora-nm/1" },
+        "id": { "type": ["string", "null"] },
+        "type": { "const": "response" },
+        "requestType": { "type": ["string", "null"] },
+        "ok": { "type": "boolean" },
+        "payload": {},
+        "error": {
+          "type": ["object", "null"], "additionalProperties": false, "required": ["code", "message"],
+          "properties": {
+            "code": { "enum": ["UNSUPPORTED_PROTOCOL", "BAD_REQUEST", "BAD_JSON", "UNKNOWN_COMMAND", "UNKNOWN_CAPTURE", "UNKNOWN_NODE", "UNKNOWN_TARGET",
+              "FRAME_TOO_LARGE", "BAD_CHUNK", "DUPLICATE_CHUNK", "TOO_MANY_TRANSFERS", "MESSAGE_TOO_LARGE", "INTERNAL_ERROR", "TEST_FAILURE"] },
+            "message": { "type": "string" }
+          }
+        },
+        "timing": { "type": "object", "properties": { "hostMs": { "type": "number" } } }
+      }
+    },
+    "Chunk": {
+      "type": "object", "additionalProperties": false, "required": ["protocol", "type", "transferId", "index", "count", "data"],
+      "properties": {
+        "protocol": { "const": "nekkora-nm/1" },
+        "type": { "const": "chunk" },
+        "transferId": { "type": "string" },
+        "index": { "type": "integer", "minimum": 0 },
+        "count": { "type": "integer", "minimum": 1 },
+        "data": { "type": "string" }
+      }
+    }
+  }
+}

@@ -90,6 +90,17 @@ public final class PageModel {
         }
     }
 
+    /** Quantidade de descendentes (árvore composta). */
+    public int subtreeSize(RawNode node) {
+        Integer end = subtreeEnd.get(node.id());
+        return end == null ? 0 : Math.max(0, end - orderOf(node.id()));
+    }
+
+    /** Quantidade de elementos com a tag informada. */
+    public int countByTag(String tag) {
+        return tagIndex.getOrDefault(tag, List.of()).size();
+    }
+
     /** {@code true} quando {@code node} está na subárvore (composta) de {@code ancestor}, excluindo o próprio. */
     public boolean inSubtree(RawNode ancestor, RawNode node) {
         int a = orderOf(ancestor.id());

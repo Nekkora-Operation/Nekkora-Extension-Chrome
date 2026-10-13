@@ -32,6 +32,9 @@ public final class HostCommands implements CommandRouter.CommandGroup {
             out.put("tabs", session.tabCount());
             out.put("targets", session.targets().all().size());
             out.put("dataDir", dataDir);
+            Runtime rt = Runtime.getRuntime();
+            out.put("heapUsedMb", Math.round((rt.totalMemory() - rt.freeMemory()) / 1048576.0 * 10) / 10.0);
+            out.put("heapMaxMb", Math.round(rt.maxMemory() / 1048576.0));
             out.put("commands", router.types());
             out.put("limits", Map.of(
                     "maxOutboundBytes", NativeMessageCodec.MAX_OUTBOUND_BYTES,
