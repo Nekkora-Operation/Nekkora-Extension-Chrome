@@ -447,9 +447,14 @@ public final class SemanticClassifier {
         boolean interactive = kind.category() == ElementCategory.INTERACTIVE;
         c.add(interactive ? ElementCondition.INTERACTIVE : ElementCondition.NON_INTERACTIVE);
         if (interactive) {
+            boolean formControl = switch (node.tag()) {
+                case "input", "select", "textarea", "button", "option", "optgroup", "fieldset" -> true;
+                default -> false;
+            };
             if (NodeState.isTrue(s.disabled()) || "true".equals(node.attr("aria-disabled"))) {
                 c.add(ElementCondition.DISABLED);
-            } else if (NodeState.isFalse(s.disabled())) {
+            } else if (NodeState.isFalse(s.disabled()) || !formControl) {
+                // Links, contenteditable e widgets ARIA não têm estado :disabled nativo: habilitados salvo aria-disabled.
                 c.add(ElementCondition.ENABLED);
             } else {
                 c.add(ElementCondition.UNKNOWN_STATE);

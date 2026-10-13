@@ -223,6 +223,30 @@ public final class BrowserLab {
         return p;
     }
 
+    /** Abre uma página interna da extensão (ex.: painel) em nova janela e devolve o handle. */
+    public String openExtensionPage(String pathAndQuery) {
+        driver.switchTo().newWindow(WindowType.WINDOW);
+        driver.get("chrome-extension://" + extensionId + "/" + pathAndQuery);
+        return driver.getWindowHandle();
+    }
+
+    public void closeWindow(String handle) {
+        try {
+            driver.switchTo().window(handle);
+            driver.close();
+        } catch (RuntimeException ignored) {
+            // já fechada
+        }
+        driver.switchTo().window(harness);
+    }
+
+    public Path screenshotWindow(String handle, String name) throws IOException {
+        driver.switchTo().window(handle);
+        Path out = evidence.resolve(name + ".png");
+        Files.write(out, ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES));
+        return out;
+    }
+
     public void focus(Page p) {
         driver.switchTo().window(p.handle());
     }
