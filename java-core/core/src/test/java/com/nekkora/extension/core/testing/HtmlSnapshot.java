@@ -190,7 +190,7 @@ public final class HtmlSnapshot {
                 tag.equals("dialog") ? modal : null,
                 false);
         out.set(index, new RawNode(id, parentId, children, tag, frameId, scopeId, attrs, own, state,
-                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed));
+                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed, segments(e, children, own)));
         return id;
     }
 
@@ -220,6 +220,33 @@ public final class HtmlSnapshot {
             }
         }
         return out;
+    }
+
+    /** Espelho do content script: trechos de texto intercalados com os filhos emitidos (conteúdo misto). */
+    private List<String> segments(Element e, List<String> children, String own) {
+        if (own.isEmpty() || children.isEmpty() || e.tagName().equals("svg")) {
+            return null;
+        }
+        List<String> segs = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        int matched = 0;
+        for (Node n : e.childNodes()) {
+            if (n instanceof TextNode t) {
+                cur.append(' ').append(t.getWholeText());
+            } else if (n instanceof Element c) {
+                String cid = ids.get(c);
+                if (cid != null && matched < children.size() && cid.equals(children.get(matched))) {
+                    segs.add(cur.toString().replaceAll("\s+", " ").trim());
+                    cur.setLength(0);
+                    matched++;
+                }
+            }
+        }
+        if (matched != children.size()) {
+            return null; // filhos compostos (shadow/frame) não correspondem aos filhos de luz
+        }
+        segs.add(cur.toString().replaceAll("\s+", " ").trim());
+        return segs;
     }
 
     private static String ownText(Element e) {

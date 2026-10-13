@@ -52,12 +52,22 @@ public final class Sources {
     /** Substitui as entradas pertencentes à fonte do delta; preserva as das demais fontes. */
     public static List<FrameInfo> mergeFrames(List<FrameInfo> base, List<FrameInfo> fromSource, String source) {
         List<FrameInfo> out = new ArrayList<>();
+        java.util.Map<String, FrameInfo> previous = new java.util.HashMap<>();
         for (FrameInfo f : base) {
             if (!frameOwner(f.frameId()).equals(source)) {
                 out.add(f);
+            } else {
+                previous.put(f.frameId(), f);
             }
         }
-        out.addAll(fromSource);
+        for (FrameInfo f : fromSource) {
+            FrameInfo old = previous.get(f.frameId());
+            // A raiz de uma fonte de iframe não conhece o próprio hospedeiro: preserva a anexação já feita.
+            if (!TOP.equals(source) && f.parentFrameId() == null && old != null && old.parentFrameId() != null) {
+                f = new FrameInfo(f.frameId(), old.parentFrameId(), old.hostNodeId(), f.url(), f.accessible(), f.reason());
+            }
+            out.add(f);
+        }
         return dropPlaceholdersOfAttached(out);
     }
 
@@ -74,6 +84,42 @@ public final class Sources {
             boolean placeholder = !f.accessible() && f.hostNodeId() != null && attachedHosts.contains(f.hostNodeId());
             if (!placeholder) {
                 out.add(f);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Remove entradas cujo nó hospedeiro deixou de existir (iframe ou host de shadow root removido por um delta
+     * de OUTRA fonte). Frames de uma fonte cujo frame-raiz perdeu o hospedeiro são descartados por inteiro.
+     */
+    public static List<FrameInfo> pruneDetachedFrames(List<FrameInfo> frames, Set<String> liveNodeIds) {
+        Set<String> deadSources = new HashSet<>();
+        for (FrameInfo f : frames) {
+            String owner = frameOwner(f.frameId());
+            boolean sourceRoot = !TOP.equals(owner) && f.hostNodeId() != null && !sourceOf(f.hostNodeId()).equals(owner);
+            if (sourceRoot && !liveNodeIds.contains(f.hostNodeId())) {
+                deadSources.add(owner);
+            }
+        }
+        List<FrameInfo> out = new ArrayList<>();
+        for (FrameInfo f : frames) {
+            if (deadSources.contains(frameOwner(f.frameId()))) {
+                continue;
+            }
+            if (f.hostNodeId() != null && !liveNodeIds.contains(f.hostNodeId())) {
+                continue;
+            }
+            out.add(f);
+        }
+        return out;
+    }
+
+    public static List<ShadowRootInfo> pruneDetachedShadowRoots(List<ShadowRootInfo> roots, Set<String> liveNodeIds) {
+        List<ShadowRootInfo> out = new ArrayList<>();
+        for (ShadowRootInfo s : roots) {
+            if (s.hostNodeId() == null || liveNodeIds.contains(s.hostNodeId())) {
+                out.add(s);
             }
         }
         return out;

@@ -84,8 +84,12 @@ public final class HostCaptureSession {
         if (deltaEpoch != epoch) {
             return "DELTA_STALE";
         }
-        if (pageSessionId != null && deltaPageSessionId != null && !pageSessionId.equals(deltaPageSessionId)) {
+        boolean top = "top".equals(source);
+        if (top && pageSessionId != null && deltaPageSessionId != null && !pageSessionId.equals(deltaPageSessionId)) {
             return "DOCUMENT_MISMATCH";
+        }
+        if (!top && !lastSeq.containsKey(source)) {
+            return "FRAME_NOT_ATTACHED"; // o documento do iframe precisa ser anexado antes dos seus deltas
         }
         long expected = lastSeq.getOrDefault(source, 0L) + 1;
         if (seq < expected) {

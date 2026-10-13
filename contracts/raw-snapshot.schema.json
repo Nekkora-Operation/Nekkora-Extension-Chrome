@@ -71,7 +71,9 @@
             "MANUAL",
             "SPA_ROUTE",
             "RELOAD",
-            "MUTATION"
+            "MUTATION",
+            "FRAGMENT",
+            "FRAME"
           ]
         },
         "pageSessionId": {
@@ -274,7 +276,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^n[0-9]+$"
+          "pattern": "^(x[0-9]+)?n[0-9]+$"
         },
         "parentId": {
           "type": [
@@ -297,7 +299,7 @@
         },
         "scopeId": {
           "type": "string",
-          "pattern": "^(doc:f[0-9]+|shadow:n[0-9]+)$"
+          "pattern": "^(doc:(f[0-9]+|c[0-9]+(f[0-9]+)?)|shadow:(x[0-9]+)?n[0-9]+)$"
         },
         "attributes": {
           "type": "object",
@@ -424,6 +426,13 @@
             "scrollTop": {
               "type": "number"
             }
+          }
+        },
+        "textSegments": {
+          "description": "CHROME-002 (opcional): conteúdo misto — childIds.length+1 trechos de texto, o i-ésimo antes do i-ésimo filho e o último após o último.",
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
         "exposedValue": {

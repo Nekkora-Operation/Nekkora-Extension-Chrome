@@ -138,6 +138,18 @@ public final class AccessibleNameCalculator {
         List<String> parts = new ArrayList<>();
         for (String ref : refs.trim().split("\\s+")) {
             RawNode target = model.resolveIdRef(from, ref).orElse(null);
+            if (target != null && target.id().equals(from.id())) {
+                // Autorreferência (ex.: aria-labelledby="eu outro" + aria-label): o próprio nó contribui com a
+                // alternativa textual SEM reaplicar o passo 2B — aria-label (2C), nativa ou conteúdo.
+                String self = referencedText(target, model, w, 1);
+                if (!self.isEmpty()) {
+                    parts.add(self);
+                    if (recordSources) {
+                        w.sources.add(target.id());
+                    }
+                }
+                continue;
+            }
             if (target == null || !w.visited.add(target.id())) {
                 continue; // ausente, ambíguo ou já visitado (referência circular)
             }
@@ -182,10 +194,16 @@ public final class AccessibleNameCalculator {
             sb.append(' ').append(n.ownText()); // <title> do SVG (capturado como texto próprio)
             return sb.toString();
         }
-        if (!n.ownText().isEmpty()) {
-            sb.append(' ').append(n.ownText());
+        List<String> segments = n.textSegments();
+        if (segments == null && !n.ownText().isEmpty()) {
+            sb.append(' ').append(n.ownText()); // sem segmentos (CHROME-001): texto próprio antes dos filhos
         }
-        for (String id : n.childIds()) {
+        List<String> children = n.childIds();
+        for (int i = 0; i < children.size(); i++) {
+            if (segments != null && !segments.get(i).isEmpty()) {
+                sb.append(' ').append(segments.get(i)); // texto antes do i-ésimo filho (ordem preservada)
+            }
+            String id = children.get(i);
             RawNode c = model.find(id).orElse(null);
             if (c == null || nonTextual(c.tag())) {
                 continue;
@@ -227,6 +245,9 @@ public final class AccessibleNameCalculator {
                 inner = c.attr("title"); // 2I aplicado ao descendente
             }
             sb.append(' ').append(inner);
+        }
+        if (segments != null && !segments.get(children.size()).isEmpty()) {
+            sb.append(' ').append(segments.get(children.size()));
         }
         return sb.toString();
     }

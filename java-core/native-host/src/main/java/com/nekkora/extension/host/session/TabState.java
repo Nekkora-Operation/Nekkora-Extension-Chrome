@@ -38,6 +38,8 @@ public final class TabState {
     private final Deque<ResolutionResult> resolutions = new ArrayDeque<>();
     private String latestCaptureId;
     private String latestPageSessionId;
+    /** Captura de REFERÊNCIA fixada (fora do limite LRU): base de comparação com sessões incrementais. */
+    private PageAnalysis reference;
 
     public TabState(String tabKey) {
         this.tabKey = tabKey;
@@ -60,6 +62,7 @@ public final class TabState {
 
     /** Ids temporários e opções observadas valem por sessão de página: nova carga recomeça a observação. */
     private void resetForNewPageSession() {
+        reference = null;
         optionHistory = new OptionHistory();
         mutations.clear();
     }
@@ -68,11 +71,32 @@ public final class TabState {
         if (captureId == null) {
             return latest();
         }
-        return Optional.ofNullable(captures.get(captureId));
+        PageAnalysis a = captures.get(captureId);
+        if (a == null && reference != null && reference.model().snapshot().captureId().equals(captureId)) {
+            a = reference;
+        }
+        return Optional.ofNullable(a);
     }
 
     public synchronized Optional<PageAnalysis> latest() {
         return latestCaptureId == null ? Optional.empty() : Optional.ofNullable(captures.get(latestCaptureId));
+    }
+
+    /**
+     * Fixa uma captura retida como referência (substitui a anterior). Com deltas contínuos cada delta gera uma
+     * captura nova; sem a referência, a base de uma comparação sairia do limite de {@link #MAX_CAPTURES}.
+     */
+    public synchronized boolean pin(String captureId) {
+        PageAnalysis a = captures.get(captureId);
+        if (a == null) {
+            return false;
+        }
+        reference = a;
+        return true;
+    }
+
+    public synchronized String referenceCaptureId() {
+        return reference == null ? null : reference.model().snapshot().captureId();
     }
 
     public synchronized List<String> captureIds() {
@@ -119,6 +143,7 @@ public final class TabState {
     /** Libera capturas, histórico de opções, mutações, evidências e resoluções (encerramento da sessão). */
     public synchronized void release() {
         captures.clear();
+        reference = null;
         latestCaptureId = null;
         latestPageSessionId = null;
         optionHistory = new OptionHistory();
@@ -128,6 +153,6 @@ public final class TabState {
     }
 
     public synchronized int retainedCaptures() {
-        return captures.size();
+        return captures.size() + (reference != null && !captures.containsValue(reference) ? 1 : 0);
     }
 }

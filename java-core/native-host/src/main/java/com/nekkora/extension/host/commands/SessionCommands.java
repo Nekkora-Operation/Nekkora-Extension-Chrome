@@ -54,6 +54,7 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
             synchronized (session) {
                 analysis = s.session.analyzer().analyze(snap);
                 tab.putCapture(analysis);
+                tab.pin(snap.captureId()); // a base da sessão é a referência inicial de comparação
                 session.rebase(snap.captureId(), snap.document() == null ? null : snap.document().pageSessionId());
             }
             Map<String, Object> out = summary(analysis);
@@ -100,6 +101,16 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
                 out.put("session", session.describe());
                 return out;
             }
+        });
+
+        router.register("capture.pin", p -> {
+            TabState tab = s.session.tab(Payloads.required(p, "tabKey"));
+            String captureId = Payloads.optional(p, "captureId");
+            String id = captureId == null ? tab.latest().map(a -> a.model().snapshot().captureId()).orElse(null) : captureId;
+            if (id == null || !tab.pin(id)) {
+                throw new CommandException("UNKNOWN_CAPTURE", "Captura não retida para fixar: " + id);
+            }
+            return Map.of("referenceCaptureId", id);
         });
 
         router.register("capture.session.status", p -> {

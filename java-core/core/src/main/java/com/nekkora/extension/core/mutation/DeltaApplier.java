@@ -32,6 +32,9 @@ public final class DeltaApplier {
         }
         for (RawNode n : delta.upserts()) {
             RawNode old = nodes.get(n.id());
+            if (old != null && n.parentId() == null && old.parentId() != null && !Sources.TOP.equals(delta.sourceOrTop())) {
+                n = n.withParentId(old.parentId()); // raiz do documento de um iframe anexado: mantém o hospedeiro
+            }
             if (old != null) {
                 // Filhos pertencentes a OUTRA fonte (ex.: documento de um iframe anexado pelo content script do
                 // próprio frame) não são conhecidos pela fonte deste delta e não podem ser descartados por ela.
@@ -69,11 +72,12 @@ public final class DeltaApplier {
         if (requests.size() > MAX_REQUESTS) {
             requests = requests.subList(requests.size() - MAX_REQUESTS, requests.size());
         }
+        var frames = delta.frames() == null ? base.frames() : Sources.mergeFrames(base.frames(), delta.frames(), delta.sourceOrTop());
+        var shadows = delta.shadowRoots() == null ? base.shadowRoots()
+                : Sources.mergeShadowRoots(base.shadowRoots(), delta.shadowRoots(), delta.sourceOrTop());
         return new RawSnapshot(delta.captureId(), delta.capturedAt(),
-                delta.document() == null ? base.document() : delta.document(),
-                delta.frames() == null ? base.frames() : Sources.mergeFrames(base.frames(), delta.frames(), delta.sourceOrTop()),
-                delta.shadowRoots() == null ? base.shadowRoots()
-                        : Sources.mergeShadowRoots(base.shadowRoots(), delta.shadowRoots(), delta.sourceOrTop()),
+                delta.document() == null || !Sources.TOP.equals(delta.sourceOrTop()) ? base.document() : delta.document(),
+                Sources.pruneDetachedFrames(frames, reachable), Sources.pruneDetachedShadowRoots(shadows, reachable),
                 ordered, requests, delta.stats() == null ? base.stats() : delta.stats());
     }
 

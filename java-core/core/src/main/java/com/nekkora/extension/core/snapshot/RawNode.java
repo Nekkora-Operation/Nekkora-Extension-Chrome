@@ -24,6 +24,9 @@ import java.util.Objects;
  * @param labelIds   ids temporários de labels associados pela API {@code element.labels}
  * @param scroll     métricas de rolagem quando o elemento é rolável, ou {@code null}
  * @param exposedValue valor do controle SOMENTE quando a política permite (campos de pesquisa); senão {@code null}
+ * @param textSegments conteúdo MISTO (CHROME-002, opcional): {@code childIds.size()+1} trechos de texto, o i-ésimo
+ *                     antes do i-ésimo filho e o último após o último — preserva a ordem texto/elemento; {@code null}
+ *                     quando o elemento não tem texto e filhos intercalados
  */
 public record RawNode(
         String id,
@@ -38,7 +41,15 @@ public record RawNode(
         Rect rect,
         List<String> labelIds,
         ScrollMetrics scroll,
-        String exposedValue) {
+        String exposedValue,
+        List<String> textSegments) {
+
+    /** Construtor CHROME-001 (sem segmentos de texto). */
+    public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
+                   Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
+                   ScrollMetrics scroll, String exposedValue) {
+        this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, null);
+    }
 
     public RawNode {
         Objects.requireNonNull(id, "id");
@@ -51,6 +62,7 @@ public record RawNode(
         frameId = frameId == null ? "f0" : frameId;
         scopeId = scopeId == null ? "doc:" + frameId : scopeId;
         tag = tag.toLowerCase(java.util.Locale.ROOT);
+        textSegments = textSegments == null || textSegments.size() != childIds.size() + 1 ? null : List.copyOf(textSegments);
     }
 
     public String attr(String name) {
@@ -62,10 +74,12 @@ public record RawNode(
     }
 
     public RawNode withChildIds(List<String> newChildIds) {
-        return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue);
+        // Filhos alterados (ex.: documento de frame anexado): os segmentos deixam de corresponder e são descartados.
+        List<String> segs = newChildIds != null && newChildIds.equals(childIds) ? textSegments : null;
+        return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, segs);
     }
 
     public RawNode withParentId(String newParentId) {
-        return new RawNode(id, newParentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue);
+        return new RawNode(id, newParentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments);
     }
 }
