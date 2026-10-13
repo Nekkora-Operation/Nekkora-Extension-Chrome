@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Instala o Native Messaging Host Java do Nekkora Extension Chrome para o usuário atual (Windows).
 
@@ -8,7 +8,8 @@
      herda o PATH do terminal de forma confiável).
   3. Gera o manifesto do host com allowed_origins = chrome-extension://<id>/, onde <id> é calculado a
      partir da chave pública em chrome-extension/manifest.json.
-  4. Registra o manifesto em HKCU para Google Chrome, Chrome for Testing e Chromium.
+  4. Registra o manifesto em HKCU para Google Chrome (Software\Google\Chrome) e para Chromium /
+     Chrome for Testing (ambos leem Software\Chromium — verificado no Chrome for Testing 155).
   Não requer privilégios de administrador. Não altera nada fora de HKCU e do diretório de instalação.
 
 .PARAMETER ExtensionId   Força um id de extensão (padrão: calculado do manifest.json).
@@ -37,7 +38,11 @@ function Resolve-Java {
   if ($cmd) { $candidates += $cmd.Source }
   foreach ($c in $candidates) {
     if (-not (Test-Path $c)) { continue }
+    # java -version escreve no stderr; no PowerShell 5.1 isso vira erro terminante com 'Stop'.
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     $out = & $c -XshowSettings:properties -version 2>&1 | Out-String
+    $ErrorActionPreference = $prev
     if ($out -match 'java\.specification\.version = (\d+)') {
       if ([int]$Matches[1] -ge 21) { return (Resolve-Path $c).Path }
       Write-Warning "Ignorando $c (Java $($Matches[1]); requer 21+)"
@@ -84,9 +89,11 @@ $hostManifest = [ordered]@{
   type            = 'stdio'
   allowed_origins = @("chrome-extension://$ExtensionId/")
 }
-($hostManifest | ConvertTo-Json -Depth 3) | Set-Content -Path $manifestPath -Encoding utf8
+# UTF-8 SEM BOM (Set-Content -Encoding utf8 do PowerShell 5.1 grava BOM).
+[System.IO.File]::WriteAllText($manifestPath, ($hostManifest | ConvertTo-Json -Depth 3), (New-Object System.Text.UTF8Encoding $false))
 
-$browsers = @('Google\Chrome', 'Google\Chrome for Testing', 'Chromium')
+# Chrome for Testing NÃO lê 'Software\Google\Chrome for Testing': usa a chave do Chromium.
+$browsers = @('Google\Chrome', 'Chromium')
 foreach ($b in $browsers) {
   $key = "HKCU:\Software\$b\NativeMessagingHosts\$HostName"
   New-Item -Path $key -Force | Out-Null

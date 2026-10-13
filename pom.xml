@@ -15,6 +15,7 @@
     <module>java-core/core</module>
     <module>java-core/native-host</module>
     <module>java-core/lab-server</module>
+    <module>integration-tests</module>
   </modules>
 
   <properties>

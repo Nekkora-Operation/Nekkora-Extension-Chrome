@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Remove o registro do Native Messaging Host e o diretório de instalação (dados/logs preservados
   salvo -RemoveData).
