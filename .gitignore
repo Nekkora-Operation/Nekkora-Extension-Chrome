@@ -1,0 +1,33 @@
+# Build
+target/
+**/target/
+*.class
+
+# Ferramentas baixadas localmente (Chrome for Testing, ChromeDriver)
+.tools/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Node
+node_modules/
+
+# Chaves privadas da extensão (o manifesto só contém a chave PÚBLICA)
+*.pem
+*.der
+
+# Manifesto do Native Messaging Host gerado na instalação (contém caminho absoluto local)
+native-host/manifest/generated/
+
+# Saídas temporárias de execução
+reports/runtime/
+*.log
+
+# SO
+Thumbs.db
+.DS_Store
