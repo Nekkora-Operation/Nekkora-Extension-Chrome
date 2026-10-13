@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Nekkora Inspector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="panel.css">
+  <script src="../shared/tokens.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="mark" aria-hidden="true">N</span> Nekkora Inspector</div>
+    <div id="host-status" class="status" role="status">host: verificando…</div>
+  </header>
+
+  <section class="toolbar" aria-label="Ações">
+    <button id="btn-inspect" class="primary">Ativar inspeção</button>
+    <button id="btn-disable">Desativar inspeção</button>
+    <button id="btn-capture">Capturar página</button>
+    <button id="btn-resolve">Testar reencontro</button>
+    <button id="btn-compare">Comparar snapshots</button>
+    <button id="btn-export">Exportar mapa</button>
+    <label class="toggle"><input type="checkbox" id="chk-tracking"> Acompanhar mutações</label>
+  </section>
+
+  <p id="message" class="message" role="alert" hidden></p>
+
+  <section aria-labelledby="h-page">
+    <h2 id="h-page">Página</h2>
+    <dl id="page-info" class="kv"><dt>Estado</dt><dd>sem captura</dd></dl>
+  </section>
+
+  <section aria-labelledby="h-element">
+    <h2 id="h-element">Elemento</h2>
+    <dl id="element-info" class="kv"><dt>Seleção</dt><dd>ative a inspeção e clique em um elemento</dd></dl>
+  </section>
+
+  <section aria-labelledby="h-family">
+    <h2 id="h-family">Família</h2>
+    <dl id="family-info" class="kv"></dl>
+  </section>
+
+  <section aria-labelledby="h-locators">
+    <h2 id="h-locators">Localizadores</h2>
+    <table id="locators">
+      <thead><tr><th>Estratégia</th><th>Seletor</th><th title="Correspondências no snapshot">Snap</th><th title="Correspondências na DOM real (CSS/XPath)">Real</th><th>Estabilidade</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="h-resolution">
+    <h2 id="h-resolution">Reencontro / Comparação</h2>
+    <pre id="resolution" class="mono"></pre>
+  </section>
+
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

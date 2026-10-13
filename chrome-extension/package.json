@@ -1,0 +1,13 @@
+{
+  "name": "nekkora-extension-chrome",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extensão Chrome (MV3) do Nekkora Studio. JavaScript puro, sem etapa de build; Node.js é usado apenas para testes unitários.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

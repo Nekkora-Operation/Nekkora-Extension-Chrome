@@ -1,0 +1,59 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+
+/** Carrega scripts clássicos do content script num sandbox (como o navegador faz). */
+function load(...files) {
+  const sandbox = { console };
+  sandbox.globalThis = sandbox;
+  vm.createContext(sandbox);
+  for (const f of files) {
+    vm.runInContext(readFileSync(new URL('../src/' + f, import.meta.url), 'utf8'), sandbox, { filename: f });
+  }
+  return sandbox;
+}
+
+function el(tag, attrs = {}) {
+  return {
+    tagName: tag.toUpperCase(),
+    id: attrs.id || '',
+    getAttribute: (n) => (n in attrs ? attrs[n] : null),
+  };
+}
+
+test('sensitive fields are detected in the browser layer', () => {
+  const { NekkoraCS } = load('content/ns.js', 'content/sensitivity.js');
+  const p = NekkoraCS.sensitivity;
+  assert.equal(p.isSensitive(el('input', { type: 'password' })), true);
+  assert.equal(p.isSensitive(el('input', { name: 'cpf' })), true);
+  assert.equal(p.isSensitive(el('input', { autocomplete: 'cc-number' })), true);
+  assert.equal(p.isSensitive(el('input', { name: 'cidade' })), false);
+});
+
+test('only search fields expose values; value attributes of text inputs are dropped', () => {
+  const { NekkoraCS } = load('content/ns.js', 'content/sensitivity.js');
+  const p = NekkoraCS.sensitivity;
+  assert.equal(p.isSearchField(el('input', { type: 'search' })), true);
+  assert.equal(p.isSearchField(el('input', { type: 'text', name: 'pesquisa' })), true);
+  assert.equal(p.isSearchField(el('input', { type: 'text', name: 'nome' })), false);
+  assert.equal(p.isSearchField(el('input', { type: 'search', name: 'token' })), false, 'campo sensível nunca expõe valor');
+  assert.equal(p.valueAttributeAllowed(el('input', { type: 'text' })), false);
+  assert.equal(p.valueAttributeAllowed(el('input', { type: 'submit' })), true);
+  assert.equal(p.valueAttributeAllowed(el('option')), true);
+});
+
+test('only loopback origins are allowed', () => {
+  const { NekkoraCS } = load('content/ns.js');
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'http:', hostname: '127.0.0.1' }), true);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'http:', hostname: 'localhost' }), true);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'https:', hostname: 'example.com' }), false);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'file:', hostname: '' }), false);
+});
+
+test('official Nekkora pink token', () => {
+  const { NekkoraTokens } = load('shared/tokens.js');
+  assert.equal(NekkoraTokens.primary, '#C2466D');
+  assert.equal(NekkoraTokens.highlightWidthPx, 2);
+  assert.equal(NekkoraTokens.highlightOffsetPx, 2);
+});

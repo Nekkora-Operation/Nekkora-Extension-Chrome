@@ -60,7 +60,7 @@ public final class ChunkCodec {
             int end = Math.min(json.length(), pos + CHUNK_CHARS);
             // Não separa pares substitutos (caracteres fora do BMP) entre fragmentos.
             if (end < json.length() && Character.isHighSurrogate(json.charAt(end - 1))) {
-                end--;
+                end = end - 1 > pos ? end - 1 : end + 1; // mantém o par junto e sempre avança
             }
             pieces.add(json.substring(pos, end));
             pos = end;

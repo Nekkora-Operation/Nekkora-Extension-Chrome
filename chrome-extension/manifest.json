@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Nekkora Studio — Inspector",
+  "short_name": "Nekkora Inspector",
+  "version": "0.1.0",
+  "description": "Interpretação estrutural e semântica de páginas locais de laboratório (Nekkora Studio). Núcleo de análise em Java 21 via Native Messaging.",
+  "minimum_chrome_version": "116",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyFZWa8tShWXIgRtLE7itKhpHJQ8GwgUk0C5LjSdhAtyd2z4/2jMC7chW4AB+K2AtdtCHPIAqdY5sF5rDf44Iqc9RG2RnOttTl7QTz+umf/74UE4g0k6mx2JsY/B+DpI21H0nXAl63D63BszQFWyfAlcrkCmg8vkyql7uygmXSpq+Y9IzKY6H6vuJaguJpVsp3WDBYWdsYkuZ8eLU7Q5oj7RGGA4S8406vSMlWlNSIbVYwkX7JbgV57SGsrPHIso4MdXp6Eq0yuDoMp3Dj5NWFfny0kFBTOPMhlvabIXFnMFpjiUSTpc82UGtA4khbrkDMvH7oYeMUbiLAZ5vguk5swIDAQAB",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Nekkora Inspector",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "src/ui/panel.html"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "nativeMessaging",
+    "sidePanel",
+    "storage",
+    "scripting",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ],
+      "js": [
+        "src/shared/tokens.js",
+        "src/content/ns.js",
+        "src/content/node-registry.js",
+        "src/content/sensitivity.js",
+        "src/content/capture.js",
+        "src/content/mutation-tracker.js",
+        "src/content/locator-runner.js",
+        "src/content/highlighter.js",
+        "src/content/inspector.js",
+        "src/content/content-main.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}
