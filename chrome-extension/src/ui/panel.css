@@ -30,3 +30,16 @@ tr.primary-row td:first-child { border-left: 3px solid var(--nekkora-primary); }
 .message.info { background: #eef7f1; color: var(--nekkora-success); }
 .badge { display: inline-block; padding: 0 6px; border-radius: 999px; font-size: 11px; background: #f3e6ec; }
 .badge.warn { background: #fff2cc; }
+/* CHROME-002: botão único, status da captura automática e área DEV. */
+.control { display: grid; gap: 8px; padding: 10px 12px; background: var(--nekkora-surface); border-bottom: 1px solid #ead5df; }
+.status-kv { grid-template-columns: 130px 1fr; }
+.inspect-toggle { width: 100%; padding: 8px 12px; font-weight: 600; background: var(--nekkora-primary); border-color: var(--nekkora-primary); color: #fff; }
+.inspect-toggle[aria-pressed="true"] { background: #fff; color: var(--nekkora-primary); border: 2px solid var(--nekkora-primary); }
+.inspect-toggle[aria-busy="true"] { cursor: progress; opacity: .75; }
+.inspect-toggle:focus-visible { outline: 3px solid var(--nekkora-primary-hover); outline-offset: 2px; }
+#st-capture[data-status="ACTIVE"]::before { content: "● "; color: var(--nekkora-success); }
+#st-capture[data-status="PAUSED"]::before, #st-capture[data-status="ERROR"]::before { content: "● "; color: var(--nekkora-danger); }
+.dev { align-items: center; border-top: 1px dashed #d9c3cd; }
+.dev-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--nekkora-text-secondary); }
+.badge.mode { background: var(--nekkora-primary); color: #fff; }
+.status { opacity: 1; }

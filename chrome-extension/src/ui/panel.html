@@ -9,25 +9,31 @@
 </head>
 <body>
   <header>
-    <div class="brand"><span class="mark" aria-hidden="true">N</span> Nekkora Inspector</div>
-    <div id="host-status" class="status" role="status">host: verificando…</div>
+    <div class="brand"><span class="mark" aria-hidden="true">N</span> NEKKORA INSPECTOR</div>
+    <span id="mode-badge" class="badge mode" hidden></span>
   </header>
 
-  <section class="toolbar" aria-label="Ações">
-    <button id="btn-inspect" class="primary">Ativar inspeção</button>
-    <button id="btn-disable">Desativar inspeção</button>
-    <button id="btn-capture">Capturar página</button>
-    <button id="btn-resolve">Testar reencontro</button>
-    <button id="btn-compare">Comparar snapshots</button>
-    <button id="btn-export">Exportar mapa</button>
-    <label class="toggle"><input type="checkbox" id="chk-tracking"> Acompanhar mutações</label>
+  <section class="control" aria-label="Inspeção">
+    <dl class="kv status-kv">
+      <dt>Host Java</dt><dd id="host-status" class="status" role="status">verificando…</dd>
+    </dl>
+    <button id="btn-inspect" class="primary inspect-toggle" type="button" aria-pressed="false" data-state="INACTIVE">Ativar inspeção</button>
+    <dl class="kv status-kv" id="capture-status" aria-live="polite">
+      <dt>Captura</dt><dd id="st-capture">Inativa</dd>
+      <dt>Elementos</dt><dd id="st-nodes">—</dd>
+      <dt>Última atualização</dt><dd id="st-updated">—</dd>
+      <dt>Deltas</dt><dd id="st-deltas">—</dd>
+    </dl>
   </section>
 
   <p id="message" class="message" role="alert" hidden></p>
 
-  <section aria-labelledby="h-page">
-    <h2 id="h-page">Página</h2>
-    <dl id="page-info" class="kv"><dt>Estado</dt><dd>sem captura</dd></dl>
+  <section id="dev-tools" class="toolbar dev" aria-label="Ferramentas de desenvolvimento" hidden>
+    <span class="dev-label">DEV</span>
+    <button id="btn-resolve" type="button">Testar reencontro</button>
+    <button id="btn-compare" type="button">Comparar snapshots</button>
+    <button id="btn-export" type="button">Exportar mapa</button>
+    <button id="btn-capture" type="button">Forçar captura completa</button>
   </section>
 
   <section aria-labelledby="h-element">
@@ -48,7 +54,7 @@
     </table>
   </section>
 
-  <section aria-labelledby="h-resolution">
+  <section id="dev-output" aria-labelledby="h-resolution" hidden>
     <h2 id="h-resolution">Reencontro / Comparação</h2>
     <pre id="resolution" class="mono"></pre>
   </section>

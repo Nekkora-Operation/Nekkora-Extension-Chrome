@@ -27,12 +27,20 @@
   const frameHosts = new WeakMap();    // Document -> elemento iframe hospedeiro
   const frameWindows = new Map();      // frameId -> Window (somente frames acessíveis)
   const openShadowRoots = new Set();   // shadow roots abertos já vistos (observáveis pelo tracker)
+  const knownShadows = new Map();      // host -> ShadowRootInfo (lista atual enviada nos deltas)
+  const knownFrames = new Map();       // iframe host -> FrameInfo (lista atual enviada nos deltas)
   let frameCounter = 0;
   let captureSeq = 0;
+  /**
+   * Fonte desta instância do content script. Documento principal: frames f0, f1… e marcadores x<host>.
+   * Content script de um iframe de outra origem permitida (configurado pelo service worker):
+   * frames c<id>, c<id>f1… e marcadores c<id>x<host>; ids de nó prefixados por x<id> (node-registry).
+   */
+  const src = { name: 'top', rootFrame: 'f0', nestedPrefix: 'f', placeholderPrefix: 'x', configured: false };
 
   function frameIdOf(doc) {
     if (doc === document) {
-      return 'f0';
+      return src.rootFrame;
     }
     return frameIds.get(doc) || null;
   }
@@ -44,9 +52,9 @@
   function scopeOf(el) {
     const r = el.getRootNode();
     if (r instanceof ShadowRoot) {
-      return { scopeId: 'shadow:' + NS.registry.idFor(r.host), frameId: frameIdOf(r.host.ownerDocument) || 'f0' };
+      return { scopeId: 'shadow:' + NS.registry.idFor(r.host), frameId: frameIdOf(r.host.ownerDocument) || src.rootFrame };
     }
-    const fid = frameIdOf(el.ownerDocument) || 'f0';
+    const fid = frameIdOf(el.ownerDocument) || src.rootFrame;
     return { scopeId: 'doc:' + fid, frameId: fid };
   }
 
@@ -73,6 +81,39 @@
     }
     s = s.replace(/\s+/g, ' ').trim();
     return s.length > MAX_TEXT_LEN ? s.slice(0, MAX_TEXT_LEN) : s;
+  }
+
+  /**
+   * Conteúdo MISTO: trechos de texto antes de cada filho emitido e após o último (ordem texto/elemento preservada
+   * para o nome acessível por conteúdo). Somente quando há texto e filhos e os filhos são os de luz, em ordem.
+   */
+  function textSegments(el, childIds, own) {
+    if (!own || !childIds || !childIds.length || el.shadowRoot || el.localName === 'slot') {
+      return undefined;
+    }
+    const segs = [];
+    let cur = '';
+    let matched = 0;
+    for (const n of el.childNodes) {
+      if (n.nodeType === Node.TEXT_NODE) {
+        cur += ' ' + n.nodeValue;
+      } else if (n.nodeType === 1 && matched < childIds.length && NS.registry.peek(n) === childIds[matched]) {
+        segs.push(cur.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN));
+        cur = '';
+        matched++;
+      }
+    }
+    if (matched !== childIds.length) {
+      return undefined;
+    }
+    segs.push(cur.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN));
+    return segs;
+  }
+
+  /** O SVG é capturado como folha; seu <title> compõe o nome acessível (botões de ícone). */
+  function svgTitle(el) {
+    const t = el.querySelector(':scope > title');
+    return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN) : '';
   }
 
   function attributes(el) {
@@ -197,7 +238,8 @@
       }
     }
 
-    return {
+    const own = tag === 'svg' ? svgTitle(el) : ownText(el);
+    const out = {
       id: NS.registry.idFor(el),
       parentId: ctx.parentId,
       childIds: ctx.childIds,
@@ -205,7 +247,7 @@
       frameId: ctx.frameId,
       scopeId: ctx.scopeId,
       attributes: attributes(el),
-      ownText: ownText(el),
+      ownText: own,
       state: {
         visible: vis.visible,
         hiddenReason: vis.reason,
@@ -231,6 +273,11 @@
       scroll,
       exposedValue,
     };
+    const segs = tag === 'svg' ? undefined : textSegments(el, ctx.childIds, own);
+    if (segs) {
+      out.textSegments = segs;
+    }
+    return out;
   }
 
   /** Filhos na árvore composta + registro de shadow roots e frames encontrados. */
@@ -249,7 +296,9 @@
     const hostId = NS.registry.idFor(el);
     if (el.shadowRoot) {
       openShadowRoots.add(el.shadowRoot);
-      info.shadowRoots.push({ hostNodeId: hostId, mode: el.shadowRoot.mode || 'open', inspected: true, detection: 'ELEMENT_SHADOW_ROOT', reason: null });
+      const sri = { hostNodeId: hostId, mode: el.shadowRoot.mode || 'open', inspected: true, detection: 'ELEMENT_SHADOW_ROOT', reason: null };
+      knownShadows.set(el, sri);
+      info.shadowRoots.push(sri);
       for (const c of el.shadowRoot.children) {
         const ct = c.tagName.toLowerCase();
         if (!SKIP.has(ct)) {
@@ -265,12 +314,16 @@
           closed = null;
         }
         if (closed) {
-          info.shadowRoots.push({ hostNodeId: hostId, mode: 'closed', inspected: false, detection: 'EXTENSION_API',
-            reason: 'shadow root fechado: encapsulamento intencional, conteúdo não inventariado' });
+          const sri = { hostNodeId: hostId, mode: 'closed', inspected: false, detection: 'EXTENSION_API',
+            reason: 'shadow root fechado: encapsulamento intencional, conteúdo não inventariado' };
+          knownShadows.set(el, sri);
+          info.shadowRoots.push(sri);
         }
       } else if (tag.includes('-') && el.children.length === 0 && el.getClientRects().length > 0) {
-        info.shadowRoots.push({ hostNodeId: hostId, mode: 'closed', inspected: false, detection: 'HEURISTIC',
-          reason: 'elemento personalizado renderizado sem filhos acessíveis (suspeita de shadow root fechado)' });
+        const sri = { hostNodeId: hostId, mode: 'closed', inspected: false, detection: 'HEURISTIC',
+          reason: 'elemento personalizado renderizado sem filhos acessíveis (suspeita de shadow root fechado)' };
+        knownShadows.set(el, sri);
+        info.shadowRoots.push(sri);
       }
     }
     if (tag === 'iframe' || tag === 'frame') {
@@ -297,18 +350,21 @@
       }
       let fid = frameIds.get(doc);
       if (doc && doc.documentElement && !fid) {
-        fid = 'f' + (++frameCounter);
+        fid = src.nestedPrefix + (++frameCounter);
         frameIds.set(doc, fid);
       }
+      let fi;
       if (doc && doc.documentElement) {
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
-        info.frames.push({ frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: doc.location.href, accessible: true, reason: null });
+        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: doc.location.href, accessible: true, reason: null };
         out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
       } else {
-        info.frames.push({ frameId: 'x' + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
-          url: el.getAttribute('src') || null, accessible: false, reason });
+        fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
+          url: el.getAttribute('src') ? new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href : null, accessible: false, reason };
       }
+      knownFrames.set(el, fi);
+      info.frames.push(fi);
     }
     return out;
   }
@@ -326,18 +382,35 @@
    * @returns {{nodes: object[], truncated: boolean, visited: number}}
    */
   function serializeSubtree(start, startCtx, info, maxNodes) {
-    const nodes = [];
+    const t = createTraversal(start, startCtx, info, maxNodes);
+    t.step(Infinity);
+    return { nodes: t.nodes, truncated: t.truncated, visited: t.visited };
+  }
+
+  /**
+   * Travessia em pré-ordem executável em passos: {@code step(deadline)} processa elementos até o prazo e devolve
+   * {@code true} ao terminar. Os nós produzidos ficam em {@code nodes} (podem ser retirados em partes).
+   */
+  function createTraversal(start, startCtx, info, maxNodes) {
+    const t = { nodes: [], emitted: 0, truncated: false, visited: 0 };
     const stack = [{ el: start, parentId: startCtx.parentId, frameId: startCtx.frameId, scopeId: startCtx.scopeId, parentVisible: startCtx.parentVisible }];
-    let truncated = false;
-    let visited = 0;
     const modals = new Map();
+    t.step = (deadline) => {
+    let checks = 0;
     while (stack.length) {
+      if ((++checks & 31) === 0 && performance.now() >= deadline) {
+        return false;
+      }
       const item = stack.pop();
-      if (nodes.length >= maxNodes) {
-        truncated = true;
+      if (t.emitted >= maxNodes) {
+        t.truncated = true;
+        stack.length = 0;
         break;
       }
-      visited++;
+      if (!item.el.isConnected) {
+        continue; // removido durante uma captura cooperativa: o delta posterior registra a remoção
+      }
+      t.visited++;
       const el = item.el;
       info.currentFrame = item.frameId;
       const children = composedChildren(el, info);
@@ -349,7 +422,8 @@
         parentId: item.parentId, childIds, frameId: item.frameId, scopeId: item.scopeId,
         parentVisible: item.parentVisible, modal: modals.get(el.ownerDocument),
       });
-      nodes.push(d);
+      t.nodes.push(d);
+      t.emitted++;
       for (let i = children.length - 1; i >= 0; i--) {
         const c = children[i];
         stack.push({
@@ -358,7 +432,37 @@
         });
       }
     }
-    return { nodes, truncated, visited };
+    return true;
+    };
+    return t;
+  }
+
+  /** Cede a thread da página (scheduler.yield quando disponível; senão MessageChannel). */
+  function yieldToPage() {
+    if (root.scheduler && typeof root.scheduler.yield === 'function') {
+      return root.scheduler.yield();
+    }
+    return new Promise((resolve) => {
+      const ch = new MessageChannel();
+      ch.port1.onmessage = () => resolve();
+      ch.port2.postMessage(0);
+    });
+  }
+
+  function connectedList(map) {
+    const out = [];
+    for (const [el, info] of map) {
+      if (el.isConnected) {
+        out.push(info);
+      } else {
+        map.delete(el);
+      }
+    }
+    return out;
+  }
+
+  function rootFrameInfo() {
+    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: location.href, accessible: true, reason: null };
   }
 
   function observedRequests() {
@@ -393,8 +497,10 @@
       const opts = options || {};
       const maxNodes = opts.maxNodes || 20000;
       const t0 = performance.now();
-      const info = { frames: [{ frameId: 'f0', parentFrameId: null, hostNodeId: null, url: location.href, accessible: true, reason: null }], shadowRoots: [], currentFrame: 'f0' };
-      const r = serializeSubtree(document.documentElement, { parentId: null, frameId: 'f0', scopeId: 'doc:f0', parentVisible: true }, info, maxNodes);
+      knownShadows.clear();
+      knownFrames.clear();
+      const info = { frames: [rootFrameInfo()], shadowRoots: [], currentFrame: src.rootFrame };
+      const r = serializeSubtree(document.documentElement, { parentId: null, frameId: src.rootFrame, scopeId: 'doc:' + src.rootFrame, parentVisible: true }, info, maxNodes);
       const durationMs = Math.round((performance.now() - t0) * 100) / 100;
       return {
         captureId: nextCaptureId(),
@@ -404,13 +510,130 @@
         shadowRoots: info.shadowRoots,
         nodes: r.nodes,
         requests: observedRequests(),
-        stats: { elementsVisited: r.visited, nodesEmitted: r.nodes.length, durationMs, truncated: r.truncated, maxNodes },
+        stats: { elementsVisited: r.visited, nodesEmitted: r.nodes.length, durationMs, truncated: r.truncated, maxNodes, mode: 'SYNC', slices: 1, maxSliceMs: durationMs, consistency: 'INSTANT' },
       };
+    },
+
+    /**
+     * Captura completa COOPERATIVA: fatias de no máximo {@code sliceMs} na thread da página, cedendo entre elas;
+     * nós entregues em partes por {@code onPart(nodes)} (awaited). Não é um instante único: mutações que ocorram
+     * durante a travessia devem ser registradas pelo tracker (já ativo em modo de buffer) e entregues no 1º delta.
+     */
+    async fullAsync(options, onPart) {
+      const opts = options || {};
+      const maxNodes = opts.maxNodes || 20000;
+      const sliceMs = opts.sliceMs || 8;
+      const partSize = opts.partSize || 1000;
+      const t0 = performance.now();
+      knownShadows.clear();
+      knownFrames.clear();
+      const captureId = nextCaptureId();
+      const info = { frames: [rootFrameInfo()], shadowRoots: [], currentFrame: src.rootFrame };
+      const t = createTraversal(document.documentElement, { parentId: null, frameId: src.rootFrame, scopeId: 'doc:' + src.rootFrame, parentVisible: true }, info, maxNodes);
+      let slices = 0;
+      let maxSlice = 0;
+      let parts = 0;
+      for (;;) {
+        const s0 = performance.now();
+        const done = t.step(s0 + sliceMs);
+        const sliceDur = performance.now() - s0;
+        slices++;
+        maxSlice = Math.max(maxSlice, sliceDur);
+        while (t.nodes.length >= partSize || (done && t.nodes.length)) {
+          const part = t.nodes.splice(0, partSize);
+          parts++;
+          await onPart(part, captureId);
+        }
+        if (done) {
+          break;
+        }
+        await yieldToPage();
+      }
+      const durationMs = Math.round((performance.now() - t0) * 100) / 100;
+      return {
+        captureId,
+        capturedAt: new Date().toISOString(),
+        document: documentInfo(opts.navigationKind),
+        frames: info.frames,
+        shadowRoots: info.shadowRoots,
+        requests: observedRequests(),
+        parts,
+        stats: { elementsVisited: t.visited, nodesEmitted: t.emitted, durationMs, truncated: t.truncated, maxNodes,
+          mode: 'COOPERATIVE', slices, maxSliceMs: Math.round(maxSlice * 100) / 100, consistency: 'BASE_PLUS_DELTA' },
+      };
+    },
+
+    /** Configura a fonte (somente uma vez, antes da primeira captura). */
+    configureSource(cfg) {
+      if (src.configured || !cfg || !cfg.source || cfg.source === 'top') {
+        return src.name;
+      }
+      const num = String(cfg.source).replace(/^x/, '');
+      src.name = cfg.source;
+      src.rootFrame = 'c' + num;
+      src.nestedPrefix = 'c' + num + 'f';
+      src.placeholderPrefix = 'c' + num + 'x';
+      src.configured = true;
+      NS.registry.configurePrefix(cfg.source);
+      return src.name;
+    },
+    source() {
+      return src.name;
+    },
+    /** Listas ATUAIS (somente elementos conectados) desta fonte, enviadas em cada delta. */
+    frameList() {
+      return [rootFrameInfo(), ...connectedList(knownFrames)];
+    },
+    shadowRootList() {
+      return connectedList(knownShadows);
+    },
+    /**
+     * Reconciliação limitada de escopos: encontra shadow roots abertos (ou fechados detectáveis) ainda não
+     * inventariados — inclusive attachShadow() chamado em host JÁ conectado, que o MutationObserver não vê.
+     * Percorre documento, frames acessíveis e shadow roots conhecidos (aninhados).
+     */
+    discoverShadowHosts() {
+      const found = [];
+      const scan = (rootNode) => {
+        const all = rootNode.querySelectorAll('*');
+        for (let i = 0; i < all.length; i++) {
+          const el = all[i];
+          if (isOverlay(el)) {
+            continue;
+          }
+          if (el.shadowRoot && !openShadowRoots.has(el.shadowRoot)) {
+            found.push(el);
+          } else if (!el.shadowRoot && !knownShadows.has(el) && el.localName.includes('-')
+            && root.chrome && chrome.dom && typeof chrome.dom.openOrClosedShadowRoot === 'function') {
+            try {
+              if (chrome.dom.openOrClosedShadowRoot(el)) {
+                found.push(el);
+              }
+            } catch (e) {
+              // sem acesso
+            }
+          }
+        }
+      };
+      scan(document);
+      for (const w of this.frameWindows()) {
+        try {
+          scan(w.document);
+        } catch (e) {
+          // frame inacessível
+        }
+      }
+      for (const sr of Array.from(openShadowRoots)) {
+        if (sr.host && sr.host.isConnected) {
+          scan(sr);
+        }
+      }
+      return found;
     },
 
     /** Serializa nós alterados/adicionados para um delta incremental. */
     partial(elements, maxNodes) {
-      const info = { frames: [], shadowRoots: [], currentFrame: 'f0' };
+      const info = { frames: [], shadowRoots: [], currentFrame: src.rootFrame };
       const out = new Map();
       let truncated = false;
       for (const { el, subtree } of elements) {

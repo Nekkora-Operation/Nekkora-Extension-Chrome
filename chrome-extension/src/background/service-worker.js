@@ -1,132 +1,29 @@
 /*
- * Service worker (MV3): orquestra content script ↔ motor Java ↔ interface.
- * Não executa regras de análise: classificação, família, localizadores e resolução são do Java.
+ * Service worker (MV3): orquestra content scripts ↔ motor Java ↔ interface.
+ * Não executa regras de análise: classificação, família, localizadores, resolução e consistência dos deltas
+ * são do Java. Módulos:
+ *   capture-session  ciclo de captura automática/contínua por aba (consumidores, deltas, recuperação)
+ *   frames           iframes de outra origem local permitida (handshake + anexação)
+ *   inspection       botão único, estados da inspeção, seleção e reencontro
+ *   recording        contrato de eventos de gravação (exportação na finalização)
+ *   config           modo DEV/PRD (controlado pelo projeto)
  */
-import { NativeClient, HostError } from './native-client.js';
+import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, assertAllowed, errorInfo, HostError } from './runtime.js';
+import * as config from './config.js';
+import * as capture from './capture-session.js';
+import * as frames from './frames.js';
+import * as inspection from './inspection.js';
+import * as recording from './recording.js';
 
-const client = new NativeClient();
-const tabs = new Map(); // tabId -> estado
-const EVENT_LOG_LIMIT = 200;
-const eventLog = [];
 /** Hooks de teste permitidos (somente leitura, declarados pelas páginas do laboratório). */
 const ALLOWED_TEST_HOOKS = ['getCurrentFilters', 'getVisibleResultCount', 'getLastApiQuery', 'getRenderCount', 'getActionLog'];
 
-function tabState(tabId) {
-  let s = tabs.get(tabId);
-  if (!s) {
-    s = { tabId, captures: [], tracking: false, inspecting: false, selected: null, lastInspection: null, lastResolution: null, navigation: [] };
-    tabs.set(tabId, s);
-  }
-  return s;
-}
-
-function tabKey(tabId) {
-  return 'tab-' + tabId;
-}
-
-function isAllowedUrl(url) {
-  try {
-    const u = new URL(url);
-    return (u.protocol === 'http:' || u.protocol === 'https:') && (u.hostname === '127.0.0.1' || u.hostname === 'localhost');
-  } catch (e) {
-    return false;
-  }
-}
-
-async function assertAllowed(tabId) {
-  const tab = await chrome.tabs.get(tabId);
-  if (!tab || !tab.url || !isAllowedUrl(tab.url)) {
-    throw new HostError('ORIGIN_NOT_ALLOWED', 'A extensão atua somente em páginas locais (127.0.0.1/localhost)');
-  }
-  return tab;
-}
-
-function broadcast(event, data) {
-  const entry = { event, data, at: Date.now() };
-  eventLog.push(entry);
-  if (eventLog.length > EVENT_LOG_LIMIT) {
-    eventLog.shift();
-  }
-  chrome.runtime.sendMessage({ source: 'background', event, data }).catch(() => {});
-}
-
-async function toContent(tabId, cmd, args) {
-  const res = await chrome.tabs.sendMessage(tabId, { target: 'content', cmd, args: args || {} });
-  if (res && res.__error) {
-    throw new HostError('CONTENT_ERROR', res.__error);
-  }
-  return res;
-}
-
-async function host(type, payload, options) {
-  return (await client.request(type, payload, options)).payload;
-}
-
-// ------------------------------------------------------------------------------------- fluxos
-
-async function capture(tabId, options = {}) {
-  await assertAllowed(tabId);
-  const s = tabState(tabId);
-  const t0 = performance.now();
-  const snapshot = await toContent(tabId, 'cs.capture', { maxNodes: options.maxNodes, navigationKind: options.navigationKind });
-  const t1 = performance.now();
-  const json = JSON.stringify(snapshot);
-  const res = await client.request('snapshot.submit', { tabKey: tabKey(tabId), snapshot, compareWithPrevious: !!options.compareWithPrevious });
-  const t2 = performance.now();
-  s.captures.push(snapshot.captureId);
-  if (s.captures.length > 20) {
-    s.captures.shift();
-  }
-  if (s.tracking) {
-    await toContent(tabId, 'cs.tracking.rebase', { baseCaptureId: snapshot.captureId });
-  }
-  const summary = res.payload;
-  summary.browser = {
-    captureMs: snapshot.stats.durationMs,
-    roundTripMs: Math.round((t1 - t0) * 100) / 100,
-    hostRoundTripMs: Math.round((t2 - t1) * 100) / 100,
-    snapshotBytes: json.length,
-    chunked: res.chunked,
-  };
-  broadcast('captured', { tabId, captureId: snapshot.captureId, nodes: summary.nodes, browser: summary.browser });
-  return summary;
-}
-
-async function selectNode(tabId, nodeId) {
-  const s = tabState(tabId);
-  const cap = await capture(tabId);
-  const inspection = await host('element.inspect', { tabKey: tabKey(tabId), captureId: cap.captureId, nodeId });
-  const identity = await host('target.register', { tabKey: tabKey(tabId), captureId: cap.captureId, nodeId });
-  const live = await toContent(tabId, 'cs.verifyLocators', { nodeId, locators: inspection.locators });
-  const verified = await host('locators.verify', { tabKey: tabKey(tabId), captureId: cap.captureId, nodeId, checks: live.checks });
-  const label = inspection.classification.kind + (inspection.classification.name.name ? ' · ' + inspection.classification.name.name : '');
-  await toContent(tabId, 'cs.highlight', { nodeId, kind: 'selection', label, targetId: identity.targetId });
-  s.selected = { nodeId, targetId: identity.targetId };
-  s.lastInspection = { captureId: cap.captureId, inspection, identity, verification: verified, liveChecks: live.checks };
-  await chrome.storage.session.set({ ['inspection:' + tabId]: s.lastInspection }).catch(() => {});
-  broadcast('inspection', { tabId, ...s.lastInspection });
-  return s.lastInspection;
-}
-
-async function resolveTarget(tabId, targetId, options = {}) {
-  const s = tabState(tabId);
-  const id = targetId || (s.selected && s.selected.targetId);
-  if (!id) {
-    throw new HostError('NO_TARGET', 'Nenhum alvo selecionado/registrado');
-  }
-  const cap = options.reuseCapture && s.captures.length ? { captureId: s.captures[s.captures.length - 1] } : await capture(tabId);
-  const res = await host('target.resolve', { tabKey: tabKey(tabId), captureId: cap.captureId, targetId: id });
-  const r = res.result;
-  if (r.status === 'RESOLVED') {
-    await toContent(tabId, 'cs.highlight', { nodeId: r.resolvedNodeId, kind: 'selection', label: 'RESOLVED · ' + (r.score), targetId: id });
-    s.selected = { nodeId: r.resolvedNodeId, targetId: id };
-  } else {
-    await toContent(tabId, 'cs.clearHighlight', { kind: 'selection' });
-  }
-  s.lastResolution = r;
-  broadcast('resolution', { tabId, result: r, timings: res.timings });
-  return res;
-}
+const ready = (async () => {
+  await config.loadConfig();
+  await capture.restore();
+  await inspection.restore();
+})();
+ready.then(() => capture.reconcile()).catch(() => {});
 
 async function readTestHooks(tabId) {
   await assertAllowed(tabId);
@@ -156,41 +53,23 @@ async function readTestHooks(tabId) {
   return result ? result.result : { available: false };
 }
 
-async function startTracking(tabId) {
-  const s = tabState(tabId);
-  const cap = s.captures.length ? { captureId: s.captures[s.captures.length - 1] } : await capture(tabId);
-  s.tracking = true;
-  return toContent(tabId, 'cs.tracking.start', { baseCaptureId: cap.captureId });
+/** Resumo de captura no formato do comando page.capture (compatível com CHROME-001). */
+function captureSummary(rec, c) {
+  return {
+    captureId: c.captureId, pageSessionId: rec.documentId, nodes: c.nodes, interactive: c.interactive, text: c.text,
+    coverage: c.coverage, navigation: c.navigation, timings: c.timings, sessionId: rec.sessionId, epoch: rec.epoch,
+    browser: { captureMs: c.captureMs, mode: c.mode, slices: c.slices, maxSliceMs: c.maxSliceMs, roundTripMs: c.browserMs, hostRoundTripMs: c.hostMs },
+  };
 }
 
-async function onDelta(tabId, delta) {
-  const s = tabState(tabId);
-  try {
-    const res = await host('snapshot.delta', { tabKey: tabKey(tabId), delta, autoResolve: true });
-    s.captures.push(res.captureId);
-    if (s.captures.length > 20) {
-      s.captures.shift();
-    }
-    for (const r of res.autoResolutions || []) {
-      if (s.selected && r.targetId === s.selected.targetId) {
-        if (r.status === 'RESOLVED') {
-          await toContent(tabId, 'cs.highlight', { nodeId: r.resolvedNodeId, kind: 'selection', label: 'RESOLVED · re-render', targetId: r.targetId });
-          s.selected.nodeId = r.resolvedNodeId;
-        }
-        s.lastResolution = r;
-        broadcast('resolution', { tabId, result: r, automatic: true });
-      }
-    }
-    broadcast('delta', { tabId, captureId: res.captureId, nodes: res.nodes, mutation: res.mutation, timings: res.timings });
-    return { ok: true, captureId: res.captureId };
-  } catch (e) {
-    return { ok: false, error: e.code || String(e) };
-  }
+async function diagnostics(tabId, frameId = 0) {
+  return toContent(tabId, 'cs.diagnostics', {}, frameId);
 }
 
 // ------------------------------------------------------------------------------- comandos UI
 
 const commands = {
+  // Motor
   'host.ping': async () => ({ ping: await host('host.ping', {}), client: client.status() }),
   'host.request': async (a) => client.request(a.type, a.payload, { forceChunkChars: a.forceChunkChars, timeoutMs: a.timeoutMs }),
   'host.disconnect': async () => {
@@ -198,123 +77,233 @@ const commands = {
     return client.status();
   },
   'host.status': async () => client.status(),
-  'page.capture': async (a) => capture(a.tabId, a),
-  /** Snapshot bruto do content script (validação de contrato e diagnóstico). */
+  'host.memory': async (a) => host('host.memory', { gc: !!a.gc }),
+  'host.reconnect': async () => capture.tryReconnect(),
+
+  // Configuração
+  'config.get': async () => config.describe(),
+  'config.setMode': async (a) => {
+    const r = await config.setMode(a.mode);
+    broadcast('config', r);
+    return r;
+  },
+
+  // Inspeção (botão único)
+  'inspection.toggle': async (a) => inspection.toggle(a.tabId),
+  'inspection.activate': async (a) => inspection.activate(a.tabId),
+  'inspection.deactivate': async (a) => inspection.deactivate(a.tabId),
+  'inspection.state': async (a) => ({ ...inspection.describe(a.tabId), mode: config.mode(), host: client.status() }),
+
+  // Sessão de captura (comandos internos; contrato para o futuro Studio)
+  'session.status': async (a) => capture.status(a.tabId),
+  'session.list': async () => capture.list(),
+  'session.synchronize': async (a) => capture.synchronize(a.tabId),
+  'session.forceFull': async (a) => {
+    const rec = capture.get(a.tabId);
+    if (!rec) {
+      throw new HostError('NO_SESSION', 'Nenhuma sessão de captura ativa');
+    }
+    return captureSummary(rec, await capture.rebase(a.tabId, 'FORCED_FULL', { cooperative: a.cooperative !== false }));
+  },
+  'session.acquire': async (a) => capture.describe(await capture.acquire(a.tabId, a.consumer || 'manual', { cooperative: a.cooperative !== false, maxNodes: a.maxNodes })),
+  'session.release': async (a) => capture.release(a.tabId, a.consumer || 'manual', a.reason || 'RELEASED'),
+  'session.end': async (a) => capture.end(a.tabId, a.reason || 'ENDED'),
+  /** Instrumentos de homologação (DEV): simulação de perda de delta. */
+  'session.debug': async (a) => toContent(a.tabId, 'cs.session.debug', { action: a.action }, a.frameId || 0),
+  'frames.list': async (a) => ({ chrome: await chrome.webNavigation.getAllFrames({ tabId: a.tabId }), session: (capture.get(a.tabId) || { frames: {} }).frames }),
+  'sw.diagnostics': async () => ({ ...capture.diagnostics(), mode: config.describe(), client: client.status() }),
+
+  // Gravação (eventos simulados pelo harness; contrato futuro da plataforma)
+  'recording.event': async (a) => recording.dispatch(a.event || a),
+  'recording.list': async () => recording.list(),
+
+  // Compatibilidade CHROME-001 (mapeados para o ciclo automático quando há sessão)
+  'page.capture': async (a) => {
+    if (capture.isActive(a.tabId)) {
+      const rec = capture.get(a.tabId);
+      return captureSummary(rec, await capture.rebase(a.tabId, 'FORCED_FULL', { navigationKind: a.navigationKind, maxNodes: a.maxNodes, cooperative: a.cooperative !== false }));
+    }
+    return inspection.captureOnce(a.tabId, a);
+  },
   'page.rawSnapshot': async (a) => {
     await assertAllowed(a.tabId);
-    return toContent(a.tabId, 'cs.capture', { maxNodes: a.maxNodes });
+    return toContent(a.tabId, 'cs.capture', { maxNodes: a.maxNodes }, a.frameId || 0);
   },
   'page.inspect.start': async (a) => {
-    await assertAllowed(a.tabId);
-    tabState(a.tabId).inspecting = true;
-    return toContent(a.tabId, 'cs.inspect.start');
+    await inspection.activate(a.tabId);
+    return diagnostics(a.tabId);
   },
   'page.inspect.stop': async (a) => {
-    tabState(a.tabId).inspecting = false;
-    return toContent(a.tabId, 'cs.inspect.stop');
+    await inspection.deactivate(a.tabId);
+    return diagnostics(a.tabId);
   },
+  /** Desliga tudo na aba: inspeção, sessão de captura (todos os consumidores), destaques e observadores. */
   'page.disable': async (a) => {
-    const s = tabState(a.tabId);
-    s.inspecting = false;
-    s.tracking = false;
-    s.selected = null;
+    await inspection.deactivate(a.tabId);
+    await capture.end(a.tabId, 'DISABLED');
+    inspection.get(a.tabId).selected = null;
     return toContent(a.tabId, 'cs.disable');
   },
   'page.select': async (a) => {
     let nodeId = a.nodeId;
     if (!nodeId && a.css) {
-      const found = await toContent(a.tabId, 'cs.idFor', { css: a.css, scope: a.scope });
+      const found = await toContent(a.tabId, 'cs.idFor', { css: a.css, scope: a.scope }, a.frameId || 0);
       if (found.error || found.count !== 1) {
         // Nunca escolhe silenciosamente o primeiro resultado de uma busca ambígua.
         throw new HostError(found.count > 1 ? 'AMBIGUOUS_SELECTOR' : 'NOT_FOUND', a.css + ' → ' + (found.error || found.count + ' elementos'));
       }
       nodeId = found.nodeIds[0];
     }
-    return selectNode(a.tabId, nodeId);
+    return inspection.selectNode(a.tabId, nodeId);
   },
-  'target.resolve': async (a) => resolveTarget(a.tabId, a.targetId, a),
+  'target.resolve': async (a) => inspection.resolveTarget(a.tabId, a.targetId, a),
   'target.list': async () => host('target.list', {}),
   'page.compare': async (a) => {
-    const s = tabState(a.tabId);
+    const s = inspection.get(a.tabId);
+    if (capture.isActive(a.tabId)) {
+      const rec = capture.get(a.tabId);
+      await capture.synchronize(a.tabId);
+      const base = a.baseCaptureId || rec.referenceCaptureId || rec.baseCaptureId;
+      const res = await host('snapshot.compare', { tabKey: tabKey(a.tabId), baseCaptureId: base });
+      const pinned = await host('capture.pin', { tabKey: tabKey(a.tabId) }).catch(() => null);
+      if (pinned) {
+        rec.referenceCaptureId = pinned.referenceCaptureId;
+      }
+      return res;
+    }
     const base = a.baseCaptureId || (s.captures.length ? s.captures[s.captures.length - 1] : null);
     if (!base) {
       throw new HostError('NO_CAPTURE', 'Capture a página antes de comparar');
     }
-    const cap = await capture(a.tabId);
+    const cap = await inspection.captureOnce(a.tabId);
     return host('snapshot.compare', { tabKey: tabKey(a.tabId), baseCaptureId: base, captureId: cap.captureId });
   },
   'pagemap.export': async (a) => {
-    const s = tabState(a.tabId);
-    if (!s.captures.length || a.fresh) {
-      await capture(a.tabId);
+    const s = inspection.get(a.tabId);
+    let sync = null;
+    if (capture.isActive(a.tabId)) {
+      sync = await capture.synchronize(a.tabId);
+    } else if (!s.captures.length || a.fresh) {
+      await inspection.captureOnce(a.tabId);
     }
-    return host('pagemap.export', { tabKey: tabKey(a.tabId), includeFamilies: a.includeFamilies !== false, includeLocators: a.includeLocators !== false, returnPageMap: a.returnPageMap !== false }, { timeoutMs: 120000 });
+    const res = await host('pagemap.export', { tabKey: tabKey(a.tabId), includeFamilies: a.includeFamilies !== false, includeLocators: a.includeLocators !== false, returnPageMap: a.returnPageMap !== false }, { timeoutMs: 120000 });
+    return sync ? { ...res, syncState: sync.syncState } : res;
   },
   'interaction.observe': async (a) => {
-    const s = tabState(a.tabId);
-    const after = a.afterCaptureId || (await capture(a.tabId)).captureId;
+    let after = a.afterCaptureId;
+    if (!after) {
+      if (capture.isActive(a.tabId)) {
+        after = (await capture.synchronize(a.tabId)).latestCaptureId;
+      } else {
+        after = (await inspection.captureOnce(a.tabId)).captureId;
+      }
+    }
     const instrumentation = a.readHooks ? await readTestHooks(a.tabId) : null;
     return host('interaction.observe', { tabKey: tabKey(a.tabId), beforeCaptureId: a.beforeCaptureId, afterCaptureId: after, instrumentation });
   },
   'testHooks.read': async (a) => readTestHooks(a.tabId),
-  'tracking.start': async (a) => startTracking(a.tabId),
-  'tracking.stop': async (a) => {
-    tabState(a.tabId).tracking = false;
-    return toContent(a.tabId, 'cs.tracking.stop');
+  'tracking.start': async (a) => {
+    await assertAllowed(a.tabId);
+    await capture.acquire(a.tabId, 'tracking');
+    return diagnostics(a.tabId);
   },
-  'tracking.flush': async (a) => toContent(a.tabId, 'cs.tracking.flush'),
-  'page.diagnostics': async (a) => toContent(a.tabId, 'cs.diagnostics'),
-  'page.nodeInfo': async (a) => toContent(a.tabId, 'cs.nodeInfo', { nodeId: a.nodeId }),
-  'page.idFor': async (a) => toContent(a.tabId, 'cs.idFor', { css: a.css, scope: a.scope }),
-  'page.highlight': async (a) => toContent(a.tabId, 'cs.highlight', a),
-  'page.runLocator': async (a) => toContent(a.tabId, 'cs.runLocator', a),
+  'tracking.stop': async (a) => {
+    await capture.release(a.tabId, 'tracking', 'TRACKING_STOPPED');
+    return diagnostics(a.tabId);
+  },
+  'tracking.flush': async (a) => {
+    const sync = await capture.synchronize(a.tabId);
+    return { ...(await diagnostics(a.tabId)).tracker, sync };
+  },
+  'page.diagnostics': async (a) => diagnostics(a.tabId, a.frameId || 0),
+  'page.nodeInfo': async (a) => toContent(a.tabId, 'cs.nodeInfo', { nodeId: a.nodeId }, a.frameId || 0),
+  'page.idFor': async (a) => toContent(a.tabId, 'cs.idFor', { css: a.css, scope: a.scope }, a.frameId || 0),
+  'page.highlight': async (a) => toContent(a.tabId, 'cs.highlight', a, a.frameId || 0),
+  'page.runLocator': async (a) => toContent(a.tabId, 'cs.runLocator', a, a.frameId || 0),
   'state.get': async (a) => {
-    const s = a.tabId != null ? tabState(a.tabId) : null;
-    return { client: client.status(), tab: s, events: eventLog.slice(-50) };
+    const tab = a.tabId != null ? inspection.get(a.tabId) : null;
+    return { client: client.status(), tab, inspection: a.tabId != null ? inspection.describe(a.tabId) : null,
+      session: a.tabId != null ? capture.status(a.tabId) : null, mode: config.describe(), events: eventLog.slice(-50) };
   },
   'events.since': async (a) => eventLog.filter((e) => e.at > (a.since || 0)),
 };
+
+/** Comandos que só se aplicam a páginas locais permitidas. */
+const TAB_COMMANDS = new Set(['session.acquire', 'page.select', 'page.capture']); // inspection.* valida e registra ERROR
+
+async function runCommand(cmd, args) {
+  await ready;
+  const fn = commands[cmd];
+  if (!fn) {
+    throw new HostError('UNKNOWN_COMMAND', cmd);
+  }
+  config.assertCommandAllowed(cmd);
+  if (TAB_COMMANDS.has(cmd)) {
+    await assertAllowed(args.tabId);
+  }
+  return fn(args);
+}
+
+async function onContentEvent(msg, sender) {
+  const tabId = sender.tab.id;
+  const frameId = sender.frameId || 0;
+  if (msg.event === 'capture-part') {
+    return capture.onCapturePart(tabId, frameId, msg.data);
+  }
+  await ready;
+  switch (msg.event) {
+    case 'delta':
+      return capture.onDelta(tabId, frameId, msg.data);
+    case 'element-selected':
+      inspection.selectNode(tabId, msg.data.nodeId)
+        .catch((e) => broadcast('error', { tabId, where: 'selection', ...errorInfo(e) }));
+      return { ok: true };
+    case 'selection-detached':
+      inspection.resolveTarget(tabId, msg.data.targetId)
+        .catch((e) => broadcast('error', { tabId, where: 'reacquire', ...errorInfo(e) }));
+      return { ok: true };
+    case 'resync-needed': {
+      const rec = capture.get(tabId);
+      if (rec && rec.sessionId === msg.data.sessionId) {
+        capture.scheduleResync(rec, 'CONTENT:' + msg.data.reason);
+      }
+      return { ok: true };
+    }
+    case 'content-ready':
+      if (frameId === 0) {
+        const s = inspection.get(tabId);
+        s.captures = [];
+        s.selected = null;
+        broadcast('content-ready', { tabId, ...msg.data });
+        capture.onContentReady(tabId, 0, msg.data).catch((e) => broadcast('error', { tabId, where: 'content-ready', ...errorInfo(e) }));
+      } else {
+        broadcast('frame-ready', { tabId, frameId, ...msg.data });
+        frames.onFrameReady(tabId, frameId, msg.data).catch((e) => broadcast('error', { tabId, where: 'frame-ready', ...errorInfo(e) }));
+      }
+      return { ok: true };
+    default:
+      return { ok: false, error: 'UNKNOWN_EVENT' };
+  }
+}
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || sender.id !== chrome.runtime.id) {
     return false;
   }
-  // Eventos do content script
+  // Eventos dos content scripts (somente de páginas permitidas)
   if (msg.source === 'content' && sender.tab) {
-    const tabId = sender.tab.id;
-    if (msg.event === 'delta') {
-      onDelta(tabId, msg.data).then(sendResponse);
-      return true;
+    if (!isAllowedUrl(sender.url || sender.tab.url || '')) {
+      sendResponse({ ok: false, error: 'ORIGIN_NOT_ALLOWED' });
+      return false;
     }
-    if (msg.event === 'element-selected') {
-      selectNode(tabId, msg.data.nodeId)
-        .catch((e) => broadcast('error', { tabId, where: 'selection', code: e.code, message: e.message }));
-    } else if (msg.event === 'selection-detached') {
-      resolveTarget(tabId, msg.data.targetId)
-        .catch((e) => broadcast('error', { tabId, where: 'reacquire', code: e.code, message: e.message }));
-    } else if (msg.event === 'resync-needed') {
-      capture(tabId).catch((e) => broadcast('error', { tabId, where: 'resync', code: e.code, message: e.message }));
-    } else if (msg.event === 'content-ready') {
-      const s = tabState(tabId);
-      s.captures = [];
-      s.tracking = false;
-      s.inspecting = false;
-      s.selected = null;
-      broadcast('content-ready', { tabId, ...msg.data });
-    }
-    sendResponse({ ok: true });
-    return false;
+    onContentEvent(msg, sender).then(sendResponse, (e) => sendResponse({ ok: false, error: errorInfo(e).code }));
+    return true;
   }
   // Comandos das páginas da extensão (painel / harness)
   if (msg.target === 'background' && sender.url && sender.url.startsWith(chrome.runtime.getURL(''))) {
-    const fn = commands[msg.cmd];
-    if (!fn) {
-      sendResponse({ ok: false, error: { code: 'UNKNOWN_COMMAND', message: msg.cmd } });
-      return false;
-    }
-    fn(msg.args || {})
+    runCommand(msg.cmd, msg.args || {})
       .then((result) => sendResponse({ ok: true, result }))
-      .catch((e) => sendResponse({ ok: false, error: { code: e.code || 'ERROR', message: String(e && e.message || e) } }));
+      .catch((e) => sendResponse({ ok: false, error: errorInfo(e) }));
     return true;
   }
   return false;
@@ -326,20 +315,19 @@ for (const evt of ['onHistoryStateUpdated', 'onReferenceFragmentUpdated']) {
     if (d.frameId !== 0 || !isAllowedUrl(d.url)) {
       return;
     }
-    const s = tabState(d.tabId);
-    const nav = { kind: evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT', url: d.url, at: Date.now(), transitionType: d.transitionType };
-    s.navigation.push(nav);
-    if (s.navigation.length > 50) {
-      s.navigation.shift();
-    }
-    broadcast('navigation', { tabId: d.tabId, ...nav });
-    if (s.tracking) {
-      capture(d.tabId, { navigationKind: 'SPA_ROUTE' }).catch(() => {});
-    }
+    const kind = evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT';
+    broadcast('navigation', { tabId: d.tabId, kind, url: d.url, at: Date.now(), transitionType: d.transitionType });
+    ready.then(() => capture.onNavigation(d.tabId, kind)).catch(() => {});
   }, { url: [{ hostEquals: '127.0.0.1' }, { hostEquals: 'localhost' }] });
 }
 
-chrome.tabs.onRemoved.addListener((tabId) => tabs.delete(tabId));
+chrome.tabs.onRemoved.addListener((tabId) => {
+  ready.then(async () => {
+    await capture.end(tabId, 'TAB_CLOSED');
+    inspection.forget(tabId);
+  }).catch(() => {});
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
 });

@@ -47,6 +47,7 @@ export class NativeClient {
     this.incoming = new Map();
     this.seq = 0;
     this.transferSeq = 0;
+    this.onConnectionLost = options.onConnectionLost || null;
     this.stats = { connects: 0, disconnects: 0, requests: 0, responses: 0, chunksIn: 0, chunksOut: 0, lastError: null, lastDisconnectAt: 0 };
   }
 
@@ -92,6 +93,13 @@ export class NativeClient {
     }
     this.pending.clear();
     this.incoming.clear();
+    if (typeof this.onConnectionLost === 'function') {
+      try {
+        this.onConnectionLost(err); // sessões ativas passam a DEGRADED e agendam reconexão
+      } catch (e) {
+        // o cliente nunca falha por causa de um ouvinte
+      }
+    }
   }
 
   onMessage(msg) {
