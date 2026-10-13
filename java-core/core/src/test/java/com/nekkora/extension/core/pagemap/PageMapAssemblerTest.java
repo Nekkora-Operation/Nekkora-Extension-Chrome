@@ -65,4 +65,24 @@ class PageMapAssemblerTest {
         assertTrue(map.coverage().limitations().stream().anyMatch(l -> l.contains("CROSS_ORIGIN")));
         assertTrue(map.metrics().containsKey("classificationMs"));
     }
+
+    @Test
+    void parallelStreamedElementsEqualSequential() throws Exception { // §20.3
+        StringBuilder sb = new StringBuilder("<main id=m>");
+        for (int i = 0; i < 300; i++) {
+            sb.append("<div class=card data-item=").append(i).append("><h3>Item ").append(i)
+                    .append("</h3><label for=q").append(i).append(">Qtd</label><input id=q").append(i)
+                    .append("><button>Adicionar</button></div>");
+        }
+        sb.append("</main>");
+        PageAnalysis a = Engine.analyze(HtmlSnapshot.of(sb.toString()));
+        PageMapAssembler asm = new PageMapAssembler();
+        List<ElementDescriptor> sequential = new java.util.ArrayList<>();
+        asm.elements(a, PageMapOptions.defaults(), sequential::add, 1);
+        List<ElementDescriptor> parallel = new java.util.ArrayList<>();
+        PageMapAssembler.ElementStats st = asm.elements(a, PageMapOptions.defaults(), parallel::add, 4);
+        assertEquals(4, st.parallelism());
+        assertEquals(sequential.size(), parallel.size());
+        assertEquals(sequential, parallel, "mesmo conteúdo e mesma ordem de documento");
+    }
 }

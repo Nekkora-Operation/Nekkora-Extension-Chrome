@@ -172,7 +172,9 @@ public final class HtmlSnapshot {
             attrs.put("__hasValue", Boolean.toString(v != null && !v.isEmpty()));
         }
         boolean hasValue = Boolean.parseBoolean(attrs.remove("__hasValue"));
-        String own = ownText(e);
+        String own = tag.equals("svg") && e.selectFirst("title") != null
+                ? e.selectFirst("title").text() // o content script captura o <title> do SVG como texto próprio
+                : ownText(e);
         boolean disabled = isDisabled(e);
         boolean editable = isEditable(e);
         boolean modal = e.hasAttr("data-fixture-modal");

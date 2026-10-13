@@ -78,6 +78,11 @@ public final class LocatorEngine {
             this.eval = new EvalContext(graph.model(), graph.semantics());
         }
 
+        /** Nova sessão sobre o mesmo grafo (caches próprios), para uso em outra thread. */
+        public Session fork() {
+            return new Session(graph);
+        }
+
         public EvalContext eval() {
             return eval;
         }

@@ -25,6 +25,10 @@ import java.util.List;
  * @param rawMutationCount registros brutos do MutationObserver agregados neste delta
  * @param batchCount       lotes agregados
  * @param stats            estatísticas da captura incremental
+ * @param sessionId        sessão de captura de origem (deltas sequenciados); {@code null} = delta legado encadeado por captura-base
+ * @param source           fonte do delta: {@code top} (documento principal) ou {@code x<frameId>} (content script de um frame)
+ * @param epoch            época da sessão (incrementada a cada captura completa / ressincronização)
+ * @param seq              sequência do delta dentro da fonte e da época (1, 2, 3...)
  */
 public record SnapshotDelta(
         String baseCaptureId,
@@ -38,7 +42,28 @@ public record SnapshotDelta(
         List<ObservedRequest> requests,
         int rawMutationCount,
         int batchCount,
-        CaptureStats stats) {
+        CaptureStats stats,
+        String sessionId,
+        String source,
+        int epoch,
+        long seq) {
+
+    /** Delta legado (CHROME-001): encadeado somente pela captura-base. */
+    public SnapshotDelta(String baseCaptureId, String captureId, String capturedAt, DocumentInfo document,
+                         List<RawNode> upserts, List<String> removed, List<FrameInfo> frames,
+                         List<ShadowRootInfo> shadowRoots, List<ObservedRequest> requests, int rawMutationCount,
+                         int batchCount, CaptureStats stats) {
+        this(baseCaptureId, captureId, capturedAt, document, upserts, removed, frames, shadowRoots, requests,
+                rawMutationCount, batchCount, stats, null, null, 0, 0);
+    }
+
+    public boolean sequenced() {
+        return sessionId != null;
+    }
+
+    public String sourceOrTop() {
+        return source == null || source.isBlank() ? Sources.TOP : source;
+    }
 
     public SnapshotDelta {
         upserts = upserts == null ? List.of() : List.copyOf(upserts);

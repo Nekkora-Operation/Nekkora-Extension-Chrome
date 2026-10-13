@@ -25,8 +25,8 @@ public final class PageModel {
     private final Map<String, List<String>> idAttrIndex;     // scope|id -> nodes
     private final Map<String, List<String>> tagIndex;        // tag -> nodes
     private final Map<String, List<String>> nodesByScope;    // scope -> nodes
-    private final Map<String, String> textCache = new HashMap<>();
-    private final Map<String, String> visibleTextCache = new HashMap<>();
+    private final Map<String, String> textCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, String> visibleTextCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     private PageModel(RawSnapshot snapshot) {
         this.snapshot = snapshot;
