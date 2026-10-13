@@ -29,7 +29,9 @@ public final class NativeHost {
                 .install(new CaptureCommands(services))
                 .install(new InspectionCommands(services))
                 .install(new TargetCommands(services))
-                .install(new ExportCommands(services));
+                .install(new ExportCommands(services))
+                .install(new com.nekkora.extension.host.commands.SessionCommands(services,
+                        new com.nekkora.extension.host.capture.ExportService(session, dataDir, json)));
         this.processor = new MessageProcessor(router, json);
     }
 

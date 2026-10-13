@@ -20,7 +20,8 @@ import java.util.Optional;
  */
 public final class TabState {
 
-    public static final int MAX_CAPTURES = 6;
+    /** Capturas retidas por aba (a mais recente, a anterior para comparação e uma margem). CHROME-001 retinha 6. */
+    public static final int MAX_CAPTURES = 3;
     private static final int MAX_MUTATIONS = 100;
     private static final int MAX_EVIDENCE = 500;
 
@@ -113,5 +114,20 @@ public final class TabState {
 
     public synchronized List<ResolutionResult> resolutions() {
         return new ArrayList<>(resolutions);
+    }
+
+    /** Libera capturas, histórico de opções, mutações, evidências e resoluções (encerramento da sessão). */
+    public synchronized void release() {
+        captures.clear();
+        latestCaptureId = null;
+        latestPageSessionId = null;
+        optionHistory = new OptionHistory();
+        mutations.clear();
+        evidence.clear();
+        resolutions.clear();
+    }
+
+    public synchronized int retainedCaptures() {
+        return captures.size();
     }
 }
