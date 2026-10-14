@@ -18,7 +18,8 @@ public final class DeltaApplier {
     private static final int MAX_REQUESTS = 500;
 
     public RawSnapshot apply(RawSnapshot base, SnapshotDelta delta) {
-        if (!base.captureId().equals(delta.baseCaptureId())) {
+        // Deltas sequenciados são validados pela sessão (época/sequência por fonte); os legados pela captura-base.
+        if (!delta.sequenced() && !base.captureId().equals(delta.baseCaptureId())) {
             throw new IllegalArgumentException("Delta " + delta.captureId() + " se aplica a " + delta.baseCaptureId()
                     + ", não a " + base.captureId());
         }
@@ -30,6 +31,25 @@ public final class DeltaApplier {
             removeSubtree(nodes, root);
         }
         for (RawNode n : delta.upserts()) {
+            RawNode old = nodes.get(n.id());
+            if (old != null && n.parentId() == null && old.parentId() != null && !Sources.TOP.equals(delta.sourceOrTop())) {
+                n = n.withParentId(old.parentId()); // raiz do documento de um iframe anexado: mantém o hospedeiro
+            }
+            if (old != null) {
+                // Filhos pertencentes a OUTRA fonte (ex.: documento de um iframe anexado pelo content script do
+                // próprio frame) não são conhecidos pela fonte deste delta e não podem ser descartados por ela.
+                List<String> extra = new ArrayList<>();
+                for (String c : old.childIds()) {
+                    if (!Sources.sameSource(c, n.id()) && nodes.containsKey(c) && !n.childIds().contains(c)) {
+                        extra.add(c);
+                    }
+                }
+                if (!extra.isEmpty()) {
+                    List<String> merged = new ArrayList<>(n.childIds());
+                    merged.addAll(extra);
+                    n = n.withChildIds(merged);
+                }
+            }
             nodes.put(n.id(), n);
         }
         // Descarta nós que deixaram de ser alcançáveis (pai atualizado sem eles).
@@ -52,10 +72,12 @@ public final class DeltaApplier {
         if (requests.size() > MAX_REQUESTS) {
             requests = requests.subList(requests.size() - MAX_REQUESTS, requests.size());
         }
+        var frames = delta.frames() == null ? base.frames() : Sources.mergeFrames(base.frames(), delta.frames(), delta.sourceOrTop());
+        var shadows = delta.shadowRoots() == null ? base.shadowRoots()
+                : Sources.mergeShadowRoots(base.shadowRoots(), delta.shadowRoots(), delta.sourceOrTop());
         return new RawSnapshot(delta.captureId(), delta.capturedAt(),
-                delta.document() == null ? base.document() : delta.document(),
-                delta.frames() == null ? base.frames() : delta.frames(),
-                delta.shadowRoots() == null ? base.shadowRoots() : delta.shadowRoots(),
+                delta.document() == null || !Sources.TOP.equals(delta.sourceOrTop()) ? base.document() : delta.document(),
+                Sources.pruneDetachedFrames(frames, reachable), Sources.pruneDetachedShadowRoots(shadows, reachable),
                 ordered, requests, delta.stats() == null ? base.stats() : delta.stats());
     }
 

@@ -19,13 +19,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Registra o resultado de cada caso da matriz (nomes iniciados por "T0xx —", "N-x —" ou "C-x —") em
+ * Registra o resultado de cada caso da matriz (nomes iniciados por "T0xx —", "N-x —", "C-x —" ou "C002-xxx —") em
  * {@code reports/test-matrix-<fase>.md} e {@code .json}. O relatório é gerado a partir da EXECUÇÃO
  * real; nada é escrito para testes não executados.
  */
 public final class MatrixReportListener implements TestExecutionListener {
 
-    private static final Pattern ID = Pattern.compile("^((?:T\\d{3})|(?:N-[A-E])|(?:C-\\d+))\\s+—\\s+(.*)$");
+    private static final Pattern ID = Pattern.compile("^((?:T\\d{3})|(?:N-[A-E])|(?:C-\\d+)|(?:C002-(?:\\d{3}|[A-Z0-9]{3})(?: / C002-\\d{3})?))\\s+—\\s+(.*)$");
     private final Map<String, Long> started = new ConcurrentHashMap<>();
     private final List<String[]> rows = java.util.Collections.synchronizedList(new ArrayList<>());
 
@@ -69,7 +69,7 @@ public final class MatrixReportListener implements TestExecutionListener {
             return;
         }
         Path repo = Paths.get(System.getProperty("nekkora.repo", "..")).toAbsolutePath().normalize();
-        String phase = System.getProperty("nekkora.phase", rows.stream().anyMatch(r -> r[0].startsWith("T")) ? "integration" : "unit");
+        String phase = System.getProperty("nekkora.phase", rows.stream().anyMatch(r -> r[0].startsWith("T") || r[0].startsWith("C002")) ? "integration" : "unit");
         List<String[]> sorted = new ArrayList<>(rows);
         sorted.sort((a, b) -> a[0].compareTo(b[0]));
         StringBuilder md = new StringBuilder("# Matriz de homologação — execução " + phase + "\n\n")

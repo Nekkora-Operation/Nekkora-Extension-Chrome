@@ -35,7 +35,7 @@ public final class ContextGraph {
 
     private final PageModel model;
     private final SemanticIndex semantics;
-    private final Map<String, ElementFamily> cache = new HashMap<>();
+    private final Map<String, ElementFamily> cache = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, List<ContextRelation>> incoming = new HashMap<>();
     private final List<RawNode> headings;
 

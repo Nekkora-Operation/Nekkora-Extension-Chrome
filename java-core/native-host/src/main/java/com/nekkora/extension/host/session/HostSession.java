@@ -11,6 +11,8 @@ public final class HostSession {
 
     private final Map<String, TabState> tabs = new ConcurrentHashMap<>();
     private final TargetRegistry targets;
+    private final com.nekkora.extension.host.capture.CaptureSessionRegistry captureSessions =
+            new com.nekkora.extension.host.capture.CaptureSessionRegistry();
     private final JsonFileStore store;
     private final PageAnalyzer analyzer = new PageAnalyzer();
     private final long startedAt = System.currentTimeMillis();
@@ -29,6 +31,14 @@ public final class HostSession {
 
     public void resetTab(String tabKey) {
         tabs.remove(tabKey);
+    }
+
+    public com.nekkora.extension.host.capture.CaptureSessionRegistry captureSessions() {
+        return captureSessions;
+    }
+
+    public java.util.Collection<TabState> tabs() {
+        return tabs.values();
     }
 
     public TargetRegistry targets() {

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Frame filho</title>
+  <style>body{font:14px system-ui;margin:8px} input,button{font:inherit}</style>
+</head>
+<body>
+  <h3 id="titulo-frame">Frame <span id="origem"></span></h3>
+  <form id="form-frame" onsubmit="event.preventDefault()">
+    <label for="valor">Valor</label> <input id="valor" name="valor">
+    <!-- id duplicado de propósito (também existe na página principal) -->
+    <button type="submit" id="pagar">Pagar no frame</button>
+  </form>
+  <nk-frame-card id="cartao-frame"></nk-frame-card>
+  <button type="button" id="mudar">Alterar frame</button>
+  <ul id="itens-frame"></ul>
+  <script>
+    document.getElementById('origem').textContent = location.host;
+    class Card extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        this.attachShadow({ mode: 'open' }).innerHTML = '<button type="button" id="acao-shadow">Ação no shadow do frame</button>';
+      }
+    }
+    customElements.define('nk-frame-card', Card);
+    let n = 0;
+    document.getElementById('mudar').onclick = () => {
+      const li = document.createElement('li');
+      li.textContent = 'Item do frame ' + (++n);
+      document.getElementById('itens-frame').appendChild(li);
+    };
+  </script>
+</body>
+</html>

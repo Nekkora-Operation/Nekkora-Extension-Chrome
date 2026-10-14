@@ -5,95 +5,443 @@
   "description": "Captura estrutural somente leitura produzida pelo content script e enviada ao host Java (comando snapshot.submit). Valores de campos nunca são incluídos, exceto exposedValue de campos de pesquisa reconhecidos.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["captureId", "capturedAt", "document", "frames", "shadowRoots", "nodes", "requests", "stats"],
+  "required": [
+    "captureId",
+    "capturedAt",
+    "document",
+    "frames",
+    "shadowRoots",
+    "nodes",
+    "requests",
+    "stats"
+  ],
   "properties": {
-    "captureId": { "type": "string", "minLength": 1 },
-    "capturedAt": { "type": "string" },
+    "captureId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capturedAt": {
+      "type": "string"
+    },
     "document": {
-      "type": "object", "additionalProperties": false,
-      "required": ["url", "title", "readyState", "viewport", "navigationKind", "pageSessionId"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "title",
+        "readyState",
+        "viewport",
+        "navigationKind",
+        "pageSessionId"
+      ],
       "properties": {
-        "url": { "type": "string" }, "title": { "type": "string" }, "readyState": { "type": "string" },
-        "viewport": {
-          "type": "object", "additionalProperties": false,
-          "properties": { "width": { "type": "number" }, "height": { "type": "number" }, "scrollX": { "type": "number" }, "scrollY": { "type": "number" }, "devicePixelRatio": { "type": "number" } }
+        "url": {
+          "type": "string"
         },
-        "navigationKind": { "enum": ["INITIAL", "MANUAL", "SPA_ROUTE", "RELOAD", "MUTATION"] },
-        "pageSessionId": { "type": "string", "pattern": "^ps-" }
+        "title": {
+          "type": "string"
+        },
+        "readyState": {
+          "type": "string"
+        },
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            },
+            "scrollX": {
+              "type": "number"
+            },
+            "scrollY": {
+              "type": "number"
+            },
+            "devicePixelRatio": {
+              "type": "number"
+            }
+          }
+        },
+        "navigationKind": {
+          "enum": [
+            "INITIAL",
+            "MANUAL",
+            "SPA_ROUTE",
+            "RELOAD",
+            "MUTATION",
+            "FRAGMENT",
+            "FRAME"
+          ]
+        },
+        "pageSessionId": {
+          "type": "string",
+          "pattern": "^ps-"
+        }
       }
     },
     "frames": {
       "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false, "required": ["frameId", "accessible"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "frameId",
+          "accessible"
+        ],
         "properties": {
-          "frameId": { "type": "string" }, "parentFrameId": { "type": ["string", "null"] }, "hostNodeId": { "type": ["string", "null"] },
-          "url": { "type": ["string", "null"] }, "accessible": { "type": "boolean" },
-          "reason": { "enum": [null, "CROSS_ORIGIN", "SANDBOXED", "NOT_LOADED"] }
+          "frameId": {
+            "type": "string"
+          },
+          "parentFrameId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hostNodeId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "accessible": {
+            "type": "boolean"
+          },
+          "reason": {
+            "enum": [
+              null,
+              "CROSS_ORIGIN",
+              "SANDBOXED",
+              "NOT_LOADED"
+            ]
+          }
         }
       }
     },
     "shadowRoots": {
       "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false, "required": ["hostNodeId", "mode", "inspected", "detection"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "hostNodeId",
+          "mode",
+          "inspected",
+          "detection"
+        ],
         "properties": {
-          "hostNodeId": { "type": "string" }, "mode": { "enum": ["open", "closed"] }, "inspected": { "type": "boolean" },
-          "detection": { "enum": ["ELEMENT_SHADOW_ROOT", "EXTENSION_API", "HEURISTIC"] }, "reason": { "type": ["string", "null"] }
+          "hostNodeId": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "inspected": {
+            "type": "boolean"
+          },
+          "detection": {
+            "enum": [
+              "ELEMENT_SHADOW_ROOT",
+              "EXTENSION_API",
+              "HEURISTIC"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
-    "nodes": { "type": "array", "items": { "$ref": "#/$defs/RawNode" } },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RawNode"
+      }
+    },
     "requests": {
       "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false, "required": ["url", "initiatorType"],
-        "properties": { "url": { "type": "string" }, "initiatorType": { "enum": ["fetch", "xmlhttprequest"] }, "startTime": { "type": "number" }, "duration": { "type": "number" } }
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "initiatorType"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "initiatorType": {
+            "enum": [
+              "fetch",
+              "xmlhttprequest"
+            ]
+          },
+          "startTime": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          }
+        }
       }
     },
     "stats": {
-      "type": "object", "additionalProperties": false, "required": ["elementsVisited", "nodesEmitted", "durationMs", "truncated", "maxNodes"],
-      "properties": { "elementsVisited": { "type": "integer" }, "nodesEmitted": { "type": "integer" }, "durationMs": { "type": "number" }, "truncated": { "type": "boolean" }, "maxNodes": { "type": "integer" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "elementsVisited",
+        "nodesEmitted",
+        "durationMs",
+        "truncated",
+        "maxNodes"
+      ],
+      "properties": {
+        "elementsVisited": {
+          "type": "integer"
+        },
+        "nodesEmitted": {
+          "type": "integer"
+        },
+        "durationMs": {
+          "type": "number"
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "maxNodes": {
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "SYNC",
+            "COOPERATIVE"
+          ]
+        },
+        "slices": {
+          "type": "integer"
+        },
+        "maxSliceMs": {
+          "type": "number"
+        },
+        "consistency": {
+          "enum": [
+            "INSTANT",
+            "BASE_PLUS_DELTA"
+          ]
+        }
+      }
     }
   },
   "$defs": {
-    "triState": { "type": ["boolean", "null"] },
+    "triState": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "RawNode": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "parentId", "childIds", "tag", "frameId", "scopeId", "attributes", "ownText", "state", "rect", "labelIds", "scroll", "exposedValue"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "parentId",
+        "childIds",
+        "tag",
+        "frameId",
+        "scopeId",
+        "attributes",
+        "ownText",
+        "state",
+        "rect",
+        "labelIds",
+        "scroll",
+        "exposedValue"
+      ],
       "properties": {
-        "id": { "type": "string", "pattern": "^n[0-9]+$" },
-        "parentId": { "type": ["string", "null"] },
-        "childIds": { "type": "array", "items": { "type": "string" } },
-        "tag": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
-        "frameId": { "type": "string" },
-        "scopeId": { "type": "string", "pattern": "^(doc:f[0-9]+|shadow:n[0-9]+)$" },
-        "attributes": {
-          "type": "object", "additionalProperties": { "type": "string", "maxLength": 300 },
-          "not": { "required": ["style"] }
+        "id": {
+          "type": "string",
+          "pattern": "^(x[0-9]+)?n[0-9]+$"
         },
-        "ownText": { "type": "string", "maxLength": 500 },
+        "parentId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "childIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "frameId": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string",
+          "pattern": "^(doc:(f[0-9]+|c[0-9]+(f[0-9]+)?)|shadow:(x[0-9]+)?n[0-9]+)$"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "not": {
+            "required": [
+              "style"
+            ]
+          }
+        },
+        "ownText": {
+          "type": "string",
+          "maxLength": 500
+        },
         "state": {
-          "type": "object", "additionalProperties": false,
+          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "visible": { "$ref": "#/$defs/triState" }, "hiddenReason": { "type": ["string", "null"] }, "inViewport": { "$ref": "#/$defs/triState" },
-            "zeroSize": { "$ref": "#/$defs/triState" }, "disabled": { "$ref": "#/$defs/triState" }, "readOnly": { "$ref": "#/$defs/triState" },
-            "required": { "$ref": "#/$defs/triState" }, "checked": { "$ref": "#/$defs/triState" }, "selected": { "$ref": "#/$defs/triState" },
-            "editable": { "$ref": "#/$defs/triState" }, "focusable": { "$ref": "#/$defs/triState" }, "cursorPointer": { "$ref": "#/$defs/triState" },
-            "boxed": { "$ref": "#/$defs/triState" }, "hasValue": { "$ref": "#/$defs/triState" }, "valueLength": { "type": ["integer", "null"] },
-            "open": { "$ref": "#/$defs/triState" }, "modal": { "$ref": "#/$defs/triState" }, "inert": { "$ref": "#/$defs/triState" }
+            "visible": {
+              "$ref": "#/$defs/triState"
+            },
+            "hiddenReason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "inViewport": {
+              "$ref": "#/$defs/triState"
+            },
+            "zeroSize": {
+              "$ref": "#/$defs/triState"
+            },
+            "disabled": {
+              "$ref": "#/$defs/triState"
+            },
+            "readOnly": {
+              "$ref": "#/$defs/triState"
+            },
+            "required": {
+              "$ref": "#/$defs/triState"
+            },
+            "checked": {
+              "$ref": "#/$defs/triState"
+            },
+            "selected": {
+              "$ref": "#/$defs/triState"
+            },
+            "editable": {
+              "$ref": "#/$defs/triState"
+            },
+            "focusable": {
+              "$ref": "#/$defs/triState"
+            },
+            "cursorPointer": {
+              "$ref": "#/$defs/triState"
+            },
+            "boxed": {
+              "$ref": "#/$defs/triState"
+            },
+            "hasValue": {
+              "$ref": "#/$defs/triState"
+            },
+            "valueLength": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "open": {
+              "$ref": "#/$defs/triState"
+            },
+            "modal": {
+              "$ref": "#/$defs/triState"
+            },
+            "inert": {
+              "$ref": "#/$defs/triState"
+            }
           }
         },
         "rect": {
-          "type": ["object", "null"], "additionalProperties": false,
-          "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "width": { "type": "number" }, "height": { "type": "number" } }
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            }
+          }
         },
-        "labelIds": { "type": "array", "items": { "type": "string" } },
+        "labelIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "scroll": {
-          "type": ["object", "null"], "additionalProperties": false,
-          "properties": { "scrollHeight": { "type": "number" }, "clientHeight": { "type": "number" }, "scrollTop": { "type": "number" } }
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "scrollHeight": {
+              "type": "number"
+            },
+            "clientHeight": {
+              "type": "number"
+            },
+            "scrollTop": {
+              "type": "number"
+            }
+          }
         },
-        "exposedValue": { "type": ["string", "null"], "maxLength": 200 }
+        "textSegments": {
+          "description": "CHROME-002 (opcional): conteúdo misto — childIds.length+1 trechos de texto, o i-ésimo antes do i-ésimo filho e o último após o último.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exposedValue": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        }
       }
     }
   }

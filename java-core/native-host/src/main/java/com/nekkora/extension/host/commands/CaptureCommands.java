@@ -60,52 +60,7 @@ public final class CaptureCommands implements CommandRouter.CommandGroup {
             TabState tab = s.session.tab(Payloads.required(p, "tabKey"));
             SnapshotDelta delta = s.json.read(Payloads.node(p, "delta"), SnapshotDelta.class);
             PageAnalysis base = s.capture(tab, delta.baseCaptureId());
-            long t1 = System.nanoTime();
-            RawSnapshot applied = s.deltas.apply(base.model().snapshot(), delta);
-            Set<String> changed = new HashSet<>();
-            delta.upserts().forEach(n -> changed.add(n.id()));
-            PageAnalysis analysis = s.session.analyzer().reanalyze(applied, base, changed);
-            long t2 = System.nanoTime();
-            tab.putCapture(analysis);
-            MutationRecord record = s.comparator.compare(base.graph(), analysis.graph(), "INCREMENTAL",
-                    delta.rawMutationCount(), delta.batchCount());
-
-            // Alvos afetados: a última referência foi removida ou alterada.
-            Set<String> removedNow = new HashSet<>();
-            for (RawNode n : base.model().nodes()) {
-                if (!analysis.model().contains(n.id())) {
-                    removedNow.add(n.id());
-                }
-            }
-            String sessionId = applied.document() == null ? null : applied.document().pageSessionId();
-            List<String> affected = new ArrayList<>();
-            List<ResolutionResult> auto = new ArrayList<>();
-            if (Payloads.flag(p, "autoResolve", true)) {
-                for (TargetIdentity t : s.session.targets().all()) {
-                    if (!Objects.equals(t.lastPageSessionId(), sessionId) || t.lastNodeId() == null) {
-                        continue;
-                    }
-                    if (removedNow.contains(t.lastNodeId()) || changed.contains(t.lastNodeId())) {
-                        affected.add(t.targetId());
-                        ResolutionResult r = s.resolver.resolve(t, analysis.graph(), analysis.locators());
-                        if (r.status() == ResolutionStatus.RESOLVED && r.updatedIdentity() != null) {
-                            s.session.targets().put(r.updatedIdentity());
-                        }
-                        auto.add(r);
-                    }
-                }
-            }
-            double processing = EngineServices.ms(t0);
-            record = record.withTargets(affected, processing);
-            tab.addMutation(record);
-            Map<String, Object> out = new LinkedHashMap<>();
-            out.put("captureId", applied.captureId());
-            out.put("nodes", analysis.model().size());
-            out.put("mutation", record);
-            out.put("autoResolutions", auto);
-            out.put("timings", Map.of("applyMs", round((t2 - t1) / 1e6), "classificationMs", analysis.classificationMs(),
-                    "upserts", delta.upserts().size(), "removed", delta.removed().size(), "hostTotalMs", processing));
-            return out;
+            return new DeltaProcessor(s).apply(tab, base, delta, Payloads.flag(p, "autoResolve", true));
         });
 
         router.register("snapshot.compare", p -> {

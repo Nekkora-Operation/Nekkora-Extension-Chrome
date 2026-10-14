@@ -10,10 +10,10 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 
 | | |
 |---|---|
-| Missão | NEKKORA-CHROME-001 |
-| Estado | Homologação local **aprovada**: 58/58 casos no Chrome real + 140 testes unitários/contrato ([relatório final](reports/final-report.md)) |
+| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · **NEKKORA-CHROME-002** (captura automática contínua, botão único, exportação na finalização) |
+| Estado | CHROME-002 homologada localmente: ver [relatório da CHROME-002](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
 | Linguagem principal | Java 21 (motor de análise, host Native Messaging, servidor do laboratório, testes) |
-| Navegador | Google Chrome / Chrome for Testing 155 (MV3) |
+| Navegador | Google Chrome 155 (convencional, homologado) / Chrome for Testing 155 (suíte automatizada) — MV3 |
 | Contrato | Nekkora PageMap **0.1.0** ([JSON Schema](contracts/page-map.schema.json)) |
 
 ---
@@ -37,6 +37,12 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 Documentação detalhada: [arquitetura](docs/architecture.md) · [contratos](docs/contracts.md) ·
 [decisões](docs/decisions.md) · [plano de testes](docs/test-plan.md) · [limitações](docs/limitations.md) ·
 [relatórios por fase](docs/phase-reports.md).
+
+CHROME-002: [ciclo de captura contínua, sessões, recuperação e retenção](docs/chrome-002/capture-lifecycle.md) ·
+[inspeção com botão único e DEV × PRD](docs/chrome-002/inspection.md) ·
+[exportação automática](docs/chrome-002/export.md) ·
+[iframes, Shadow DOM, AccName e cobertura](docs/chrome-002/frames-shadow-accname.md) ·
+[desempenho e memória](docs/chrome-002/performance.md).
 
 ---
 
@@ -84,10 +90,35 @@ flowchart LR
 | Native Messaging Host | `java-core/native-host` | Java |
 | Laboratório | `java-core/lab-server` + `test-lab/pages` | Java + HTML |
 
+## Captura automática e botão único (CHROME-002)
+
+Ao clicar em **Ativar inspeção** a extensão verifica a página e o motor, inicia uma **sessão de
+captura** da aba (captura-base cooperativa + deltas sequenciados contínuos, sem recapturar a cada
+segundo), liga os ouvintes e o destaque e só então mostra **Desativar inspeção** (`aria-pressed=true`).
+Selecionar um elemento reutiliza o estado sincronizado (barreira), sem captura completa. Desativar
+remove ouvintes e overlay e libera a sessão — **sem** exportar e sem encerrar uma gravação em
+andamento. A exportação do PageMap acontece quando a plataforma sinaliza
+`recording.session.finished` (hoje simulado pelo harness).
+
+```mermaid
+flowchart LR
+  A["Ativar inspeção"] --> B["Ativando inspeção...<br/>página permitida · motor Java"]
+  B --> C["Captura-base cooperativa<br/>(fatias de 8 ms) + rastreamento"]
+  C --> D["ACTIVE: Desativar inspeção<br/>Captura: Automática ativa"]
+  D --> E["Deltas contínuos<br/>(época/seq validados no Java)"]
+  D --> F["Seleção: barreira + snapshot corrente"]
+  D --> G["Desativar: libera consumidor<br/>(gravação continua, nada exportado)"]
+  H["recording.session.finished"] --> I["barreira → export.session<br/>fluxo · .tmp · atômico · SHA-256 · schema"]
+```
+
+Fluxogramas completos: [nova inspeção](docs/chrome-002/inspection.md#fluxo-da-nova-inspeção) e
+[exportação futura](docs/chrome-002/export.md#fluxo-da-exportação-futura).
+
 ## Fluxo de inspeção
 
-Implementado em `inspector.js` → `service-worker.js#selectNode` → comandos `snapshot.submit`,
-`element.inspect`, `target.register`, `locators.verify` do host.
+Implementado em `inspector.js` → `inspection.js#selectNode` → (barreira de sincronização com sessão
+ativa, ou captura avulsa sem sessão) → comandos `element.inspect`, `target.register`,
+`locators.verify` do host.
 
 ```mermaid
 flowchart TD
@@ -177,42 +208,63 @@ Sistema operacional validado: **Windows 11**. Linux/macOS: ver [limitações](do
    .\scripts\start-lab.ps1        # http://127.0.0.1:8765/lab/index.html
    ```
 9. **Executar uma inspeção**: abra uma página do laboratório → clique no ícone **N** (abre o painel
-   lateral) → *Ativar inspeção* → passe o mouse (contorno rosa tracejado) → clique no elemento
-   (contorno rosa sólido; a ação do elemento não é executada) → o painel mostra tipo, nome, família,
-   localizadores com contagens no snapshot e na DOM real.
-10. **Exportar um PageMap**: no painel, *Exportar mapa* → baixa `pagemap-<captura>.json`; uma cópia fica
-    em `%LOCALAPPDATA%\Nekkora\ExtensionChrome\pagemaps\`.
+   lateral nativo) → *Ativar inspeção* (o botão mostra *Ativando inspeção...* e depois *Desativar
+   inspeção*; *Captura: Automática ativa*, *Elementos*, *Última atualização*, *Deltas*) → passe o mouse
+   (contorno rosa tracejado) → clique no elemento (contorno rosa sólido; a ação do elemento não é
+   executada) → o painel mostra tipo, nome, família, localizadores com contagens no snapshot e na DOM real.
+10. **Exportar um PageMap**: em DEV, *Exportar mapa* (área DEV) → baixa `pagemap-<captura>.json`; uma
+    cópia fica em `%LOCALAPPDATA%\Nekkora\ExtensionChrome\pagemaps\`. A exportação de produto ocorre
+    na finalização da gravação (`recording.session.finished`, simulável no harness
+    `chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/harness.html`).
+11. **Construção PRD** (opcional): `.\scripts\build.ps1 -Mode PRD` gera `dist\prd\` sem o harness e sem
+    as ferramentas DEV. PRD **não** autoriza distribuição nem inspeção de sites reais.
 
 Remover o host: `.\native-host\scripts\uninstall-host.ps1` (`-RemoveData` apaga também dados e logs).
 
 ## Uso
 
-Ações do painel lateral (`src/ui/panel.html`):
+Painel lateral (`src/ui/panel.html`), conforme o layout da CHROME-002:
 
-| Botão | O que faz |
+```text
+NEKKORA INSPECTOR                      [DEV]
+Host Java            ● Conectado · Java 21
+[ Ativar inspeção ] / [ Desativar inspeção ]   (botão único, aria-pressed)
+Captura              ● Automática ativa
+Elementos            1.248
+Última atualização   agora
+Deltas               37
+DEV  [Testar reencontro] [Comparar snapshots] [Exportar mapa] [Forçar captura completa]
+ELEMENTO · FAMÍLIA · LOCALIZADORES
+```
+
+| Controle | O que faz |
 |---|---|
-| Ativar inspeção | contorno rosa ao passar o mouse; clique seleciona sem disparar a ação |
-| Desativar inspeção | remove ouvintes, observadores, overlay e laço de acompanhamento |
-| Capturar página | captura estrutural (somente leitura) + análise no Java; mostra cobertura e limites |
-| Testar reencontro | reexecuta a resolução do alvo selecionado e destaca o resultado (ou mostra a recusa) |
-| Comparar snapshots | compara a captura anterior com uma nova (adicionados, removidos, alterados, re-renderizados) |
-| Exportar mapa | gera o PageMap 0.1.0 |
-| Acompanhar mutações | liga o Mutation Tracker (deltas incrementais; o destaque segue re-renderizações) |
+| Ativar / Desativar inspeção | botão único com estados `INACTIVE`, `ACTIVATING`, `ACTIVE`, `DEACTIVATING`, `DEGRADED`, `ERROR`; a captura automática acompanha a inspeção |
+| Testar reencontro (DEV) | reexecuta a resolução do alvo selecionado e destaca o resultado (ou mostra a recusa) |
+| Comparar snapshots (DEV) | compara a referência com o estado sincronizado (adicionados, removidos, alterados, re-renderizados) |
+| Exportar mapa (DEV) | gera o PageMap 0.1.0 a partir do estado sincronizado |
+| Forçar captura completa (DEV) | nova base da sessão (substitui o antigo "Capturar página"); em PRD não existe |
+
+O antigo "Acompanhar mutações" deixou de existir: o rastreamento é automático enquanto a inspeção
+(ou uma gravação) estiver ativa.
 
 ## Testes
 
 | Suíte | Comando | Navegador |
 |---|---|---|
-| Unitários Java (core 113, host 12, laboratório 3) + contrato (2) | `.\mvnw.cmd test` | não |
-| Unitários da extensão (10) | `cd chrome-extension; npm test` | não |
-| Homologação no Chrome real (58 casos) | `.\scripts\run-tests.ps1 -Suite integration` | sim (Chrome for Testing) |
+| Unitários Java (core 129, host 25, laboratório 3) + contrato (2) | `.\mvnw.cmd test` | não |
+| Unitários da extensão (12) | `cd chrome-extension; npm test` | não |
+| Homologação no Chrome real (58 casos CHROME-001 + matriz C002-001..050 + Chrome convencional) | `.\scripts\run-tests.ps1 -Suite integration` | sim (Chrome for Testing; `BrandedChromeIT` usa o Chrome instalado) |
+| Sessão prolongada de 15/30 min | `mvnw -pl integration-tests -Pintegration verify "-Dit.test=Chrome002PerformanceIT#longSession" -Dnekkora.long.minutes=30` | sim |
 | Tudo + relatórios | `.\scripts\run-tests.ps1` | sim |
 | Somente algumas classes | `.\scripts\run-tests.ps1 -Suite integration -Test "NegativeCasesIT,ResolutionIT"` | sim |
 | Sem janela | acrescente `-Headless` | sim |
 
 Relatórios gerados pela execução real:
 
-- [`reports/test-matrix-integration.md`](reports/test-matrix-integration.md) — matriz T001–T040, casos negativos N-A..N-E, comunicação e contratos;
+- [`reports/test-matrix-integration.md`](reports/test-matrix-integration.md) — matriz T001–T040, C002-001..050, casos negativos N-A..N-E, comunicação e contratos;
+- [`reports/chrome-002/performance.md`](reports/chrome-002/performance.md) — CHROME-002: antes × depois de 100 a 20.000 elementos, memória, sessões de 5/15/30 min;
+- [`reports/chrome-002-final-report.md`](reports/chrome-002-final-report.md) — relatório final da CHROME-002;
 - [`reports/performance.md`](reports/performance.md) — medições de 100 a 10.000 elementos e de mutações frequentes;
 - [`reports/evidence/`](reports/evidence) — capturas de tela do destaque rosa, do painel e da inspeção sem ação acidental;
 - [`reports/final-report.md`](reports/final-report.md) — relatório de homologação.
@@ -232,11 +284,11 @@ Nekkora-Extension-Chrome/
 │   └── lab-server/    servidor do laboratório (JDK puro)
 ├── chrome-extension/  extensão MV3 (JS puro, sem bundler) + testes Node
 ├── native-host/       scripts de instalação/remoção do host
-├── contracts/         JSON Schemas: PageMap, snapshot bruto, protocolo
-├── test-lab/pages/    páginas do laboratório (simples, intermediárias, complexas)
+├── contracts/         JSON Schemas: PageMap, snapshot bruto, protocolo, sessão de captura
+├── test-lab/pages/    páginas do laboratório (simples, intermediárias, complexas, chrome002/)
 ├── integration-tests/ homologação no Chrome real + testes de contrato
 ├── scripts/           build, laboratório, testes
-├── docs/              arquitetura, contratos, decisões, plano de testes, limitações, fases
+├── docs/              arquitetura, contratos, decisões, plano de testes, limitações, fases, chrome-002/
 └── reports/           matriz, desempenho, evidências e relatório final
 ```
 
@@ -247,6 +299,10 @@ Nekkora-Extension-Chrome/
   `TargetIdentity`, `ResolutionResult`, `CoverageReport`, `MutationRecord`, `InspectionEvidence`.
 - **Snapshot bruto** — [`contracts/raw-snapshot.schema.json`](contracts/raw-snapshot.schema.json).
 - **Protocolo nekkora-nm/1** — [`contracts/native-protocol.schema.json`](contracts/native-protocol.schema.json).
+- **Sessão de captura / inspeção / gravação / exportação** (CHROME-002) —
+  [`contracts/capture-session.schema.json`](contracts/capture-session.schema.json): `SequencedDelta`,
+  `CaptureSessionStatus`, `HostSessionStatus`, `InspectionState`, `RecordingEvent`,
+  `RecordingExportResult`, `ExportResult`. O PageMap continua na versão **0.1.0**.
 
 `nodeId` é **temporário** (vale na sessão de página indicada por `pageSessionId`); `targetId` é a
 **identidade lógica** e nunca se liga permanentemente a um nó DOM. Detalhes em [docs/contracts.md](docs/contracts.md).
@@ -270,9 +326,13 @@ alterar estilo ou layout da página ([evidência](reports/evidence/T034-highligh
 | `host_permissions: http://127.0.0.1/*, http://localhost/*` | atuar **somente** em páginas locais (sem `<all_urls>`) |
 | `nativeMessaging` | falar com o host Java local |
 | `sidePanel` | painel lateral |
-| `storage` | última inspeção por aba (`storage.session`) |
+| `storage` | estado mínimo das sessões e da inspeção por aba (`storage.session`, sobrevive ao reinício do service worker); modo DEV/PRD simulado (`storage.local`, somente em construção DEV) |
 | `scripting` | ler hooks de teste **declarados** pelas páginas do laboratório (lista fechada, somente leitura) |
-| `webNavigation` | detectar navegação SPA (`pushState`/hash) em páginas locais |
+| `webNavigation` | detectar navegação SPA (`pushState`/hash) em páginas locais e listar frames da aba |
+| `alarms` | reconexão ao motor Java como salvaguarda enquanto houver sessão degradada |
+
+`content_scripts.all_frames: true` (CHROME-002) injeta o content script **somente** em frames de
+origens já permitidas (127.0.0.1/localhost, qualquer porta); nenhuma permissão foi ampliada.
 
 - Valores de campos **nunca** saem da página, exceto campos de pesquisa reconhecidos (`type=search` ou
   `name` de pesquisa); senhas/cartões/documentos são marcados como sensíveis e nunca exportados (T033).
@@ -288,7 +348,11 @@ alterar estilo ou layout da página ([evidência](reports/evidence/T034-highligh
 |---|---|---|
 | `java` não encontrado / *Java 21+ não encontrado* | JDK ausente ou fora do PATH | instale um JDK 21 e defina `JAVA_HOME`, ou `install-host.ps1 -JavaExe C:\caminho\java.exe` |
 | Erro de compilação `release 21` | JDK anterior ao 21 em `JAVA_HOME` | aponte `JAVA_HOME` para o JDK 21 (`java -version`) |
-| Painel: *host indisponível* / `HOST_UNAVAILABLE: Specified native messaging host not found` | host não registrado para este navegador | rode `install-host.ps1`; confira `reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\com.nekkora.extension_chrome"`. Chrome for Testing/Chromium leem `HKCU\Software\Chromium\...` |
+| Painel: *Indisponível* / `HOST_UNAVAILABLE: Specified native messaging host not found` | host não registrado para este navegador | rode `install-host.ps1`; confira `reg query "HKCU\Software\Google\Chrome\NativeMessagingHosts\com.nekkora.extension_chrome"`. Chrome for Testing/Chromium leem `HKCU\Software\Chromium\...` e, na ausência, `HKCU\Software\Google\Chrome\...` |
+| Botão volta a *Ativar inspeção* com *Falha ao ativar a inspeção* | motor indisponível, página não permitida ou falha da captura-base | a mensagem traz o código; a inspeção nunca é exibida como ativa após falha |
+| *Captura: Pausada (motor indisponível)* | o processo Java terminou | a extensão reconecta sozinha (1–30 s) e refaz a base; se persistir, veja os logs do host |
+| *Captura: Erro na captura* (`RESYNC_LIMIT`) | mais de 5 ressincronizações em 30 s (página instável) | desative e ative a inspeção; o limite evita laços de recaptura |
+| Chrome convencional não carrega a extensão por linha de comando | Chrome ≥ 137 ignora `--load-extension` | carregue em `chrome://extensions` (sem compactação); a automação usa CDP `Extensions.loadUnpacked` (`BrandedChromeIT`) |
 | `Access to the specified native messaging host is forbidden` | id da extensão diferente do `allowed_origins` | o id em `chrome://extensions` deve ser `dceigcmhbihcigneokmpmbocdclkhcaj`; se carregou outra cópia, rode `install-host.ps1 -ExtensionId <id>` |
 | `HOST_DISCONNECTED: Native host has exited` | o processo Java terminou (ex.: Java errado no `nekkora-host.cmd`) | veja `%LOCALAPPDATA%\Nekkora\ExtensionChrome\logs\native-host-0.log`; reinstale o host |
 | `ORIGIN_NOT_ALLOWED` | página fora de 127.0.0.1/localhost | a extensão atua só no laboratório local (por projeto) |
@@ -302,11 +366,12 @@ alterar estilo ou layout da página ([evidência](reports/evidence/T034-highligh
 
 Resumo (lista completa e evidências em [docs/limitations.md](docs/limitations.md)):
 
-- Shadow DOM **fechado** é detectado mas não inventariado; iframes cross-origin/sandbox são declarados inacessíveis.
-- Instalação do host automatizada e validada apenas no **Windows**; uso com o Chrome de marca foi
-  preparado (chave de registro e carga manual), mas a automação de testes usa o Chrome for Testing.
-- Nome acessível segue AccName de forma simplificada; heurísticas (erro, instrução, portal, virtualização) estão rotuladas como tal.
-- Shadow roots/iframes criados **depois** de ligar o rastreamento só entram na cobertura após nova captura completa.
-- Exploração de opções (abrir dropdowns) é etapa separada feita por clique do usuário/teste — a extensão não clica sozinha.
+- Shadow DOM **fechado** é detectado mas não inventariado; iframes de origens **sem permissão** e
+  `sandbox` são declarados e não inspecionados.
+- `attachShadow()` em host já conectado é detectado por reconciliação (latência medida ≈ 1 s).
+- Com a inspeção ativa, cliques são seleções (as ações da página não executam).
+- Instalação do host automatizada e validada apenas no **Windows**.
+- AccName 1.2 sem pseudo-elementos CSS e `aria-owns`; heurísticas (erro, instrução, portal,
+  virtualização) estão rotuladas como tal.
+- Somente o **contrato** de gravação foi implementado (sem gravador, sem Studio, sem Platform).
 - Licenciamento ainda **não definido** ([LICENSE](LICENSE)).
-

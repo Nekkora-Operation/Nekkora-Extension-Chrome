@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Alterações rápidas</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Alterações rápidas (10/50/100 por segundo)</h1>
+  <p class="muted">Gerador de mutações com taxa fixa. <code>?rate=N&amp;seconds=S&amp;rows=R</code> inicia automaticamente.</p>
+  <button type="button" id="r10">10/s</button>
+  <button type="button" id="r50">50/s</button>
+  <button type="button" id="r100">100/s</button>
+  <button type="button" id="parar">Parar</button>
+  <p>Mutações geradas: <output id="geradas">0</output> · taxa <output id="taxa">0</output>/s</p>
+  <table id="grade"><thead><tr><th>Linha</th><th>Valor</th><th>Ação</th></tr></thead><tbody></tbody></table>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const rows = Number(params.get('rows') || 50);
+    const tbody = document.querySelector('#grade tbody');
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>L' + i + '</td><td class="v">0</td><td><button type="button">Abrir L' + i + '</button></td>';
+      tbody.appendChild(tr);
+    }
+    let timer = null;
+    let count = 0;
+    let rate = 0;
+    function mutate() {
+      count++;
+      const i = count % rows;
+      const cell = tbody.children[i].querySelector('.v');
+      cell.textContent = String(count);
+      if (count % 25 === 0) {
+        // Re-renderização periódica de uma linha (remoção + inserção).
+        const tr = tbody.children[(count / 25) % rows];
+        const clone = tr.cloneNode(true);
+        tr.replaceWith(clone);
+      }
+      document.getElementById('geradas').value = String(count);
+    }
+    function start(r, seconds) {
+      stop();
+      rate = r;
+      document.getElementById('taxa').value = String(r);
+      const interval = 1000 / r;
+      const t0 = performance.now();
+      let done = 0;
+      timer = setInterval(() => {
+        // Mantém a taxa média mesmo com atrasos do temporizador.
+        const due = Math.floor((performance.now() - t0) / interval);
+        while (done < due) {
+          mutate();
+          done++;
+        }
+        if (seconds && performance.now() - t0 >= seconds * 1000) {
+          stop();
+        }
+      }, Math.max(4, interval));
+    }
+    function stop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+    document.getElementById('r10').onclick = () => start(10);
+    document.getElementById('r50').onclick = () => start(50);
+    document.getElementById('r100').onclick = () => start(100);
+    document.getElementById('parar').onclick = stop;
+    window.NekkoraLab.hooks({ getRenderCount: () => count });
+    if (params.get('rate')) {
+      start(Number(params.get('rate')), Number(params.get('seconds') || 0));
+    }
+  </script>
+</body>
+</html>

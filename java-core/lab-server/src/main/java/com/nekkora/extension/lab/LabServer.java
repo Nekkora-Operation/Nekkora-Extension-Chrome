@@ -19,9 +19,13 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**
- * Servidor do laboratório de simulação. Escuta SOMENTE em 127.0.0.1 (o mesmo processo também é
- * alcançável como {@code localhost}, o que fornece uma segunda ORIGEM para testes de iframe
- * cross-origin sem infraestrutura adicional).
+ * Servidor do laboratório de simulação. Escuta SOMENTE em endereços de loopback:
+ * <ul>
+ *   <li>{@code 127.0.0.1:PORTA} — principal (também alcançável como {@code localhost}, outra ORIGEM);</li>
+ *   <li>{@code 127.0.0.1:PORTA+1} — segunda porta: origem local PERMITIDA diferente (iframes de outra origem);</li>
+ *   <li>{@code 127.0.0.2:PORTA} — origem local SEM permissão na extensão (cenário "iframe sem permissão").</li>
+ * </ul>
+ * As escutas adicionais são opcionais: se o endereço/porta não estiver disponível, o servidor principal segue.
  *
  * <p>Rotas:
  * <ul>
@@ -36,6 +40,8 @@ import java.util.concurrent.Executors;
 public final class LabServer {
 
     private final HttpServer server;
+    private final java.util.List<HttpServer> extra = new java.util.ArrayList<>();
+    private final java.util.List<String> extraAddresses = new java.util.ArrayList<>();
     private final Path root;
     private final LabApi api = new LabApi();
 
@@ -44,14 +50,36 @@ public final class LabServer {
         this.server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 64);
         this.server.setExecutor(Executors.newFixedThreadPool(8));
         this.server.createContext("/", this::handle);
+        int main = server.getAddress().getPort();
+        addListener(InetAddress.getLoopbackAddress(), main + 1);
+        addListener(InetAddress.getByAddress(new byte[] {127, 0, 0, 2}), main);
+    }
+
+    private void addListener(InetAddress address, int port) {
+        try {
+            HttpServer h = HttpServer.create(new InetSocketAddress(address, port), 64);
+            h.setExecutor(Executors.newFixedThreadPool(4));
+            h.createContext("/", this::handle);
+            extra.add(h);
+            extraAddresses.add(address.getHostAddress() + ":" + port);
+        } catch (IOException e) {
+            // escuta adicional indisponível: cenários que dependem dela declaram a ausência
+        }
     }
 
     public void start() {
         server.start();
+        extra.forEach(HttpServer::start);
     }
 
     public void stop() {
         server.stop(0);
+        extra.forEach(h -> h.stop(0));
+    }
+
+    /** Endereços adicionais efetivamente abertos (ex.: {@code 127.0.0.1:18766}, {@code 127.0.0.2:18765}). */
+    public java.util.List<String> extraAddresses() {
+        return java.util.List.copyOf(extraAddresses);
     }
 
     public int port() {
@@ -181,6 +209,7 @@ public final class LabServer {
         LabServer s = new LabServer(port, pages);
         s.start();
         System.out.println("Nekkora Test Lab em http://127.0.0.1:" + s.port() + "/lab/index.html (páginas: " + pages.toAbsolutePath() + ")");
+        System.out.println("Escutas adicionais: " + s.extraAddresses());
     }
 
     static Path locatePages() {

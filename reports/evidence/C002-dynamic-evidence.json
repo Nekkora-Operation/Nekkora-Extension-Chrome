@@ -1,0 +1,143 @@
+{
+  "accessibleNames" : [ {
+    "element" : "#b-circular",
+    "expected" : "Ciclo um Ciclo dois",
+    "nekkora" : "Ciclo um Ciclo dois",
+    "chrome" : "Ciclo um Ciclo dois",
+    "source" : "ARIA_LABELLEDBY",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-multiplo",
+    "expected" : "Remessa internacional",
+    "nekkora" : "Remessa internacional",
+    "chrome" : "Remessa internacional",
+    "source" : "ARIA_LABELLEDBY",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-self",
+    "expected" : "Enviar internacional",
+    "nekkora" : "Enviar internacional",
+    "chrome" : "Enviar internacional",
+    "source" : "ARIA_LABELLEDBY",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-svg",
+    "expected" : "Excluir registro",
+    "nekkora" : "Excluir registro",
+    "chrome" : "Excluir registro",
+    "source" : "CONTENT",
+    "confidence" : "MEDIUM",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-img",
+    "expected" : "Imprimir",
+    "nekkora" : "Imprimir",
+    "chrome" : "Imprimir",
+    "source" : "CONTENT",
+    "confidence" : "MEDIUM",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-icone-oculto",
+    "expected" : "Favoritar",
+    "nekkora" : "Favoritar",
+    "chrome" : " Favoritar",
+    "source" : "CONTENT",
+    "confidence" : "MEDIUM",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-title",
+    "expected" : "Configurações",
+    "nekkora" : "Configurações",
+    "chrome" : "Configurações",
+    "source" : "TITLE",
+    "confidence" : "LOW",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-aria-label",
+    "expected" : "Fechar diálogo",
+    "nekkora" : "Fechar diálogo",
+    "chrome" : "Fechar diálogo",
+    "source" : "ARIA_LABEL",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#c-prioridade",
+    "expected" : "Prioridade",
+    "nekkora" : "Prioridade",
+    "chrome" : "Prioridade",
+    "source" : "WRAPPING_LABEL",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#c-placeholder",
+    "expected" : "Pesquisar clientes",
+    "nekkora" : "Pesquisar clientes",
+    "chrome" : "Pesquisar clientes",
+    "source" : "PLACEHOLDER",
+    "confidence" : "LOW",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#c-title",
+    "expected" : "Código do cliente",
+    "nekkora" : "Código do cliente",
+    "chrome" : "Código do cliente",
+    "source" : "TITLE",
+    "confidence" : "LOW",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#c-descrito",
+    "expected" : "E-mail",
+    "nekkora" : "E-mail",
+    "chrome" : "E-mail",
+    "source" : "ARIA_LABEL",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#c-rua",
+    "expected" : "Rua",
+    "nekkora" : "Rua",
+    "chrome" : "Rua",
+    "source" : "LABEL_ELEMENT",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#a-texto",
+    "expected" : "Ver detalhes do pedido",
+    "nekkora" : "Ver detalhes do pedido",
+    "chrome" : "Ver detalhes do pedido",
+    "source" : "CONTENT",
+    "confidence" : "MEDIUM",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#r-botao",
+    "expected" : "Atualizar lista",
+    "nekkora" : "Atualizar lista",
+    "chrome" : "Atualizar lista",
+    "source" : "CONTENT",
+    "confidence" : "MEDIUM",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-oculto",
+    "expected" : "Rótulo oculto referenciado",
+    "nekkora" : "Rótulo oculto referenciado",
+    "chrome" : "Rótulo oculto referenciado",
+    "source" : "ARIA_LABELLEDBY",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  }, {
+    "element" : "#b-recursivo",
+    "expected" : "ignorado",
+    "nekkora" : "ignorado",
+    "chrome" : "ignorado",
+    "source" : "ARIA_LABELLEDBY",
+    "confidence" : "HIGH",
+    "agreesWithChrome" : true
+  } ],
+  "measures" : {
+    "lateAttachShadowLatencyMs" : 1103,
+    "reconcileIntervalMs" : 1000
+  }
+}

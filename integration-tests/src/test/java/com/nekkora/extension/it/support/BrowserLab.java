@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  */
 public final class BrowserLab {
 
-    public static final int PORT = Integer.getInteger("nekkora.lab.port", 8765);
+    public static final int PORT = Integer.getInteger("nekkora.lab.port", 18765);
     private static BrowserLab instance;
 
     private final ObjectMapper mapper = new ObjectMapper();

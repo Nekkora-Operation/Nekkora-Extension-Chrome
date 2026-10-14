@@ -9,6 +9,20 @@
   <h1 style="font-size: 16px; color: #C2466D;">Nekkora Inspector — harness de testes</h1>
   <p>Página interna da extensão usada pelos testes automatizados (Selenium) para acionar o service worker.
      Não é acessível por páginas web.</p>
+  <fieldset style="margin: 8px 0;">
+    <legend>Simulação de gravação (contrato recording.session.*)</legend>
+    <label>Aba <input id="rec-tab" size="6"></label>
+    <label>Gravação <input id="rec-id" size="14" value="rec-manual-1"></label>
+    <button id="rec-start" type="button">started</button>
+    <button id="rec-finish" type="button">finished</button>
+    <button id="rec-cancel" type="button">cancelled</button>
+  </fieldset>
+  <fieldset style="margin: 8px 0;">
+    <legend>Painel lateral nativo</legend>
+    <label>Aba <input id="sp-tab" size="6"></label>
+    <button id="sp-open" type="button">Abrir painel lateral</button>
+  </fieldset>
+  <pre id="out" style="font-size: 11px; white-space: pre-wrap;"></pre>
   <pre id="log" style="font-size: 11px;"></pre>
   <script type="module" src="harness.js"></script>
 </body>

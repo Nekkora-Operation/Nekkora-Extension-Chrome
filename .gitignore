@@ -31,3 +31,6 @@ reports/runtime/
 # SO
 Thumbs.db
 .DS_Store
+
+# Construção PRD da extensão (gerada por scripts/build.ps1 -Mode PRD)
+dist/

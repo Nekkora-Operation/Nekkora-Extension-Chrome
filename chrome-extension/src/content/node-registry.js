@@ -7,9 +7,10 @@
   if (NS.registry) {
     return;
   }
-  const ids = new WeakMap();
-  const refs = new Map();
+  let ids = new WeakMap();
+  let refs = new Map();
   let counter = 0;
+  let prefix = '';
   const pageSessionId = 'ps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 
   NS.registry = {
@@ -17,11 +18,29 @@
     idFor(el) {
       let id = ids.get(el);
       if (!id) {
-        id = 'n' + (++counter);
+        id = prefix + 'n' + (++counter);
         ids.set(el, id);
         refs.set(id, new WeakRef(el));
+      } else if (!refs.has(id)) {
+        refs.set(id, new WeakRef(el)); // nó reinserido após uma varredura: mantém o mesmo id temporário
       }
       return id;
+    },
+    /**
+     * Prefixa os ids desta instância (content script de iframe: x<frameId>). Ids já atribuídos sem prefixo são
+     * descartados para nunca colidirem com os do documento principal.
+     */
+    configurePrefix(p) {
+      if (prefix === p) {
+        return;
+      }
+      prefix = p;
+      ids = new WeakMap();
+      refs = new Map();
+      counter = 0;
+    },
+    prefix() {
+      return prefix;
     },
     peek(el) {
       return ids.get(el) || null;
@@ -53,6 +72,15 @@
     },
     size() {
       return refs.size;
+    },
+    /** Elementos registrados ainda conectados (iteração sem reter nós coletados). */
+    *connectedElements() {
+      for (const ref of refs.values()) {
+        const el = ref.deref();
+        if (el && el.isConnected) {
+          yield el;
+        }
+      }
     },
   };
 })(globalThis);

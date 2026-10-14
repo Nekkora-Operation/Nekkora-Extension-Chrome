@@ -94,6 +94,26 @@ comparação de cada característica (`MATCH`, `PARTIAL`, `MISMATCH`, `ABSENT`, 
 - Navegador → host: fragmentado acima de 4 MiB (configurável); remontagem limitada a 64 MiB, 16 transferências simultâneas, expiração de 120 s.
 - Erros: `UNSUPPORTED_PROTOCOL, BAD_REQUEST, BAD_JSON, UNKNOWN_COMMAND, UNKNOWN_CAPTURE, UNKNOWN_NODE, UNKNOWN_TARGET, FRAME_TOO_LARGE, BAD_CHUNK, DUPLICATE_CHUNK, TOO_MANY_TRANSFERS, MESSAGE_TOO_LARGE, INTERNAL_ERROR`; do lado da extensão: `HOST_UNAVAILABLE, HOST_DISCONNECTED, TIMEOUT`.
 
+## CHROME-002 — contratos novos e mudanças aditivas
+
+| Contrato | Mudança | Compatibilidade |
+|---|---|---|
+| `page-map.schema.json` | **inalterado em estrutura** (versão `0.1.0`); campos opcionais de estatísticas da captura (`mode`, `slices`, `maxSliceMs`, `consistency`, `parallelism`) | PageMaps da CHROME-001 continuam válidos |
+| `raw-snapshot.schema.json` | ids e escopos com prefixo de fonte (`x<frame>n…`, `doc:c<frame>`, `shadow:x<frame>n…`); `navigationKind` `FRAGMENT`/`FRAME`; `textSegments` opcional | aditiva |
+| `native-protocol.schema.json` | comandos `capture.session.start/delta/attachFrame/status/list/stop`, `capture.pin`, `export.session`, `host.memory`; códigos `SESSION_UNKNOWN`, `SESSION_STOPPED`, `DELTA_STALE`, `DELTA_GAP`, `DOCUMENT_MISMATCH`, `FRAME_NOT_ATTACHED` | aditiva; validada por `SessionCommandsTest.newCommandsConformToTheNativeProtocol` |
+| `capture-session.schema.json` — revisão do PR #1 | código `TARGET_NOT_OWNED` no protocolo (reencontro explícito de alvo de outra aba); `RecordingExportResult.status` inclui `PARTIAL`; `syncState` inclui `INCOMPLETE`; `EXPORTED` exige `complete=true` e `SYNCHRONIZED`; `export.session` aceita `mode: DIAGNOSTIC` | aditiva |
+| **`capture-session.schema.json`** (novo) | contratos separados por responsabilidade: `SequencedDelta` (rastreamento), `CaptureSessionStatus` (sessão no navegador), `HostSessionStatus` (sessão no motor), `InspectionState` (inspeção), `RecordingEvent` (finalização vinda da plataforma), `RecordingExportResult` e `ExportResult` (exportação) | novo; validado por C002-046 |
+
+Comandos internos do service worker (contrato para o futuro Studio; somente páginas da extensão):
+`inspection.toggle|activate|deactivate|state`, `session.status|list|synchronize|acquire|release|end`,
+`session.forceFull` (DEV), `recording.event`, `recording.list`, `frames.list`, `config.get|setMode`,
+`host.memory`, `sw.diagnostics`. Os comandos da CHROME-001 continuam disponíveis e, havendo sessão,
+são atendidos pela barreira de sincronização (`page.select`, `target.resolve`, `page.compare`,
+`pagemap.export`, `interaction.observe`) ou como nova base (`page.capture` = forçar captura completa).
+
+Detalhes: [ciclo de captura](chrome-002/capture-lifecycle.md) · [inspeção](chrome-002/inspection.md) ·
+[exportação](chrome-002/export.md) · [iframes, Shadow DOM e AccName](chrome-002/frames-shadow-accname.md).
+
 ## Evolução
 
 Mudanças incompatíveis exigem nova versão (`0.2.0`) do schema e de `PageMap.VERSION`. Campos novos

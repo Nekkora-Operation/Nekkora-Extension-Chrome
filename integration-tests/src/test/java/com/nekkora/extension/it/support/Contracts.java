@@ -42,4 +42,18 @@ public final class Contracts {
     public static Set<ValidationMessage> validate(String file, JsonNode doc) throws IOException {
         return schema(file).validate(doc);
     }
+
+    /** Valida contra UMA definição ({@code $defs/<def>}) do arquivo de contrato. */
+    public static void assertValidDef(String file, String def, JsonNode doc) throws IOException {
+        com.fasterxml.jackson.databind.ObjectMapper m = new com.fasterxml.jackson.databind.ObjectMapper();
+        com.fasterxml.jackson.databind.node.ObjectNode root = (com.fasterxml.jackson.databind.node.ObjectNode) m.readTree(dir().resolve(file).toFile());
+        root.remove("oneOf");
+        root.put("$ref", "#/$defs/" + def);
+        Set<ValidationMessage> errors = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012).getSchema(root).validate(doc);
+        if (!errors.isEmpty()) {
+            throw new AssertionError(file + "#" + def + ": " + errors.size() + " violação(ões):\n" + errors.stream().limit(20)
+                    .map(ValidationMessage::getMessage).collect(Collectors.joining("\n")) + "\ndocumento: "
+                    + doc.toString().substring(0, Math.min(800, doc.toString().length())));
+        }
+    }
 }

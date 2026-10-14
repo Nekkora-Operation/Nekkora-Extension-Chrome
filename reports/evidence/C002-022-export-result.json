@@ -1,0 +1,24 @@
+{
+  "bytes" : 103424,
+  "captureId" : "cap-ps-mv7gbzzc-ccqr9g-2",
+  "complete" : true,
+  "coverage" : [ ],
+  "duplicate" : false,
+  "elementCount" : 30,
+  "errors" : [ ],
+  "exportMs" : 14.88,
+  "finishedAt" : "2026-10-14T01:49:19.630Z",
+  "path" : "C:\\Users\\nicol\\nekkora\\Nekkora-Extension-Chrome\\integration-tests\\target\\host-data\\pagemaps\\session-cs-1904328282-mv7gc011-99iy-rec-022.json",
+  "recordingId" : "rec-022",
+  "schemaVersion" : "0.1.0",
+  "sessionId" : "cs-1904328282-mv7gc011-99iy",
+  "sha256" : "d4aed40d96d12d311480ea145154ed1c31843cbc5288b9a680917dcf62af2081",
+  "status" : "EXPORTED",
+  "syncState" : "SYNCHRONIZED",
+  "tabId" : 1904328282,
+  "validation" : {
+    "errors" : [ ],
+    "valid" : true,
+    "validatedElements" : 30
+  }
+}

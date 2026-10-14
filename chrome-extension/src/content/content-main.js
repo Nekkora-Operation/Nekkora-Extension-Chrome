@@ -9,6 +9,28 @@
   }
 
   let selected = null; // { nodeId, targetId, label }
+  const announced = new Map(); // token -> iframe hospedeiro (handshake de frames)
+
+  /** Todos os iframes deste documento, de frames acessíveis e de shadow roots abertos. */
+  function allIframes() {
+    const out = [];
+    for (const r of NS.capture.observableRoots()) {
+      out.push(...r.querySelectorAll('iframe, frame'));
+    }
+    return out;
+  }
+
+  root.addEventListener('message', (e) => {
+    const t = e.data && typeof e.data === 'object' ? e.data.__nekkoraFrame : null;
+    if (typeof t !== 'string' || !t.startsWith('nkf-') || announced.size > 50) {
+      return;
+    }
+    // Aceita somente o anúncio vindo de um iframe deste documento (e.source = contentWindow do hospedeiro).
+    const host = allIframes().find((f) => f.contentWindow === e.source);
+    if (host) {
+      announced.set(t, host);
+    }
+  });
 
   function send(event, data) {
     try {
@@ -75,6 +97,12 @@
       NS.highlighter.show(a.kind || 'selection', el, a.label || '', a.nodeId);
       return { ok: true };
     },
+    /** Remove a camada de destaque do documento (desativação da inspeção). */
+    'cs.overlay.destroy': () => {
+      NS.highlighter.destroy();
+      selected = null;
+      return { ok: true };
+    },
     'cs.clearHighlight': (a) => {
       NS.highlighter.hide((a && a.kind) || 'selection');
       if (!a || a.kind === 'selection') {
@@ -90,23 +118,90 @@
     },
     'cs.verifyLocators': (a) => ({ checks: NS.locators.verify(a.nodeId, a.locators) }),
     'cs.runLocator': (a) => NS.locators.runOne(a.locator, a.nodeId ? NS.registry.elementFor(a.nodeId) : null),
-    'cs.tracking.start': (a) => {
-      NS.tracker.start(a.baseCaptureId,
-        (delta) => send('delta', delta),
-        (reason) => send('resync-needed', { reason }));
-      return diagnostics();
+    // ---- sessão de captura (CHROME-002): base cooperativa + deltas sequenciados
+    /** Liga o rastreamento em modo BUFFER e faz a captura-base em fatias, entregando as partes ao service worker. */
+    'cs.session.begin': async (a) => {
+      if (a.source && a.source !== 'top') {
+        NS.capture.configureSource({ source: a.source });
+      }
+      const sessionId = a.sessionId;
+      NS.tracker.prepare({ sessionId, source: NS.capture.source() }, (delta) => {
+        if (delta && delta.__resync) {
+          return send('resync-needed', { sessionId, reason: delta.__resync });
+        }
+        return send('delta', delta);
+      });
+      if (a.cooperative === false) {
+        const snap = NS.capture.full({ maxNodes: a.maxNodes, navigationKind: a.navigationKind });
+        return snap; // nós em linha (modo síncrono, usado para comparação de desempenho)
+      }
+      const header = await NS.capture.fullAsync({ maxNodes: a.maxNodes, navigationKind: a.navigationKind, sliceMs: a.sliceMs, partSize: a.partSize },
+        async (nodes, captureId) => {
+          const ack = await send('capture-part', { sessionId, captureId, nodes });
+          if (!ack || !ack.ok) {
+            throw new Error('parte da captura recusada: ' + (ack && ack.error));
+          }
+        });
+      return header;
     },
-    'cs.tracking.rebase': (a) => {
-      NS.tracker.rebase(a.baseCaptureId);
+    'cs.session.confirmBase': (a) => NS.tracker.confirmBase(a),
+    'cs.session.flush': (a) => NS.tracker.flushNow(a),
+    'cs.session.pause': (a) => {
+      NS.tracker.pause(a && a.reason);
+      return NS.tracker.stats();
+    },
+    'cs.session.navigation': (a) => {
+      NS.tracker.noteNavigation(a && a.kind);
       return { ok: true };
     },
-    'cs.tracking.stop': () => {
+    'cs.session.stop': () => {
       NS.tracker.stop();
+      NS.registry.sweep();
       return diagnostics();
     },
-    'cs.tracking.flush': async () => {
-      await NS.tracker.flushNow();
-      return NS.tracker.stats();
+    'cs.session.debug': (a) => {
+      if (a.action === 'skipSeq') {
+        return { seq: NS.tracker.debugSkipSeq() };
+      }
+      if (a.action === 'failFlushes') {
+        return { failFlushes: NS.tracker.debugFailFlushes(a.count == null ? 1 : a.count) };
+      }
+      if (a.action === 'keepLastDelta') {
+        NS.tracker.debugKeepLast(true);
+        return { ok: true };
+      }
+      if (a.action === 'lastDelta') {
+        return { delta: NS.tracker.debugLastDelta() };
+      }
+      return { error: 'UNKNOWN_DEBUG_ACTION' };
+    },
+    'cs.session.status': () => ({ tracker: NS.tracker.stats(), inspectorMode: NS.inspector.mode(), url: location.href,
+      pageSessionId: NS.registry.pageSessionId, source: NS.capture.source() }),
+    // ---- iframes de outra origem permitida: handshake para localizar o iframe hospedeiro no documento pai
+    'cs.frame.announce': (a) => {
+      if (root.top === root) {
+        return { ok: false, error: 'NOT_A_FRAME' };
+      }
+      root.parent.postMessage({ __nekkoraFrame: a.token }, '*'); // token aleatório; nenhum dado da página
+      return { ok: true };
+    },
+    'cs.frame.lookup': async (a) => {
+      const deadline = Date.now() + (a.waitMs || 1000);
+      while (!announced.has(a.token) && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 25));
+      }
+      const iframe = announced.get(a.token);
+      announced.delete(a.token);
+      if (!iframe) {
+        return { found: false };
+      }
+      let accessibleFromParent = false;
+      try {
+        accessibleFromParent = !!(iframe.contentDocument && iframe.contentDocument.documentElement);
+      } catch (e) {
+        accessibleFromParent = false;
+      }
+      return { found: true, hostNodeId: NS.registry.idFor(iframe), accessibleFromParent, sandboxed: iframe.hasAttribute('sandbox') };
     },
     'cs.diagnostics': () => diagnostics(),
     'cs.nodeInfo': (a) => {
@@ -150,5 +245,5 @@
   });
 
   NS.main = { diagnostics };
-  send('content-ready', { url: location.href, pageSessionId: NS.registry.pageSessionId });
+  send('content-ready', { url: location.href, pageSessionId: NS.registry.pageSessionId, top: root.top === root });
 })(globalThis);

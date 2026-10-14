@@ -60,16 +60,56 @@ flowchart LR
 | `content/capture.js` | DOM Capture Engine: árvore composta em pré-ordem; estados (`checkVisibility`, `:disabled`, `:modal`, inércia); shadow roots abertos inventariados, fechados detectados via `chrome.dom.openOrClosedShadowRoot`; iframes acessíveis percorridos, inacessíveis declarados |
 | `content/node-registry.js` | ids temporários por `WeakMap`/`WeakRef` (sem reter nós destruídos) e `pageSessionId` |
 | `content/sensitivity.js` | política de privacidade aplicada no navegador |
-| `content/mutation-tracker.js` | `MutationObserver` por raiz observável, lotes (100 ms / máx. 500 ms), filtro do overlay, deltas encadeados por captura base |
+| `content/mutation-tracker.js` | `MutationObserver` por raiz observável; modo BUFFER durante a captura-base; lotes (100 ms / máx. 500 ms); deltas sequenciados `{sessionId, source, epoch, seq}` um por vez; pausa em falha; reconciliação de shadow roots (1 s); geometria em rolagem/redimensionamento e na barreira |
 | `content/locator-runner.js` | executa CSS/XPath na DOM real, atravessando a cadeia de escopos |
 | `content/highlighter.js` | overlay com shadow root fechado; acompanha por `requestAnimationFrame` só enquanto há destaque; detecta desconexão do alvo |
 | `content/inspector.js` | modos OFF/INSPECT; bloqueio de `pointerdown/mousedown/mouseup/click/submit…` em fase de captura |
-| `background/native-client.js` | cliente nekkora-nm/1: correlação, fragmentação, timeout, reconexão com espera progressiva |
-| `background/service-worker.js` | fluxos (captura, seleção, registro, verificação, reencontro, deltas, SPA, hooks de teste) |
-| `ui/panel.*` | painel lateral mínimo |
-| `ui/harness.*` | página interna usada pelos testes automatizados |
+| `content/content-main.js` | comandos `cs.*`: captura avulsa, sessão (`begin/confirmBase/flush/pause/navigation/stop/status`), handshake de frames (`announce/lookup`), inspeção, destaque, verificação |
+| `background/runtime.js` | cliente nativo compartilhado, mensagens por frame, difusão (com limite de frequência), política de origem, exclusão mútua por aba |
+| `background/capture-session.js` | **CaptureSession** por aba: consumidores, captura-base cooperativa em partes, deltas, barreira, ressincronização limitada, reconexão do motor, restauração após reinício do service worker |
+| `background/frames.js` | iframes de outra origem permitida: handshake, anexação (`capture.session.attachFrame`), política de sandbox |
+| `background/inspection.js` | **InspectionSession**: botão único (estados), seleção reutilizando o snapshot sincronizado, reencontro, destaque comprovado |
+| `background/recording.js` | contrato `recording.session.started/finished/cancelled` → exportação idempotente |
+| `background/config.js` | modo DEV/PRD (construção) e bloqueio dos comandos DEV em PRD |
+| `background/session-store.js` | estado mínimo em `chrome.storage.session` |
+| `background/native-client.js` | cliente nekkora-nm/1: correlação, fragmentação, timeout, reconexão com espera progressiva, aviso de conexão perdida |
+| `background/service-worker.js` | roteamento: eventos dos content scripts, comandos das páginas da extensão (novos e da CHROME-001), SPA, abas fechadas |
+| `ui/panel.*` | painel lateral: botão único, status da captura, área DEV (removida em PRD) |
+| `ui/harness.*` | página interna usada pelos testes automatizados (simula eventos de gravação; abre o painel nativo) |
+
+### Visão CHROME-002
+
+```mermaid
+flowchart LR
+  subgraph Page["Página local (cada frame permitido)"]
+    CS["content scripts<br/>capture · tracker · inspector · highlighter"]
+  end
+  subgraph SW["Service worker"]
+    INS["inspection<br/>(botão único)"]
+    CAP["capture-session<br/>(consumidores, barreira,<br/>recuperação)"]
+    FR["frames<br/>(handshake/anexação)"]
+    REC["recording<br/>(finalização → export)"]
+    CFG["config DEV/PRD"]
+  end
+  subgraph Java["Motor Java 21"]
+    HS["HostCaptureSession<br/>época · seq por fonte"]
+    DA["DeltaApplier · FrameMerger<br/>reanálise incremental"]
+    EX["ExportService<br/>fluxo · .tmp · atômico · SHA-256 · schema"]
+  end
+  CS -- "capture-part · delta" --> CAP
+  CAP -- "capture.session.start/delta" --> HS --> DA
+  FR -- "attachFrame" --> DA
+  INS -- "acquire/release 'inspection'" --> CAP
+  REC -- "acquire 'recording:id' · synchronize" --> CAP
+  REC -- "export.session" --> EX
+  UI["Painel / harness"] -- "inspection.* · session.* · recording.event" --> SW
+```
 
 ## Sequência de uma seleção
+
+Sem sessão (fluxo CHROME-001) a seleção faz uma captura avulsa, como abaixo. Com sessão ativa
+(CHROME-002) o passo `cs.capture`/`snapshot.submit` é substituído pela **barreira de sincronização**
+(`cs.session.flush` em todos os frames) + `capture.pin` — ver [inspeção](chrome-002/inspection.md).
 
 ```mermaid
 sequenceDiagram
@@ -101,8 +141,10 @@ sequenceDiagram
 flowchart LR
   MO["MutationObserver<br/>(documento, frames, shadow roots)"] --> B["lote 100 ms<br/>(máx. 500 ms)"]
   B --> F["filtra overlay e<br/>atributos internos"]
-  F --> D["delta: nós alterados<br/>(+ subárvore se class/style/hidden/open)<br/>+ ids removidos"]
-  D --> H["host: DeltaApplier →<br/>reanálise incremental"]
+  F --> D["delta sequenciado: nós alterados<br/>(+ subárvore se class/style/hidden/open)<br/>+ ids removidos · frames · shadow roots"]
+  D --> V{"motor: época e seq<br/>da fonte conferem?"}
+  V -- "não" --> R["recusa (STALE/GAP/MISMATCH)<br/>→ nova base controlada"]
+  V -- "sim" --> H["host: DeltaApplier →<br/>reanálise incremental"]
   H --> M["MutationRecord INCREMENTAL<br/>+ alvos afetados reencontrados"]
   M --> HL["destaque segue o<br/>novo nó, se RESOLVED"]
 ```
@@ -110,5 +152,6 @@ flowchart LR
 ## Persistência
 
 Arquivos JSON locais (`%LOCALAPPDATA%\Nekkora\ExtensionChrome` ou `NEKKORA_DATA_DIR`):
-`targets/registry.json`, `pagemaps/<captura>.json`, `logs/native-host-*.log`. PostgreSQL não é usado
+`targets/registry.json`, `pagemaps/<captura>.json` (exportação manual) e
+`pagemaps/<sessão>-<operação>.json` (exportação da gravação, escrita atômica), `logs/native-host-*.log`. PostgreSQL não é usado
 (decisão D-006).
