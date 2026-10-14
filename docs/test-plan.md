@@ -69,6 +69,72 @@ Comunicação: `HostCommunicationIT` (C-1..C-5). Contrato: `PageMapContractTest`
 Critério: um caso só é aprovado se a captura **e** o comportamento posterior (reencontro, recusa,
 destaque, desativação…) forem verificados. Nenhum teste negativo foi removido ou afrouxado para passar.
 
+## CHROME-002 — matriz C002-001..050
+
+Todos os testes da CHROME-001 foram mantidos (somente `PanelUiIT` foi adaptado ao botão único, mudança
+exigida pela missão; as verificações foram preservadas). Nos cenários com a inspeção ativa, os cliques
+reais são seleções; as ações do cenário são acionadas pelo manipulador do botão (`onclick()`).
+
+| ID | Caso | Teste |
+|---|---|---|
+| C002-001 | Botão inicialmente inativo | `Chrome002LifecycleIT.initiallyInactive` |
+| C002-002 | Ativação (captura inicial, rastreamento, ouvintes, texto) | `Chrome002LifecycleIT.activation` |
+| C002-003 | Desativação | `Chrome002LifecycleIT.deactivation` |
+| C002-004 | Clique duplo | `Chrome002LifecycleIT.doubleClick` |
+| C002-005 | Falha na ativação (origem e motor ausente) | `Chrome002LifecycleIT.activationFailure` |
+| C002-006 | Captura inicial automática | `Chrome002LifecycleIT.initialCaptureAutomatic` |
+| C002-007 | Sem recapturas desnecessárias | `Chrome002LifecycleIT.noUnnecessaryRecaptures` |
+| C002-008 | Mutação simples | `Chrome002LifecycleIT.simpleMutation` |
+| C002-009 | Múltiplas mutações / agrupamento | `Chrome002LifecycleIT.batchedMutations` |
+| C002-010 | Seleção após mutação (barreira) | `Chrome002LifecycleIT.selectionAfterMutation` |
+| C002-011 | Dez seleções sem dez capturas | `Chrome002LifecycleIT.tenSelections` |
+| C002-012/013 | Fechar e reabrir o painel | `Chrome002LifecycleIT.closeAndReopenPanel` |
+| C002-014 | Abas independentes | `Chrome002LifecycleIT.independentTabs` |
+| C002-015 | Recarga | `Chrome002LifecycleIT.reload` |
+| C002-016 | SPA (rota, query, fragmento) | `Chrome002LifecycleIT.spa` |
+| C002-017 | Perda de delta (limite de ressincronização) | `Chrome002LifecycleIT.deltaLoss` |
+| C002-018 | Reinício do motor Java | `Chrome002LifecycleIT.hostRestart` |
+| C002-019 | Reinício do service worker | `Chrome002LifecycleIT.serviceWorkerRestart` |
+| C002-020 | Desativação remove observadores | `Chrome002LifecycleIT.deactivationRemovesObservers` |
+| C002-021 | Exportação manual DEV | `Chrome002ExportIT.manualExportDev` |
+| C002-022 | Exportação PRD na finalização | `Chrome002ExportIT.prdExportOnFinish` |
+| C002-023 | Finalização duplicada/simultânea idempotente | `Chrome002ExportIT.duplicateFinalization` |
+| C002-024 | Finalização com delta pendente | `Chrome002ExportIT.finalizationWithPendingDelta` |
+| C002-025 | Falha de exportação e nova tentativa | `Chrome002ExportIT.exportFailure` |
+| C002-026 | Novo shadow root (aninhado, alterado, slots) | `Chrome002DynamicIT.newShadowRoot` |
+| C002-027 | Shadow root removido | `Chrome002DynamicIT.removedShadowRoot` |
+| C002-028 | attachShadow em host existente (latência medida) | `Chrome002DynamicIT.shadowAttachedToExistingHost` |
+| C002-029 | Iframe de mesma origem | `Chrome002DynamicIT.sameOriginIframe` |
+| C002-030 | Iframe de outra origem local (aninhado, shadow, ids duplicados) | `Chrome002DynamicIT.otherOriginIframe` |
+| C002-031 | Iframe dinâmico (inserido, removido, substituído) | `Chrome002DynamicIT.dynamicIframes` |
+| C002-032 | Iframe sem permissão e sandbox | `Chrome002DynamicIT.iframeWithoutPermission` |
+| C002-033 | AccName recursivo | `Chrome002DynamicIT.accnameRecursive` |
+| C002-034 | aria-labelledby múltiplo | `Chrome002DynamicIT.accnameMultiple` |
+| C002-035 | Referência circular | `Chrome002DynamicIT.accnameCircular` |
+| C002-036 | Oculto referenciado | `Chrome002DynamicIT.accnameHiddenReferenced` |
+| C002-037 | Botão com ícone + HTML-AAM (comparação com o Chrome) | `Chrome002DynamicIT.accnameIconButtonsAndHtmlAam` |
+| C002-038 | 100 a 20.000 elementos / export 10k | `Chrome002PerformanceIT.sizes` |
+| C002-039 | Captura cooperativa (base + delta) | `Chrome002PerformanceIT.sizes, cooperativeConsistency` |
+| C002-040 | Memória: pequena, média, grande, três grandes | `Chrome002PerformanceIT.memoryProfiles` |
+| C002-041 | Sessão prolongada (5/15/30 min) | `Chrome002PerformanceIT.longSession` |
+| C002-042 | Descarte de sessão | `Chrome002PerformanceIT.sessionDiscard` |
+| C002-043 | Destaque após re-renderização | `Chrome002DynamicIT.highlightAfterRerender` |
+| C002-044 | Ambiguidade após mutação | `Chrome002DynamicIT.ambiguityAfterMutation` |
+| C002-045 | PageMap incremental × completo | `Chrome002PerformanceIT.incrementalEqualsFull` |
+| C002-046 | Contrato v0.1.0 e contratos novos | `Chrome002ContractIT.contracts` |
+| C002-047 | Painel lateral nativo | `Chrome002NativePanelIT.nativeSidePanel` |
+| C002-048 | Recursos DEV não expostos em PRD | `Chrome002ExportIT.prdHidesDevFeatures` |
+| C002-049 | Fim da inspeção sem gravação não exporta | `Chrome002ExportIT.inspectionEndWithoutRecordingDoesNotExport` |
+| C002-050 | Conteúdo sensível em mutações não exportado | `Chrome002ExportIT.sensitiveMutationsNotExported` |
+| §30 | Chrome convencional (§30) | `BrandedChromeIT.brandedChromeHomologation` |
+
+Páginas novas (`test-lab/pages/chrome002/`): `continuous.html`, `rapid.html` (10/50/100 mutações/s),
+`shadow-dynamic.html`, `iframes.html` (+ `frame-child.html`, `frame-nested.html`; porta +1 e
+`127.0.0.2`), `accessible-names.html`, `recording.html`; SPA com fragmento (`spa/app.html`).
+
+Critérios de desempenho da CHROME-002 (definidos antes da medição) estão no Javadoc de
+`Chrome002PerformanceIT` e em [`docs/chrome-002/performance.md`](chrome-002/performance.md).
+
 ## Desempenho
 
 Orçamento provisório definido antes das medições (asserções em `PerformanceIT`):
@@ -96,4 +162,5 @@ definido e é registrada como ponto de atenção.
 ```
 
 Propriedades úteis: `-Dnekkora.headless=true`, `-Dnekkora.lab.port=8765`, `-Dnekkora.cft.version=<versão>`,
-`-Dnekkora.skipHostInstall=true` (usa o registro existente).
+`-Dnekkora.skipHostInstall=true` (usa o registro existente), `-Dnekkora.long.minutes=15` (C002-041),
+`-Dnekkora.branded.chrome=<chrome.exe>` (homologação no Chrome convencional; ignorada se ausente).

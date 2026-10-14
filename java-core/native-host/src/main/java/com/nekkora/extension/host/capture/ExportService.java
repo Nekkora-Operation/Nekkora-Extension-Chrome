@@ -95,8 +95,11 @@ public final class ExportService {
         Path tmp;
         try {
             Path folder = dataDir.dir("pagemaps");
-            target = folder.resolve("session-" + SAFE.matcher(s.sessionId()).replaceAll("_") + ".json");
-            tmp = folder.resolve(target.getFileName() + "." + SAFE.matcher(operationId).replaceAll("_") + ".tmp");
+            // Um arquivo por (sessão, operação): exportações de gravações diferentes na mesma sessão nunca se
+            // sobrescrevem (o caminho e o SHA-256 devolvidos continuam válidos).
+            target = folder.resolve("session-" + SAFE.matcher(s.sessionId()).replaceAll("_") + "-"
+                    + SAFE.matcher(operationId).replaceAll("_") + ".json");
+            tmp = folder.resolve(target.getFileName() + ".tmp");
         } catch (IOException e) {
             return failed(s, operationId, reason, syncState, "EXPORT_WRITE_FAILED", "Diretório de PageMaps indisponível: " + e.getMessage(), t0);
         }

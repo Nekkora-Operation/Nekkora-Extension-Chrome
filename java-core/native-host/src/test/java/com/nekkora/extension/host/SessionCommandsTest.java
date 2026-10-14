@@ -170,6 +170,19 @@ class SessionCommandsTest {
     }
 
     @Test
+    void differentOperationsInTheSameSessionNeverOverwriteEachOther() throws Exception {
+        call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
+        JsonNode a = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-a\"}").at("/payload/export");
+        call("capture.session.delta", "{\"sessionId\":\"s1\",\"delta\":" + delta(1, 1, "ps-fixture-1", "Ana Lima") + "}");
+        JsonNode b = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-b\"}").at("/payload/export");
+        assertFalse(a.get("path").asText().equals(b.get("path").asText()), "um arquivo por operação");
+        byte[] first = Files.readAllBytes(Path.of(a.get("path").asText()));
+        assertEquals(a.get("sha256").asText(), HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(first)),
+                "o arquivo da primeira gravação continua íntegro após a segunda");
+        assertFalse(a.get("sha256").asText().equals(b.get("sha256").asText()), "a segunda reflete o estado posterior");
+    }
+
+    @Test
     void frameDeltasRequireAttachment() throws Exception {
         call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
         ObjectNode d = (ObjectNode) m.readTree(delta(1, 1, "ps-do-frame", "x"));
