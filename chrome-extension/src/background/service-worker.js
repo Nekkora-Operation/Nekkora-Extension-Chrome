@@ -98,8 +98,10 @@ const commands = {
     if (!d.pattern || policy.LAB_PATTERNS.includes(d.pattern)) {
       throw new HostError('BAD_REQUEST', 'nenhuma autorização de site a revogar');
     }
-    const removed = await chrome.permissions.remove({ origins: [d.pattern] });
-    return { removed, pattern: d.pattern };
+    // Autorização ampla é concedida como par (https + http): revogá-la remove os dois padrões.
+    const origins = policy.BROAD_PATTERNS.includes(d.pattern) ? policy.BROAD_PATTERNS.slice() : [d.pattern];
+    const removed = await chrome.permissions.remove({ origins });
+    return { removed, pattern: d.pattern, origins };
   },
 
   // Configuração

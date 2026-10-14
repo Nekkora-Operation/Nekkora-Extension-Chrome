@@ -46,6 +46,11 @@ class PrivacyTest {
             assertEquals(c.get("out").asText(), Privacy.maskText(c.get("in").asText()), "texto: " + c.get("in").asText());
             assertEquals(c.get("out").asText(), Privacy.maskText(c.get("out").asText()));
         }
+        for (JsonNode c : v.get("attributes")) {
+            String name = c.get("name").asText();
+            assertEquals(c.get("out").asText(), AttributePrivacy.sanitize(name, c.get("in").asText()), "atributo " + name + "=" + c.get("in").asText());
+            assertEquals(c.get("out").asText(), AttributePrivacy.sanitize(name, c.get("out").asText()), "idempotente: " + name);
+        }
     }
 
     @Test
@@ -64,6 +69,22 @@ class PrivacyTest {
         assertEquals("[redacted]", n.attr("data-user"));
         assertEquals("link", n.attr("id"));
         assertEquals("CPF [cpf]", n.ownText());
+    }
+
+    @Test
+    void customAttributesWithSensitiveNamesUrlsOrPairsAreRedacted() { // revisão do PR #3, P1
+        assertEquals("[redacted]", AttributePrivacy.sanitize("data-password", "hunter2"), "segredo curto em atributo de nome sensível");
+        assertEquals("https://example.test/reset?token=REDACTED", AttributePrivacy.sanitize("data-reset-url", "https://example.test/reset?token=abc123"));
+        assertEquals("{\"endpoint\":\"https://a.test/?apiKey=REDACTED\",\"password\":\"REDACTED\",\"pin\":REDACTED,\"theme\":\"dark\"}",
+                AttributePrivacy.sanitize("data-config", "{\"endpoint\":\"https://a.test/?apiKey=K\",\"password\":\"hunter2\",\"pin\":1234,\"theme\":\"dark\"}"));
+        assertEquals("[redacted]", AttributePrivacy.sanitize("x-session-token", "abc"), "atributo personalizado fora de data-*");
+        assertEquals("open", AttributePrivacy.sanitize("data-state", "open"), "atributo genérico de componente preservado");
+        assertEquals("principal", AttributePrivacy.sanitize("data-contact", "principal"));
+        RawNode n = new RawNode("n9", null, List.of(), "div", "f0", null,
+                Map.of("data-password", "hunter2", "data-reset-url", "/reset?token=abc123", "data-row", "7"), "", null, null, List.of(), null, null);
+        assertEquals("[redacted]", n.attr("data-password"));
+        assertEquals("/reset?token=REDACTED", n.attr("data-reset-url"));
+        assertEquals("7", n.attr("data-row"));
     }
 
     @Test

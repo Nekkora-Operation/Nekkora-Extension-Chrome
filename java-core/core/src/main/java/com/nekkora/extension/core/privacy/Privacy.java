@@ -280,6 +280,11 @@ public final class Privacy {
         return out.length() > MAX_URL ? out.substring(0, MAX_URL) : out.toString();
     }
 
+    /** Consulta {@code chave=valor&…} (sem '?') sob as regras de parâmetros. */
+    public static String sanitizeQueryString(String q) {
+        return q == null ? null : sanitizeQuery(q);
+    }
+
     /** Caminho (sem consulta/fragmento) com segmentos sensíveis mascarados. */
     public static String sanitizePathOnly(String path) {
         return path == null ? null : sanitizePath(path);

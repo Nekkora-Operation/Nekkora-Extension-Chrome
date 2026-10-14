@@ -16,6 +16,10 @@
  * quando nada precisa ser redigido.
  *
  * Textos: e-mails, CPF, CNPJ, cartões (Luhn), telefones em formato explícito e tokens JWT/Bearer são mascarados.
+ *
+ * Atributos (revisão do PR #3, P1): além dos atributos de URL e de texto, TODO atributo não estrutural (data-*,
+ * personalizados) é tratado — nome sensível ⇒ valor redigido; URL inteira ou embutida ⇒ sanitizada; pares chave=valor
+ * ou JSON com chave sensível ⇒ valor redigido; segredo longo ⇒ redigido; dados pessoais ⇒ mascarados.
  */
 (function (root) {
   if (root.NekkoraPrivacy) {
@@ -303,7 +307,108 @@
       || /\[(email|cpf|cnpj|cartão|telefone|token)\]/.test(v));
   }
 
-  const NekkoraPrivacy = { sanitizeUrl, originAndPath, maskText, isMasked, sensitiveKey, looksSecret, REDACTED, SEGMENT, version: 'nekkora-privacy/1' };
+  // ---------------------------------------------------------------------------------------- atributos
+
+  /** Atributos que carregam URL (forma original preservada). */
+  const URL_ATTRIBUTES = new Set(['href', 'src', 'action', 'formaction', 'poster', 'data', 'cite', 'background', 'longdesc',
+    'xlink:href', 'manifest', 'codebase', 'data-nekkora-simulated-src']);
+  const SRCSET_ATTRIBUTES = new Set(['srcset', 'imagesrcset']);
+  /** Atributos de TEXTO livre (dados pessoais mascarados). */
+  const TEXT_ATTRIBUTES = new Set(['title', 'alt', 'aria-label', 'aria-description', 'aria-valuetext', 'aria-roledescription',
+    'aria-placeholder', 'label', 'content', 'value', 'summary', 'abbr', 'download']);
+  /** Atributos ESTRUTURAIS do HTML/SVG: vocabulário fechado, ids ou números — mantidos. */
+  const STRUCTURAL_ATTRIBUTES = new Set(['id', 'class', 'name', 'type', 'role', 'for', 'tabindex', 'lang', 'dir', 'hidden',
+    'disabled', 'checked', 'selected', 'readonly', 'required', 'multiple', 'rel', 'target', 'method', 'enctype',
+    'autocomplete', 'inputmode', 'enterkeyhint', 'maxlength', 'minlength', 'min', 'max', 'step', 'pattern', 'size', 'rows',
+    'cols', 'colspan', 'rowspan', 'scope', 'headers', 'width', 'height', 'slot', 'part', 'is', 'draggable',
+    'contenteditable', 'spellcheck', 'translate', 'accesskey', 'sandbox', 'allow', 'loading', 'decoding',
+    'referrerpolicy', 'crossorigin', 'charset', 'xmlns', 'open', 'wrap', 'form', 'list', 'accept', 'autofocus',
+    'novalidate', 'start', 'reversed', 'span', 'shape', 'coords', 'media', 'sizes', 'srclang', 'kind', 'default',
+    'async', 'defer', 'nomodule', 'popover', 'popovertarget', 'popovertargetaction', 'inert', 'datetime',
+    'viewbox', 'd', 'points', 'transform', 'fill', 'stroke', 'stroke-width', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y',
+    'x1', 'x2', 'y1', 'y2', 'focusable', 'preserveaspectratio', 'version']);
+  /**
+   * Palavras que tornam o NOME de um atributo sensível (ex.: data-password, data-api-key, data-reset-token). Mais
+   * estreita que a lista de parâmetros de URL: palavras genéricas de interface (state, code, next, url…) ficam de fora
+   * para não apagar atributos comuns de componentes (ex.: data-state="open").
+   */
+  const ATTRIBUTE_SENSITIVE_WORDS = new Set(['token', 'auth', 'authorization', 'bearer', 'jwt', 'session', 'sess', 'sessid',
+    'sid', 'jsessionid', 'phpsessid', 'cookie', 'key', 'apikey', 'secret', 'password', 'passwd', 'pwd', 'pass', 'senha',
+    'signature', 'sig', 'hmac', 'otp', 'pin', 'credential', 'credentials', 'cred', 'nonce', 'cpf', 'cnpj', 'rg', 'ssn',
+    'email', 'mail', 'phone', 'telefone', 'fone', 'celular', 'mobile', 'tel', 'cvv', 'cvc', 'card', 'cartao', 'iban',
+    'user', 'username', 'usuario', 'uid', 'login', 'account', 'conta', 'ticket', 'saml', 'private', 'privatekey']);
+  const URL_VALUE = /^\s*(?:(?:https?|mailto|tel|sms|javascript|data|blob|ftp|file|wss?|intent):|\/\/|\/|\.\.?\/|\?)\S*$/i;
+  const EMBEDDED_URL = /(?:\bhttps?:\/\/|(?<![\w:])\/\/)[^\s"'<>()]+/gi;
+  const QUOTED_PAIR = /(["'])([A-Za-z_][\w.-]*)\1(\s*[:=]\s*)(["'])((?:(?!\4).)*)\4/g;
+  const UNQUOTED_PAIR = /(["'])([A-Za-z_][\w.-]*)\1(\s*:\s*)(-?[\w.+-]+)/g;
+  const QUERY_VALUE = /^[^\s=&?#]+=[^\s&]*(?:&[^\s=&]+=[^\s&]*)*$/;
+
+  /** Nome de atributo sensível (prefixos data-/aria- ignorados; palavras por separadores e camelCase). */
+  function sensitiveAttributeName(name) {
+    const k = String(name || '').replace(/^(data|aria)-/i, '');
+    const lower = k.toLowerCase();
+    if (SENSITIVE_PARTS.some((p) => lower.includes(p))) {
+      return true;
+    }
+    const words = k.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    return words.some((w) => ATTRIBUTE_SENSITIVE_WORDS.has(w));
+  }
+
+  /** Atributo livre (data-*, personalizados, placeholder): nome, URLs no valor, pares chave=valor, segredos, PII. */
+  function sanitizeFree(name, v, mask) {
+    if (name !== 'placeholder' && sensitiveAttributeName(name)) {
+      return '[redacted]';
+    }
+    if (v.length >= 16 && looksSecret(v.trim())) {
+      return '[redacted]';
+    }
+    if (URL_VALUE.test(v)) {
+      return sanitizeUrl(v);
+    }
+    let out = v.replace(EMBEDDED_URL, (u) => sanitizeUrl(u));
+    if (QUERY_VALUE.test(out)) {
+      out = sanitizeQuery(out);
+    }
+    out = out.replace(QUOTED_PAIR, (m, q, key, sep, q2, val) => (val && val !== REDACTED && sensitiveKey(key) ? q + key + q + sep + q2 + REDACTED + q2 : m));
+    out = out.replace(UNQUOTED_PAIR, (m, q, key, sep, val) => (val !== REDACTED && sensitiveKey(key) && !/^(true|false|null)$/.test(val) ? q + key + q + sep + REDACTED : m));
+    return mask ? maskText(out) : out;
+  }
+
+  /**
+   * Valor de atributo sob a política (espelho exato de AttributePrivacy no motor Java). Casos tratados ANTES pelo
+   * content script: style e data-nekkora-* omitidos, on* substituídos, data-sitekey redigido, value não permitido
+   * omitido, src de iframe/script com todos os valores redigidos.
+   */
+  function sanitizeAttribute(name, value) {
+    if (value == null || value === '') {
+      return value;
+    }
+    const n = String(name).toLowerCase();
+    const v = String(value);
+    if (URL_ATTRIBUTES.has(n)) {
+      return sanitizeUrl(v);
+    }
+    if (n === 'ping') {
+      return v.split(/\s+/).map(sanitizeUrl).join(' ');
+    }
+    if (SRCSET_ATTRIBUTES.has(n)) {
+      return v.split(',').map((part) => {
+        const t = part.trim();
+        const sp = t.search(/\s/);
+        return sp < 0 ? sanitizeUrl(t) : sanitizeUrl(t.slice(0, sp)) + t.slice(sp);
+      }).join(', ');
+    }
+    if (TEXT_ATTRIBUTES.has(n)) {
+      return maskText(v);
+    }
+    if (STRUCTURAL_ATTRIBUTES.has(n) || (n.startsWith('aria-') && !sensitiveAttributeName(n))) {
+      return v;
+    }
+    return sanitizeFree(n, v, n !== 'placeholder');
+  }
+
+  const NekkoraPrivacy = { sanitizeUrl, originAndPath, maskText, isMasked, sensitiveKey, looksSecret, sanitizeAttribute,
+    sensitiveAttributeName, REDACTED, SEGMENT, version: 'nekkora-privacy/1' };
   root.NekkoraPrivacy = NekkoraPrivacy;
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = NekkoraPrivacy;

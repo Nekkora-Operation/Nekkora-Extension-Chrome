@@ -80,4 +80,19 @@ test('paridade com o motor Java: vetores compartilhados (contracts/privacy/priva
   for (const c of v.texts) {
     assert.equal(P.maskText(c.in), c.out, c.in);
   }
+  for (const c of v.attributes) {
+    assert.equal(P.sanitizeAttribute(c.name, c.in), c.out, c.name + '=' + c.in);
+    assert.equal(P.sanitizeAttribute(c.name, c.out), c.out, 'idempotente: ' + c.name);
+  }
+});
+
+test('atributos personalizados: nome sensível, URL com token e pares chave=valor (revisão do PR #3, P1)', () => {
+  assert.equal(P.sanitizeAttribute('data-password', 'hunter2'), '[redacted]', 'segredo curto');
+  assert.equal(P.sanitizeAttribute('data-reset-url', 'https://example.test/reset?token=abc123'), 'https://example.test/reset?token=REDACTED');
+  assert.equal(P.sanitizeAttribute('data-info', 'ver https://x.test/a?sid=S1 agora'), 'ver https://x.test/a?sid=REDACTED agora', 'URL embutida');
+  assert.equal(P.sanitizeAttribute('data-config', '{"password":"hunter2","theme":"dark"}'), '{"password":"REDACTED","theme":"dark"}');
+  assert.equal(P.sanitizeAttribute('data-q', 'token=abc&page=2'), 'token=REDACTED&page=2');
+  assert.equal(P.sanitizeAttribute('x-api-key', 'k1'), '[redacted]', 'fora de data-*');
+  assert.equal(P.sanitizeAttribute('data-state', 'open'), 'open', 'atributo genérico de componente preservado');
+  assert.equal(P.sanitizeAttribute('id', 'password'), 'password', 'atributos estruturais não são alterados');
 });

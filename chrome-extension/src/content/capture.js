@@ -120,23 +120,7 @@
   }
 
   const URL_ATTRIBUTE_HOSTS = new Set(['IFRAME', 'FRAME', 'SCRIPT']);
-  /** Atributos que carregam URL (forma original preservada; valores sensíveis redigidos pela política). */
-  const URL_ATTRIBUTES = new Set(['href', 'src', 'action', 'formaction', 'poster', 'data', 'cite', 'background', 'longdesc',
-    'xlink:href', 'manifest', 'codebase', 'ping']);
-  const SRCSET_ATTRIBUTES = new Set(['srcset', 'imagesrcset']);
-  /** Atributos de TEXTO livre que podem conter dados pessoais (placeholder fica de fora: é dica da interface). */
-  const TEXT_ATTRIBUTES = new Set(['title', 'alt', 'aria-label', 'aria-description', 'aria-valuetext', 'aria-roledescription',
-    'aria-placeholder', 'label', 'content', 'value', 'summary', 'abbr', 'download']);
-
-  function sanitizeSrcset(v) {
-    return v.split(',').map((part) => {
-      const t = part.trim();
-      const sp = t.search(/\s/);
-      return sp < 0 ? P.sanitizeUrl(t) : P.sanitizeUrl(t.slice(0, sp)) + t.slice(sp);
-    }).join(', ');
-  }
   const KEPT_FRAGMENT_KEYS = new Set(['frame']); // tipo de frame de widgets (ex.: hCaptcha #frame=challenge)
-
   /**
    * URL de recurso com os VALORES de parâmetros redigidos (chaves de site, tokens e identificadores nunca são
    * coletados); nomes dos parâmetros e o caminho são mantidos para a análise determinística.
@@ -179,14 +163,8 @@
         v = P.sanitizeUrl(redactUrlValues(v, el.ownerDocument.baseURI));
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
-      } else if (URL_ATTRIBUTES.has(name)) {
-        v = name === 'ping' ? v.split(/\s+/).map(P.sanitizeUrl).join(' ') : P.sanitizeUrl(v);
-      } else if (SRCSET_ATTRIBUTES.has(name)) {
-        v = sanitizeSrcset(v);
-      } else if (TEXT_ATTRIBUTES.has(name)) {
-        v = P.maskText(v);
-      } else if (name.startsWith('data-')) {
-        v = v.length >= 16 && P.looksSecret(v) ? '[redacted]' : P.maskText(v);
+      } else {
+        v = P.sanitizeAttribute(name, v); // política única de atributos (src/shared/privacy.js; espelho no Java)
       }
       out[name] = v.length > MAX_ATTR_LEN ? v.slice(0, MAX_ATTR_LEN) : v;
     }

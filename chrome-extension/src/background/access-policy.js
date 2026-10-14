@@ -27,6 +27,8 @@ let loaded = false;
 const listeners = { added: [], removed: [] };
 
 export const LAB_PATTERNS = ['http://127.0.0.1/*', 'http://localhost/*'];
+/** Autorização ampla (concedida e revogada como par pelo painel). */
+export const BROAD_PATTERNS = ['https://*/*', 'http://*/*'];
 
 /** Carrega o espelho das permissões ativas (chamado na inicialização do service worker). */
 export async function load() {
