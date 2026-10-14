@@ -77,7 +77,7 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
                 }
                 TabState tab = s.session.tab(session.tabKey());
                 PageAnalysis base = s.capture(tab, session.latestCaptureId());
-                Map<String, Object> out = deltas.apply(tab, base, delta, Payloads.flag(p, "autoResolve", true));
+                Map<String, Object> out = deltas.apply(tab, base, delta, Payloads.flag(p, "autoResolve", true), session.sessionId());
                 session.accepted(delta.sourceOrTop(), delta.seq(), (String) out.get("captureId"));
                 out.put("session", session.describe());
                 return out;

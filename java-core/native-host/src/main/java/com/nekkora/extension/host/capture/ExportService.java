@@ -41,6 +41,9 @@ import java.util.regex.Pattern;
  */
 public final class ExportService {
 
+    private static final java.time.format.DateTimeFormatter PARTIAL_STAMP =
+            java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS").withZone(java.time.ZoneOffset.UTC);
+    private static final java.util.concurrent.atomic.AtomicLong PARTIALS = new java.util.concurrent.atomic.AtomicLong();
     private static final Logger LOG = Logger.getLogger(ExportService.class.getName());
     private static final Pattern SAFE = Pattern.compile("[^A-Za-z0-9._-]");
 
@@ -106,15 +109,13 @@ public final class ExportService {
         if (dataDir == null) {
             return failed(s, operationId, reason, syncState, "EXPORT_UNAVAILABLE", "Host sem diretório de dados", t0);
         }
-        Path target;
+        Path folder;
         Path tmp;
+        String base = "session-" + SAFE.matcher(s.sessionId()).replaceAll("_") + "-" + SAFE.matcher(operationId).replaceAll("_");
         try {
-            Path folder = dataDir.dir("pagemaps");
-            // Um arquivo por (sessão, operação): exportações de gravações diferentes na mesma sessão nunca se
-            // sobrescrevem (o caminho e o SHA-256 devolvidos continuam válidos).
-            target = folder.resolve("session-" + SAFE.matcher(s.sessionId()).replaceAll("_") + "-"
-                    + SAFE.matcher(operationId).replaceAll("_") + (diagnostic ? "-partial" : "") + ".json");
-            tmp = folder.resolve(target.getFileName() + ".tmp");
+            folder = dataDir.dir("pagemaps");
+            // O nome final só é decidido DEPOIS de conhecer o resultado (completo × parcial).
+            tmp = folder.resolve(base + "." + System.nanoTime() + ".tmp");
         } catch (IOException e) {
             return failed(s, operationId, reason, syncState, "EXPORT_WRITE_FAILED", "Diretório de PageMaps indisponível: " + e.getMessage(), t0);
         }
@@ -141,12 +142,16 @@ public final class ExportService {
                         new ExportResult.Error("CONTRACT_VIOLATION", String.join("; ", o.validationErrors())), ms(t0), Instant.now().toString());
             }
             long bytes = Files.size(tmp);
+            boolean complete = !o.truncated() && "SYNCHRONIZED".equals(syncState) && !diagnostic;
+            // Completo: um arquivo por (sessão, operação). Parcial (truncado ou diagnóstico): nome próprio e único —
+            // nunca ocupa o caminho do arquivo completo nem é sobrescrito por uma tentativa posterior.
+            Path target = complete ? folder.resolve(base + ".json")
+                    : folder.resolve(base + "-partial-" + PARTIAL_STAMP.format(Instant.now()) + "-" + PARTIALS.incrementAndGet() + ".json");
             try {
                 Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             } catch (AtomicMoveNotSupportedException e) {
                 Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
             }
-            boolean complete = !o.truncated() && "SYNCHRONIZED".equals(syncState) && !diagnostic;
             // Incompleto (truncado ou diagnóstico): PARTIAL — arquivo distinto, nunca memorizado como concluído.
             return new ExportResult(s.sessionId(), operationId, complete ? "EXPORTED" : "PARTIAL", reason, PageMap.VERSION, o.captureId(), o.elements(),
                     target.toString(), bytes, HexFormat.of().formatHex(sha.digest()), complete, syncState,

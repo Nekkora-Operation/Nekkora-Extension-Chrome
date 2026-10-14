@@ -326,7 +326,8 @@ export async function onDelta(tabId, frameId, delta) {
     if (res.autoResolutions && res.autoResolutions.length) {
       await runHooks('onAutoResolution', rec, res.autoResolutions);
     }
-    broadcast('delta', { tabId, sessionId: rec.sessionId, source: delta.source, seq: delta.seq, captureId: res.captureId, nodes: res.nodes, mutation: res.mutation, timings: res.timings });
+    broadcast('delta', { tabId, sessionId: rec.sessionId, source: delta.source, seq: delta.seq, captureId: res.captureId, nodes: res.nodes, mutation: res.mutation, timings: res.timings,
+      autoResolved: (res.autoResolutions || []).map((r) => ({ targetId: r.targetId, status: r.status })) });
     emitStatus(rec, false);
     if (rec.deltasApplied % 20 === 0) {
       persist(rec);

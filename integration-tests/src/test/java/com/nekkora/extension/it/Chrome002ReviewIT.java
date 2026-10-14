@@ -169,6 +169,56 @@ class Chrome002ReviewIT extends SessionIT {
     }
 
     @Test
+    @DisplayName("C002-R07 — Reencontro explícito de alvo de outra aba é recusado (identidade intacta)")
+    void explicitResolutionAcrossTabsRefused() {
+        Page a = open(REC + "?cliente=ana");
+        Page b = open(REC + "?cliente=maria");
+        activate(a);
+        activate(b);
+        JsonNode selA = select(a, "#nome");
+        String ta = selA.at("/identity/targetId").asText();
+        JsonNode before = lab.call("host.request", Map.of("type", "target.get", "payload", Map.of("targetId", ta))).get("payload");
+        JsonNode r = lab.callRaw("target.resolve", Map.of("tabId", b.tabId(), "targetId", ta));
+        assertFalse(r.get("ok").asBoolean(), r.toString());
+        assertEquals("TARGET_NOT_OWNED", r.at("/error/code").asText());
+        JsonNode after = lab.call("host.request", Map.of("type", "target.get", "payload", Map.of("targetId", ta))).get("payload");
+        assertEquals(before.toString(), after.toString(), "identidade da aba A não foi atualizada pela aba B");
+        assertEquals("RESOLVED", resolve(a, ta).get("status").asText(), "a aba dona continua resolvendo");
+        deactivate(a);
+        deactivate(b);
+    }
+
+    @Test
+    @DisplayName("C002-R08 — Reencontro automático ignora alvos de uma sessão anterior da mesma aba")
+    void autoResolutionIgnoresPreviousSessionTargets() {
+        Page p = open("/lab/chrome002/continuous.html");
+        activate(p);
+        String old = select(p, "#aprovar").at("/identity/targetId").asText();
+        String first = session(p).get("sessionId").asText();
+        deactivate(p);
+        activate(p);
+        assertFalse(first.equals(session(p).get("sessionId").asText()), "nova sessão de captura");
+        lab.clearEvents();
+        act(p, "rerender"); // substitui o nó do alvo registrado na sessão anterior
+        sync(p);
+        sleep(500);
+        JsonNode deltas = lab.events("delta");
+        assertTrue(deltas.size() >= 1, "delta da re-renderização difundido");
+        for (JsonNode e : deltas) {
+            assertFalse(e.at("/data/autoResolved").toString().contains(old),
+                    "alvo da sessão anterior não participa do reencontro automático: " + e.at("/data/autoResolved"));
+        }
+        // Controle: um alvo registrado NESTA sessão é reencontrado automaticamente na re-renderização.
+        String current = select(p, "#aprovar").at("/identity/targetId").asText();
+        lab.clearEvents();
+        act(p, "rerender");
+        sync(p);
+        BrowserLab.waitUntil(Duration.ofSeconds(5), () -> lab.events("delta").toString().contains(current), "alvo da sessão corrente reencontrado");
+        assertTrue(session(p).get("deltasApplied").asInt() >= 1, "o delta da re-renderização foi aplicado");
+        deactivate(p);
+    }
+
+    @Test
     @DisplayName("C002-R05 — Finalização × cancelamento simultâneos: um único desfecho, sessão liberada uma vez")
     void finishAndCancelConcurrently() throws Exception {
         Page p = open(REC);

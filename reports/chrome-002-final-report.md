@@ -15,11 +15,11 @@ Nekkora Studio **não** foi iniciado (somente contratos de eventos/ciclo de vida
 
 | Indicador | Resultado |
 |---|---|
-| Homologação no navegador (execução final, suíte completa, após a revisão do PR #1) | **115/115** — 58 da CHROME-001 + 51 da CHROME-002 + 6 regressões da revisão ([matriz](test-matrix-integration.md)) |
+| Homologação no navegador (execução final, suíte completa, após as duas revisões do PR #1) | **117/117** — 58 da CHROME-001 + 51 da CHROME-002 + 8 regressões das revisões ([matriz](test-matrix-integration.md)) |
 | Matriz C002-001..050 | **50/50** casos cobertos e aprovados (+ C002-RAP alterações rápidas, + §30 Chrome convencional) |
 | Sessões prolongadas (C002-041) | 5, 15 e 30 min aprovadas |
-| Testes sem navegador | **168/168** (core 129, host 22, laboratório 3, contrato 2, extensão 12) |
-| Revisão do PR #1 | 4 P1 + 2 pontos adicionais corrigidos, cada um com teste de regressão que falha no código anterior (seção 13) |
+| Testes sem navegador | **171/171** (core 129, host 25, laboratório 3, contrato 2, extensão 12) |
+| Revisões do PR #1 | 1ª: 4 P1 + 2 pontos adicionais; 2ª: 2 pontos residuais — todos corrigidos, cada um com teste de regressão que falha no código anterior (seções 13 e 14) |
 | Testes da CHROME-001 removidos ou afrouxados | **nenhum** (`PanelUiIT` adaptado ao botão único, mesmas verificações) |
 | Limites de desempenho da CHROME-001 | mantidos e atendidos (`PerformanceIT`) |
 
@@ -153,3 +153,15 @@ novos falham; com os módulos anteriores do service worker, C002-R01, R02, R03, 
 depende do motor e é coberto pelo teste unitário). Contrato `capture-session.schema.json` atualizado
 (`PARTIAL`, `INCOMPLETE`, `EXPORTED` ⇒ `complete=true` e `SYNCHRONIZED`); decisões D-032..D-035.
 Limitação nova declarada: alvos registrados antes desta versão, sem dono, não entram em exportações de sessão.
+
+## 14. Segunda revisão do PR #1 — ajustes finais
+
+| Ponto | Correção | Regressão (falha no código anterior, passa no atual) |
+|---|---|---|
+| A — reencontro explícito sem validar o dono | `target.resolve` recusa alvo de outra aba com `TARGET_NOT_OWNED` (a identidade não é resolvida nem atualizada); registros antigos sem dono podem ser resolvidos mas nunca atualizados. O reencontro automático passou a usar os alvos da **sessão do delta** (`ownedBySession`), não mais todos os da aba | `explicitResolutionOfAnotherTabsTargetIsRefused`, `autoResolutionOnlyConsidersTargetsOfTheCurrentSession`; C002-R07, C002-R08 |
+| B — exportação normal truncada com caminho de arquivo completo | o nome do arquivo é decidido **depois** de conhecer o resultado: completo → `session-<s>-<op>.json`; parcial (truncado ou diagnóstico) → `…-partial-<instante>-<n>.json`, único, nunca sobrescrito por uma exportação completa posterior | `truncatedFinalExportIsPartialAndNeverOverwritten` |
+
+O evento `delta` passou a informar os alvos reencontrados automaticamente (`autoResolved`), o que permite
+verificar o isolamento no navegador. Execução final: 117/117 no navegador, 171/171 sem navegador;
+desempenho na mesma ordem (10k: bloqueio 349 → 25 ms, seleção 76 ms, exportação 2.488 → 1.008 ms).
+Decisões D-035 (ampliada) e D-036.

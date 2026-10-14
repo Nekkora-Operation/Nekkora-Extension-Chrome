@@ -91,6 +91,18 @@ public final class TargetRegistry {
         return out;
     }
 
+    /** Alvos registrados na aba indicada SEM sessão de captura (fluxo de captura avulsa). */
+    public synchronized List<TargetIdentity> ownedByTabWithoutSession(String tabKey) {
+        List<TargetIdentity> out = new ArrayList<>();
+        for (TargetIdentity t : targets.values()) {
+            Owner o = owners.get(t.targetId());
+            if (o != null && tabKey != null && tabKey.equals(o.tabKey()) && o.sessionId() == null) {
+                out.add(t);
+            }
+        }
+        return out;
+    }
+
     /** Alvos registrados na aba indicada (com ou sem sessão de captura). */
     public synchronized List<TargetIdentity> ownedByTab(String tabKey) {
         List<TargetIdentity> out = new ArrayList<>();

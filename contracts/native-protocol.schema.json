@@ -134,7 +134,8 @@
                 "DELTA_STALE",
                 "DELTA_GAP",
                 "DOCUMENT_MISMATCH",
-                "FRAME_NOT_ATTACHED"
+                "FRAME_NOT_ATTACHED",
+                "TARGET_NOT_OWNED"
               ]
             },
             "message": {

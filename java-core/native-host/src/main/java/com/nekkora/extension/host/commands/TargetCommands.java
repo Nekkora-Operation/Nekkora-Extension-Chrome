@@ -47,10 +47,16 @@ public final class TargetCommands implements CommandRouter.CommandGroup {
             PageAnalysis a = s.capture(tab, Payloads.optional(p, "captureId"));
             TargetIdentity identity = s.session.targets().get(targetId)
                     .orElseThrow(() -> new CommandException("UNKNOWN_TARGET", "Alvo não registrado: " + targetId));
+            var owner = s.session.targets().owner(targetId);
+            if (owner.isPresent() && !owner.get().tabKey().equals(tab.tabKey())) {
+                // Isolamento: uma identidade registrada em outra aba não é resolvida (nem atualizada) por esta.
+                throw new CommandException("TARGET_NOT_OWNED", "Alvo " + targetId + " pertence a outra aba; resolução recusada");
+            }
             long t0 = System.nanoTime();
             ResolutionResult r = s.resolver.resolve(identity, a.graph(), a.locators());
             double ms = EngineServices.ms(t0);
-            if (r.status() == ResolutionStatus.RESOLVED && r.updatedIdentity() != null) {
+            // Registros sem dono (anteriores à CHROME-002) podem ser resolvidos, mas nunca são atualizados.
+            if (r.status() == ResolutionStatus.RESOLVED && r.updatedIdentity() != null && owner.isPresent()) {
                 s.session.targets().put(r.updatedIdentity());
             }
             List<String> statements = new ArrayList<>();

@@ -1,14 +1,14 @@
 # CHROME-002 — desempenho medido (antes × depois)
 
-Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · Java 21.0.12
+Gerado em 2026-10-14T01:56:00.501635Z · Chrome for Testing 155.0.8059.39 · Java 21.0.12
 
 | Elementos | Nós | Captura síncrona (ms) | Bloqueio síncrono (ms) | Captura cooperativa (ms) | Fatias | Maior fatia (ms) | Bloqueio cooperativo (ms) | Ciclo sessão (ms) | Seleção reutilizada (ms) | Export anterior (ms) | Export em fluxo (ms) | Heap usado/comprometido/máx (MB) | RSS host (MB) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 100 | 92 | 3.7 | 6.5 | 2.5 | 1 | 1.3 | 6.3 | 25.78 | 37.1 | 41.69 | 83.84 | 9.8 / 108.0 / 7992.0 | 174.2 |
-| 1000 | 932 | 19.9 | 25.5 | 20.9 | 2 | 8.2 | 21.0 | 60.1 | 35.92 | 170.96 | 207.58 | 13.8 / 108.0 / 7992.0 | 238.03 |
-| 5000 | 4666 | 130.0 | 143.0 | 73.7 | 6 | 8.4 | 27.0 | 145.67 | 57.2 | 880.25 | 647.01 | 31.5 / 216.0 / 7992.0 | 368.89 |
-| 10000 | 9332 | 336.8 | 356.4 | 151.3 | 12 | 8.2 | 27.5 | 294.02 | 84.95 | 2701.95 | 1096.76 | 53.5 / 296.0 / 7992.0 | 443.68 |
-| 20000 | 18666 | 1035.5 | 1073.4 | 308.0 | 23 | 10.0 | 26.3 | 547.65 | 181.81 | 12167.21 | 2447.08 | 97.9 / 416.0 / 7992.0 | 537.73 |
+| 100 | 92 | 4.3 | 7.7 | 2.4 | 1 | 1.4 | 6.2 | 27.1 | 34.1 | 43.63 | 89.84 | 9.8 / 108.0 / 7992.0 | 174.56 |
+| 1000 | 932 | 19.1 | 23.9 | 17.9 | 2 | 8.2 | 17.7 | 61.26 | 38.91 | 159.23 | 208.22 | 13.8 / 108.0 / 7992.0 | 246.88 |
+| 5000 | 4666 | 117.6 | 131.3 | 82.2 | 7 | 8.5 | 26.9 | 162.52 | 54.1 | 924.83 | 553.62 | 31.5 / 216.0 / 7992.0 | 355.36 |
+| 10000 | 9332 | 327.1 | 349.3 | 146.1 | 11 | 13.7 | 24.9 | 276.89 | 76.17 | 2488.47 | 1008.22 | 53.5 / 268.0 / 7992.0 | 601.93 |
+| 20000 | 18666 | 1047.3 | 1093.1 | 294.8 | 22 | 11.5 | 25.8 | 507.43 | 173.58 | 11098.02 | 2232.28 | 98.0 / 456.0 / 7992.0 | 594.45 |
 
 ## cooperativeConsistency
 
@@ -19,7 +19,7 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
   "incrementalNodes" : 9572,
   "fullNodes" : 9572,
   "slices" : 38,
-  "maxSliceMs" : 10.4
+  "maxSliceMs" : 10.6
 }
 ```
 
@@ -33,8 +33,8 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
   "deltasApplied" : 9,
   "resyncs" : 0,
   "browserMaxDeltaMs" : 0.7,
-  "hostMaxDeltaMs" : 6.36,
-  "hostAvgDeltaMs" : 2.12,
+  "hostMaxDeltaMs" : 7.1,
+  "hostAvgDeltaMs" : 2.07,
   "syncState" : "SYNCHRONIZED"
 }, {
   "ratePerSecond" : 50,
@@ -42,19 +42,19 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
   "rawMutationRecords" : 511,
   "deltasApplied" : 10,
   "resyncs" : 0,
-  "browserMaxDeltaMs" : 1.4,
-  "hostMaxDeltaMs" : 3.66,
-  "hostAvgDeltaMs" : 2.22,
+  "browserMaxDeltaMs" : 1.2,
+  "hostMaxDeltaMs" : 2.59,
+  "hostAvgDeltaMs" : 2.0,
   "syncState" : "SYNCHRONIZED"
 }, {
   "ratePerSecond" : 100,
-  "generatedMutations" : 501,
-  "rawMutationRecords" : 1023,
+  "generatedMutations" : 500,
+  "rawMutationRecords" : 1021,
   "deltasApplied" : 10,
   "resyncs" : 0,
-  "browserMaxDeltaMs" : 1.5,
-  "hostMaxDeltaMs" : 4.04,
-  "hostAvgDeltaMs" : 2.35,
+  "browserMaxDeltaMs" : 1.6,
+  "hostMaxDeltaMs" : 3.79,
+  "hostAvgDeltaMs" : 2.2,
   "syncState" : "SYNCHRONIZED"
 } ]
 ```
@@ -63,41 +63,41 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
 
 ```json
 {
-  "idleHeapUsedMb" : 8.9,
-  "idleRssMb" : 107.24,
+  "idleHeapUsedMb" : 9.1,
+  "idleRssMb" : 100.29,
   "single_100" : {
-    "heapUsedMb" : 9.0,
+    "heapUsedMb" : 9.2,
     "heapCommittedMb" : 56.0,
     "heapMaxMb" : 7992.0,
-    "rssMb" : 110.76,
+    "rssMb" : 100.23,
     "retainedCaptures" : 1
   },
   "single_1000" : {
-    "heapUsedMb" : 9.9,
+    "heapUsedMb" : 10.0,
     "heapCommittedMb" : 40.0,
     "heapMaxMb" : 7992.0,
-    "rssMb" : 93.04,
+    "rssMb" : 93.95,
     "retainedCaptures" : 1
   },
   "single_10000" : {
-    "heapUsedMb" : 18.4,
+    "heapUsedMb" : 18.5,
     "heapCommittedMb" : 108.0,
     "heapMaxMb" : 7992.0,
-    "rssMb" : 136.96,
+    "rssMb" : 141.96,
     "retainedCaptures" : 1
   },
   "threeLarge" : {
-    "heapUsedMb" : 37.2,
-    "heapCommittedMb" : 176.0,
+    "heapUsedMb" : 37.3,
+    "heapCommittedMb" : 160.0,
     "heapMaxMb" : 7992.0,
-    "rssMb" : 205.34,
+    "rssMb" : 193.98,
     "captureSessions" : 3,
-    "deltaVsIdleMb" : 28.3
+    "deltaVsIdleMb" : 28.2
   },
-  "oneLargeDeltaVsIdleMb" : 9.5,
+  "oneLargeDeltaVsIdleMb" : 9.4,
   "afterRelease" : {
-    "heapUsedMb" : 9.0,
-    "rssMb" : 155.91,
+    "heapUsedMb" : 9.1,
+    "rssMb" : 156.81,
     "captureSessions" : 0
   }
 }
@@ -126,10 +126,10 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 8,
-    "registrySize" : 271,
+    "pending" : 6,
+    "registrySize" : 266,
     "hostHeapUsedMb" : 10.1,
-    "hostRssMb" : 295.64,
+    "hostRssMb" : 297.6,
     "pageHeapUsedMb" : 1.5
   }, {
     "t" : 60,
@@ -138,10 +138,10 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 5,
+    "pending" : 6,
     "registrySize" : 276,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 173.56,
+    "hostRssMb" : 222.89,
     "pageHeapUsedMb" : 1.7
   }, {
     "t" : 90,
@@ -153,7 +153,7 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "pending" : 5,
     "registrySize" : 276,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 187.65,
+    "hostRssMb" : 173.76,
     "pageHeapUsedMb" : 1.9
   }, {
     "t" : 120,
@@ -162,34 +162,34 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 5,
+    "pending" : 4,
     "registrySize" : 276,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 171.41,
+    "hostRssMb" : 157.52,
     "pageHeapUsedMb" : 2.2
   }, {
     "t" : 150,
     "status" : "ACTIVE",
-    "deltasApplied" : 255,
+    "deltasApplied" : 254,
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 0,
+    "pending" : 3,
     "registrySize" : 276,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 173.92,
+    "hostRssMb" : 163.87,
     "pageHeapUsedMb" : 1.8
   }, {
     "t" : 180,
     "status" : "ACTIVE",
-    "deltasApplied" : 306,
+    "deltasApplied" : 305,
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 0,
-    "registrySize" : 281,
+    "pending" : 7,
+    "registrySize" : 276,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 173.98,
+    "hostRssMb" : 163.95,
     "pageHeapUsedMb" : 2.0
   }, {
     "t" : 210,
@@ -198,10 +198,10 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 6,
+    "pending" : 4,
     "registrySize" : 281,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 174.03,
+    "hostRssMb" : 164.02,
     "pageHeapUsedMb" : 2.1
   }, {
     "t" : 240,
@@ -210,10 +210,10 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 6,
+    "pending" : 3,
     "registrySize" : 281,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 174.18,
+    "hostRssMb" : 164.17,
     "pageHeapUsedMb" : 1.6
   }, {
     "t" : 270,
@@ -222,26 +222,26 @@ Gerado em 2026-10-14T01:37:08.203136500Z · Chrome for Testing 155.0.8059.39 · 
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 6,
-    "registrySize" : 281,
+    "pending" : 3,
+    "registrySize" : 280,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 174.3,
-    "pageHeapUsedMb" : 1.8
+    "hostRssMb" : 164.54,
+    "pageHeapUsedMb" : 1.7
   }, {
     "t" : 300,
     "status" : "ACTIVE",
-    "deltasApplied" : 510,
+    "deltasApplied" : 509,
     "deltasRejected" : 0,
     "resyncs" : 0,
     "nodes" : 271,
-    "pending" : 3,
+    "pending" : 2,
     "registrySize" : 281,
     "hostHeapUsedMb" : 10.3,
-    "hostRssMb" : 174.28,
-    "pageHeapUsedMb" : 2.0
+    "hostRssMb" : 164.52,
+    "pageHeapUsedMb" : 1.9
   } ],
-  "generatedMutations" : 3052,
-  "deltasApplied" : 512,
+  "generatedMutations" : 3051,
+  "deltasApplied" : 510,
   "resyncs" : 0,
   "deltasRejected" : 0,
   "fullCaptures" : 1,

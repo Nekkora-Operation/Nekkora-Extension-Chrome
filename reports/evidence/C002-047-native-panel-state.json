@@ -1,8 +1,8 @@
 {
   "contexts" : [ {
-    "contextId" : "c7d3549f-6a1e-405b-ba65-e31a58e3e62c",
+    "contextId" : "cbb74d67-ec9d-4259-bd0a-142eb5551438",
     "contextType" : "SIDE_PANEL",
-    "documentId" : "EFD43816EDB5B419DEE9F65D909C59E6",
+    "documentId" : "0958433EDFE748131D737AF7C84125BF",
     "documentOrigin" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj",
     "documentUrl" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "frameId" : 0,
@@ -21,7 +21,7 @@
     "mode" : "DEV",
     "nodes" : "43",
     "pressed" : "true",
-    "tabId" : 1788004672,
+    "tabId" : 1904328399,
     "updated" : "agora",
     "url" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "width" : 360

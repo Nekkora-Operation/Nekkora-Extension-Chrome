@@ -32,6 +32,14 @@ final class DeltaProcessor {
     }
 
     Map<String, Object> apply(TabState tab, PageAnalysis base, SnapshotDelta delta, boolean autoResolve) {
+        return apply(tab, base, delta, autoResolve, null);
+    }
+
+    /**
+     * @param ownerSessionId sessão de captura do delta: o reencontro automático considera SOMENTE os alvos
+     *                       registrados nessa sessão; {@code null} (delta avulso) ⇒ alvos da aba sem sessão
+     */
+    Map<String, Object> apply(TabState tab, PageAnalysis base, SnapshotDelta delta, boolean autoResolve, String ownerSessionId) {
         long t0 = System.nanoTime();
         RawSnapshot applied = s.deltas.apply(base.model().snapshot(), delta);
         Set<String> changed = new HashSet<>();
@@ -52,7 +60,9 @@ final class DeltaProcessor {
         List<String> affected = new ArrayList<>();
         List<ResolutionResult> auto = new ArrayList<>();
         if (autoResolve) {
-            for (TargetIdentity t : s.session.targets().ownedByTab(tab.tabKey())) { // somente alvos desta aba
+            List<TargetIdentity> owned = ownerSessionId != null ? s.session.targets().ownedBySession(ownerSessionId)
+                    : s.session.targets().ownedByTabWithoutSession(tab.tabKey());
+            for (TargetIdentity t : owned) { // somente alvos do contexto proprietário
                 if (!Objects.equals(t.lastPageSessionId(), pageSession) || t.lastNodeId() == null) {
                     continue;
                 }

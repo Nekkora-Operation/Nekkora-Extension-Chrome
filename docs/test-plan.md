@@ -132,6 +132,8 @@ reais são seleções; as ações do cenário são acionadas pelo manipulador do
 | C002-R04 | Revisão: alvos isolados entre abas na mesma página | `Chrome002ReviewIT.targetsIsolatedBetweenTabs` |
 | C002-R05 | Revisão: finalização × cancelamento simultâneos | `Chrome002ReviewIT.finishAndCancelConcurrently` |
 | C002-R06 | Revisão: retenção nunca descarta gravações ativas | `Chrome002ReviewIT.retentionNeverDropsActiveRecordings` |
+| C002-R07 | Revisão 2: reencontro explícito de alvo de outra aba recusado | `Chrome002ReviewIT.explicitResolutionAcrossTabsRefused` |
+| C002-R08 | Revisão 2: reencontro automático ignora alvos de sessão anterior da mesma aba | `Chrome002ReviewIT.autoResolutionIgnoresPreviousSessionTargets` |
 | §30 | Chrome convencional (§30) | `BrandedChromeIT.brandedChromeHomologation` |
 
 Páginas novas (`test-lab/pages/chrome002/`): `continuous.html`, `rapid.html` (10/50/100 mutações/s),

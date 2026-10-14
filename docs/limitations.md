@@ -53,7 +53,9 @@ marcados no fim).
 16. **Gravação**: somente o **contrato** de eventos foi implementado (simulado pelo harness); não há
     gravador, Studio nem integração com a Platform nesta missão.
 17. **Alvos registrados antes da CHROME-002** (sem dono no registro persistido) continuam resolvíveis por
-    `targetId`, mas não entram em exportações de sessão nem no reencontro automático (isolamento, D-035).
+    `targetId` (sem atualização da identidade), mas não entram em exportações de sessão nem no reencontro
+    automático (isolamento, D-035). Uma identidade só é reencontrada automaticamente na sessão de captura em
+    que foi registrada; em uma nova sessão da mesma aba o reencontro é explícito.
 18. **Licença** pendente de decisão da Nekkora (ver `LICENSE`, D-010).
 
 ## Resolvidas na CHROME-002
