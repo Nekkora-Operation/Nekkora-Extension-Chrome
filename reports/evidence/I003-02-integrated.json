@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 92
+    "nodes" : 92,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
+    "maxDepth" : 2,
     "counts" : {
       "documents" : 10,
       "frames" : 9,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 1,
       "shadowRootsOpen" : 2
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
-    "maxDepth" : 2
+    }
   },
   "identificacao" : {
+    "name" : "Aprovar",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-31782d0d-bc05-466c-b501-04321826b9f5",
     "frameChain" : [ {
       "container" : "region:sec-e",
       "depth" : 1,
@@ -29,13 +32,9 @@
       "stableAttributes" : { },
       "title" : "Filial Sul",
       "urlPath" : "/lab/chrome003/filial.html"
-    } ],
-    "name" : "Aprovar",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-9a1669a5-6fab-4349-aee1-81faf4144f12"
+    } ]
   },
   "familia" : {
-    "form" : null,
     "region" : {
       "idAttr" : "sec-e",
       "keyAttributes" : { },
@@ -51,9 +50,79 @@
       "name" : "Filial Sul",
       "nodeId" : "n73",
       "tag" : "iframe"
-    } ]
+    } ],
+    "form" : null
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Aprovar",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n77" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Aprovar",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+          "hostNodeId" : "n73",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "filial-sul"
+              } ],
+              "tag" : "div"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Filial Sul"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+        } ],
+        "frameId" : "f7",
+        "scopeId" : "doc:f7",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Aprovar\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -302,75 +371,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : null,
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Aprovar",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n77" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "role" : "button",
-            "type" : "ROLE_IS"
-          }, {
-            "name" : "Aprovar",
-            "type" : "NAME_EQUALS"
-          } ],
-          "tag" : null
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
-          "hostNodeId" : "n73",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "filial-sul"
-              } ],
-              "tag" : "div"
-            }, {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "title",
-                "type" : "ATTR_EQUALS",
-                "value" : "Filial Sul"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
-        } ],
-        "frameId" : "f7",
-        "scopeId" : "doc:f7",
-        "type" : "FRAME"
-      },
-      "score" : 0.712,
-      "semantic" : "* {role=button} {name=\"Aprovar\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "ROLE_NAME",
-      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -382,7 +382,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "B2406D66898CEFA3BF37E411A90E8F09",
+      "browserDocumentId" : "439D25CA7D143D883B3812A9F3AC3641",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -397,7 +397,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
     }, {
-      "browserDocumentId" : "2E2F754F0656BF0D21E9B8B17155B1B1",
+      "browserDocumentId" : "AE252D673F7FF8646333CD04693F6BA3",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f7",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/filial.html)",
@@ -518,10 +518,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.53,
-      "protectionMs" : 0.65,
-      "readinessMs" : 0.22,
-      "totalMs" : 1.41
+      "graphMs" : 0.75,
+      "protectionMs" : 0.66,
+      "readinessMs" : 0.27,
+      "totalMs" : 1.69
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

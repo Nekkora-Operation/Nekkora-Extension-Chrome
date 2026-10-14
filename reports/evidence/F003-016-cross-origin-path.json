@@ -7,7 +7,7 @@
   "shadowDepth" : 1,
   "stability" : "HEURISTIC_UNSTABLE",
   "steps" : [ {
-    "browserDocumentId" : "52134AB4DD894F296095633E006B8D24",
+    "browserDocumentId" : "81E08D41FB72FC1B30EA7570BC5D9BE0",
     "documentId" : null,
     "enteredDocumentId" : "doc:f0",
     "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -22,7 +22,7 @@
     "type" : "MAIN_DOCUMENT",
     "url" : "http://127.0.0.1:18765/lab/chrome003/frames-origins.html"
   }, {
-    "browserDocumentId" : "46E2F156AB8837D4C0016E8E20FF8D75",
+    "browserDocumentId" : "2D499F8F8AFFB9CBE18EA06010112CD0",
     "documentId" : "doc:f0",
     "enteredDocumentId" : "doc:c621",
     "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/relatorios.html)",
@@ -48,7 +48,7 @@
     "type" : "IFRAME",
     "url" : "http://localhost:18766/lab/chrome003/relatorios.html"
   }, {
-    "browserDocumentId" : "089C3ECFD25DE42E5432353301A93B13",
+    "browserDocumentId" : "D527E14A6CF82D7448EBE251EC6B837B",
     "documentId" : "doc:c621",
     "enteredDocumentId" : "doc:c621f1",
     "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/graficos.html)",

@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 18
+    "nodes" : 18,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:reCAPTCHA:INSPECTED" ],
+    "maxDepth" : 1,
     "counts" : {
       "documents" : 2,
       "frames" : 1,
@@ -13,17 +15,17 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:reCAPTCHA:INSPECTED" ],
-    "maxDepth" : 1
+    }
   },
   "identificacao" : {
-    "frameChain" : [ ],
     "name" : "Enviar",
     "kind" : "BUTTON",
-    "targetId" : "tgt-29a9b177-7f1f-4f8a-9a08-4121c8051598"
+    "targetId" : "tgt-4ceb4d8b-95bb-4e4e-ac2c-c8ef71372800",
+    "frameChain" : [ ]
   },
   "familia" : {
+    "region" : null,
+    "scope" : [ ],
     "form" : {
       "idAttr" : "contato",
       "keyAttributes" : { },
@@ -31,11 +33,58 @@
       "name" : "",
       "nodeId" : "n6",
       "tag" : "form"
-    },
-    "region" : null,
-    "scope" : [ ]
+    }
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "#contato",
+        "heading" : "Contato",
+        "kind" : "BUTTON",
+        "name" : "Enviar",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n12" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "contato"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Enviar",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.745,
+      "semantic" : "form {id=contato} >> button {text=\"Enviar\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"contato\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM" ],
+      "xpath" : "//form[@id=\"contato\"]//button[normalize-space(.)=\"Enviar\"]"
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -341,55 +390,6 @@
         },
         "warnings" : [ ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "#contato",
-        "heading" : "Contato",
-        "kind" : "BUTTON",
-        "name" : "Enviar",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n12" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "contato"
-          } ],
-          "tag" : "form"
-        }, {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "text" : "Enviar",
-            "type" : "TEXT_EQUALS"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ ],
-        "frameId" : "f0",
-        "scopeId" : "doc:f0",
-        "type" : "MAIN_DOCUMENT"
-      },
-      "score" : 0.745,
-      "semantic" : "form {id=contato} >> button {text=\"Enviar\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"contato\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "CONTEXTUAL",
-      "warnings" : [ "escopo: FORM" ],
-      "xpath" : "//form[@id=\"contato\"]//button[normalize-space(.)=\"Enviar\"]"
     }
   },
   "trajetoria" : {
@@ -401,7 +401,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "C4903D463CB2C433346B4F3857B1100F",
+      "browserDocumentId" : "19591A6C6C31A1BEB26B02A412C52948",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -511,7 +511,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "C4903D463CB2C433346B4F3857B1100F",
+              "browserDocumentId" : "19591A6C6C31A1BEB26B02A412C52948",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -632,10 +632,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.13,
-      "protectionMs" : 0.66,
-      "readinessMs" : 0.14,
-      "totalMs" : 0.95
+      "graphMs" : 0.18,
+      "protectionMs" : 0.78,
+      "readinessMs" : 0.23,
+      "totalMs" : 1.2
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

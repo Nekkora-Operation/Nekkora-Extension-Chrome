@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 28
+    "nodes" : 28,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "xn8:Parceiro externo:PERMISSION_DENIED", "xn9:Conteúdo isolado:SANDBOX_RESTRICTED", "f1:Isolado com mesma origem:INSPECTED", "c678:Relatórios:INSPECTED", "c678f1:Gráficos:INSPECTED" ],
+    "maxDepth" : 2,
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
-    },
-    "frames" : [ "f0:null:INSPECTED", "xn8:Parceiro externo:PERMISSION_DENIED", "xn9:Conteúdo isolado:SANDBOX_RESTRICTED", "f1:Isolado com mesma origem:INSPECTED", "c678:Relatórios:INSPECTED", "c678f1:Gráficos:INSPECTED" ],
-    "maxDepth" : 2
+    }
   },
   "identificacao" : {
+    "name" : "Exportar gráfico",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-80dc5ec8-b3ea-4a4e-a113-0d1174c4fca1",
     "frameChain" : [ {
       "container" : "heading:Frame Intelligence — origens e permissões",
       "depth" : 1,
@@ -40,13 +43,9 @@
       "stableAttributes" : { },
       "title" : "Gráficos",
       "urlPath" : "/lab/chrome003/graficos.html"
-    } ],
-    "name" : "Exportar gráfico",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-5865af11-74a3-4ffd-9731-b64d3a17baf2"
+    } ]
   },
   "familia" : {
-    "form" : null,
     "region" : null,
     "scope" : [ {
       "idAttr" : "f-relatorios",
@@ -69,9 +68,112 @@
       "name" : "",
       "nodeId" : "x678n9",
       "tag" : "nk-grafico"
-    } ]
+    } ],
+    "form" : null
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Exportar gráfico",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "x678n12" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Exportar gráfico",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-relatorios",
+          "hostNodeId" : "n7",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-relatorios"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-relatorios\"]"
+        }, {
+          "css" : "iframe#f-graficos",
+          "hostNodeId" : "x678n5",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-graficos"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-graficos\"]"
+        }, {
+          "css" : "html > body > nk-grafico:nth-of-type(1)",
+          "hostNodeId" : "x678n9",
+          "kind" : "SHADOW_HOST",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "nk-grafico"
+            } ]
+          },
+          "xpath" : "//html/body/nk-grafico[1]"
+        } ],
+        "frameId" : "c678f1",
+        "scopeId" : "shadow:x678n9",
+        "type" : "SHADOW_ROOT"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Exportar gráfico\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : false,
@@ -402,108 +504,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de SHADOW_ROOT (3 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : null,
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Exportar gráfico",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "x678n12" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "role" : "button",
-            "type" : "ROLE_IS"
-          }, {
-            "name" : "Exportar gráfico",
-            "type" : "NAME_EQUALS"
-          } ],
-          "tag" : null
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "iframe#f-relatorios",
-          "hostNodeId" : "n7",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-relatorios"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-relatorios\"]"
-        }, {
-          "css" : "iframe#f-graficos",
-          "hostNodeId" : "x678n5",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-graficos"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-graficos\"]"
-        }, {
-          "css" : "html > body > nk-grafico:nth-of-type(1)",
-          "hostNodeId" : "x678n9",
-          "kind" : "SHADOW_HOST",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ ],
-              "tag" : "html"
-            }, {
-              "axis" : "CHILD",
-              "predicates" : [ ],
-              "tag" : "body"
-            }, {
-              "axis" : "CHILD",
-              "predicates" : [ {
-                "position" : 1,
-                "type" : "NTH_OF_TYPE"
-              } ],
-              "tag" : "nk-grafico"
-            } ]
-          },
-          "xpath" : "//html/body/nk-grafico[1]"
-        } ],
-        "frameId" : "c678f1",
-        "scopeId" : "shadow:x678n9",
-        "type" : "SHADOW_ROOT"
-      },
-      "score" : 0.712,
-      "semantic" : "* {role=button} {name=\"Exportar gráfico\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "ROLE_NAME",
-      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -515,7 +515,7 @@
     "shadowDepth" : 1,
     "stability" : "HEURISTIC_UNSTABLE",
     "steps" : [ {
-      "browserDocumentId" : "B16C0E14B7B7EF3E01F64D1DBF83A9C8",
+      "browserDocumentId" : "76E047F91F36CB839EE9B397CD7AAC7E",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -530,7 +530,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-origins.html"
     }, {
-      "browserDocumentId" : "DAC9CB86EF8587F874907AA1C56F65DD",
+      "browserDocumentId" : "C4BFFD52803AEF17FB435B6F4A8C59EB",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:c678",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/relatorios.html)",
@@ -556,7 +556,7 @@
       "type" : "IFRAME",
       "url" : "http://localhost:18766/lab/chrome003/relatorios.html"
     }, {
-      "browserDocumentId" : "0E4B5146E6C32B6F3E16D2957A1E989C",
+      "browserDocumentId" : "02D20C053B7DFF10FA9091879C6590B4",
       "documentId" : "doc:c678",
       "enteredDocumentId" : "doc:c678f1",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/graficos.html)",
@@ -710,10 +710,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.26,
-      "protectionMs" : 0.39,
-      "readinessMs" : 0.14,
-      "totalMs" : 0.79
+      "graphMs" : 0.66,
+      "protectionMs" : 0.53,
+      "readinessMs" : 0.23,
+      "totalMs" : 1.42
     }
   },
   "limitacoes" : [ "xn8: PERMISSION_DENIED — origem sem permissão da extensão (conteúdo não inventariado)", "xn9: SANDBOX_RESTRICTED — iframe com sandbox: conteúdo não inspecionado por política (conteúdo não inventariado)", "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "2 frame(s) sem inspeção de conteúdo: somente URL/atributos do iframe foram avaliados" ]

@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 59
+    "nodes" : 59,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
+    "maxDepth" : 1,
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
-    "maxDepth" : 1
+    }
   },
   "identificacao" : {
+    "name" : "Guardar nota",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-4349c924-c7fc-42b6-8ff5-11015d983b0f",
     "frameChain" : [ {
       "container" : "heading:Pagamentos 1",
       "depth" : 1,
@@ -29,13 +32,9 @@
       "stableAttributes" : { },
       "title" : "Rascunho",
       "urlPath" : "about:blank"
-    } ],
-    "name" : "Guardar nota",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-66806c03-26db-4f00-8b4c-e8cc81ff98a9"
+    } ]
   },
   "familia" : {
-    "form" : null,
     "region" : null,
     "scope" : [ {
       "idAttr" : "f-branco",
@@ -44,9 +43,71 @@
       "name" : "Rascunho",
       "nodeId" : "n10",
       "tag" : "iframe"
-    } ]
+    } ],
+    "form" : null
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Guardar nota",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n55" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Guardar nota",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-branco",
+          "hostNodeId" : "n10",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-branco"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-branco\"]"
+        } ],
+        "frameId" : "f4",
+        "scopeId" : "doc:f4",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Guardar nota\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -271,67 +332,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : null,
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Guardar nota",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n55" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "role" : "button",
-            "type" : "ROLE_IS"
-          }, {
-            "name" : "Guardar nota",
-            "type" : "NAME_EQUALS"
-          } ],
-          "tag" : null
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "iframe#f-branco",
-          "hostNodeId" : "n10",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-branco"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-branco\"]"
-        } ],
-        "frameId" : "f4",
-        "scopeId" : "doc:f4",
-        "type" : "FRAME"
-      },
-      "score" : 0.712,
-      "semantic" : "* {role=button} {name=\"Guardar nota\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "ROLE_NAME",
-      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -343,7 +343,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "1669ED412508095C07566E05D07125CB",
+      "browserDocumentId" : "3801ABE6DA7B58B081E4F71347D4E1F9",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -358,7 +358,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "F1D4E0C3A1A208060281B2DF69C5ED9C",
+      "browserDocumentId" : "440DEF2618444496C36A99A3A1839ADB",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (about:blank)",
@@ -470,9 +470,9 @@
       "status" : "MANAGEABLE"
     },
     "timings" : {
-      "graphMs" : 0.38,
-      "protectionMs" : 0.43,
-      "readinessMs" : 0.2,
+      "graphMs" : 0.4,
+      "protectionMs" : 0.42,
+      "readinessMs" : 0.19,
       "totalMs" : 1.02
     }
   },

@@ -66,7 +66,7 @@
         "shadowDepth" : 0,
         "stability" : "HEURISTIC_STABLE",
         "steps" : [ {
-          "browserDocumentId" : "1E1FBD61E30B4AAC104E5EB88A34C54B",
+          "browserDocumentId" : "6564A232655A1E1E6F71131E60160C50",
           "documentId" : null,
           "enteredDocumentId" : "doc:f0",
           "expectedCondition" : "DOCUMENT_ACTIVE",

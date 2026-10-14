@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 92
+    "nodes" : 92,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
+    "maxDepth" : 2,
     "counts" : {
       "documents" : 10,
       "frames" : 9,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 1,
       "shadowRootsOpen" : 2
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
-    "maxDepth" : 2
+    }
   },
   "identificacao" : {
+    "name" : "Enviar mensagem",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-26e71afe-91f6-42a8-aacc-4e6db9c98f9b",
     "frameChain" : [ {
       "container" : "region:sec-d",
       "depth" : 1,
@@ -29,13 +32,9 @@
       "stableAttributes" : { },
       "title" : "Widget de suporte",
       "urlPath" : "/lab/chrome003/widget.html"
-    } ],
-    "name" : "Enviar mensagem",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-104e4eb5-d2d3-4e51-b8e3-f531cd2ef62b"
+    } ]
   },
   "familia" : {
-    "form" : null,
     "region" : {
       "idAttr" : "sec-d",
       "keyAttributes" : { },
@@ -58,9 +57,86 @@
       "name" : "Widget de suporte",
       "nodeId" : "n57",
       "tag" : "iframe"
-    } ]
+    } ],
+    "form" : null
   },
   "localizadores" : {
+    "primary" : {
+      "css" : "button#enviar",
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Enviar mensagem",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n62" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "enviar"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "nk-suporte#suporte",
+          "hostNodeId" : "n53",
+          "kind" : "SHADOW_HOST",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "suporte"
+              } ],
+              "tag" : "nk-suporte"
+            } ]
+          },
+          "xpath" : "//nk-suporte[@id=\"suporte\"]"
+        }, {
+          "css" : "iframe#f-widget",
+          "hostNodeId" : "n57",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-widget"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : null
+        } ],
+        "frameId" : "f5",
+        "scopeId" : "doc:f5",
+        "type" : "FRAME"
+      },
+      "score" : 0.9,
+      "semantic" : "button {id=enviar}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"enviar\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "ID",
+      "warnings" : [ ],
+      "xpath" : "//button[@id=\"enviar\"]"
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -427,82 +503,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (2 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : "button#enviar",
-      "expected" : {
-        "dialog" : null,
-        "form" : null,
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Enviar mensagem",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n62" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "enviar"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "nk-suporte#suporte",
-          "hostNodeId" : "n53",
-          "kind" : "SHADOW_HOST",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "suporte"
-              } ],
-              "tag" : "nk-suporte"
-            } ]
-          },
-          "xpath" : "//nk-suporte[@id=\"suporte\"]"
-        }, {
-          "css" : "iframe#f-widget",
-          "hostNodeId" : "n57",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-widget"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : null
-        } ],
-        "frameId" : "f5",
-        "scopeId" : "doc:f5",
-        "type" : "FRAME"
-      },
-      "score" : 0.9,
-      "semantic" : "button {id=enviar}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"enviar\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "ID",
-      "warnings" : [ ],
-      "xpath" : "//button[@id=\"enviar\"]"
     }
   },
   "trajetoria" : {
@@ -514,7 +514,7 @@
     "shadowDepth" : 1,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "BA69FAF230E73C87C4F9AA0BBD531441",
+      "browserDocumentId" : "05D40CD2495D8758F839A0A06FB7E25D",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -544,7 +544,7 @@
       "type" : "SHADOW_ROOT",
       "url" : null
     }, {
-      "browserDocumentId" : "2105ECA139FC2774DD73F7E48D5F2C81",
+      "browserDocumentId" : "41E43B729B267B4803CEFCCBCAEFE2E3",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f5",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/widget.html)",
@@ -665,10 +665,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.52,
-      "protectionMs" : 0.73,
-      "readinessMs" : 0.27,
-      "totalMs" : 1.54
+      "graphMs" : 0.99,
+      "protectionMs" : 0.89,
+      "readinessMs" : 0.28,
+      "totalMs" : 2.17
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

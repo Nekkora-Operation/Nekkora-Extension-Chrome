@@ -13,7 +13,7 @@ marcados no fim).
 | Iframe com `sandbox` | não anexado por política (`POLICY_SANDBOX`), declarado `SANDBOXED` | T020, C002-032 |
 | Opções não materializadas | completude `UNKNOWN`/`INCOMPLETE`; nunca presumidas inexistentes | T014, T021 |
 | Alvo indistinguível no registro / ambíguo após mutação | nunca resolvido; destaque removido | T032, C002-044 |
-| Páginas não locais | a extensão não atua fora de `127.0.0.1`/`localhost` (qualquer porta), em DEV e em PRD | `ORIGIN_NOT_ALLOWED`, C002-005 |
+| Páginas não autorizadas | a extensão atua no laboratório (`127.0.0.1`/`localhost`) e **somente** em sites http/https autorizados explicitamente pelo usuário (NEKKORA-REAL-001); demais origens, páginas internas e esquemas não suportados ⇒ `ORIGIN_NOT_ALLOWED` com motivo | C002-005, R001-02, RW-02 |
 | Inspeção ativa bloqueia ações da página | cliques viram seleção (requisito CHROME-001); a captura contínua acompanha mudanças provocadas pela página (temporizadores, rede, gravação) | T039, docs/chrome-002/inspection.md |
 | Captura-base não é um instante único | política declarada `BASE_PLUS_DELTA`: base cooperativa + 1º delta com o que mudou durante a travessia | C002-039 |
 
@@ -92,3 +92,11 @@ Lista completa em [chrome-003/known-limitations.md](chrome-003/known-limitations
 | Sem relação entre frames e documentos do navegador | grafo documental com `documentId` do Chrome | F003-001/002 |
 | Navegação interna de iframe de mesma origem não era observada | detecção de troca de documento | F003-003/017/018 |
 | Nenhuma informação sobre CAPTCHA/antibot | Protection Detection Engine passivo | P003-001..015 |
+
+## NEKKORA-REAL-001
+
+Lista completa: [docs/real-001/known-limitations.md](real-001/known-limitations.md). Principais: página real
+homologada somente na Wikipedia; diálogo de permissão verificado manualmente; dados pessoais sem formato
+reconhecível não são detectados; alvos de sites externos só em memória; PageMap de páginas reais grandes pode passar
+de 100 MB; detecção de proteções em fornecedores reais não homologada. `document.frames[].url` deixou de guardar a
+URL completa (pendência de segurança da revisão do PR #2 resolvida).

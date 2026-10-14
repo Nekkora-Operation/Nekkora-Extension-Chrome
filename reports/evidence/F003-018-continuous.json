@@ -1,17 +1,16 @@
 {
-  "frames" : [ "f0:null:INSPECTED", "f7:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f8:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Inserido 1:INSPECTED" ],
   "session" : {
-    "baseCaptureId" : "cap-ps-mv84cyz3-qszjg8-1",
+    "baseCaptureId" : "cap-ps-mv8cy770-nhd8bj-1",
     "consumers" : [ "inspection" ],
     "deltasApplied" : 3,
     "deltasRejected" : 0,
     "deltasStale" : 0,
-    "documentId" : "ps-mv84cyz3-qszjg8",
+    "documentId" : "ps-mv8cy770-nhd8bj",
     "endedAt" : null,
     "epoch" : 1,
     "error" : null,
     "frames" : [ {
-      "documentId" : "ps-mv84cz5o-pif02r",
+      "documentId" : "ps-mv8cy7dr-4rzktz",
       "epoch" : 1,
       "frameId" : 425,
       "hostNodeId" : "n20",
@@ -21,7 +20,7 @@
       "status" : "CAPTURED_BY_PARENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
     }, {
-      "documentId" : "ps-mv84cz7f-7ojimn",
+      "documentId" : "ps-mv8cy7fi-itu0a5",
       "epoch" : 1,
       "frameId" : 426,
       "hostNodeId" : "n9",
@@ -40,7 +39,7 @@
       "status" : "CAPTURED_BY_PARENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?spa=1"
     }, {
-      "documentId" : "ps-mv84cz3y-gxktzn",
+      "documentId" : "ps-mv8cy7c0-vaijcl",
       "epoch" : 1,
       "frameId" : 430,
       "hostNodeId" : "n60",
@@ -53,11 +52,11 @@
     "fullCaptures" : 1,
     "hostState" : "OK",
     "initialCapture" : {
-      "at" : "2026-10-14T13:01:55.687Z",
-      "browserMs" : 14.5,
+      "at" : "2026-10-14T17:02:23.046Z",
+      "browserMs" : 11.2,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv84cyz3-qszjg8-1",
-      "captureMs" : 8.9,
+      "captureId" : "cap-ps-mv8cy770-nhd8bj-1",
+      "captureMs" : 8.4,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -81,7 +80,7 @@
           "TEXT" : 1,
           "TEXT_INPUT" : 4
         },
-        "captureDurationMs" : 8.9,
+        "captureDurationMs" : 8.4,
         "elementCount" : 59,
         "frames" : [ {
           "elements" : 9,
@@ -142,9 +141,9 @@
         "unknownState" : 0,
         "visible" : 59
       },
-      "hostMs" : 8.9,
+      "hostMs" : 12,
       "interactive" : 19,
-      "maxSliceMs" : 5.6,
+      "maxSliceMs" : 5.7,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -174,18 +173,18 @@
       "slices" : 1,
       "text" : 13,
       "timings" : {
-        "classificationMs" : 1.57,
-        "hostTotalMs" : 5.8,
-        "indexMs" : 0.23
+        "classificationMs" : 1.81,
+        "hostTotalMs" : 8.37,
+        "indexMs" : 0.7
       },
-      "totalMs" : 24.5
+      "totalMs" : 24.1
     },
     "lastCapture" : {
-      "at" : "2026-10-14T13:01:55.687Z",
-      "browserMs" : 14.5,
+      "at" : "2026-10-14T17:02:23.046Z",
+      "browserMs" : 11.2,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv84cyz3-qszjg8-1",
-      "captureMs" : 8.9,
+      "captureId" : "cap-ps-mv8cy770-nhd8bj-1",
+      "captureMs" : 8.4,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -209,7 +208,7 @@
           "TEXT" : 1,
           "TEXT_INPUT" : 4
         },
-        "captureDurationMs" : 8.9,
+        "captureDurationMs" : 8.4,
         "elementCount" : 59,
         "frames" : [ {
           "elements" : 9,
@@ -270,9 +269,9 @@
         "unknownState" : 0,
         "visible" : 59
       },
-      "hostMs" : 8.9,
+      "hostMs" : 12,
       "interactive" : 19,
-      "maxSliceMs" : 5.6,
+      "maxSliceMs" : 5.7,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -302,23 +301,24 @@
       "slices" : 1,
       "text" : 13,
       "timings" : {
-        "classificationMs" : 1.57,
-        "hostTotalMs" : 5.8,
-        "indexMs" : 0.23
+        "classificationMs" : 1.81,
+        "hostTotalMs" : 8.37,
+        "indexMs" : 0.7
       },
-      "totalMs" : 24.5
+      "totalMs" : 24.1
     },
-    "lastDeltaAt" : "2026-10-14T13:01:55.920Z",
+    "lastDeltaAt" : "2026-10-14T17:02:23.284Z",
     "lastExport" : null,
-    "lastUpdateAt" : "2026-10-14T13:01:55.920Z",
-    "latestCaptureId" : "cap-ps-mv84cyz3-qszjg8-4",
+    "lastUpdateAt" : "2026-10-14T17:02:23.284Z",
+    "latestCaptureId" : "cap-ps-mv8cy770-nhd8bj-4",
     "nodes" : 56,
     "reason" : "SESSION_START",
     "resyncs" : 0,
-    "sessionId" : "cs-971825884-mv84cz0u-888u",
-    "startedAt" : "2026-10-14T13:01:55.662Z",
+    "sessionId" : "cs-1768684134-mv8cy78u-7unc",
+    "startedAt" : "2026-10-14T17:02:23.022Z",
     "status" : "ACTIVE",
-    "tabId" : 971825884,
+    "tabId" : 1768684134,
     "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
-  }
+  },
+  "frames" : [ "f0:null:INSPECTED", "f7:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f8:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Inserido 1:INSPECTED" ]
 }

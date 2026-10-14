@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 19
+    "nodes" : 19,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Pagamento:INSPECTED", "f2:Confirmação:INSPECTED" ],
+    "maxDepth" : 2,
     "counts" : {
       "documents" : 3,
       "frames" : 2,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:Pagamento:INSPECTED", "f2:Confirmação:INSPECTED" ],
-    "maxDepth" : 2
+    }
   },
   "identificacao" : {
+    "name" : "Confirmar pagamento",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-6ce87e46-af55-42ef-a290-c1a546f9d51d",
     "frameChain" : [ {
       "container" : "heading:Loja",
       "depth" : 1,
@@ -40,20 +43,9 @@
       "stableAttributes" : { },
       "title" : "Confirmação",
       "urlPath" : "/lab/chrome003/protection/p08-inner.html"
-    } ],
-    "name" : "Confirmar pagamento",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-38e5cb88-ecd3-44e2-b41f-05527f1fbed2"
+    } ]
   },
   "familia" : {
-    "form" : {
-      "idAttr" : "confirmar",
-      "keyAttributes" : { },
-      "kind" : "FORM",
-      "name" : "",
-      "nodeId" : "n17",
-      "tag" : "form"
-    },
     "region" : null,
     "scope" : [ {
       "idAttr" : "f-pagamento",
@@ -69,9 +61,100 @@
       "name" : "Confirmação",
       "nodeId" : "n14",
       "tag" : "iframe"
-    } ]
+    } ],
+    "form" : {
+      "idAttr" : "confirmar",
+      "keyAttributes" : { },
+      "kind" : "FORM",
+      "name" : "",
+      "nodeId" : "n17",
+      "tag" : "form"
+    }
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "#confirmar",
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Confirmar pagamento",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n19" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "confirmar"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Confirmar pagamento",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-pagamento",
+          "hostNodeId" : "n7",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-pagamento"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-pagamento\"]"
+        }, {
+          "css" : "iframe#f-confirmacao",
+          "hostNodeId" : "n14",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-confirmacao"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-confirmacao\"]"
+        } ],
+        "frameId" : "f2",
+        "scopeId" : "doc:f2",
+        "type" : "FRAME"
+      },
+      "score" : 0.745,
+      "semantic" : "form {id=confirmar} >> button {text=\"Confirmar pagamento\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"confirmar\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM" ],
+      "xpath" : "//form[@id=\"confirmar\"]//button[normalize-space(.)=\"Confirmar pagamento\"]"
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -547,89 +630,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (2 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "#confirmar",
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Confirmar pagamento",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n19" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "confirmar"
-          } ],
-          "tag" : "form"
-        }, {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "text" : "Confirmar pagamento",
-            "type" : "TEXT_EQUALS"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "iframe#f-pagamento",
-          "hostNodeId" : "n7",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-pagamento"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-pagamento\"]"
-        }, {
-          "css" : "iframe#f-confirmacao",
-          "hostNodeId" : "n14",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-confirmacao"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-confirmacao\"]"
-        } ],
-        "frameId" : "f2",
-        "scopeId" : "doc:f2",
-        "type" : "FRAME"
-      },
-      "score" : 0.745,
-      "semantic" : "form {id=confirmar} >> button {text=\"Confirmar pagamento\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"confirmar\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "CONTEXTUAL",
-      "warnings" : [ "escopo: FORM" ],
-      "xpath" : "//form[@id=\"confirmar\"]//button[normalize-space(.)=\"Confirmar pagamento\"]"
     }
   },
   "trajetoria" : {
@@ -641,7 +641,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "6AED073D42C8F821948EF18C41B86575",
+      "browserDocumentId" : "CCF377B642073EE9C789DCFFC907D166",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -656,7 +656,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-in-iframe.html"
     }, {
-      "browserDocumentId" : "67525409CF42DF9CEAEDC9EC17B6CC85",
+      "browserDocumentId" : "305B8020E59791871EF3CF1B1B60DA2C",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f1",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-frame.html)",
@@ -682,7 +682,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-frame.html"
     }, {
-      "browserDocumentId" : "E041B529CA5B33421C0EA4CD756CAAAB",
+      "browserDocumentId" : "A3289D2BD19ED1CA6D7DDF9E95284CFA",
       "documentId" : "doc:f1",
       "enteredDocumentId" : "doc:f2",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-inner.html)",
@@ -779,7 +779,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "6AED073D42C8F821948EF18C41B86575",
+              "browserDocumentId" : "CCF377B642073EE9C789DCFFC907D166",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -794,7 +794,7 @@
               "type" : "MAIN_DOCUMENT",
               "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-in-iframe.html"
             }, {
-              "browserDocumentId" : "67525409CF42DF9CEAEDC9EC17B6CC85",
+              "browserDocumentId" : "305B8020E59791871EF3CF1B1B60DA2C",
               "documentId" : "doc:f0",
               "enteredDocumentId" : "doc:f1",
               "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-frame.html)",
@@ -820,7 +820,7 @@
               "type" : "IFRAME",
               "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-frame.html"
             }, {
-              "browserDocumentId" : "E041B529CA5B33421C0EA4CD756CAAAB",
+              "browserDocumentId" : "A3289D2BD19ED1CA6D7DDF9E95284CFA",
               "documentId" : "doc:f1",
               "enteredDocumentId" : "doc:f2",
               "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-inner.html)",
@@ -952,10 +952,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.3,
-      "protectionMs" : 1.38,
-      "readinessMs" : 0.48,
-      "totalMs" : 2.18
+      "graphMs" : 0.24,
+      "protectionMs" : 1.15,
+      "readinessMs" : 0.4,
+      "totalMs" : 1.79
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

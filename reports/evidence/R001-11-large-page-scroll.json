@@ -1,0 +1,238 @@
+{
+  "tracker" : {
+    "active" : true,
+    "batches" : 3,
+    "deltasSent" : 4,
+    "epoch" : 1,
+    "failures" : 0,
+    "frameDocumentsReplaced" : 0,
+    "geometryChanged" : 7466,
+    "geometryRefreshes" : 1,
+    "geometryUpdates" : 7466,
+    "ignored" : 0,
+    "inFlight" : false,
+    "largeSubtreeScans" : 1,
+    "lastDeltaAt" : 1791997499562,
+    "lastDeltaMs" : 8.3,
+    "lastError" : null,
+    "maxDeltaMs" : 18.5,
+    "mode" : "ACTIVE",
+    "observers" : 1,
+    "pending" : 0,
+    "rawMutations" : 4,
+    "resyncs" : 0,
+    "seq" : 4,
+    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
+    "shadowRootsDiscovered" : 0,
+    "swept" : 0
+  },
+  "targetConditions" : [ "INTERACTIVE", "HIDDEN", "PRESENT", "ENABLED" ],
+  "sync" : {
+    "epoch" : 1,
+    "latestCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-5",
+    "ms" : 167.8,
+    "nodes" : 7467,
+    "pending" : 0,
+    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
+    "syncState" : "SYNCHRONIZED",
+    "unconfirmed" : [ ]
+  },
+  "session" : {
+    "baseCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
+    "consumers" : [ "inspection" ],
+    "deltasApplied" : 4,
+    "deltasRejected" : 0,
+    "deltasStale" : 0,
+    "documentId" : "ps-mv8d1i5j-ibzpfe",
+    "endedAt" : null,
+    "epoch" : 1,
+    "error" : null,
+    "frames" : [ ],
+    "fullCaptures" : 1,
+    "hostState" : "OK",
+    "initialCapture" : {
+      "at" : "2026-10-14T17:04:57.993Z",
+      "browserMs" : 294.4,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
+      "captureMs" : 292.1,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 534,
+          "INTERACTIVE" : 1998,
+          "STRUCTURAL" : 2001,
+          "TEXT" : 2933
+        },
+        "byKind" : {
+          "BUTTON" : 934,
+          "GENERIC_CONTAINER" : 534,
+          "HEADING" : 533,
+          "LABEL" : 532,
+          "LANDMARK" : 1,
+          "LINK" : 532,
+          "LIST" : 532,
+          "LIST_ITEM" : 1064,
+          "NUMBER_INPUT" : 532,
+          "PARAGRAPH" : 532,
+          "TABLE" : 1,
+          "TABLE_BODY" : 1,
+          "TABLE_CELL" : 804,
+          "TABLE_ROW" : 402,
+          "TEXT" : 532
+        },
+        "captureDurationMs" : 292.1,
+        "elementCount" : 7466,
+        "frames" : [ ],
+        "hidden" : 0,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 7466
+      },
+      "hostMs" : 426.6,
+      "interactive" : 1998,
+      "maxSliceMs" : 9.9,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho", "filtros: parâmetros de query que não são de paginação/ordenação" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : {
+            "n" : "8000"
+          },
+          "pagination" : { },
+          "screen" : "large",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "site-a.nekkora.test:18765",
+          "hostname" : "site-a.nekkora.test",
+          "href" : "http://site-a.nekkora.test:18765/generated/large?n=8000",
+          "origin" : "http://site-a.nekkora.test:18765",
+          "pathname" : "/generated/large",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : {
+            "n" : [ "8000" ]
+          },
+          "search" : "?n=8000",
+          "title" : "Página grande (8000)"
+        }
+      },
+      "nodes" : 7466,
+      "reason" : "SESSION_START",
+      "slices" : 29,
+      "text" : 2933,
+      "timings" : {
+        "classificationMs" : 94.42,
+        "hostTotalMs" : 304.91,
+        "indexMs" : 22.87
+      },
+      "totalMs" : 721.7
+    },
+    "lastCapture" : {
+      "at" : "2026-10-14T17:04:57.993Z",
+      "browserMs" : 294.4,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
+      "captureMs" : 292.1,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 534,
+          "INTERACTIVE" : 1998,
+          "STRUCTURAL" : 2001,
+          "TEXT" : 2933
+        },
+        "byKind" : {
+          "BUTTON" : 934,
+          "GENERIC_CONTAINER" : 534,
+          "HEADING" : 533,
+          "LABEL" : 532,
+          "LANDMARK" : 1,
+          "LINK" : 532,
+          "LIST" : 532,
+          "LIST_ITEM" : 1064,
+          "NUMBER_INPUT" : 532,
+          "PARAGRAPH" : 532,
+          "TABLE" : 1,
+          "TABLE_BODY" : 1,
+          "TABLE_CELL" : 804,
+          "TABLE_ROW" : 402,
+          "TEXT" : 532
+        },
+        "captureDurationMs" : 292.1,
+        "elementCount" : 7466,
+        "frames" : [ ],
+        "hidden" : 0,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 7466
+      },
+      "hostMs" : 426.6,
+      "interactive" : 1998,
+      "maxSliceMs" : 9.9,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho", "filtros: parâmetros de query que não são de paginação/ordenação" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : {
+            "n" : "8000"
+          },
+          "pagination" : { },
+          "screen" : "large",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "site-a.nekkora.test:18765",
+          "hostname" : "site-a.nekkora.test",
+          "href" : "http://site-a.nekkora.test:18765/generated/large?n=8000",
+          "origin" : "http://site-a.nekkora.test:18765",
+          "pathname" : "/generated/large",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : {
+            "n" : [ "8000" ]
+          },
+          "search" : "?n=8000",
+          "title" : "Página grande (8000)"
+        }
+      },
+      "nodes" : 7466,
+      "reason" : "SESSION_START",
+      "slices" : 29,
+      "text" : 2933,
+      "timings" : {
+        "classificationMs" : 94.42,
+        "hostTotalMs" : 304.91,
+        "indexMs" : 22.87
+      },
+      "totalMs" : 721.7
+    },
+    "lastDeltaAt" : "2026-10-14T17:04:59.560Z",
+    "lastExport" : null,
+    "lastUpdateAt" : "2026-10-14T17:04:59.560Z",
+    "latestCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-5",
+    "nodes" : 7467,
+    "reason" : "SESSION_START",
+    "resyncs" : 0,
+    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
+    "startedAt" : "2026-10-14T17:04:57.271Z",
+    "status" : "ACTIVE",
+    "tabId" : 1768684587,
+    "url" : "http://site-a.nekkora.test:18765/generated/large?n=8000"
+  }
+}

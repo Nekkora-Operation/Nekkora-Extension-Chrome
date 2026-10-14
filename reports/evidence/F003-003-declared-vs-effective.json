@@ -1,7 +1,7 @@
 {
   "before" : {
     "browser" : {
-      "browserDocumentId" : "5875359FADEB543043047707B8653499",
+      "browserDocumentId" : "5AE7D744F60B22F1B04A235CCC7C8C9E",
       "browserFrameId" : 436,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -9,7 +9,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "B48A45EB25F6408B006C382E9EF89DDE",
+      "parentDocumentId" : "2DB85E32B7F917F0AB19DD3AA717F2AB",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
@@ -55,7 +55,7 @@
   },
   "aboutBlank" : {
     "browser" : {
-      "browserDocumentId" : "2636DD55A4C1388D4D81C28A5BA1C2B9",
+      "browserDocumentId" : "4C4C9E29AD8B2F0E353EED403D9AE402",
       "browserFrameId" : 437,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -63,7 +63,7 @@
       "inspection" : "NO_CONTENT_SCRIPT",
       "mapping" : "URL_MATCH",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "B48A45EB25F6408B006C382E9EF89DDE",
+      "parentDocumentId" : "2DB85E32B7F917F0AB19DD3AA717F2AB",
       "reason" : null,
       "source" : null,
       "url" : "about:blank"
@@ -109,7 +109,7 @@
   },
   "after" : {
     "browser" : {
-      "browserDocumentId" : "C1343FAB884258DDAEF2F429BC311B1B",
+      "browserDocumentId" : "73F31411B9E07AEEA2584BC288AB0D16",
       "browserFrameId" : 436,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -117,7 +117,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "B48A45EB25F6408B006C382E9EF89DDE",
+      "parentDocumentId" : "2DB85E32B7F917F0AB19DD3AA717F2AB",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
@@ -163,7 +163,7 @@
   },
   "srcdoc" : {
     "browser" : {
-      "browserDocumentId" : "A11E931E3CC01C3438800DB6DF18D83D",
+      "browserDocumentId" : "863C7F5AD69632ADD8B50A46203E5B64",
       "browserFrameId" : 438,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -171,7 +171,7 @@
       "inspection" : "NO_CONTENT_SCRIPT",
       "mapping" : "URL_MATCH",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "B48A45EB25F6408B006C382E9EF89DDE",
+      "parentDocumentId" : "2DB85E32B7F917F0AB19DD3AA717F2AB",
       "reason" : null,
       "source" : null,
       "url" : "about:srcdoc"

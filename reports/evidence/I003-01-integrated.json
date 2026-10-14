@@ -1,10 +1,12 @@
 {
   "captura" : {
-    "deltas" : 0,
     "fullCaptures" : 1,
-    "nodes" : 92
+    "nodes" : 92,
+    "deltas" : 0
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
+    "maxDepth" : 2,
     "counts" : {
       "documents" : 10,
       "frames" : 9,
@@ -13,11 +15,12 @@
       "loading" : 0,
       "shadowRootsClosed" : 1,
       "shadowRootsOpen" : 2
-    },
-    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
-    "maxDepth" : 2
+    }
   },
   "identificacao" : {
+    "name" : "Confirmar pagamento",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-681c2376-dd61-409d-a416-8c7d90e622ba",
     "frameChain" : [ {
       "container" : "region:sec-b",
       "depth" : 1,
@@ -40,22 +43,9 @@
       "stableAttributes" : { },
       "title" : "Pagamentos",
       "urlPath" : "/lab/chrome003/pagamentos.html"
-    } ],
-    "name" : "Confirmar pagamento",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-d44da245-11e0-4b7c-a9bf-e69a225b1fa4"
+    } ]
   },
   "familia" : {
-    "form" : {
-      "idAttr" : null,
-      "keyAttributes" : {
-        "aria-label" : "Pagamento"
-      },
-      "kind" : "FORM",
-      "name" : "Pagamento",
-      "nodeId" : "n48",
-      "tag" : "form"
-    },
     "region" : {
       "idAttr" : "sec-b",
       "keyAttributes" : { },
@@ -85,9 +75,119 @@
       "name" : "",
       "nodeId" : "n45",
       "tag" : "nk-pagamento"
-    } ]
+    } ],
+    "form" : {
+      "idAttr" : null,
+      "keyAttributes" : {
+        "aria-label" : "Pagamento"
+      },
+      "kind" : "FORM",
+      "name" : "Pagamento",
+      "nodeId" : "n48",
+      "tag" : "form"
+    }
   },
   "localizadores" : {
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "Pagamento",
+        "heading" : "Pagamentos 1",
+        "kind" : "BUTTON",
+        "name" : "Confirmar pagamento",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n51" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "aria-label",
+            "type" : "ATTR_EQUALS",
+            "value" : "Pagamento"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Confirmar pagamento",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-financeiro",
+          "hostNodeId" : "n26",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-financeiro"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-financeiro\"]"
+        }, {
+          "css" : "iframe#f-pagamentos",
+          "hostNodeId" : "n32",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-pagamentos"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-pagamentos\"]"
+        }, {
+          "css" : "nk-pagamento#form-pagamento",
+          "hostNodeId" : "n45",
+          "kind" : "SHADOW_HOST",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "form-pagamento"
+              } ],
+              "tag" : "nk-pagamento"
+            } ]
+          },
+          "xpath" : "//nk-pagamento[@id=\"form-pagamento\"]"
+        } ],
+        "frameId" : "f4",
+        "scopeId" : "shadow:n45",
+        "type" : "SHADOW_ROOT"
+      },
+      "score" : 0.722,
+      "semantic" : "form {aria-label=Pagamento} >> button {text=\"Confirmar pagamento\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM \"Pagamento\"", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -496,106 +596,6 @@
         },
         "warnings" : [ "SCOPED: executar dentro de SHADOW_ROOT (3 salto(s))" ]
       }
-    },
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "Pagamento",
-        "heading" : "Pagamentos 1",
-        "kind" : "BUTTON",
-        "name" : "Confirmar pagamento",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n51" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "aria-label",
-            "type" : "ATTR_EQUALS",
-            "value" : "Pagamento"
-          } ],
-          "tag" : "form"
-        }, {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "text" : "Confirmar pagamento",
-            "type" : "TEXT_EQUALS"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "iframe#f-financeiro",
-          "hostNodeId" : "n26",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-financeiro"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-financeiro\"]"
-        }, {
-          "css" : "iframe#f-pagamentos",
-          "hostNodeId" : "n32",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-pagamentos"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-pagamentos\"]"
-        }, {
-          "css" : "nk-pagamento#form-pagamento",
-          "hostNodeId" : "n45",
-          "kind" : "SHADOW_HOST",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "form-pagamento"
-              } ],
-              "tag" : "nk-pagamento"
-            } ]
-          },
-          "xpath" : "//nk-pagamento[@id=\"form-pagamento\"]"
-        } ],
-        "frameId" : "f4",
-        "scopeId" : "shadow:n45",
-        "type" : "SHADOW_ROOT"
-      },
-      "score" : 0.722,
-      "semantic" : "form {aria-label=Pagamento} >> button {text=\"Confirmar pagamento\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "CONTEXTUAL",
-      "warnings" : [ "escopo: FORM \"Pagamento\"", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -607,7 +607,7 @@
     "shadowDepth" : 1,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "00CBD6893F5476EBF38F174B9A45A878",
+      "browserDocumentId" : "0FEF3FCAF8C11A051AD3BEBC82387C1D",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -622,7 +622,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
     }, {
-      "browserDocumentId" : "443551BA2EA0CB4D26E417BA8223F720",
+      "browserDocumentId" : "87E57AAD1DCD473396D2E448F2E35CED",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f2",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/financeiro.html)",
@@ -648,7 +648,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
     }, {
-      "browserDocumentId" : "2B78FAE390BC3160BFF6C6699B5B8502",
+      "browserDocumentId" : "AA8710FD660F7CD8608812EE0A2B0526",
       "documentId" : "doc:f2",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/pagamentos.html)",
@@ -784,10 +784,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.38,
-      "protectionMs" : 0.62,
-      "readinessMs" : 0.25,
-      "totalMs" : 1.26
+      "graphMs" : 0.66,
+      "protectionMs" : 0.7,
+      "readinessMs" : 0.26,
+      "totalMs" : 1.63
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

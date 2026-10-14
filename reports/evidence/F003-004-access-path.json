@@ -7,7 +7,7 @@
   "shadowDepth" : 0,
   "stability" : "HEURISTIC_STABLE",
   "steps" : [ {
-    "browserDocumentId" : "6DF1F7FDD9D8F0104E48B77322211423",
+    "browserDocumentId" : "21F9628D800996EF7F48C3A9D10DADBC",
     "documentId" : null,
     "enteredDocumentId" : "doc:f0",
     "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -22,7 +22,7 @@
     "type" : "MAIN_DOCUMENT",
     "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
   }, {
-    "browserDocumentId" : "768A1BB3650BF291D62F743B3E3BEECA",
+    "browserDocumentId" : "53CEB25E1E2FBDC184C94D9F9E371253",
     "documentId" : "doc:f0",
     "enteredDocumentId" : "doc:f1",
     "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/contas.html)",

@@ -7,7 +7,7 @@
   "shadowDepth" : 1,
   "stability" : "HEURISTIC_STABLE",
   "steps" : [ {
-    "browserDocumentId" : "FAEA69521750C6A0AC4E303479189396",
+    "browserDocumentId" : "3F60B66E173B7BECDE19EF187E3C458A",
     "documentId" : null,
     "enteredDocumentId" : "doc:f0",
     "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -22,7 +22,7 @@
     "type" : "MAIN_DOCUMENT",
     "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
   }, {
-    "browserDocumentId" : "628154E5A5BD680C6552CEFC3E81E8E9",
+    "browserDocumentId" : "D4C8D9C9F0BA9CBE6F3C37E751104F2B",
     "documentId" : "doc:f0",
     "enteredDocumentId" : "doc:f2",
     "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/financeiro.html)",
@@ -48,7 +48,7 @@
     "type" : "IFRAME",
     "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
   }, {
-    "browserDocumentId" : "8DF706ED8AD81643117B2A9E089947D4",
+    "browserDocumentId" : "6E0BD83F6ABCF3A2A63966FF48684662",
     "documentId" : "doc:f2",
     "enteredDocumentId" : "doc:f4",
     "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/pagamentos.html)",

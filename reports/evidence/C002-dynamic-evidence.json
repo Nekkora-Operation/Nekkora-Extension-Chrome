@@ -137,7 +137,7 @@
     "agreesWithChrome" : true
   } ],
   "measures" : {
-    "lateAttachShadowLatencyMs" : 1036,
+    "lateAttachShadowLatencyMs" : 1082,
     "reconcileIntervalMs" : 1000
   }
 }

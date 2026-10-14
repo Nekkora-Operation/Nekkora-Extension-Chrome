@@ -1,0 +1,1052 @@
+{
+  "access" : {
+    "allowed" : true,
+    "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+    "broad" : false,
+    "kind" : "AUTHORIZED",
+    "message" : null,
+    "origin" : "https://en.wikipedia.org",
+    "pattern" : "https://en.wikipedia.org/*",
+    "reason" : null,
+    "registration" : {
+      "allFrames" : true,
+      "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
+      "id" : "nekkora-authorized-origins",
+      "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/content/ns.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/content/content-main.js" ],
+      "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+      "runAt" : "document_idle"
+    },
+    "tabId" : 896321684
+  },
+  "session" : {
+    "baseCaptureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+    "consumers" : [ "inspection" ],
+    "deltasApplied" : 0,
+    "deltasRejected" : 0,
+    "deltasStale" : 0,
+    "documentId" : "ps-mv8d1yll-0vkw4s",
+    "endedAt" : null,
+    "epoch" : 1,
+    "error" : null,
+    "frames" : [ ],
+    "fullCaptures" : 1,
+    "hostState" : "OK",
+    "initialCapture" : {
+      "at" : "2026-10-14T17:05:20.593Z",
+      "browserMs" : 619.6,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+      "captureMs" : 611.1,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 3492,
+          "INTERACTIVE" : 5038,
+          "OTHER" : 118,
+          "STRUCTURAL" : 2191,
+          "TEXT" : 5789
+        },
+        "byKind" : {
+          "BUTTON" : 39,
+          "CHECKBOX" : 8,
+          "DESCRIPTION" : 56,
+          "FORM" : 5,
+          "GENERIC_CONTAINER" : 3492,
+          "HEADING" : 50,
+          "HIDDEN_INPUT" : 2,
+          "IMAGE" : 116,
+          "LABEL" : 16,
+          "LANDMARK" : 83,
+          "LINK" : 4981,
+          "LIST" : 194,
+          "LIST_ITEM" : 1700,
+          "PARAGRAPH" : 159,
+          "RADIO" : 8,
+          "SEARCH_INPUT" : 2,
+          "STATUS" : 1,
+          "TABLE" : 27,
+          "TABLE_BODY" : 27,
+          "TABLE_CELL" : 205,
+          "TABLE_HEADER_CELL" : 129,
+          "TABLE_ROW" : 155,
+          "TEXT" : 5171,
+          "VALIDATION_MESSAGE" : 2
+        },
+        "captureDurationMs" : 611.1,
+        "elementCount" : 16628,
+        "frames" : [ ],
+        "hidden" : 4293,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 12335
+      },
+      "hostMs" : 921.4,
+      "interactive" : 5038,
+      "maxSliceMs" : 17.5,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : { },
+          "pagination" : { },
+          "screen" : "Brazil",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "en.wikipedia.org",
+          "hostname" : "en.wikipedia.org",
+          "href" : "https://en.wikipedia.org/wiki/Brazil",
+          "origin" : "https://en.wikipedia.org",
+          "pathname" : "/wiki/Brazil",
+          "port" : "",
+          "protocol" : "https",
+          "query" : { },
+          "search" : "",
+          "title" : "Brazil - Wikipedia"
+        }
+      },
+      "nodes" : 16628,
+      "reason" : "SESSION_START",
+      "slices" : 40,
+      "text" : 5789,
+      "timings" : {
+        "classificationMs" : 194.24,
+        "hostTotalMs" : 616.47,
+        "indexMs" : 72.87
+      },
+      "totalMs" : 1541.9
+    },
+    "lastCapture" : {
+      "at" : "2026-10-14T17:05:20.593Z",
+      "browserMs" : 619.6,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+      "captureMs" : 611.1,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 3492,
+          "INTERACTIVE" : 5038,
+          "OTHER" : 118,
+          "STRUCTURAL" : 2191,
+          "TEXT" : 5789
+        },
+        "byKind" : {
+          "BUTTON" : 39,
+          "CHECKBOX" : 8,
+          "DESCRIPTION" : 56,
+          "FORM" : 5,
+          "GENERIC_CONTAINER" : 3492,
+          "HEADING" : 50,
+          "HIDDEN_INPUT" : 2,
+          "IMAGE" : 116,
+          "LABEL" : 16,
+          "LANDMARK" : 83,
+          "LINK" : 4981,
+          "LIST" : 194,
+          "LIST_ITEM" : 1700,
+          "PARAGRAPH" : 159,
+          "RADIO" : 8,
+          "SEARCH_INPUT" : 2,
+          "STATUS" : 1,
+          "TABLE" : 27,
+          "TABLE_BODY" : 27,
+          "TABLE_CELL" : 205,
+          "TABLE_HEADER_CELL" : 129,
+          "TABLE_ROW" : 155,
+          "TEXT" : 5171,
+          "VALIDATION_MESSAGE" : 2
+        },
+        "captureDurationMs" : 611.1,
+        "elementCount" : 16628,
+        "frames" : [ ],
+        "hidden" : 4293,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 12335
+      },
+      "hostMs" : 921.4,
+      "interactive" : 5038,
+      "maxSliceMs" : 17.5,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : { },
+          "pagination" : { },
+          "screen" : "Brazil",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "en.wikipedia.org",
+          "hostname" : "en.wikipedia.org",
+          "href" : "https://en.wikipedia.org/wiki/Brazil",
+          "origin" : "https://en.wikipedia.org",
+          "pathname" : "/wiki/Brazil",
+          "port" : "",
+          "protocol" : "https",
+          "query" : { },
+          "search" : "",
+          "title" : "Brazil - Wikipedia"
+        }
+      },
+      "nodes" : 16628,
+      "reason" : "SESSION_START",
+      "slices" : 40,
+      "text" : 5789,
+      "timings" : {
+        "classificationMs" : 194.24,
+        "hostTotalMs" : 616.47,
+        "indexMs" : 72.87
+      },
+      "totalMs" : 1541.9
+    },
+    "lastDeltaAt" : null,
+    "lastExport" : null,
+    "lastUpdateAt" : "2026-10-14T17:05:20.593Z",
+    "latestCaptureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+    "nodes" : 16628,
+    "reason" : "SESSION_START",
+    "resyncs" : 0,
+    "sessionId" : "cs-896321684-mv8d1z2i-6cu0",
+    "startedAt" : "2026-10-14T17:05:19.050Z",
+    "status" : "ACTIVE",
+    "tabId" : 896321684,
+    "url" : "https://en.wikipedia.org/wiki/Brazil"
+  },
+  "heading" : {
+    "conditions" : [ "VISIBLE", "PRESENT", "NON_INTERACTIVE" ],
+    "confidence" : "HIGH",
+    "evidence" : [ "<h1>" ],
+    "kind" : "HEADING",
+    "name" : {
+      "confidence" : "MEDIUM",
+      "description" : "",
+      "descriptionNodeIds" : [ ],
+      "name" : "Brazil",
+      "source" : "CONTENT",
+      "sourceNodeIds" : [ ]
+    },
+    "nativeSemantics" : true,
+    "nodeId" : "n477",
+    "role" : "heading",
+    "sensitive" : false,
+    "uncertainties" : [ ]
+  },
+  "headingLocators" : {
+    "fallbacks" : [ {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "tag" : "h1",
+            "text" : "Brazil",
+            "type" : "HAS_CHILD_TEXT"
+          } ],
+          "tag" : "header"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "firstHeading"
+          } ],
+          "tag" : "h1"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.745,
+      "semantic" : "header {has child <h1> \"Brazil\"} >> h1 {id=firstHeading}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "âncora por conteúdo textual \"Brazil\"", "id=\"firstHeading\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: LANDMARK" ],
+      "xpath" : "//header[h1[normalize-space(.)=\"Brazil\"]]//h1[@id=\"firstHeading\"]"
+    }, {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "heading",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Brazil",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=heading} {name=\"Brazil\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    }, {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Brazil",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "h1"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.608,
+      "semantic" : "h1 {text=\"Brazil\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "TEXT",
+      "warnings" : [ ],
+      "xpath" : "//h1[normalize-space(.)=\"Brazil\"]"
+    }, {
+      "css" : "main#content > header > h1",
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "content"
+          } ],
+          "tag" : "main"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ ],
+          "tag" : "header"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ ],
+          "tag" : "h1"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.45,
+      "semantic" : "main {id=content} >> header >> h1",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"content\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "XPATH_RELATIVE",
+      "warnings" : [ "relativo à âncora #content" ],
+      "xpath" : "//main[@id=\"content\"]/header/h1"
+    }, {
+      "css" : "html > body > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > header:nth-of-type(1) > h1:nth-of-type(1)",
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ ],
+          "tag" : "html"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ ],
+          "tag" : "body"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 3,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 1,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 3,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 1,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "main"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 1,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "header"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ {
+            "position" : 1,
+            "type" : "NTH_OF_TYPE"
+          } ],
+          "tag" : "h1"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.09,
+      "semantic" : "html >> body >> div {nth-of-type 3} >> div {nth-of-type 1} >> div {nth-of-type 3} >> main {nth-of-type 1} >> header {nth-of-type 1} >> h1 {nth-of-type 1}",
+      "stability" : "HEURISTIC_UNSTABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+      "strategy" : "POSITIONAL",
+      "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+      "xpath" : "//html/body/div[3]/div[1]/div[3]/main[1]/header[1]/h1[1]"
+    } ],
+    "nodeId" : "n477",
+    "primary" : {
+      "css" : "h1#firstHeading",
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : "Contents",
+        "kind" : "HEADING",
+        "name" : "Brazil",
+        "role" : "heading",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n477" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "firstHeading"
+          } ],
+          "tag" : "h1"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.9,
+      "semantic" : "h1 {id=firstHeading}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"firstHeading\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "ID",
+      "warnings" : [ ],
+      "xpath" : "//h1[@id=\"firstHeading\"]"
+    },
+    "warnings" : [ ]
+  },
+  "search" : {
+    "conditions" : [ "PRESENT", "VISIBLE", "INTERACTIVE", "ENABLED" ],
+    "confidence" : "HIGH",
+    "evidence" : [ "<input type=search>" ],
+    "kind" : "SEARCH_INPUT",
+    "name" : {
+      "confidence" : "HIGH",
+      "description" : "Search Wikipedia [alt-f]",
+      "descriptionNodeIds" : [ ],
+      "name" : "Search Wikipedia",
+      "source" : "ARIA_LABEL",
+      "sourceNodeIds" : [ ]
+    },
+    "nativeSemantics" : true,
+    "nodeId" : "n89",
+    "role" : "searchbox",
+    "sensitive" : false,
+    "uncertainties" : [ ]
+  },
+  "searchLocators" : {
+    "fallbacks" : [ {
+      "css" : "div#simpleSearch input#searchInput",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "simpleSearch"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "searchInput"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.76,
+      "semantic" : "div {id=simpleSearch} >> input {id=searchInput}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"simpleSearch\": sem indícios de geração dinâmica (inferência)", "id=\"searchInput\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: GENERIC_CONTAINER" ],
+      "xpath" : "//div[@id=\"simpleSearch\"]//input[@id=\"searchInput\"]"
+    }, {
+      "css" : "form#searchform input#searchInput",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "searchform"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "searchInput"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.76,
+      "semantic" : "form {id=searchform} >> input {id=searchInput}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"searchform\": sem indícios de geração dinâmica (inferência)", "id=\"searchInput\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM" ],
+      "xpath" : "//form[@id=\"searchform\"]//input[@id=\"searchInput\"]"
+    }, {
+      "css" : "div#p-search input#searchInput",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "p-search"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "searchInput"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.76,
+      "semantic" : "div {id=p-search} >> input {id=searchInput}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"p-search\": sem indícios de geração dinâmica (inferência)", "id=\"searchInput\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: LANDMARK" ],
+      "xpath" : "//div[@id=\"p-search\"]//input[@id=\"searchInput\"]"
+    }, {
+      "css" : "input[aria-label=\"Search Wikipedia\"]",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "aria-label",
+            "type" : "ATTR_EQUALS",
+            "value" : "Search Wikipedia"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.65,
+      "semantic" : "input {aria-label=Search Wikipedia}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ATTRIBUTE",
+      "warnings" : [ ],
+      "xpath" : "//input[@aria-label=\"Search Wikipedia\"]"
+    }, {
+      "css" : "input[title=\"Search Wikipedia [alt-f]\"]",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "title",
+            "type" : "ATTR_EQUALS",
+            "value" : "Search Wikipedia [alt-f]"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.65,
+      "semantic" : "input {title=Search Wikipedia [alt-f]}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ATTRIBUTE",
+      "warnings" : [ ],
+      "xpath" : "//input[@title=\"Search Wikipedia [alt-f]\"]"
+    }, {
+      "css" : "div#simpleSearch > div > input",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "simpleSearch"
+          } ],
+          "tag" : "div"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ ],
+          "tag" : "div"
+        }, {
+          "axis" : "CHILD",
+          "predicates" : [ ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.45,
+      "semantic" : "div {id=simpleSearch} >> div >> input",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"simpleSearch\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "XPATH_RELATIVE",
+      "warnings" : [ "relativo à âncora #simpleSearch" ],
+      "xpath" : "//div[@id=\"simpleSearch\"]/div/input"
+    }, {
+      "css" : "input[name=\"search\"]",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 2,
+      "matchedNodeIds" : [ "n89", "n16584" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "name",
+            "type" : "ATTR_EQUALS",
+            "value" : "search"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.14,
+      "semantic" : "input {name=search}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "name=\"search\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "NAME",
+      "warnings" : [ "AMBIGUOUS_MATCH: 2 elementos correspondem" ],
+      "xpath" : "//input[@name=\"search\"]"
+    }, {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 2,
+      "matchedNodeIds" : [ "n89", "n16584" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "searchbox",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Search Wikipedia",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.125,
+      "semantic" : "* {role=searchbox} {name=\"Search Wikipedia\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "AMBIGUOUS_MATCH: 2 elementos correspondem", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    } ],
+    "nodeId" : "n89",
+    "primary" : {
+      "css" : "input#searchInput",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#searchform",
+        "heading" : null,
+        "kind" : "SEARCH_INPUT",
+        "name" : "Search Wikipedia",
+        "role" : "searchbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n89" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "searchInput"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.9,
+      "semantic" : "input {id=searchInput}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"searchInput\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "ID",
+      "warnings" : [ ],
+      "xpath" : "//input[@id=\"searchInput\"]"
+    },
+    "warnings" : [ ]
+  },
+  "elements" : 13136,
+  "exportBytes" : 146230930,
+  "pageMapOmitted" : "TOO_LARGE_FOR_MESSAGE",
+  "documentUrl" : "https://en.wikipedia.org/wiki/Brazil",
+  "frameGraphCounts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "protection" : {
+    "assessments" : [ ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "status" : "NOT_OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade média: [AMBIGUOUS_ELEMENTS]", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 5038,
+      "observed" : 16628
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "obstacles" : [ {
+      "count" : 1578,
+      "description" : "Elementos interativos de mesmo tipo e nome no mesmo escopo: identidade depende de família/contexto",
+      "evidence" : [ "1578 elemento(s) em grupos de nomes repetidos" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ "n7752", "n14371", "n6323", "n7801", "n12287", "n12864", "n6760", "n6769", "n10696", "n12489", "n13294", "n1939", "n6487", "n6379", "n7789", "n6838", "n6930", "n6890", "n6898", "n2053" ],
+      "severity" : "MEDIUM",
+      "type" : "AMBIGUOUS_ELEMENTS"
+    } ],
+    "page" : {
+      "title" : "Brazil - Wikipedia",
+      "url" : "https://en.wikipedia.org/wiki/Brazil"
+    },
+    "protectionStatus" : "NOT_OBSERVED",
+    "protections" : [ ],
+    "recommendations" : [ {
+      "reason" : "Validar manualmente as regiões não observáveis ou ambíguas antes de prosseguir",
+      "relatedObstacles" : [ "AMBIGUOUS_ELEMENTS" ],
+      "type" : "MANUAL_VALIDATION"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "emailPatternInExport" : null
+}

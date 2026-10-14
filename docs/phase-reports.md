@@ -288,3 +288,35 @@ Branch `feat/nekkora-chrome-003` (base `47d7a16`). Números da execução final 
   no Chrome e entre os iframes lógicos elegíveis do mesmo pai (D-052); caso contrário, nenhuma associação.
 - **Testes**: 3 regressões em `FrameIntelligenceTest` (falham no código anterior); suíte completa reexecutada.
 
+---
+
+# NEKKORA-REAL-001 — relatórios por fase
+
+Branch `feat/nekkora-real-web-pilot` (base `5bcc108`, CHROME-003 integrada). Números finais no
+[relatório](../reports/real-web-pilot-final-report.md).
+
+## Fase 1 — Permissões e política central
+
+- **Implementado**: `optional_host_permissions`; `access-policy.js` (substitui seis verificações de `localhost`);
+  `injection.js` (registro dinâmico + injeção nos frames que faltam); painel "Acesso ao site"; revogação.
+- **Testes**: `access-policy.test.js`; R001-01, R001-02, R001-08, R001-09.
+
+## Fase 2 — Privacidade
+
+- **Implementado**: `shared/privacy.js` e `core/privacy` (duas barreiras, vetores compartilhados); `document.frames[].url`
+  sanitizada; textos/atributos mascarados; valores redigidos fora dos localizadores; alvos externos só em memória.
+- **Testes**: `privacy.test.js`, `PrivacyTest`; R001-10.
+
+## Fase 3 — Iframes, SPA, Shadow DOM e proteções em origem externa
+
+- **Testes**: R001-03..07 (hosts `*.nekkora.test`).
+
+## Fase 4 — Página real (Wikipedia)
+
+- **Achados e correções**: PageMap > 64 MiB nas mensagens internas (D-062); rolagem ⇒ recaptura completa por
+  geometria (D-060) e por classe do `body` (D-061); criação de conta servida por outra origem (recusa correta).
+- **Testes**: RW-01..05 (`-Suite real`), R001-11, `GeometryUpdateTest`.
+
+## Fase 5 — Desempenho, regressão, documentação e publicação
+
+- **Implementado**: RP-01 (7 execuções, frio × aquecido); regressão completa; `docs/real-001/*`; relatório final; PR.
