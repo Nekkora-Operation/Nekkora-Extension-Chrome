@@ -18,7 +18,6 @@
     "maxDepth" : 2
   },
   "identificacao" : {
-    "targetId" : "tgt-2d3e547d-9746-4d0b-a0b3-94fc94290575",
     "frameChain" : [ {
       "container" : "region:sec-e",
       "depth" : 1,
@@ -32,7 +31,8 @@
       "urlPath" : "/lab/chrome003/filial.html"
     } ],
     "name" : "Aprovar",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-9a1669a5-6fab-4349-aee1-81faf4144f12"
   },
   "familia" : {
     "form" : null,
@@ -382,7 +382,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "76BB4D5B51F3FDF06BBA0112287D8DF1",
+      "browserDocumentId" : "B2406D66898CEFA3BF37E411A90E8F09",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -397,7 +397,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
     }, {
-      "browserDocumentId" : "FE06ABCE205FB54189D26DD0752E15F0",
+      "browserDocumentId" : "2E2F754F0656BF0D21E9B8B17155B1B1",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f7",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/filial.html)",
@@ -518,10 +518,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 4.1,
-      "protectionMs" : 0.73,
-      "readinessMs" : 0.29,
-      "totalMs" : 5.12
+      "graphMs" : 0.53,
+      "protectionMs" : 0.65,
+      "readinessMs" : 0.22,
+      "totalMs" : 1.41
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

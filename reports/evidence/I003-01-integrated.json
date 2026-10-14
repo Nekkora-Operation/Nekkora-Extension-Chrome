@@ -18,7 +18,6 @@
     "maxDepth" : 2
   },
   "identificacao" : {
-    "targetId" : "tgt-58604a68-b97c-4988-8e1a-4979600d9a50",
     "frameChain" : [ {
       "container" : "region:sec-b",
       "depth" : 1,
@@ -43,7 +42,8 @@
       "urlPath" : "/lab/chrome003/pagamentos.html"
     } ],
     "name" : "Confirmar pagamento",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-d44da245-11e0-4b7c-a9bf-e69a225b1fa4"
   },
   "familia" : {
     "form" : {
@@ -607,7 +607,7 @@
     "shadowDepth" : 1,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "DD8B391DDD8560D1E2B041D2488D9D90",
+      "browserDocumentId" : "00CBD6893F5476EBF38F174B9A45A878",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -622,7 +622,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
     }, {
-      "browserDocumentId" : "8B2712FA0DA9438426F243AC8ED11679",
+      "browserDocumentId" : "443551BA2EA0CB4D26E417BA8223F720",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f2",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/financeiro.html)",
@@ -648,7 +648,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
     }, {
-      "browserDocumentId" : "6D4311D17DCFF7489C051D525C25BD6B",
+      "browserDocumentId" : "2B78FAE390BC3160BFF6C6699B5B8502",
       "documentId" : "doc:f2",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/pagamentos.html)",
@@ -784,10 +784,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.51,
-      "protectionMs" : 0.68,
-      "readinessMs" : 0.28,
-      "totalMs" : 1.47
+      "graphMs" : 0.38,
+      "protectionMs" : 0.62,
+      "readinessMs" : 0.25,
+      "totalMs" : 1.26
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

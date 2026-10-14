@@ -117,7 +117,7 @@
       "score" : 1,
       "verdict" : "CONFIRMED"
     } ],
-    "captureId" : "cap-ps-mv7ld6fo-ufy4bf-2",
+    "captureId" : "cap-ps-mv84da2c-34jqtj-2",
     "diagnostics" : [ ],
     "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "locatorChecks" : [ {
@@ -152,7 +152,7 @@
     "scope" : "AVAILABLE: [doc:f6]",
     "score" : 1,
     "status" : "RESOLVED",
-    "targetId" : "tgt-285e7a0b-c2b5-437a-9160-4e0b180880d5",
+    "targetId" : "tgt-80f40c5a-96a1-4051-b4ea-25632e5d1585",
     "updatedIdentity" : {
       "attributeHistory" : {
         "id" : [ null, null, null ],
@@ -171,9 +171,9 @@
         "title" : "Cadastro",
         "urlPath" : "/lab/chrome003/contas.html"
       } ],
-      "lastCaptureId" : "cap-ps-mv7ld6fo-ufy4bf-2",
+      "lastCaptureId" : "cap-ps-mv84da2c-34jqtj-2",
       "lastNodeId" : "n70",
-      "lastPageSessionId" : "ps-mv7ld6fo-ufy4bf",
+      "lastPageSessionId" : "ps-mv84da2c-34jqtj",
       "locators" : {
         "fallbacks" : [ {
           "css" : null,
@@ -538,7 +538,7 @@
       },
       "lookalikeCount" : 0,
       "origin" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html",
-      "registeredAt" : "2026-10-14T04:10:12.708424900Z",
+      "registeredAt" : "2026-10-14T13:02:10.111239900Z",
       "schemaVersion" : "0.1.0",
       "signature" : {
         "column" : null,
@@ -565,7 +565,7 @@
         "text" : "Salvar",
         "typeAttribute" : "submit"
       },
-      "targetId" : "tgt-285e7a0b-c2b5-437a-9160-4e0b180880d5",
+      "targetId" : "tgt-80f40c5a-96a1-4051-b4ea-25632e5d1585",
       "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
     },
     "updatedLocators" : {
@@ -933,7 +933,7 @@
   },
   "frame" : {
     "browser" : {
-      "browserDocumentId" : "34AD27654B731F3EFCCDC04C2C21570B",
+      "browserDocumentId" : "1B7B90E8B22ED40CD06F5BA3B3EB91BE",
       "browserFrameId" : 598,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -941,7 +941,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "7944003523E1BA010EB452F6FF7129C2",
+      "parentDocumentId" : "DD8A85E427A535241008AE4580E88565",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"

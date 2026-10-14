@@ -34,7 +34,7 @@ flowchart TD
     G --> H{Associação ao frame lógico}
     H -->|TOP| I[documento principal]
     H -->|HANDSHAKE: hostNodeId| J[iframe hospedeiro conhecido]
-    H -->|URL_MATCH: URL única sob o mesmo pai| K[about:blank / srcdoc sem content script]
+    H -->|URL_MATCH: pai confirmado + URL única no Chrome e entre os iframes do pai| K[about:blank / srcdoc sem content script]
     H -->|nenhuma| L[metadados ausentes = null<br/>nunca inventados]
     G --> M[Status: INSPECTED · LOADING · ATTACHING ·<br/>PERMISSION_DENIED · SANDBOX_RESTRICTED · INACCESSIBLE]
     G --> N[Relações tipadas §6]
@@ -81,7 +81,7 @@ A pertença de **cada** elemento comum é dada por `elements[].documentId` no Pa
 | `webNavigation.getAllFrames` | `frameId`, `parentFrameId`, `documentId`, `parentDocumentId`, `documentLifecycle`, `frameType` (Chrome ≥ 106) | **usado** (permissão `webNavigation` já existente) |
 | `webNavigation.onCommitted/onCompleted/onErrorOccurred` | navegações de subframes | **usado**, com espera de 250 ms (rajadas) |
 | `all_frames: true` | content script em frames de origens permitidas | **mantido** (CHROME-002) |
-| `match_about_blank` / `match_origin_as_fallback` | content script em about:blank/srcdoc/blob | **não habilitado**: esses documentos já são capturados pelo pai via `contentDocument`; injetar ali criaria uma segunda fonte para o mesmo documento (duplicidade, §8). Os metadados do Chrome são associados por URL única sob o mesmo pai |
+| `match_about_blank` / `match_origin_as_fallback` | content script em about:blank/srcdoc/blob | **não habilitado**: esses documentos já são capturados pelo pai via `contentDocument`; injetar ali criaria uma segunda fonte para o mesmo documento (duplicidade, §8). Os metadados do Chrome são associados por URL única sob o mesmo pai confirmado (D-052) |
 | `scripting.executeScript({allFrames})` | injeção sob demanda | **não usado**: a injeção declarativa já cobre as origens permitidas; injeção imperativa não amplia o que é permitido |
 | `frameId` como identidade | — | **nunca**: é válido só no navegador e muda a cada recriação; a identidade lógica é independente (§7.2) |
 

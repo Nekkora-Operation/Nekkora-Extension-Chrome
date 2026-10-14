@@ -12,8 +12,17 @@
 
 Os identificadores do Chrome **nunca** são inventados: sem associação comprovada, o campo fica `null` (§5.2). A
 associação usa, nesta ordem: `TOP` (documento principal), `HANDSHAKE` (token aleatório publicado pelo frame e
-reconhecido pelo dono da captura do pai, que devolve o nó `iframe`) e `URL_MATCH` (URL **única** entre os filhos do
-mesmo frame pai no Chrome — usado para about:blank/srcdoc). Duas URLs iguais sob o mesmo pai ⇒ nenhuma associação.
+reconhecido pelo dono da captura do pai, que devolve o nó `iframe`) e `URL_MATCH` (usado para about:blank/srcdoc).
+`URL_MATCH` só associa quando **todas** as condições valem (D-052):
+
+1. o documento pai tem identidade confirmada no Chrome (`TOP`, `HANDSHAKE` ou `URL_MATCH`) e `frameId` conhecido;
+2. o candidato do Chrome declara `parentFrameId` igual ao do pai (e, quando ambos informados, `parentDocumentId` igual
+   ao `documentId` do pai — um pai que navegou não serve);
+3. a URL é única entre os candidatos do Chrome desse pai;
+4. a URL é única entre os iframes lógicos elegíveis (sem handshake) do mesmo pai.
+
+Qualquer condição falha ⇒ nenhuma associação: dois about:blank irmãos com um único registro temporário do Chrome
+ficam ambos sem `browserDocumentId`. É preferível um documento não identificado a uma identidade incorreta.
 
 ## URL declarada × efetiva × origem (§5.3)
 

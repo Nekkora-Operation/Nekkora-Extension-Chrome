@@ -279,3 +279,12 @@ Branch `feat/nekkora-chrome-003` (base `47d7a16`). Números da execução final 
   limitações) com fluxogramas Mermaid; README, arquitetura, contratos, decisões D-037..D-051, limitações, plano de
   testes; regressão completa (CHROME-001 + CHROME-002 + CHROME-003); `reports/chrome-003-final-report.md`; branch e PR.
 
+## Revisão do PR #2 — P1: associação de documentos por URL
+
+- **Problema**: `URL_MATCH` podia associar metadados do Chrome (A) a um iframe aninhado cujo pai não tinha
+  metadados confirmados — o filtro por pai era ignorado — e (B) ao primeiro de dois irmãos about:blank quando o Chrome
+  informava temporariamente só um documento.
+- **Correção**: `FrameGraphBuilder` exige pai confirmado, `parentFrameId`/`parentDocumentId` coincidentes e URL única
+  no Chrome e entre os iframes lógicos elegíveis do mesmo pai (D-052); caso contrário, nenhuma associação.
+- **Testes**: 3 regressões em `FrameIntelligenceTest` (falham no código anterior); suíte completa reexecutada.
+

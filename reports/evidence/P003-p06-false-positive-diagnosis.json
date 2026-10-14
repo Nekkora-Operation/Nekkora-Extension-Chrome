@@ -1,6 +1,6 @@
 {
-  "browserMs" : 3.4,
-  "captureId" : "cap-ps-mv7le3vw-7rz148-1",
+  "browserMs" : 5.3,
+  "captureId" : "cap-ps-mv84e8o1-2nfrlg-1",
   "counts" : {
     "documents" : 1,
     "frames" : 0,
@@ -97,8 +97,8 @@
   "syncState" : "SYNCHRONIZED",
   "timings" : {
     "graphMs" : 0.02,
-    "protectionMs" : 0.29,
-    "readinessMs" : 0.08,
-    "totalMs" : 0.4
+    "protectionMs" : 0.32,
+    "readinessMs" : 0.1,
+    "totalMs" : 0.47
   }
 }

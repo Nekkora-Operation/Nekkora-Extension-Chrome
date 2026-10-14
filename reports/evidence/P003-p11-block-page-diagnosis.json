@@ -1,6 +1,6 @@
 {
-  "browserMs" : 2.5,
-  "captureId" : "cap-ps-mv7le4yw-jwblvp-1",
+  "browserMs" : 3.5,
+  "captureId" : "cap-ps-mv84e9sc-d17fd7-1",
   "counts" : {
     "documents" : 1,
     "frames" : 0,
@@ -62,7 +62,7 @@
           "shadowDepth" : 0,
           "stability" : "HEURISTIC_STABLE",
           "steps" : [ {
-            "browserDocumentId" : "D31B60C355397781869233547B3F0B3B",
+            "browserDocumentId" : "0031EF0F63DBE66F4763B4F91FAB4BDE",
             "documentId" : null,
             "enteredDocumentId" : "doc:f0",
             "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -185,8 +185,8 @@
   "syncState" : "SYNCHRONIZED",
   "timings" : {
     "graphMs" : 0.01,
-    "protectionMs" : 0.38,
+    "protectionMs" : 0.37,
     "readinessMs" : 0.06,
-    "totalMs" : 0.46
+    "totalMs" : 0.45
   }
 }

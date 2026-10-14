@@ -18,7 +18,6 @@
     "maxDepth" : 2
   },
   "identificacao" : {
-    "targetId" : "tgt-e239ebbe-91db-42b9-a551-96d3fdd8f762",
     "frameChain" : [ {
       "container" : "heading:Loja",
       "depth" : 1,
@@ -43,7 +42,8 @@
       "urlPath" : "/lab/chrome003/protection/p08-inner.html"
     } ],
     "name" : "Confirmar pagamento",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-38e5cb88-ecd3-44e2-b41f-05527f1fbed2"
   },
   "familia" : {
     "form" : {
@@ -641,7 +641,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "A6FA362D67DAFC48B84C26562F2A7A4F",
+      "browserDocumentId" : "6AED073D42C8F821948EF18C41B86575",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -656,7 +656,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-in-iframe.html"
     }, {
-      "browserDocumentId" : "FD7745C8B0083BF05C2385F3A0824447",
+      "browserDocumentId" : "67525409CF42DF9CEAEDC9EC17B6CC85",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f1",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-frame.html)",
@@ -682,7 +682,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-frame.html"
     }, {
-      "browserDocumentId" : "AAB26A369179100F37FF00E1727B2207",
+      "browserDocumentId" : "E041B529CA5B33421C0EA4CD756CAAAB",
       "documentId" : "doc:f1",
       "enteredDocumentId" : "doc:f2",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-inner.html)",
@@ -779,7 +779,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "A6FA362D67DAFC48B84C26562F2A7A4F",
+              "browserDocumentId" : "6AED073D42C8F821948EF18C41B86575",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -794,7 +794,7 @@
               "type" : "MAIN_DOCUMENT",
               "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-in-iframe.html"
             }, {
-              "browserDocumentId" : "FD7745C8B0083BF05C2385F3A0824447",
+              "browserDocumentId" : "67525409CF42DF9CEAEDC9EC17B6CC85",
               "documentId" : "doc:f0",
               "enteredDocumentId" : "doc:f1",
               "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-frame.html)",
@@ -820,7 +820,7 @@
               "type" : "IFRAME",
               "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-frame.html"
             }, {
-              "browserDocumentId" : "AAB26A369179100F37FF00E1727B2207",
+              "browserDocumentId" : "E041B529CA5B33421C0EA4CD756CAAAB",
               "documentId" : "doc:f1",
               "enteredDocumentId" : "doc:f2",
               "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-inner.html)",
@@ -952,10 +952,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.16,
-      "protectionMs" : 1.25,
-      "readinessMs" : 0.52,
-      "totalMs" : 1.93
+      "graphMs" : 0.3,
+      "protectionMs" : 1.38,
+      "readinessMs" : 0.48,
+      "totalMs" : 2.18
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

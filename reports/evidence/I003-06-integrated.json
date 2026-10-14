@@ -18,7 +18,6 @@
     "maxDepth" : 1
   },
   "identificacao" : {
-    "targetId" : "tgt-d79345d6-20ca-45c8-8df6-5ddf80c2a38e",
     "frameChain" : [ {
       "container" : "heading:Pagamentos 1",
       "depth" : 1,
@@ -32,7 +31,8 @@
       "urlPath" : "about:blank"
     } ],
     "name" : "Guardar nota",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-66806c03-26db-4f00-8b4c-e8cc81ff98a9"
   },
   "familia" : {
     "form" : null,
@@ -343,7 +343,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "656735301D6182F0AD9DACE1465BC66B",
+      "browserDocumentId" : "1669ED412508095C07566E05D07125CB",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -358,7 +358,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "2DD00801E25800DD9F245412777A5C16",
+      "browserDocumentId" : "F1D4E0C3A1A208060281B2DF69C5ED9C",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (about:blank)",
@@ -470,10 +470,10 @@
       "status" : "MANAGEABLE"
     },
     "timings" : {
-      "graphMs" : 0.25,
-      "protectionMs" : 0.53,
-      "readinessMs" : 0.27,
-      "totalMs" : 1.06
+      "graphMs" : 0.38,
+      "protectionMs" : 0.43,
+      "readinessMs" : 0.2,
+      "totalMs" : 1.02
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

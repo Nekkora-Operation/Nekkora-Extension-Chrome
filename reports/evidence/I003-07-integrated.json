@@ -18,10 +18,10 @@
     "maxDepth" : 1
   },
   "identificacao" : {
-    "targetId" : "tgt-dd69d14b-88e2-4d2a-9c15-2c2ba659ca90",
     "frameChain" : [ ],
     "name" : "Enviar",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-29a9b177-7f1f-4f8a-9a08-4121c8051598"
   },
   "familia" : {
     "form" : {
@@ -401,7 +401,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "90A6D463B46E188384F0131D3E666B6E",
+      "browserDocumentId" : "C4903D463CB2C433346B4F3857B1100F",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -511,7 +511,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "90A6D463B46E188384F0131D3E666B6E",
+              "browserDocumentId" : "C4903D463CB2C433346B4F3857B1100F",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -632,10 +632,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 0.12,
-      "protectionMs" : 1.07,
-      "readinessMs" : 0.21,
-      "totalMs" : 1.4
+      "graphMs" : 0.13,
+      "protectionMs" : 0.66,
+      "readinessMs" : 0.14,
+      "totalMs" : 0.95
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

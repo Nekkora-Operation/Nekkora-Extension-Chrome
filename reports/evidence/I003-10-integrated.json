@@ -18,7 +18,6 @@
     "maxDepth" : 3
   },
   "identificacao" : {
-    "targetId" : "tgt-d1895f9c-6a3e-49b8-b4cf-2df97c362fbb",
     "frameChain" : [ {
       "container" : "region:Bloco 7",
       "depth" : 1,
@@ -54,7 +53,8 @@
       "urlPath" : "/generated/frame"
     } ],
     "name" : "Confirmar 7",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-609d141b-ff12-467d-bd73-3c126df9ca52"
   },
   "familia" : {
     "form" : {
@@ -695,7 +695,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "E3AC264570A3F9673EAEFCCE9FD0093F",
+      "browserDocumentId" : "EEF96F771BA243C7E5BDA9437039FCAE",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -710,7 +710,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/generated/frames"
     }, {
-      "browserDocumentId" : "DA6B214AE3FDBDF0EFC8C7CFF47CA6DE",
+      "browserDocumentId" : "61C0FBDAEA7083B106DC2B3991AFBFC1",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f19",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -736,7 +736,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "64FDFC6D7FB5B90B422E03B79E58D0BB",
+      "browserDocumentId" : "02554769104B45E1D951074153887146",
       "documentId" : "doc:f19",
       "enteredDocumentId" : "doc:f20",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -762,7 +762,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "F886837A740CBF288B89C7130B344145",
+      "browserDocumentId" : "3306642F190D2E65179B537D687BFEBA",
       "documentId" : "doc:f20",
       "enteredDocumentId" : "doc:f21",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -865,10 +865,10 @@
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
     "timings" : {
-      "graphMs" : 1.32,
-      "protectionMs" : 1.56,
-      "readinessMs" : 0.36,
-      "totalMs" : 3.26
+      "graphMs" : 1.09,
+      "protectionMs" : 1.25,
+      "readinessMs" : 0.28,
+      "totalMs" : 2.64
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

@@ -117,7 +117,7 @@
       "score" : 1,
       "verdict" : "CONFIRMED"
     } ],
-    "captureId" : "cap-ps-mv7ld40j-j90o0l-2",
+    "captureId" : "cap-ps-mv84d7ly-c5dy9n-2",
     "diagnostics" : [ ],
     "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "locatorChecks" : [ {
@@ -142,7 +142,7 @@
     "scope" : "AVAILABLE: [doc:f7]",
     "score" : 1,
     "status" : "RESOLVED",
-    "targetId" : "tgt-9f7d3735-13e9-4ab7-a4cf-c331dce57a51",
+    "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
     "updatedIdentity" : {
       "attributeHistory" : {
         "id" : [ null, null ],
@@ -161,9 +161,9 @@
         "title" : "Filial Sul",
         "urlPath" : "/lab/chrome003/filial.html"
       } ],
-      "lastCaptureId" : "cap-ps-mv7ld40j-j90o0l-2",
+      "lastCaptureId" : "cap-ps-mv84d7ly-c5dy9n-2",
       "lastNodeId" : "n77",
-      "lastPageSessionId" : "ps-mv7ld40j-j90o0l",
+      "lastPageSessionId" : "ps-mv84d7ly-c5dy9n",
       "locators" : {
         "fallbacks" : [ {
           "css" : null,
@@ -378,7 +378,7 @@
       },
       "lookalikeCount" : 0,
       "origin" : "http://127.0.0.1:18765/lab/chrome003/frames.html",
-      "registeredAt" : "2026-10-14T04:10:09.567442Z",
+      "registeredAt" : "2026-10-14T13:02:06.955933200Z",
       "schemaVersion" : "0.1.0",
       "signature" : {
         "column" : null,
@@ -405,7 +405,7 @@
         "text" : "Aprovar",
         "typeAttribute" : "button"
       },
-      "targetId" : "tgt-9f7d3735-13e9-4ab7-a4cf-c331dce57a51",
+      "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
       "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
     },
     "updatedLocators" : {
@@ -739,7 +739,7 @@
       "score" : 1,
       "verdict" : "CONFIRMED"
     } ],
-    "captureId" : "cap-ps-mv7ld40j-j90o0l-3",
+    "captureId" : "cap-ps-mv84d7ly-c5dy9n-3",
     "diagnostics" : [ ],
     "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "locatorChecks" : [ {
@@ -764,7 +764,7 @@
     "scope" : "AVAILABLE: [doc:f10]",
     "score" : 1,
     "status" : "RESOLVED",
-    "targetId" : "tgt-9f7d3735-13e9-4ab7-a4cf-c331dce57a51",
+    "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
     "updatedIdentity" : {
       "attributeHistory" : {
         "id" : [ null, null, null, null ],
@@ -783,9 +783,9 @@
         "title" : "Filial Sul",
         "urlPath" : "/lab/chrome003/filial.html"
       } ],
-      "lastCaptureId" : "cap-ps-mv7ld40j-j90o0l-3",
+      "lastCaptureId" : "cap-ps-mv84d7ly-c5dy9n-3",
       "lastNodeId" : "n96",
-      "lastPageSessionId" : "ps-mv7ld40j-j90o0l",
+      "lastPageSessionId" : "ps-mv84d7ly-c5dy9n",
       "locators" : {
         "fallbacks" : [ {
           "css" : null,
@@ -1000,7 +1000,7 @@
       },
       "lookalikeCount" : 0,
       "origin" : "http://127.0.0.1:18765/lab/chrome003/frames.html",
-      "registeredAt" : "2026-10-14T04:10:09.567442Z",
+      "registeredAt" : "2026-10-14T13:02:06.955933200Z",
       "schemaVersion" : "0.1.0",
       "signature" : {
         "column" : null,
@@ -1027,7 +1027,7 @@
         "text" : "Aprovar",
         "typeAttribute" : "button"
       },
-      "targetId" : "tgt-9f7d3735-13e9-4ab7-a4cf-c331dce57a51",
+      "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
       "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
     },
     "updatedLocators" : {

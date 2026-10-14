@@ -11,7 +11,8 @@ alvos por uma **identidade de frame** que não depende de índice, ordem ou `fra
 Tudo foi integrado ao PageMap (**0.2.0**) e ao painel (Documentos/Iframes/Shadow Roots, TRAJETÓRIA, DIAGNÓSTICO).
 
 Resultado da homologação final no Chrome for Testing 155: **174/174 casos aprovados** (117 da linha de base
-CHROME-002 + 57 novos da CHROME-003), além de 165 + 27 + 4 testes unitários Java, 2 de contrato e 12 da extensão.
+CHROME-002 + 57 novos da CHROME-003), além de 168 + 27 + 4 testes unitários Java, 2 de contrato e 12 da extensão
+(números após a correção do P1 da revisão do PR #2 — seção 17).
 
 Nada foi contornado: nenhuma proteção é burlada, nenhum desafio é executado, nenhuma função da página é chamada e
 nenhum serviço real de fornecedor foi contatado — todas as fixtures de proteção são simuladas com referências inertes.
@@ -74,7 +75,10 @@ Correções feitas durante a homologação (cada uma com teste):
 2. navegação interna/carregamento tardio de iframe de mesma origem não era observado (D-042);
 3. about:blank/srcdoc sem content script nunca recebiam metadados do Chrome — associação por URL única sob o mesmo
    pai, nunca por adivinhação (D-038, D-041);
-4. o limite de 20 frames anexados contava frames que só fazem handshake (D-043).
+4. o limite de 20 frames anexados contava frames que só fazem handshake (D-043);
+5. (revisão do PR #2, P1) `URL_MATCH` aceitava candidato do Chrome sem pai confirmado e o único registro do Chrome
+   quando havia dois irmãos about:blank equivalentes — passou a exigir pai confirmado e unicidade no Chrome e entre os
+   iframes lógicos do mesmo pai (D-052).
 
 ## 6. Document Graph
 
@@ -144,7 +148,7 @@ estrutura observável, a assinatura é rotulada como observação de terceiros e
 | N003-A..J — negativos | 10/10 |
 | I003-01..10 — cenários integrados | 10/10 |
 | D003-001..002 — desempenho | 2/2 |
-| Unitários Java (core / host / laboratório) | 165 / 27 / 4 |
+| Unitários Java (core / host / laboratório) | 168 / 27 / 4 |
 | Contrato (PageMap) | 2/2 |
 | Extensão (Node) | 12/12 |
 
@@ -191,7 +195,7 @@ diagnóstico de 30 frames ≈ 16 ms (ida e volta), navegação de frame refletid
 Lista completa: [known-limitations.md](../docs/chrome-003/known-limitations.md). Principais: proteções no servidor/
 borda podem não deixar evidência (`NOT_OBSERVED` ≠ ausência); assinaturas de terceiros têm confiança limitada e o
 catálogo precisa de revisão periódica; validação somente com fixtures simuladas; frames sem permissão/sandbox/shadow
-fechado não são inventariados; about:blank irmãos sem `documentId` do Chrome; `document.frames[].url` mantém a URL
+fechado não são inventariados; about:blank irmãos (ou sob pai sem metadados confirmados) sem `documentId` do Chrome; `document.frames[].url` mantém a URL
 completa por compatibilidade com o contrato 0.1.0.
 
 ## 15. Reprodução
@@ -210,6 +214,34 @@ completa por compatibilidade com o contrato 0.1.0.
 2. Antes de qualquer automação em ambiente com proteção, usar as recomendações produzidas (intervenção humana,
    API autorizada, configuração legítima do ambiente com o proprietário da aplicação).
 3. Definir a licença do repositório (pendente desde a CHROME-001).
-4. Fora do escopo desta missão e **não iniciados** (§41): Nekkora Studio, Automation Designer, gravador completo,
+4. Antes de usar o PageMap com dados reais, revisar `document.frames[].url` (URL completa mantida por
+   compatibilidade com o contrato 0.1.0) — pendência de segurança para uso futuro, apontada na revisão do PR #2.
+5. Fora do escopo desta missão e **não iniciados** (§41): Nekkora Studio, Automation Designer, gravador completo,
    Agent, execução de automações, integração com a Platform, autenticação empresarial, bancos oficiais e qualquer
    solução de evasão antibot.
+
+## 17. Revisão do PR #2 — P1 (associação de documentos por URL)
+
+A revisão apontou que `URL_MATCH` (associação dos metadados do Chrome a about:blank/srcdoc sem handshake) podia
+atribuir identidade sem confirmação suficiente:
+
+- **Cenário A** — pai sem metadados confirmados: o filtro por pai era ignorado quando o `frameId` do pai era
+  desconhecido (ou quando o candidato não informava o pai), e um iframe aninhado podia receber o documento de outro
+  frame da aba;
+- **Cenário B** — dois irmãos about:blank e um único registro temporário do Chrome: o primeiro iframe encontrado
+  recebia o registro.
+
+Correção em `FrameGraphBuilder` (D-052): `URL_MATCH` só associa quando (1) o pai tem identidade confirmada no Chrome
+(`TOP`/`HANDSHAKE`/`URL_MATCH`, com `frameId`), (2) o candidato declara `parentFrameId` igual ao do pai e, quando
+informado, `parentDocumentId` igual ao `documentId` do pai, (3) a URL é única entre os candidatos do Chrome desse pai
+e (4) a URL é única entre os iframes lógicos elegíveis do mesmo pai. Caso contrário o documento fica sem
+`browserDocumentId` — não identificado em vez de identificado incorretamente. Contratos inalterados.
+
+Regressões novas em `FrameIntelligenceTest` (as três falham no código anterior e passam com a correção):
+`twoAboutBlankSiblingsWithASingleBrowserCandidateStayUnassociated` (cenário B, e controle com irmão de outra URL),
+`nestedAboutBlankRequiresAConfirmedParent` (cenário A: sem pai, pai diferente, candidato sem pai, pai que navegou e o
+caso positivo) e `aboutBlankUnderAParentWithoutBrowserFrameIdStaysUnassociated`. Suíte completa reexecutada após a
+correção: **174/174** no navegador em 9 min 39 s (Chrome for Testing 155.0.8059.39), unitários Java 168 / 27 / 4, contrato 2/2 e extensão 12/12 — nenhum teste removido ou afrouxado.
+
+As medições de desempenho dessa rodada estão em [`chrome-003/rerun-pr2-p1/`](chrome-003/rerun-pr2-p1/) e **não** substituem as da seção 13: a correção não altera o caminho medido (só a associação de metadados de frames sem handshake), e os tempos variaram nos dois sentidos — 10.000 elementos: sessão 324 / 280 ms e seleção 127 / 86 ms (mais lentas), exportação em fluxo 1.026 / 1.067 ms (mais rápida); 5.000: exportação 582 / 586 ms; bytes idênticos à rodada anterior. Medições de uma execução por tamanho; a variação entre rodadas é maior do que a faixa de ±10–20% citada nas limitações conhecidas para a seleção em 10.000 elementos, o que reforça repetir as medições antes de usá-las como meta.
+

@@ -18,7 +18,6 @@
     "maxDepth" : 1
   },
   "identificacao" : {
-    "targetId" : "tgt-185ae76b-855e-41a1-b688-60f724c4c26d",
     "frameChain" : [ {
       "container" : "region:Cadastro",
       "depth" : 1,
@@ -32,7 +31,8 @@
       "urlPath" : "/lab/chrome003/contas.html"
     } ],
     "name" : "Salvar",
-    "kind" : "BUTTON"
+    "kind" : "BUTTON",
+    "targetId" : "tgt-eb3797ed-b435-4471-a2f7-fc0fec594dd9"
   },
   "familia" : {
     "form" : {
@@ -580,7 +580,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "EF78BE661979D757602416BB7ABB6BE7",
+      "browserDocumentId" : "F5A44511B7FDB193945A4B09A7CC5953",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -595,7 +595,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "DA530BA144CEBC86BDEB5FFE8A8CC04E",
+      "browserDocumentId" : "0CB0EF696725624276BAE1BE83B655F9",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f6",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/contas.html)",
@@ -716,10 +716,10 @@
       "status" : "MANAGEABLE"
     },
     "timings" : {
-      "graphMs" : 0.2,
-      "protectionMs" : 0.44,
-      "readinessMs" : 0.5,
-      "totalMs" : 1.15
+      "graphMs" : 0.41,
+      "protectionMs" : 0.5,
+      "readinessMs" : 0.35,
+      "totalMs" : 1.28
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

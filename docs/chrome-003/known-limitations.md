@@ -9,8 +9,10 @@ declarados nesta entrega:
    (URL sanitizada, `documentId`); conteúdo nunca inventariado (`PERMISSION_DENIED`).
 2. **Sandbox sem `allow-same-origin`**: conteúdo não inspecionado por política (origem opaca).
 3. **Shadow roots fechados**: contados e declarados; conteúdo inacessível por definição.
-4. **about:blank / srcdoc**: capturados pelo pai; os metadados do Chrome só são associados quando a URL é única sob
-   o mesmo pai — vários about:blank irmãos ficam sem `browserDocumentId` (nunca adivinhado).
+4. **about:blank / srcdoc**: capturados pelo pai; os metadados do Chrome só são associados quando o pai tem
+   identidade confirmada no Chrome e a URL é única sob esse pai, tanto no Chrome quanto entre os iframes lógicos
+   (D-052) — vários about:blank irmãos, ou um about:blank sob pai sem metadados, ficam sem `browserDocumentId`
+   (nunca adivinhado).
 5. **Troca de documento de iframe de mesma origem** sem mutação no pai: detectada pelo evento `load` (captura) e por
    verificação periódica de 1 s — latência de até ~1 s se o `load` não for observado.
 6. **`FrameInfo.url`** (seção `document.frames` do snapshot, contrato 0.1.0) mantém a URL completa do frame por

@@ -18,10 +18,10 @@
     "maxDepth" : 0
   },
   "identificacao" : {
-    "targetId" : "tgt-35c357f1-c81d-4224-b84e-a9c8e6a4f710",
     "frameChain" : [ ],
     "name" : "Verify you are human",
-    "kind" : "CHECKBOX"
+    "kind" : "CHECKBOX",
+    "targetId" : "tgt-dedbf8bb-6f7c-4b96-8f7e-4da75ee7ec4d"
   },
   "familia" : {
     "form" : {
@@ -517,7 +517,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "49A44503D5092667CF78BFB8084CCDAB",
+      "browserDocumentId" : "DE1AE1B732A913FA8692BAA4FFF081E7",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -627,7 +627,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "49A44503D5092667CF78BFB8084CCDAB",
+              "browserDocumentId" : "DE1AE1B732A913FA8692BAA4FFF081E7",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -763,10 +763,10 @@
       "status" : "REQUIRES_HUMAN_INTERVENTION"
     },
     "timings" : {
-      "graphMs" : 0.03,
-      "protectionMs" : 3.15,
-      "readinessMs" : 0.21,
-      "totalMs" : 3.42
+      "graphMs" : 0.06,
+      "protectionMs" : 3.12,
+      "readinessMs" : 0.15,
+      "totalMs" : 3.35
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ]
