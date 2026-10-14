@@ -1,0 +1,91 @@
+{
+  "p01-recaptcha" : [ {
+    "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "HUMAN_INTERVENTION"
+  }, {
+    "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "ENVIRONMENT_CONFIGURATION"
+  }, {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "AUTHORIZED_API"
+  } ],
+  "p02-hcaptcha" : [ {
+    "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "HUMAN_INTERVENTION"
+  }, {
+    "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "ENVIRONMENT_CONFIGURATION"
+  }, {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "AUTHORIZED_API"
+  } ],
+  "p03-turnstile" : [ {
+    "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "HUMAN_INTERVENTION"
+  }, {
+    "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "ENVIRONMENT_CONFIGURATION"
+  }, {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "AUTHORIZED_API"
+  } ],
+  "p04-challenge-page" : [ {
+    "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "HUMAN_INTERVENTION"
+  }, {
+    "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "ENVIRONMENT_CONFIGURATION"
+  }, {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+    "type" : "AUTHORIZED_API"
+  } ],
+  "p05-unknown" : [ {
+    "reason" : "Proteção não identificada com segurança: investigar antes de planejar a automação",
+    "relatedObstacles" : [ "UNKNOWN_PROTECTION" ],
+    "type" : "UNKNOWN_PROTECTION"
+  } ],
+  "p06-false-positive" : [ {
+    "reason" : "Nenhum obstáculo específico observado",
+    "relatedObstacles" : [ ],
+    "type" : "NO_ACTION_REQUIRED"
+  } ],
+  "p07-multiple" : [ {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "ANTIBOT_TECHNOLOGY" ],
+    "type" : "AUTHORIZED_API"
+  }, {
+    "reason" : "Proteção não identificada com segurança: investigar antes de planejar a automação",
+    "relatedObstacles" : [ "UNKNOWN_PROTECTION" ],
+    "type" : "UNKNOWN_PROTECTION"
+  } ],
+  "p09-dynamic" : [ {
+    "reason" : "Nenhum obstáculo específico observado",
+    "relatedObstacles" : [ ],
+    "type" : "NO_ACTION_REQUIRED"
+  } ],
+  "p11-block-page" : [ {
+    "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+    "relatedObstacles" : [ "ACCESS_BLOCKED" ],
+    "type" : "HUMAN_INTERVENTION"
+  }, {
+    "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+    "relatedObstacles" : [ ],
+    "type" : "ENVIRONMENT_CONFIGURATION"
+  }, {
+    "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+    "relatedObstacles" : [ "ACCESS_BLOCKED", "ANTIBOT_TECHNOLOGY" ],
+    "type" : "AUTHORIZED_API"
+  } ]
+}

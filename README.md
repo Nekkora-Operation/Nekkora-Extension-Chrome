@@ -10,29 +10,30 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 
 | | |
 |---|---|
-| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · **NEKKORA-CHROME-002** (captura automática contínua, botão único, exportação na finalização) |
-| Estado | CHROME-002 homologada localmente: ver [relatório da CHROME-002](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
+| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · **NEKKORA-CHROME-003** (Frame Intelligence, diagnóstico de proteções e consolidação) |
+| Estado | CHROME-003 homologada localmente: ver [relatório da CHROME-003](reports/chrome-003-final-report.md) · CHROME-002: [relatório](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
 | Linguagem principal | Java 21 (motor de análise, host Native Messaging, servidor do laboratório, testes) |
 | Navegador | Google Chrome 155 (convencional, homologado) / Chrome for Testing 155 (suíte automatizada) — MV3 |
-| Contrato | Nekkora PageMap **0.1.0** ([JSON Schema](contracts/page-map.schema.json)) |
+| Contrato | Nekkora PageMap **0.2.0** ([JSON Schema](contracts/page-map.schema.json); 0.1.0 arquivado em [`contracts/v0.1.0`](contracts/v0.1.0/page-map.schema.json)) |
 
 ---
 
 ## Sumário
 
 1. [Arquitetura](#arquitetura)
-2. [Fluxo de inspeção](#fluxo-de-inspeção)
-3. [Fluxo de reencontro](#fluxo-de-reencontro)
-4. [Pré-requisitos](#pré-requisitos)
-5. [Preparação passo a passo](#preparação-passo-a-passo)
-6. [Uso](#uso)
-7. [Testes](#testes)
-8. [Estrutura do repositório](#estrutura-do-repositório)
-9. [Contratos](#contratos)
-10. [Identidade visual](#identidade-visual)
-11. [Permissões e segurança](#permissões-e-segurança)
-12. [Solução de problemas](#solução-de-problemas)
-13. [Limitações](#limitações)
+2. [Frame Intelligence e diagnóstico de proteções (CHROME-003)](#frame-intelligence-e-diagnóstico-de-proteções-chrome-003)
+3. [Fluxo de inspeção](#fluxo-de-inspeção)
+4. [Fluxo de reencontro](#fluxo-de-reencontro)
+5. [Pré-requisitos](#pré-requisitos)
+6. [Preparação passo a passo](#preparação-passo-a-passo)
+7. [Uso](#uso)
+8. [Testes](#testes)
+9. [Estrutura do repositório](#estrutura-do-repositório)
+10. [Contratos](#contratos)
+11. [Identidade visual](#identidade-visual)
+12. [Permissões e segurança](#permissões-e-segurança)
+13. [Solução de problemas](#solução-de-problemas)
+14. [Limitações](#limitações)
 
 Documentação detalhada: [arquitetura](docs/architecture.md) · [contratos](docs/contracts.md) ·
 [decisões](docs/decisions.md) · [plano de testes](docs/test-plan.md) · [limitações](docs/limitations.md) ·
@@ -43,6 +44,14 @@ CHROME-002: [ciclo de captura contínua, sessões, recuperação e retenção](d
 [exportação automática](docs/chrome-002/export.md) ·
 [iframes, Shadow DOM, AccName e cobertura](docs/chrome-002/frames-shadow-accname.md) ·
 [desempenho e memória](docs/chrome-002/performance.md).
+
+CHROME-003: [Frame Intelligence](docs/chrome-003/frame-intelligence.md) ·
+[identidade de documentos e frames](docs/chrome-003/document-identity.md) ·
+[Element Access Path](docs/chrome-003/element-access-path.md) ·
+[diagnóstico de proteções](docs/chrome-003/protection-diagnostics.md) ·
+[modelo de confiança](docs/chrome-003/confidence-model.md) ·
+[obstáculos à automação](docs/chrome-003/automation-obstacles.md) ·
+[limitações conhecidas](docs/chrome-003/known-limitations.md).
 
 ---
 
@@ -113,6 +122,86 @@ flowchart LR
 
 Fluxogramas completos: [nova inspeção](docs/chrome-002/inspection.md#fluxo-da-nova-inspeção) e
 [exportação futura](docs/chrome-002/export.md#fluxo-da-exportação-futura).
+
+## Frame Intelligence e diagnóstico de proteções (CHROME-003)
+
+A captura contínua passa a produzir um **grafo documental** (documentos, iframes, shadow roots e relações), uma
+**trajetória de acesso** para cada elemento (documento → iframes → shadow roots → elemento, com localizador no escopo
+de cada passo) e dois diagnósticos **passivos**: tecnologias de proteção (CAPTCHA, desafios, WAF, bot management) e
+prontidão para automação. Nenhuma proteção é contornada, nenhum desafio é executado e nada é inferido sem evidência.
+
+```mermaid
+flowchart LR
+  subgraph Navegador
+    CS["Content scripts<br/>FrameInfo · recursos observáveis<br/>troca de documento de iframe"]
+    WN["webNavigation.getAllFrames<br/>frameId · documentId · parentDocumentId"]
+    SW["Service worker<br/>handshake no dono da captura<br/>capture.frames.metadata"]
+    CS --> SW
+    WN --> SW
+  end
+  subgraph Motor["Motor Java 21"]
+    FG["FrameGraphBuilder<br/>FrameGraph · DocumentDescriptor"]
+    AP["AccessPathBuilder<br/>ElementAccessPath + explicação"]
+    PD["ProtectionDetector<br/>catálogo versionado"]
+    AD["AutomationDiagnostics<br/>obstáculos · recomendações"]
+    PM["PageMap 0.2.0"]
+    FG --> AP --> PM
+    FG --> PD --> AD --> PM
+  end
+  SW -->|"nekkora-nm/1"| FG
+  AD -->|"page.diagnose"| UI["Painel: Documentos · Iframes · Shadow Roots<br/>TRAJETÓRIA · DIAGNÓSTICO"]
+```
+
+| Capacidade | Onde | Verificação |
+|---|---|---|
+| Grafo documental com ids lógicos e ids do Chrome separados; URL declarada × efetiva × origem | `core/frames` | F003-001..003 |
+| Trajetória entre iframes (inclusive de outra origem permitida) e shadow roots; explicação legível | `AccessPathBuilder` | F003-004..007, F003-016 |
+| Identidade de frame independente de índice/ordem/`frameId`; ambiguidade nunca resolvida pelo primeiro | `FrameIdentities`, `TargetResolver` | F003-008..011, N003-F |
+| about:blank, srcdoc, sandbox, sem permissão, carregamento lento | `FrameGraphBuilder` | F003-012..017 |
+| Observação contínua de frames sem recaptura completa | `mutation-tracker.js`, `diagnostics.js` | F003-018 |
+| Diagnóstico de proteções (reCAPTCHA v2/v3, hCaptcha, Turnstile, Cloudflare, AWS WAF, Akamai, DataDome, HUMAN, Imperva) | `core/protection` + `contracts/protection-signatures.json` | P003-001..015 |
+| Prontidão para automação (obstáculos, dependências de interação, recomendações) | `core/diagnostics` | P003, I003-01..10 |
+
+Exemplo de diagnóstico (`page.diagnose`, fixture simulada LAB-P08 — Turnstile dentro de dois iframes):
+
+```json
+{
+  "counts": { "documents": 3, "frames": 2, "inspected": 3, "inaccessible": 0, "loading": 0, "shadowRootsOpen": 0, "shadowRootsClosed": 0 },
+  "protection": {
+    "catalogVersion": "2026.10.1", "status": "OBSERVED",
+    "assessments": [{
+      "provider": "CLOUDFLARE", "product": "TURNSTILE", "category": "HUMAN_VERIFICATION", "status": "DETECTED",
+      "confidence": "HIGH", "challengeState": "CHALLENGE_PRESENT", "basis": "OFFICIAL_DOCUMENTATION",
+      "confidenceReasons": ["2 evidências fortes de canais independentes (DOM, RESOURCE)"],
+      "location": { "documentId": "doc:f2", "insideFrame": true, "frameChain": ["Pagamento", "Confirmação"], "inspectable": true },
+      "limitations": ["Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)"]
+    }],
+    "limitations": ["Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "…"]
+  },
+  "readiness": {
+    "status": "REQUIRES_SPECIAL_HANDLING", "confidence": "HIGH",
+    "obstacles": [{ "type": "NESTED_IFRAME", "severity": "MEDIUM" }, { "type": "HUMAN_VERIFICATION", "severity": "HIGH" }],
+    "recommendations": [{ "type": "HUMAN_INTERVENTION" }, { "type": "ENVIRONMENT_CONFIGURATION" }, { "type": "AUTHORIZED_API" }]
+  }
+}
+```
+
+PageMap 0.2.0 (seções novas; o restante do contrato 0.1.0 é preservado):
+
+```json
+{
+  "version": "0.2.0",
+  "elements": [{ "nodeId": "n51", "documentId": "doc:f4", "kind": "BUTTON", "…": "…" }],
+  "frameGraph": { "mainDocumentId": "doc:f0", "documents": ["…"], "frames": ["…"], "relations": [{ "type": "FRAME_PARENT_OF", "from": "f2", "to": "f4" }], "maxDepth": 2 },
+  "accessPaths": [{ "targetNodeId": "n51", "frameDepth": 2, "shadowDepth": 1, "steps": ["…"], "explanation": "…" }],
+  "protection": { "status": "NOT_OBSERVED", "assessments": [], "limitations": ["…"] },
+  "readiness": { "status": "REQUIRES_SPECIAL_HANDLING", "obstacles": ["…"] }
+}
+```
+
+Fluxogramas de [frames](docs/chrome-003/frame-intelligence.md#fluxo-de-construção-do-grafo),
+[reencontro entre frames](docs/chrome-003/document-identity.md#identidade-de-frame-7) e
+[proteções](docs/chrome-003/protection-diagnostics.md#estados-13-18).
 
 ## Fluxo de inspeção
 
@@ -233,8 +322,14 @@ Captura              ● Automática ativa
 Elementos            1.248
 Última atualização   agora
 Deltas               37
+Documentos           10
+Iframes              9 · profundidade 2
+Shadow Roots         3 (1 fechado)
 DEV  [Testar reencontro] [Comparar snapshots] [Exportar mapa] [Forçar captura completa]
+     [Destacar iframe] [Diagnosticar página]
 ELEMENTO · FAMÍLIA · LOCALIZADORES
+TRAJETÓRIA   Elemento · Documento · Iframe atual · Profundidade · Estado · passos + explicação
+DIAGNÓSTICO  Proteção · Confiança · Estado · Localização · Prontidão · Obstáculos · Recomendação
 ```
 
 | Controle | O que faz |
@@ -242,7 +337,9 @@ ELEMENTO · FAMÍLIA · LOCALIZADORES
 | Ativar / Desativar inspeção | botão único com estados `INACTIVE`, `ACTIVATING`, `ACTIVE`, `DEACTIVATING`, `DEGRADED`, `ERROR`; a captura automática acompanha a inspeção |
 | Testar reencontro (DEV) | reexecuta a resolução do alvo selecionado e destaca o resultado (ou mostra a recusa) |
 | Comparar snapshots (DEV) | compara a referência com o estado sincronizado (adicionados, removidos, alterados, re-renderizados) |
-| Exportar mapa (DEV) | gera o PageMap 0.1.0 a partir do estado sincronizado |
+| Exportar mapa (DEV) | gera o PageMap 0.2.0 a partir do estado sincronizado |
+| Destacar iframe (DEV) | destaca a região do iframe imediato do elemento selecionado (borda pontilhada) |
+| Diagnosticar página (DEV) | executa `page.diagnose` e mostra proteções, prontidão e tempos |
 | Forçar captura completa (DEV) | nova base da sessão (substitui o antigo "Capturar página"); em PRD não existe |
 
 O antigo "Acompanhar mutações" deixou de existir: o rastreamento é automático enquanto a inspeção
@@ -252,9 +349,10 @@ O antigo "Acompanhar mutações" deixou de existir: o rastreamento é automátic
 
 | Suíte | Comando | Navegador |
 |---|---|---|
-| Unitários Java (core 129, host 25, laboratório 3) + contrato (2) | `.\mvnw.cmd test` | não |
+| Unitários Java (core 165, host 27, laboratório 4) + contrato (2) | `.\mvnw.cmd test` | não |
 | Unitários da extensão (12) | `cd chrome-extension; npm test` | não |
-| Homologação no Chrome real (58 casos CHROME-001 + matriz C002-001..050 + Chrome convencional) | `.\scripts\run-tests.ps1 -Suite integration` | sim (Chrome for Testing; `BrandedChromeIT` usa o Chrome instalado) |
+| Homologação no Chrome real (CHROME-001, matriz C002, matrizes CHROME-003 F003/P003/N003/I003/D003 e Chrome convencional) | `.\scripts\run-tests.ps1 -Suite integration` | sim (Chrome for Testing; `BrandedChromeIT` usa o Chrome instalado) |
+| Somente CHROME-003 | `.\scripts\run-tests.ps1 -Suite integration -Test "Chrome003FrameIT,Chrome003ProtectionIT,Chrome003NegativeIT,Chrome003IntegratedIT,Chrome003PerformanceIT"` | sim |
 | Sessão prolongada de 15/30 min | `mvnw -pl integration-tests -Pintegration verify "-Dit.test=Chrome002PerformanceIT#longSession" -Dnekkora.long.minutes=30` | sim |
 | Tudo + relatórios | `.\scripts\run-tests.ps1` | sim |
 | Somente algumas classes | `.\scripts\run-tests.ps1 -Suite integration -Test "NegativeCasesIT,ResolutionIT"` | sim |
@@ -262,7 +360,9 @@ O antigo "Acompanhar mutações" deixou de existir: o rastreamento é automátic
 
 Relatórios gerados pela execução real:
 
-- [`reports/test-matrix-integration.md`](reports/test-matrix-integration.md) — matriz T001–T040, C002-001..050, casos negativos N-A..N-E, comunicação e contratos;
+- [`reports/test-matrix-integration.md`](reports/test-matrix-integration.md) — matriz T001–T040, C002-001..050, F003-001..020, P003-001..015, N003-A..J, I003-01..10, D003-001..002, casos negativos, comunicação e contratos;
+- [`reports/chrome-003/performance.md`](reports/chrome-003/performance.md) — CHROME-003: 1/5/10/25 iframes, profundidades 1–5 e comparação com o baseline da CHROME-002;
+- [`reports/chrome-003-final-report.md`](reports/chrome-003-final-report.md) — relatório final da CHROME-003;
 - [`reports/chrome-002/performance.md`](reports/chrome-002/performance.md) — CHROME-002: antes × depois de 100 a 20.000 elementos, memória, sessões de 5/15/30 min;
 - [`reports/chrome-002-final-report.md`](reports/chrome-002-final-report.md) — relatório final da CHROME-002;
 - [`reports/performance.md`](reports/performance.md) — medições de 100 a 10.000 elementos e de mutações frequentes;
@@ -284,25 +384,31 @@ Nekkora-Extension-Chrome/
 │   └── lab-server/    servidor do laboratório (JDK puro)
 ├── chrome-extension/  extensão MV3 (JS puro, sem bundler) + testes Node
 ├── native-host/       scripts de instalação/remoção do host
-├── contracts/         JSON Schemas: PageMap, snapshot bruto, protocolo, sessão de captura
-├── test-lab/pages/    páginas do laboratório (simples, intermediárias, complexas, chrome002/)
+├── contracts/         JSON Schemas: PageMap (0.2.0 + v0.1.0/), snapshot bruto, protocolo, sessão de captura,
+│                      catálogo de assinaturas de proteção (protection-signatures.json + schema)
+├── test-lab/pages/    páginas do laboratório (simples, intermediárias, complexas, chrome002/, chrome003/ + protection/)
 ├── integration-tests/ homologação no Chrome real + testes de contrato
 ├── scripts/           build, laboratório, testes
-├── docs/              arquitetura, contratos, decisões, plano de testes, limitações, fases, chrome-002/
+├── docs/              arquitetura, contratos, decisões, plano de testes, limitações, fases, chrome-002/, chrome-003/
 └── reports/           matriz, desempenho, evidências e relatório final
 ```
 
 ## Contratos
 
-- **PageMap 0.1.0** — [`contracts/page-map.schema.json`](contracts/page-map.schema.json): `PageSnapshot`,
-  `DocumentContext`, `ElementDescriptor`, `ElementFamily`, `ContextRelation`, `LocatorDescriptor`,
-  `TargetIdentity`, `ResolutionResult`, `CoverageReport`, `MutationRecord`, `InspectionEvidence`.
+- **PageMap 0.2.0** — [`contracts/page-map.schema.json`](contracts/page-map.schema.json): `PageSnapshot`,
+  `DocumentContext`, `ElementDescriptor` (+`documentId`), `ElementFamily`, `ContextRelation`, `LocatorDescriptor`,
+  `TargetIdentity` (+`frameChain`), `ResolutionResult` (+`diagnostics`), `CoverageReport`, `MutationRecord`,
+  `InspectionEvidence` e, na CHROME-003, `FrameGraph`, `FrameDescriptor`, `DocumentDescriptor`, `ElementAccessPath`,
+  `ProtectionReport`/`ProtectionAssessment`/`ProtectionEvidence`, `AutomationObstacle` e
+  `AutomationReadinessAssessment`. Mudanças **aditivas**; o 0.1.0 está arquivado em `contracts/v0.1.0/`.
+- **Catálogo de assinaturas de proteção** — [`contracts/protection-signatures.json`](contracts/protection-signatures.json)
+  (versão `2026.10.1`), validado por [`contracts/protection-catalog.schema.json`](contracts/protection-catalog.schema.json).
 - **Snapshot bruto** — [`contracts/raw-snapshot.schema.json`](contracts/raw-snapshot.schema.json).
 - **Protocolo nekkora-nm/1** — [`contracts/native-protocol.schema.json`](contracts/native-protocol.schema.json).
 - **Sessão de captura / inspeção / gravação / exportação** (CHROME-002) —
   [`contracts/capture-session.schema.json`](contracts/capture-session.schema.json): `SequencedDelta`,
   `CaptureSessionStatus`, `HostSessionStatus`, `InspectionState`, `RecordingEvent`,
-  `RecordingExportResult`, `ExportResult`. O PageMap continua na versão **0.1.0**.
+  `RecordingExportResult`, `ExportResult`.
 
 `nodeId` é **temporário** (vale na sessão de página indicada por `pageSessionId`); `targetId` é a
 **identidade lógica** e nunca se liga permanentemente a um nó DOM. Detalhes em [docs/contracts.md](docs/contracts.md).
@@ -328,7 +434,7 @@ alterar estilo ou layout da página ([evidência](reports/evidence/T034-highligh
 | `sidePanel` | painel lateral |
 | `storage` | estado mínimo das sessões e da inspeção por aba (`storage.session`, sobrevive ao reinício do service worker); modo DEV/PRD simulado (`storage.local`, somente em construção DEV) |
 | `scripting` | ler hooks de teste **declarados** pelas páginas do laboratório (lista fechada, somente leitura) |
-| `webNavigation` | detectar navegação SPA (`pushState`/hash) em páginas locais e listar frames da aba |
+| `webNavigation` | detectar navegação SPA (`pushState`/hash) em páginas locais e listar frames da aba (CHROME-003: `frameId`, `documentId`, `parentDocumentId` e ciclo de vida de cada frame — nenhuma permissão nova) |
 | `alarms` | reconexão ao motor Java como salvaguarda enquanto houver sessão degradada |
 
 `content_scripts.all_frames: true` (CHROME-002) injeta o content script **somente** em frames de
@@ -341,6 +447,9 @@ origens já permitidas (127.0.0.1/localhost, qualquer porta); nenhuma permissão
   e apenas os nomes da lista permitida; funções fora da lista nunca são chamadas (T038).
 - `stdout` do host é exclusivo do protocolo; logs vão para `%LOCALAPPDATA%\Nekkora\ExtensionChrome\logs`.
 - Nenhum servidor remoto, nenhuma telemetria, nenhum banco oficial da Nekkora.
+- Diagnóstico de proteções **passivo** (CHROME-003): nenhum desafio executado, nenhuma função da página chamada,
+  nenhum tráfego gerado; `data-sitekey` e valores de parâmetros de `src` de iframes/scripts são redigidos; nenhuma
+  recomendação sugere evasão.
 
 ## Solução de problemas
 
@@ -368,6 +477,9 @@ Resumo (lista completa e evidências em [docs/limitations.md](docs/limitations.m
 
 - Shadow DOM **fechado** é detectado mas não inventariado; iframes de origens **sem permissão** e
   `sandbox` são declarados e não inspecionados.
+- O diagnóstico de proteções só vê o que está no documento: `NOT_OBSERVED` **não** significa ausência de
+  proteção; assinaturas de observação de terceiros têm confiança limitada; a validação foi feita somente com
+  fixtures simuladas ([limitações da CHROME-003](docs/chrome-003/known-limitations.md)).
 - `attachShadow()` em host já conectado é detectado por reconciliação (latência medida ≈ 1 s).
 - Com a inspeção ativa, cliques são seleções (as ações da página não executam).
 - Instalação do host automatizada e validada apenas no **Windows**.

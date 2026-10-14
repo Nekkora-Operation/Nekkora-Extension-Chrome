@@ -1,0 +1,7 @@
+{
+  "assessments" : [ ],
+  "catalogVersion" : "2026.10.1",
+  "genericIndicators" : [ ],
+  "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+  "status" : "NOT_OBSERVED"
+}

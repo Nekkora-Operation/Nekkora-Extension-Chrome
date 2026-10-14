@@ -1,0 +1,324 @@
+{
+  "frames" : [ "f0:null:INSPECTED", "f7:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f8:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Inserido 1:INSPECTED" ],
+  "session" : {
+    "baseCaptureId" : "cap-ps-mv7lcvfx-tcnwtd-1",
+    "consumers" : [ "inspection" ],
+    "deltasApplied" : 3,
+    "deltasRejected" : 0,
+    "deltasStale" : 0,
+    "documentId" : "ps-mv7lcvfx-tcnwtd",
+    "endedAt" : null,
+    "epoch" : 1,
+    "error" : null,
+    "frames" : [ {
+      "documentId" : "ps-mv7lcvmz-bu3x5r",
+      "epoch" : 1,
+      "frameId" : 425,
+      "hostNodeId" : "n20",
+      "parentFrameId" : 0,
+      "reason" : null,
+      "source" : "x425",
+      "status" : "CAPTURED_BY_PARENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
+    }, {
+      "documentId" : "ps-mv7lcvov-sled0z",
+      "epoch" : 1,
+      "frameId" : 426,
+      "hostNodeId" : "n9",
+      "parentFrameId" : 0,
+      "reason" : null,
+      "source" : "x426",
+      "status" : "CAPTURED_BY_PARENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html?navegado=1"
+    }, {
+      "epoch" : 1,
+      "frameId" : 429,
+      "hostNodeId" : "n31",
+      "parentFrameId" : 0,
+      "reason" : null,
+      "source" : "x429",
+      "status" : "CAPTURED_BY_PARENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?spa=1"
+    }, {
+      "documentId" : "ps-mv7lcvkv-h9beo8",
+      "epoch" : 1,
+      "frameId" : 430,
+      "hostNodeId" : "n60",
+      "parentFrameId" : 0,
+      "reason" : null,
+      "source" : "x430",
+      "status" : "CAPTURED_BY_PARENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html?inserido=1"
+    } ],
+    "fullCaptures" : 1,
+    "hostState" : "OK",
+    "initialCapture" : {
+      "at" : "2026-10-14T04:09:58.410Z",
+      "browserMs" : 15.7,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv7lcvfx-tcnwtd-1",
+      "captureMs" : 9.2,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 17,
+          "INTERACTIVE" : 19,
+          "OTHER" : 5,
+          "STRUCTURAL" : 5,
+          "TEXT" : 13
+        },
+        "byKind" : {
+          "BUTTON" : 12,
+          "DATE_INPUT" : 2,
+          "FORM" : 3,
+          "GENERIC_CONTAINER" : 17,
+          "HEADING" : 4,
+          "IFRAME" : 5,
+          "LABEL" : 6,
+          "LANDMARK" : 2,
+          "LINK" : 1,
+          "PARAGRAPH" : 2,
+          "TEXT" : 1,
+          "TEXT_INPUT" : 4
+        },
+        "captureDurationMs" : 9.2,
+        "elementCount" : 59,
+        "frames" : [ {
+          "elements" : 9,
+          "hostNodeId" : "n20",
+          "id" : "f1",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?pedidos=1"
+        }, {
+          "elements" : 9,
+          "hostNodeId" : "n31",
+          "id" : "f2",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?spa=1"
+        }, {
+          "elements" : 6,
+          "hostNodeId" : "n9",
+          "id" : "f3",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
+        }, {
+          "elements" : 5,
+          "hostNodeId" : "n10",
+          "id" : "f4",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "about:blank"
+        }, {
+          "elements" : 4,
+          "hostNodeId" : "n11",
+          "id" : "f5",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "about:srcdoc"
+        } ],
+        "hidden" : 0,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ {
+          "elements" : 4,
+          "hostNodeId" : "n44",
+          "id" : "shadow:n44",
+          "inspected" : true,
+          "kind" : "SHADOW_ROOT_OPEN",
+          "reason" : null,
+          "url" : null
+        } ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 59
+      },
+      "hostMs" : 11,
+      "interactive" : 19,
+      "maxSliceMs" : 6.4,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : { },
+          "pagination" : { },
+          "screen" : "frames-dynamic",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "127.0.0.1:18765",
+          "hostname" : "127.0.0.1",
+          "href" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html",
+          "origin" : "http://127.0.0.1:18765",
+          "pathname" : "/lab/chrome003/frames-dynamic.html",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : { },
+          "search" : "",
+          "title" : "Frame Intelligence — ciclo de vida"
+        }
+      },
+      "nodes" : 59,
+      "reason" : "SESSION_START",
+      "slices" : 1,
+      "text" : 13,
+      "timings" : {
+        "classificationMs" : 2.33,
+        "hostTotalMs" : 6.6,
+        "indexMs" : 0.19
+      },
+      "totalMs" : 27.6
+    },
+    "lastCapture" : {
+      "at" : "2026-10-14T04:09:58.410Z",
+      "browserMs" : 15.7,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv7lcvfx-tcnwtd-1",
+      "captureMs" : 9.2,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 17,
+          "INTERACTIVE" : 19,
+          "OTHER" : 5,
+          "STRUCTURAL" : 5,
+          "TEXT" : 13
+        },
+        "byKind" : {
+          "BUTTON" : 12,
+          "DATE_INPUT" : 2,
+          "FORM" : 3,
+          "GENERIC_CONTAINER" : 17,
+          "HEADING" : 4,
+          "IFRAME" : 5,
+          "LABEL" : 6,
+          "LANDMARK" : 2,
+          "LINK" : 1,
+          "PARAGRAPH" : 2,
+          "TEXT" : 1,
+          "TEXT_INPUT" : 4
+        },
+        "captureDurationMs" : 9.2,
+        "elementCount" : 59,
+        "frames" : [ {
+          "elements" : 9,
+          "hostNodeId" : "n20",
+          "id" : "f1",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?pedidos=1"
+        }, {
+          "elements" : 9,
+          "hostNodeId" : "n31",
+          "id" : "f2",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html?spa=1"
+        }, {
+          "elements" : 6,
+          "hostNodeId" : "n9",
+          "id" : "f3",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
+        }, {
+          "elements" : 5,
+          "hostNodeId" : "n10",
+          "id" : "f4",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "about:blank"
+        }, {
+          "elements" : 4,
+          "hostNodeId" : "n11",
+          "id" : "f5",
+          "inspected" : true,
+          "kind" : "FRAME",
+          "reason" : null,
+          "url" : "about:srcdoc"
+        } ],
+        "hidden" : 0,
+        "limitations" : [ ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ {
+          "elements" : 4,
+          "hostNodeId" : "n44",
+          "id" : "shadow:n44",
+          "inspected" : true,
+          "kind" : "SHADOW_ROOT_OPEN",
+          "reason" : null,
+          "url" : null
+        } ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 59
+      },
+      "hostMs" : 11,
+      "interactive" : 19,
+      "maxSliceMs" : 6.4,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : { },
+          "pagination" : { },
+          "screen" : "frames-dynamic",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : null,
+          "host" : "127.0.0.1:18765",
+          "hostname" : "127.0.0.1",
+          "href" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html",
+          "origin" : "http://127.0.0.1:18765",
+          "pathname" : "/lab/chrome003/frames-dynamic.html",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : { },
+          "search" : "",
+          "title" : "Frame Intelligence — ciclo de vida"
+        }
+      },
+      "nodes" : 59,
+      "reason" : "SESSION_START",
+      "slices" : 1,
+      "text" : 13,
+      "timings" : {
+        "classificationMs" : 2.33,
+        "hostTotalMs" : 6.6,
+        "indexMs" : 0.19
+      },
+      "totalMs" : 27.6
+    },
+    "lastDeltaAt" : "2026-10-14T04:09:58.659Z",
+    "lastExport" : null,
+    "lastUpdateAt" : "2026-10-14T04:09:58.659Z",
+    "latestCaptureId" : "cap-ps-mv7lcvfx-tcnwtd-4",
+    "nodes" : 56,
+    "reason" : "SESSION_START",
+    "resyncs" : 0,
+    "sessionId" : "cs-64001619-mv7lcvhq-utow",
+    "startedAt" : "2026-10-14T04:09:58.382Z",
+    "status" : "ACTIVE",
+    "tabId" : 64001619,
+    "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
+  }
+}

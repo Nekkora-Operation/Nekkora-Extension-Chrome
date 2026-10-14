@@ -1,0 +1,314 @@
+{
+  "browserMs" : 6.2,
+  "captureId" : "cap-ps-mv7le4k2-11b6la-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p07-multiple.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:google.recaptcha.v2@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "CAPTCHA",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "LOW",
+      "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (RESOURCE)", "reduzida: a mesma referência corresponde de forma mais específica a google.recaptcha.v3" ],
+      "evidence" : [ {
+        "detail" : "script de integração do reCAPTCHA: https://www.google.com/recaptcha/api.js [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha.script",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      } ],
+      "limitations" : [ "Referência compatível com mais de um produto do fornecedor (valores de parâmetros não são coletados): produto incerto", "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : null,
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : null
+      },
+      "product" : "RECAPTCHA_V2",
+      "provider" : "GOOGLE",
+      "signatureId" : "google.recaptcha.v2",
+      "signatureVersion" : "1",
+      "status" : "POSSIBLE"
+    }, {
+      "assessmentId" : "protection:google.recaptcha.v3@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "RISK_ASSESSMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "MEDIUM",
+      "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (RESOURCE)" ],
+      "evidence" : [ {
+        "detail" : "script do reCAPTCHA carregado com parâmetro render (padrão do v3): https://www.google.com/recaptcha/api.js [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha3.script-render",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      }, {
+        "detail" : "selo do reCAPTCHA invisível/v3 (div.grecaptcha-badge)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha3.badge",
+        "nodeId" : "n7",
+        "signal" : "TECHNOLOGY",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "DOM_ELEMENT",
+        "visible" : true
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento text foi encontrado, diretamente no documento principal.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "C850A59BC51AE516B0DB24377F59731E",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "LAB-P07 — múltiplas proteções (simulado)",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p07-multiple.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div",
+            "locator" : "div {text=\"selo simulado\"}",
+            "locatorStrategy" : "TEXT",
+            "matchCount" : 1,
+            "nodeId" : "n7",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "TEXT",
+            "name" : "div"
+          },
+          "targetNodeId" : "n7"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n7"
+      },
+      "product" : "RECAPTCHA_V3",
+      "provider" : "GOOGLE",
+      "signatureId" : "google.recaptcha.v3",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    }, {
+      "assessmentId" : "protection:akamai.bot-manager@doc:f0",
+      "basis" : "THIRD_PARTY_OBSERVATION",
+      "category" : "BOT_MANAGEMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "LOW",
+      "confidenceReasons" : [ "somente evidências médias/fracas ou parciais" ],
+      "evidence" : [ {
+        "detail" : "script em caminho /akam/<n>/ no próprio domínio: http://127.0.0.1:18765/akam/13/7f3a2b [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "akamai.akam-path",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : null,
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : null
+      },
+      "product" : "BOT_MANAGER",
+      "provider" : "AKAMAI",
+      "signatureId" : "akamai.bot-manager",
+      "signatureVersion" : "1",
+      "status" : "POSSIBLE"
+    }, {
+      "assessmentId" : "protection:datadome@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "BOT_MANAGEMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "MEDIUM",
+      "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (RESOURCE)" ],
+      "evidence" : [ {
+        "detail" : "JavaScript Tag do DataDome: https://js.datadome.co/tags.js [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "datadome.tag",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : null,
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : null
+      },
+      "product" : "DATADOME",
+      "provider" : "DATADOME",
+      "signatureId" : "datadome",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "status" : "OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade média: [ANTIBOT_TECHNOLOGY, UNKNOWN_PROTECTION]", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 3,
+      "observed" : 11
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Tecnologia de gerenciamento de bots/avaliação de risco identificada: presença não implica falha da automação",
+      "evidence" : [ "GOOGLE RECAPTCHA_V2 (LOW, TECHNOLOGY_DETECTED)", "GOOGLE RECAPTCHA_V3 (MEDIUM, TECHNOLOGY_DETECTED)", "AKAMAI BOT_MANAGER (LOW, TECHNOLOGY_DETECTED)", "DATADOME DATADOME (MEDIUM, TECHNOLOGY_DETECTED)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "ANTIBOT_TECHNOLOGY"
+    }, {
+      "count" : 1,
+      "description" : "Possível proteção sem evidência suficiente para identificar fornecedor ou estado",
+      "evidence" : [ "status do diagnóstico: OBSERVED" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "UNKNOWN_PROTECTION"
+    } ],
+    "page" : {
+      "title" : "LAB-P07 — múltiplas proteções (simulado)",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p07-multiple.html"
+    },
+    "protectionStatus" : "OBSERVED",
+    "protections" : [ {
+      "category" : "CAPTCHA",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "LOW",
+      "documentId" : "doc:f0",
+      "product" : "RECAPTCHA_V2",
+      "provider" : "GOOGLE"
+    }, {
+      "category" : "RISK_ASSESSMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "MEDIUM",
+      "documentId" : "doc:f0",
+      "product" : "RECAPTCHA_V3",
+      "provider" : "GOOGLE"
+    }, {
+      "category" : "BOT_MANAGEMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "LOW",
+      "documentId" : "doc:f0",
+      "product" : "BOT_MANAGER",
+      "provider" : "AKAMAI"
+    }, {
+      "category" : "BOT_MANAGEMENT",
+      "challengeState" : "TECHNOLOGY_DETECTED",
+      "confidence" : "MEDIUM",
+      "documentId" : "doc:f0",
+      "product" : "DATADOME",
+      "provider" : "DATADOME"
+    } ],
+    "recommendations" : [ {
+      "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+      "relatedObstacles" : [ "ANTIBOT_TECHNOLOGY" ],
+      "type" : "AUTHORIZED_API"
+    }, {
+      "reason" : "Proteção não identificada com segurança: investigar antes de planejar a automação",
+      "relatedObstacles" : [ "UNKNOWN_PROTECTION" ],
+      "type" : "UNKNOWN_PROTECTION"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.03,
+    "protectionMs" : 0.46,
+    "readinessMs" : 0.11,
+    "totalMs" : 0.61
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "attributeChanges" : { },
+  "candidates" : [ ],
+  "captureId" : "cap-ps-mv7ldhr9-d0kblx-2",
+  "diagnostics" : [ "FRAME_DOCUMENT_CHANGED" ],
+  "evidence" : [ "0 candidato(s) avaliado(s): 0 confirmado(s), 0 plausível(is) sem comprovação", "O nó n29 foi removido da página nesta sessão e não há substituto confirmável" ],
+  "locatorChecks" : [ {
+    "matchCount" : 0,
+    "matchedNodeIds" : [ ],
+    "semantic" : "form {id=form-conta} >> button {text=\"Salvar\"}",
+    "strategy" : "CONTEXTUAL"
+  }, {
+    "matchCount" : 0,
+    "matchedNodeIds" : [ ],
+    "semantic" : "* {role=button} {name=\"Salvar\"}",
+    "strategy" : "ROLE_NAME"
+  }, {
+    "matchCount" : 0,
+    "matchedNodeIds" : [ ],
+    "semantic" : "button {text=\"Salvar\"}",
+    "strategy" : "TEXT"
+  }, {
+    "matchCount" : 0,
+    "matchedNodeIds" : [ ],
+    "semantic" : "form {id=form-conta} >> button",
+    "strategy" : "XPATH_RELATIVE"
+  }, {
+    "matchCount" : 0,
+    "matchedNodeIds" : [ ],
+    "semantic" : "html >> body >> form {nth-of-type 1} >> button {nth-of-type 1}",
+    "strategy" : "POSITIONAL"
+  } ],
+  "nodeReplaced" : false,
+  "resolvedNodeId" : null,
+  "schemaVersion" : "0.1.0",
+  "scope" : "AVAILABLE: [doc:f6]",
+  "score" : 0,
+  "status" : "STALE_TARGET",
+  "targetId" : "tgt-49574a63-bf40-4e5c-8d9c-910b5c34d06a",
+  "updatedIdentity" : null,
+  "updatedLocators" : null
+}

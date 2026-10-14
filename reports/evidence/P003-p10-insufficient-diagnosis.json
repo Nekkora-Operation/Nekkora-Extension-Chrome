@@ -1,0 +1,191 @@
+{
+  "browserMs" : 3.8,
+  "captureId" : "cap-ps-mv7le2en-3wejik-1",
+  "counts" : {
+    "documents" : 2,
+    "frames" : 1,
+    "inaccessible" : 1,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p10-insufficient.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  }, {
+    "depth" : 1,
+    "frameId" : "xn7",
+    "label" : "Verificação de segurança",
+    "parentFrameId" : "f0",
+    "status" : "PERMISSION_DENIED"
+  } ],
+  "maxDepth" : 1,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:aws.waf.captcha@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "CHALLENGE",
+      "challengeState" : "UNKNOWN",
+      "confidence" : "LOW",
+      "confidenceReasons" : [ "somente evidências médias/fracas ou parciais" ],
+      "evidence" : [ {
+        "detail" : "contêiner convencional do CAPTCHA (convenção da documentação; não obrigatório) (div#captcha-container)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "awswaf.container",
+        "nodeId" : "n6",
+        "signal" : "WIDGET",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "WIDGET",
+        "visible" : true
+      } ],
+      "limitations" : [ "Somente evidência fraca: o estado de desafio não pode ser afirmado" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento generic container foi encontrado, diretamente no documento principal.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "32F669ABB67079F7B05D122B0B2F5CB7",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "LAB-P10 — metadados insuficientes",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p10-insufficient.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div#captcha-container",
+            "locator" : "div#captcha-container",
+            "locatorStrategy" : "ID",
+            "matchCount" : 1,
+            "nodeId" : "n6",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "GENERIC_CONTAINER",
+            "name" : "div#captcha-container"
+          },
+          "targetNodeId" : "n6"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n6"
+      },
+      "product" : "WAF_CAPTCHA",
+      "provider" : "AWS",
+      "signatureId" : "aws.waf.captcha",
+      "signatureVersion" : "1",
+      "status" : "POSSIBLE"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "1 frame(s) sem inspeção de conteúdo: somente URL/atributos do iframe foram avaliados" ],
+    "status" : "INSUFFICIENT_EVIDENCE"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade média: [INACCESSIBLE_FRAME, UNKNOWN_PROTECTION]", "observação incompleta (frames carregando ou proteções indeterminadas)" ],
+    "confidence" : "LOW",
+    "documents" : {
+      "count" : 2,
+      "inaccessible" : 1,
+      "loading" : 0,
+      "maximumFrameDepth" : 1
+    },
+    "elements" : {
+      "interactive" : 2,
+      "observed" : 9
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "xn7: PERMISSION_DENIED — origem sem permissão da extensão (conteúdo não inventariado)", "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "1 frame(s) sem inspeção de conteúdo: somente URL/atributos do iframe foram avaliados" ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Elementos em iframe exigem troca de contexto de documento",
+      "evidence" : [ "1 iframe(s) no documento principal" ],
+      "frameIds" : [ "xn7" ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "LOW",
+      "type" : "FRAME_CONTEXT"
+    }, {
+      "count" : 1,
+      "description" : "Frames sem permissão de inspeção: conteúdo desconhecido (somente metadados observáveis)",
+      "evidence" : [ "1 frame(s) inacessível(is)" ],
+      "frameIds" : [ "xn7" ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "INACCESSIBLE_FRAME"
+    }, {
+      "count" : 1,
+      "description" : "Possível proteção sem evidência suficiente para identificar fornecedor ou estado",
+      "evidence" : [ "status do diagnóstico: INSUFFICIENT_EVIDENCE" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "UNKNOWN_PROTECTION"
+    } ],
+    "page" : {
+      "title" : "LAB-P10 — metadados insuficientes",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p10-insufficient.html"
+    },
+    "protectionStatus" : "INSUFFICIENT_EVIDENCE",
+    "protections" : [ {
+      "category" : "CHALLENGE",
+      "challengeState" : "UNKNOWN",
+      "confidence" : "LOW",
+      "documentId" : "doc:f0",
+      "product" : "WAF_CAPTCHA",
+      "provider" : "AWS"
+    } ],
+    "recommendations" : [ {
+      "reason" : "Proteção não identificada com segurança: investigar antes de planejar a automação",
+      "relatedObstacles" : [ "UNKNOWN_PROTECTION" ],
+      "type" : "UNKNOWN_PROTECTION"
+    }, {
+      "reason" : "Validar manualmente as regiões não observáveis ou ambíguas antes de prosseguir",
+      "relatedObstacles" : [ "INACCESSIBLE_FRAME" ],
+      "type" : "MANUAL_VALIDATION"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.06,
+    "protectionMs" : 0.4,
+    "readinessMs" : 0.13,
+    "totalMs" : 0.61
+  }
+}

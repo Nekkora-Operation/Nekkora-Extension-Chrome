@@ -60,9 +60,6 @@ export async function attach(rec, frameId, info) {
     documentId: info && info.documentId, parentFrameId: info && info.parentFrameId != null ? info.parentFrameId : 0 };
   rec.frames[src] = entry;
   try {
-    if (Object.keys(rec.frames).length > MAX_FRAMES_PER_TAB) {
-      throw new HostError('FRAME_LIMIT', 'limite de ' + MAX_FRAMES_PER_TAB + ' frames anexados por aba');
-    }
     const parentFrameId = info && info.parentFrameId != null ? info.parentFrameId : 0;
     const t = token();
     await toContent(rec.tabId, 'cs.frame.announce', { token: t }, frameId);
@@ -83,6 +80,10 @@ export async function attach(rec, frameId, info) {
       entry.reason = 'POLICY_SANDBOX';
       await toContent(rec.tabId, 'cs.session.stop', {}, frameId).catch(() => {});
       return entry;
+    }
+    // O limite vale para frames ANEXADOS (fonte de captura própria); frames capturados pelo pai só fazem handshake.
+    if (Object.values(rec.frames).filter((x) => x.status === 'ATTACHED' && x !== entry).length >= MAX_FRAMES_PER_TAB) {
+      throw new HostError('FRAME_LIMIT', 'limite de ' + MAX_FRAMES_PER_TAB + ' frames anexados por aba');
     }
     const snapshot = await capture.captureBase(rec.tabId, frameId, rec.sessionId, src, { navigationKind: 'FRAME' });
     const res = await host('capture.session.attachFrame', { sessionId: rec.sessionId, hostNodeId: look.hostNodeId, source: src, snapshot }, { timeoutMs: 60000 });

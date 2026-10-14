@@ -1,0 +1,262 @@
+{
+  "attributeChanges" : { },
+  "candidates" : [ {
+    "features" : [ {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "TEST_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "{}",
+      "expected" : null,
+      "feature" : "ROW_KEY",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "TABLE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "DIALOG",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "FORM",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "FIELD_GROUP",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "LABEL",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "CONTAINER_HEADING",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "[]",
+      "expected" : null,
+      "feature" : "ROW_TEXTS",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "COLUMN",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "#sec-f",
+      "expected" : "#compras",
+      "feature" : "REGION",
+      "outcome" : "MISMATCH",
+      "quality" : 0
+    }, {
+      "actual" : "[]",
+      "expected" : null,
+      "feature" : "CONTEXT_TEXTS",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "Atualizar indicadores",
+      "expected" : "Atualizar indicadores",
+      "feature" : "NAME",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : "Atualizar indicadores",
+      "expected" : "Atualizar indicadores",
+      "feature" : "TEXT",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "NAME_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "ID_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "button",
+      "expected" : "button",
+      "feature" : "TYPE_ATTRIBUTE",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : "[iframe[name=painel]]",
+      "expected" : "[iframe[name=painel]]",
+      "feature" : "SCOPE",
+      "outcome" : "MATCH",
+      "quality" : 1
+    } ],
+    "foundBy" : [ "ROLE_NAME", "TEXT", "POSITIONAL", "BROAD_SEARCH" ],
+    "nodeId" : "n86",
+    "reasons" : [ "identidade confirmada (pontuação 0.846)" ],
+    "score" : 0.846,
+    "verdict" : "CONFIRMED"
+  }, {
+    "features" : [ {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "TEST_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "{}",
+      "expected" : null,
+      "feature" : "ROW_KEY",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "TABLE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "DIALOG",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "FORM",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "FIELD_GROUP",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "LABEL",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "CONTAINER_HEADING",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "[]",
+      "expected" : null,
+      "feature" : "ROW_TEXTS",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "COLUMN",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "#sec-f",
+      "expected" : "#compras",
+      "feature" : "REGION",
+      "outcome" : "MISMATCH",
+      "quality" : 0
+    }, {
+      "actual" : "[]",
+      "expected" : null,
+      "feature" : "CONTEXT_TEXTS",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "Atualizar indicadores",
+      "expected" : "Atualizar indicadores",
+      "feature" : "NAME",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : "Atualizar indicadores",
+      "expected" : "Atualizar indicadores",
+      "feature" : "TEXT",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "NAME_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : null,
+      "expected" : null,
+      "feature" : "ID_ATTRIBUTE",
+      "outcome" : "NOT_APPLICABLE",
+      "quality" : 0
+    }, {
+      "actual" : "button",
+      "expected" : "button",
+      "feature" : "TYPE_ATTRIBUTE",
+      "outcome" : "MATCH",
+      "quality" : 1
+    }, {
+      "actual" : "[iframe[name=painel]]",
+      "expected" : "[iframe[name=painel]]",
+      "feature" : "SCOPE",
+      "outcome" : "MATCH",
+      "quality" : 1
+    } ],
+    "foundBy" : [ "ROLE_NAME", "TEXT", "POSITIONAL", "BROAD_SEARCH" ],
+    "nodeId" : "n92",
+    "reasons" : [ "identidade confirmada (pontuação 0.846)" ],
+    "score" : 0.846,
+    "verdict" : "CONFIRMED"
+  } ],
+  "captureId" : "cap-ps-mv7ld5m7-8p747f-3",
+  "diagnostics" : [ "FRAME_AMBIGUOUS", "TARGET_AMBIGUOUS" ],
+  "evidence" : [ "2 candidato(s) avaliado(s): 2 confirmado(s), 0 plausível(is) sem comprovação", "Candidatos n86 e n92 são igualmente plausíveis (0.846 vs 0.846)" ],
+  "locatorChecks" : [ {
+    "matchCount" : 2,
+    "matchedNodeIds" : [ "n86", "n92" ],
+    "semantic" : "* {role=button} {name=\"Atualizar indicadores\"}",
+    "strategy" : "ROLE_NAME"
+  }, {
+    "matchCount" : 2,
+    "matchedNodeIds" : [ "n86", "n92" ],
+    "semantic" : "button {text=\"Atualizar indicadores\"}",
+    "strategy" : "TEXT"
+  }, {
+    "matchCount" : 2,
+    "matchedNodeIds" : [ "n86", "n92" ],
+    "semantic" : "html >> body >> button {nth-of-type 1}",
+    "strategy" : "POSITIONAL"
+  } ],
+  "nodeReplaced" : false,
+  "resolvedNodeId" : null,
+  "schemaVersion" : "0.1.0",
+  "scope" : "AVAILABLE (frames ambíguos): [doc:f8, doc:f9]",
+  "score" : 0.846,
+  "status" : "AMBIGUOUS",
+  "targetId" : "tgt-83b02d85-4064-42fb-a5a9-cf14d770aebf",
+  "updatedIdentity" : null,
+  "updatedLocators" : null
+}

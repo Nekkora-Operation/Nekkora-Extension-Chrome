@@ -1,0 +1,222 @@
+{
+  "browserMs" : 5.5,
+  "captureId" : "cap-ps-mv7le3cc-m35kvu-1",
+  "counts" : {
+    "documents" : 2,
+    "frames" : 1,
+    "inaccessible" : 0,
+    "inspected" : 2,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  }, {
+    "depth" : 1,
+    "frameId" : "f1",
+    "label" : "reCAPTCHA",
+    "parentFrameId" : "f0",
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 1,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:google.recaptcha.v2@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "CAPTCHA",
+      "challengeState" : "CHALLENGE_PRESENT",
+      "confidence" : "HIGH",
+      "confidenceReasons" : [ "3 evidências fortes de canais independentes (DOM, RESOURCE)" ],
+      "evidence" : [ {
+        "detail" : "script de integração do reCAPTCHA: https://www.google.com/recaptcha/api.js [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha.script",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      }, {
+        "detail" : "contêiner do widget reCAPTCHA (classe g-recaptcha) (div.g-recaptcha)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha.widget",
+        "nodeId" : "n11",
+        "signal" : "WIDGET",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "WIDGET",
+        "visible" : true
+      }, {
+        "detail" : "iframe da caixa de verificação do reCAPTCHA: https://www.google.com/recaptcha/api2/anchor [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha.anchor-frame",
+        "nodeId" : "n13",
+        "signal" : "WIDGET",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "FRAME_RESOURCE",
+        "visible" : true
+      }, {
+        "detail" : "campo de resposta g-recaptcha-response (valor nunca coletado; somente se está preenchido) (textarea#g-recaptcha-response) — campo vazio",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "recaptcha.response",
+        "nodeId" : "n14",
+        "signal" : "TECHNOLOGY",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "RESPONSE_FIELD",
+        "visible" : false
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento generic container foi encontrado no formulário «contato», diretamente no documento principal. A identidade é sustentada por: formulário associado.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "0A59CABC054CC6B8459A57B894504882",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "LAB-P01 — reCAPTCHA v2 (simulado)",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div",
+            "locator" : "form#contato div",
+            "locatorStrategy" : "CONTEXTUAL",
+            "matchCount" : 1,
+            "nodeId" : "n11",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "GENERIC_CONTAINER",
+            "name" : "div"
+          },
+          "targetNodeId" : "n11"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : true,
+        "inspectable" : true,
+        "widgetNodeId" : "n11"
+      },
+      "product" : "RECAPTCHA_V2",
+      "provider" : "GOOGLE",
+      "signatureId" : "google.recaptcha.v2",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "status" : "OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade alta: [HUMAN_VERIFICATION]", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 2,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 1
+    },
+    "elements" : {
+      "interactive" : 6,
+      "observed" : 18
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Elementos em iframe exigem troca de contexto de documento",
+      "evidence" : [ "1 iframe(s) no documento principal" ],
+      "frameIds" : [ "f1" ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "LOW",
+      "type" : "FRAME_CONTEXT"
+    }, {
+      "count" : 1,
+      "description" : "Mecanismo de verificação humana presente (desafio não necessariamente ativo)",
+      "evidence" : [ "GOOGLE RECAPTCHA_V2 (HIGH, CHALLENGE_PRESENT)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "HIGH",
+      "type" : "HUMAN_VERIFICATION"
+    } ],
+    "page" : {
+      "title" : "LAB-P01 — reCAPTCHA v2 (simulado)",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html"
+    },
+    "protectionStatus" : "OBSERVED",
+    "protections" : [ {
+      "category" : "CAPTCHA",
+      "challengeState" : "CHALLENGE_PRESENT",
+      "confidence" : "HIGH",
+      "documentId" : "doc:f0",
+      "product" : "RECAPTCHA_V2",
+      "provider" : "GOOGLE"
+    } ],
+    "recommendations" : [ {
+      "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "HUMAN_INTERVENTION"
+    }, {
+      "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "ENVIRONMENT_CONFIGURATION"
+    }, {
+      "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "AUTHORIZED_API"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.08,
+    "protectionMs" : 0.4,
+    "readinessMs" : 0.18,
+    "totalMs" : 0.66
+  }
+}

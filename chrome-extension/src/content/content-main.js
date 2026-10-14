@@ -97,6 +97,9 @@
       if (a.kind === 'selection') {
         selected = { nodeId: a.nodeId, targetId: a.targetId || (selected && selected.targetId) || null, label: a.label || '' };
       }
+      if (a.kind === 'frame') {
+        el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); // "Destacar iframe": a região precisa ficar visível
+      }
       NS.highlighter.show(a.kind || 'selection', el, a.label || '', a.nodeId);
       return { ok: true };
     },

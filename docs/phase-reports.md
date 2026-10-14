@@ -204,3 +204,78 @@ Branch `feat/nekkora-chrome-002` (base `00b34c0`). Números da execução final 
 - **Implementado**: README, `docs/chrome-002/*` (ciclo de captura, inspeção, exportação, iframes/Shadow
   DOM/AccName, desempenho) com fluxogramas Mermaid, decisões D-018..D-031, limitações, plano de testes,
   contratos, arquitetura, `reports/chrome-002-final-report.md`; publicação da branch e PR.
+
+---
+
+# NEKKORA-CHROME-003 — relatórios por fase
+
+Branch `feat/nekkora-chrome-003` (base `47d7a16`). Números da execução final em `reports/` e no
+[relatório final](../reports/chrome-003-final-report.md).
+
+## FASE 01 — Exame da CHROME-002 e baseline
+
+- **Implementado**: execução completa da `main` arquivada em `reports/chrome-003/baseline/` (117/117 no navegador,
+  desempenho de 100 a 20.000 elementos).
+
+## FASE 02 — Frame Intelligence e grafo documental
+
+- **Implementado**: `UrlSanitizer`, `FrameInfo` com título/`readyState`, `FrameGraphBuilder` (status, `documentKind`,
+  origem efetiva/opaca, relações §6), `BrowserFrameMetadata` e associação TOP/HANDSHAKE/URL_MATCH.
+- **Testes**: `FrameIntelligenceTest`; F003-001..003, F003-012..015.
+
+## FASE 03 — Identidade de frame e reencontro entre documentos
+
+- **Implementado**: `FrameIdentity`/`FrameIdentities`, `TargetIdentity.frameChain`, salto de frame por identidade no
+  `TargetResolver`, diagnósticos `FRAME_*`, `SHADOW_ROOT_CLOSED`, `TARGET_AMBIGUOUS`.
+- **Testes**: F003-008..011, N003-F.
+
+## FASE 04 — Element Access Path
+
+- **Implementado**: `ElementAccessPath`, `AccessPathBuilder` com explicação legível; trajetória em `element.inspect`,
+  `element.accessPath` e no PageMap.
+- **Testes**: F003-004..007, F003-016.
+
+## FASE 05 — Protection Detection Engine
+
+- **Implementado**: catálogo versionado com schema, `SignatureCatalog`, `ProtectionDetector` passivo, estados,
+  confiança por canais, localização na hierarquia; fornecedores conferidos com a documentação atual.
+- **Testes**: `ProtectionDetectorTest`; P003-001..015.
+
+## FASE 06 — Automation Diagnostics Engine
+
+- **Implementado**: `AutomationDiagnostics`, `AutomationObstacle`, `AutomationReadinessAssessment` (obstáculos,
+  dependências de interação, recomendações, status e confiança por cobertura).
+- **Testes**: `AutomationDiagnosticsTest`; P003, I003.
+
+## FASE 07 — Contratos e PageMap 0.2.0
+
+- **Implementado**: seções `frameGraph`, `accessPaths`, `protection`, `readiness`; `elements[].documentId`; 0.1.0
+  arquivado; comandos novos no protocolo; `StreamingPageMapWriter`.
+- **Testes**: `FrameCommandsTest`, F003-020, contratos.
+
+## FASE 08 — Integração no navegador e painel
+
+- **Implementado**: `background/diagnostics.js` (metadados do Chrome, comandos, destaque do iframe), handshake no dono
+  da captura, detecção de troca de documento de iframe, recursos observáveis e redação de URLs, painel com
+  Documentos/Iframes/Shadow Roots, TRAJETÓRIA e DIAGNÓSTICO.
+- **Testes**: F003-017..019.
+
+## FASE 09 — Laboratório e matrizes
+
+- **Implementado**: `test-lab/pages/chrome003/` (A–J), `protection/` (LAB-P01..P11), geradores `/generated/frames` e
+  `/generated/slow-frame`; matrizes F003, P003, N003 e I003.
+- **Correções encontradas pelas matrizes**: handshake aninhado (D-039), troca de documento (D-042), about:blank/srcdoc
+  (D-038/D-041), sombreamento v2×v3 (D-045), evidência fraca (D-046), POSSIBLE na prontidão (D-049), redação de URLs
+  (D-048), limite de frames (D-043), relações estruturais (D-040).
+
+## FASE 10 — Desempenho e memória
+
+- **Implementado**: D003-001 (1/5/10/25 iframes, profundidades 1–5) e D003-002 (baseline CHROME-002 pelo mesmo
+  procedimento); relatório `reports/chrome-003/performance.md`.
+
+## FASE 11 — Documentação, regressão completa e publicação
+
+- **Implementado**: `docs/chrome-003/*` (Frame Intelligence, identidade, Access Path, proteções, confiança, obstáculos,
+  limitações) com fluxogramas Mermaid; README, arquitetura, contratos, decisões D-037..D-051, limitações, plano de
+  testes; regressão completa (CHROME-001 + CHROME-002 + CHROME-003); `reports/chrome-003-final-report.md`; branch e PR.
+

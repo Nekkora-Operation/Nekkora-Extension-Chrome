@@ -71,6 +71,15 @@ class Chrome003PerformanceIT extends FrameIT {
             waitGraph(p, g -> g.at("/counts/frames").asInt() == expectedFrames && g.at("/counts/inspected").asInt() == expectedFrames + 1,
                     expectedFrames + " frames inventariados");
             row.put("discoveryEndToEndMs", ms(t0));
+            // Metadados do Chrome associados a TODOS os documentos (inclusive além do limite de frames anexados).
+            waitGraph(p, g -> {
+                int mapped = 0;
+                for (JsonNode f : g.get("frames")) {
+                    mapped += f.path("browser").path("browserDocumentId").isTextual() ? 1 : 0;
+                }
+                return mapped == expectedFrames + 1;
+            }, "documentId do Chrome em todos os documentos");
+            row.put("chromeMetadataEndToEndMs", ms(t0));
             JsonNode s = session(p);
             row.put("nodes", s.get("nodes").asInt());
             row.put("fullCaptures", s.get("fullCaptures").asInt());

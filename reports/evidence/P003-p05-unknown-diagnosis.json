@@ -1,0 +1,223 @@
+{
+  "browserMs" : 3.5,
+  "captureId" : "cap-ps-mv7le2q1-sbh2ju-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p05-unknown.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:unknown@doc:f0",
+      "basis" : "GENERIC",
+      "category" : "HUMAN_VERIFICATION",
+      "challengeState" : "UNKNOWN",
+      "confidence" : "UNKNOWN",
+      "confidenceReasons" : [ "somente indicadores genéricos: nenhuma assinatura específica de fornecedor" ],
+      "evidence" : [ {
+        "detail" : "pedido genérico de verificação humana (português): «Confirme que você é humano»",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "generic.text.human-pt",
+        "nodeId" : "n9",
+        "signal" : "MENTION",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "TEXT",
+        "visible" : true
+      }, {
+        "detail" : "pedido genérico de verificação humana (português): «Não sou um robô»",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "generic.text.human-pt",
+        "nodeId" : "n10",
+        "signal" : "MENTION",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "TEXT",
+        "visible" : true
+      }, {
+        "detail" : "atributo data-sitekey (comum a vários fornecedores de CAPTCHA) (div.verificador-proprio)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "generic.attr.sitekey",
+        "nodeId" : "n6",
+        "signal" : "WIDGET",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "ATTRIBUTE",
+        "visible" : true
+      } ],
+      "limitations" : [ "Fornecedor não identificado: nenhum fornecedor é inferido a partir de indicadores genéricos" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento generic container foi encontrado, diretamente no documento principal.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_UNSTABLE",
+          "steps" : [ {
+            "browserDocumentId" : "86A9268DF72BB7FA97F5D60AD53C49CF",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "LAB-P05 — verificação não identificável",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p05-unknown.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div",
+            "locator" : "html > body > div:nth-of-type(1)",
+            "locatorStrategy" : "POSITIONAL",
+            "matchCount" : 1,
+            "nodeId" : "n6",
+            "restriction" : null,
+            "stability" : "HEURISTIC_UNSTABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "GENERIC_CONTAINER",
+            "name" : "div"
+          },
+          "targetNodeId" : "n6"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n6"
+      },
+      "product" : "UNKNOWN",
+      "provider" : "UNKNOWN",
+      "signatureId" : null,
+      "signatureVersion" : null,
+      "status" : "INSUFFICIENT_EVIDENCE"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ {
+      "detail" : "pedido genérico de verificação humana (português): «Confirme que você é humano»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-pt",
+      "nodeId" : "n9",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "pedido genérico de verificação humana (português): «Não sou um robô»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-pt",
+      "nodeId" : "n10",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "atributo data-sitekey (comum a vários fornecedores de CAPTCHA) (div.verificador-proprio)",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.attr.sitekey",
+      "nodeId" : "n6",
+      "signal" : "WIDGET",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "ATTRIBUTE",
+      "visible" : true
+    } ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "status" : "INSUFFICIENT_EVIDENCE"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade média: [UNKNOWN_PROTECTION]", "observação incompleta (frames carregando ou proteções indeterminadas)" ],
+    "confidence" : "LOW",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 3,
+      "observed" : 11
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Possível proteção sem evidência suficiente para identificar fornecedor ou estado",
+      "evidence" : [ "status do diagnóstico: INSUFFICIENT_EVIDENCE" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "UNKNOWN_PROTECTION"
+    } ],
+    "page" : {
+      "title" : "LAB-P05 — verificação não identificável",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p05-unknown.html"
+    },
+    "protectionStatus" : "INSUFFICIENT_EVIDENCE",
+    "protections" : [ {
+      "category" : "HUMAN_VERIFICATION",
+      "challengeState" : "UNKNOWN",
+      "confidence" : "UNKNOWN",
+      "documentId" : "doc:f0",
+      "product" : "UNKNOWN",
+      "provider" : "UNKNOWN"
+    } ],
+    "recommendations" : [ {
+      "reason" : "Proteção não identificada com segurança: investigar antes de planejar a automação",
+      "relatedObstacles" : [ "UNKNOWN_PROTECTION" ],
+      "type" : "UNKNOWN_PROTECTION"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.02,
+    "protectionMs" : 0.32,
+    "readinessMs" : 0.11,
+    "totalMs" : 0.46
+  }
+}

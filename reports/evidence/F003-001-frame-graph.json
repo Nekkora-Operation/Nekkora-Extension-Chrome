@@ -1,0 +1,969 @@
+{
+  "counts" : {
+    "documents" : 10,
+    "frames" : 9,
+    "inaccessible" : 0,
+    "inspected" : 10,
+    "loading" : 0,
+    "shadowRootsClosed" : 1,
+    "shadowRootsOpen" : 2
+  },
+  "documents" : [ {
+    "accessible" : true,
+    "browserDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+    "documentId" : "doc:f0",
+    "elementCount" : 37,
+    "frameId" : "f0",
+    "kind" : "MAIN",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : "ps-mv7ld1ye-v8cuqi",
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Frame Intelligence — hierarquias",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "AB6364DA8B36AC6587CDA207B332A07B",
+    "documentId" : "doc:f1",
+    "elementCount" : 9,
+    "frameId" : "f1",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Contas",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "F7B8A24C45FAAE8C86CCDA883EF8C401",
+    "documentId" : "doc:f2",
+    "elementCount" : 6,
+    "frameId" : "f2",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Financeiro",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "C7A6E493D58A53C5F1B7006E2F762B92",
+    "documentId" : "doc:f3",
+    "elementCount" : 9,
+    "frameId" : "f3",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ "nivel" ],
+    "readyState" : "complete",
+    "title" : "Contas",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "BFA5EE99548F42F2CB513E3E0DF2A735",
+    "documentId" : "doc:f4",
+    "elementCount" : 10,
+    "frameId" : "f4",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Pagamentos",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "77102816C9087700E523233014D6884A",
+    "documentId" : "doc:f5",
+    "elementCount" : 5,
+    "frameId" : "f5",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Widget de suporte",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "E14AE728801E55D6426E484970F862E5",
+    "documentId" : "doc:f6",
+    "elementCount" : 4,
+    "frameId" : "f6",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Aprovação",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "AE1F0E213BFCD64D642A88B9CF8544AD",
+    "documentId" : "doc:f7",
+    "elementCount" : 4,
+    "frameId" : "f7",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Aprovação",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "BBF575AC65C7CC006C356B75BBA11629",
+    "documentId" : "doc:f8",
+    "elementCount" : 4,
+    "frameId" : "f8",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Painel",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
+  }, {
+    "accessible" : true,
+    "browserDocumentId" : "AAC7F3BED6179328276413D5FB20A6DB",
+    "documentId" : "doc:f9",
+    "elementCount" : 4,
+    "frameId" : "f9",
+    "kind" : "NETWORK",
+    "lifecycle" : "ACTIVE",
+    "origin" : "http://127.0.0.1:18765",
+    "pageSessionId" : null,
+    "queryKeys" : [ ],
+    "readyState" : "complete",
+    "title" : "Painel",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
+  } ],
+  "frames" : [ {
+    "browser" : {
+      "browserDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "browserFrameId" : 0,
+      "documentLifecycle" : "active",
+      "frameType" : "outermost_frame",
+      "hostNodeId" : null,
+      "inspection" : "TOP",
+      "mapping" : "TOP",
+      "parentBrowserFrameId" : -1,
+      "parentDocumentId" : null,
+      "reason" : null,
+      "source" : "top",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
+    },
+    "childFrameIds" : [ "f1", "f2", "f5", "f6", "f7", "f8", "f9" ],
+    "declaredSrc" : null,
+    "depth" : 0,
+    "documentId" : "doc:f0",
+    "documentKind" : "MAIN",
+    "documentTitle" : "Frame Intelligence — hierarquias",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/frames.html",
+    "elementCount" : 37,
+    "frameId" : "f0",
+    "hostNodeId" : null,
+    "identity" : null,
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 3,
+    "locator" : null,
+    "locatorStability" : null,
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : null,
+    "parentFrameId" : null,
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 2,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : null
+  }, {
+    "browser" : {
+      "browserDocumentId" : "AB6364DA8B36AC6587CDA207B332A07B",
+      "browserFrameId" : 493,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n15",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "depth" : 1,
+    "documentId" : "doc:f1",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Contas",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "elementCount" : 9,
+    "frameId" : "f1",
+    "hostNodeId" : "n15",
+    "identity" : {
+      "container" : "region:sec-a",
+      "depth" : 1,
+      "idAttr" : "f-contas",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Contas",
+      "urlPath" : "/lab/chrome003/contas.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 3,
+    "locator" : "iframe#f-contas",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Contas"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "F7B8A24C45FAAE8C86CCDA883EF8C401",
+      "browserFrameId" : 494,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n26",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
+    },
+    "childFrameIds" : [ "f3", "f4" ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html",
+    "depth" : 1,
+    "documentId" : "doc:f2",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Financeiro",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html",
+    "elementCount" : 6,
+    "frameId" : "f2",
+    "hostNodeId" : "n26",
+    "identity" : {
+      "container" : "region:sec-b",
+      "depth" : 1,
+      "idAttr" : "f-financeiro",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Financeiro",
+      "urlPath" : "/lab/chrome003/financeiro.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 1,
+    "locator" : "iframe#f-financeiro",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Financeiro"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "C7A6E493D58A53C5F1B7006E2F762B92",
+      "browserFrameId" : 500,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n31",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 494,
+      "parentDocumentId" : "F7B8A24C45FAAE8C86CCDA883EF8C401",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "depth" : 2,
+    "documentId" : "doc:f3",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Contas",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "elementCount" : 9,
+    "frameId" : "f3",
+    "hostNodeId" : "n31",
+    "identity" : {
+      "container" : "region:sec-b",
+      "depth" : 2,
+      "idAttr" : "f-contas-pagar",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main|id=f-financeiro|name=|title=Financeiro|in=region:sec-b|path=/lab/chrome003/financeiro.html|origin=http://127.0.0.1:18765",
+      "stableAttributes" : { },
+      "title" : "Contas a pagar",
+      "urlPath" : "/lab/chrome003/contas.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 3,
+    "locator" : "iframe#f-contas-pagar",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f2",
+    "parentFrameId" : "f2",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Contas a pagar"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "BFA5EE99548F42F2CB513E3E0DF2A735",
+      "browserFrameId" : 501,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n32",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 494,
+      "parentDocumentId" : "F7B8A24C45FAAE8C86CCDA883EF8C401",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html",
+    "depth" : 2,
+    "documentId" : "doc:f4",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Pagamentos",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html",
+    "elementCount" : 10,
+    "frameId" : "f4",
+    "hostNodeId" : "n32",
+    "identity" : {
+      "container" : "region:sec-b",
+      "depth" : 2,
+      "idAttr" : "f-pagamentos",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main|id=f-financeiro|name=|title=Financeiro|in=region:sec-b|path=/lab/chrome003/financeiro.html|origin=http://127.0.0.1:18765",
+      "stableAttributes" : { },
+      "title" : "Pagamentos",
+      "urlPath" : "/lab/chrome003/pagamentos.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 3,
+    "locator" : "iframe#f-pagamentos",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f2",
+    "parentFrameId" : "f2",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 1,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Pagamentos"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "77102816C9087700E523233014D6884A",
+      "browserFrameId" : 499,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n57",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/widget.html",
+    "depth" : 1,
+    "documentId" : "doc:f5",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Widget de suporte",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/widget.html",
+    "elementCount" : 5,
+    "frameId" : "f5",
+    "hostNodeId" : "n57",
+    "identity" : {
+      "container" : "region:sec-d",
+      "depth" : 1,
+      "idAttr" : "f-widget",
+      "insideShadowRoot" : true,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Widget de suporte",
+      "urlPath" : "/lab/chrome003/widget.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : true,
+    "inspectedBy" : "top",
+    "interactiveCount" : 2,
+    "locator" : "iframe#f-widget",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Widget de suporte"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "E14AE728801E55D6426E484970F862E5",
+      "browserFrameId" : 495,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n67",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/filial.html",
+    "depth" : 1,
+    "documentId" : "doc:f6",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Aprovação",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/filial.html",
+    "elementCount" : 4,
+    "frameId" : "f6",
+    "hostNodeId" : "n67",
+    "identity" : {
+      "container" : "region:sec-e",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Filial Norte",
+      "urlPath" : "/lab/chrome003/filial.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 1,
+    "locator" : "div#filial-norte iframe[title=\"Filial Norte\"]",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Filial Norte"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "AE1F0E213BFCD64D642A88B9CF8544AD",
+      "browserFrameId" : 496,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n73",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/filial.html",
+    "depth" : 1,
+    "documentId" : "doc:f7",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Aprovação",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/filial.html",
+    "elementCount" : 4,
+    "frameId" : "f7",
+    "hostNodeId" : "n73",
+    "identity" : {
+      "container" : "region:sec-e",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Filial Sul",
+      "urlPath" : "/lab/chrome003/filial.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 1,
+    "locator" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Filial Sul"
+  }, {
+    "browser" : {
+      "browserDocumentId" : "BBF575AC65C7CC006C356B75BBA11629",
+      "browserFrameId" : 497,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n82",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/painel.html",
+    "depth" : 1,
+    "documentId" : "doc:f8",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Painel",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/painel.html",
+    "elementCount" : 4,
+    "frameId" : "f8",
+    "hostNodeId" : "n82",
+    "identity" : {
+      "container" : "region:vendas",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : "painel",
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : null,
+      "urlPath" : "/lab/chrome003/painel.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 1,
+    "locator" : "div#vendas iframe",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : "painel",
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : null
+  }, {
+    "browser" : {
+      "browserDocumentId" : "AAC7F3BED6179328276413D5FB20A6DB",
+      "browserFrameId" : 498,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n88",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "6507C049F3A7235B2FD4C4A5C28BB5DB",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/painel.html",
+    "depth" : 1,
+    "documentId" : "doc:f9",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Painel",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/painel.html",
+    "elementCount" : 4,
+    "frameId" : "f9",
+    "hostNodeId" : "n88",
+    "identity" : {
+      "container" : "region:compras",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : "painel",
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : null,
+      "urlPath" : "/lab/chrome003/painel.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 1,
+    "locator" : "div#compras iframe",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : "painel",
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : null
+  } ],
+  "limitations" : [ ],
+  "mainDocumentId" : "doc:f0",
+  "maxDepth" : 2,
+  "relations" : [ {
+    "from" : "f0",
+    "to" : "doc:f0",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f1",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f1",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f1",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f1",
+    "to" : "n15",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n15",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n15",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f1",
+    "to" : "doc:f1",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f2",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f2",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f2",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f2",
+    "to" : "n26",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n26",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n26",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f2",
+    "to" : "doc:f2",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f2",
+    "to" : "f3",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f3",
+    "to" : "f2",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f2",
+    "to" : "f3",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f3",
+    "to" : "n31",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n31",
+    "to" : "doc:f2",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n31",
+    "to" : "f2",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f3",
+    "to" : "doc:f3",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f2",
+    "to" : "f4",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f4",
+    "to" : "f2",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f2",
+    "to" : "f4",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f4",
+    "to" : "n32",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n32",
+    "to" : "doc:f2",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n32",
+    "to" : "f2",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f4",
+    "to" : "doc:f4",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f5",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f5",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f5",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f5",
+    "to" : "n57",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n57",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n57",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f5",
+    "to" : "doc:f5",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f6",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f6",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f6",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f6",
+    "to" : "n67",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n67",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n67",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f6",
+    "to" : "doc:f6",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f7",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f7",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f7",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f7",
+    "to" : "n73",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n73",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n73",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f7",
+    "to" : "doc:f7",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f8",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f8",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f8",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f8",
+    "to" : "n82",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n82",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n82",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f8",
+    "to" : "doc:f8",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "doc:f0",
+    "to" : "f9",
+    "type" : "DOCUMENT_CONTAINS_FRAME"
+  }, {
+    "from" : "f9",
+    "to" : "f0",
+    "type" : "FRAME_CHILD_OF"
+  }, {
+    "from" : "f0",
+    "to" : "f9",
+    "type" : "FRAME_PARENT_OF"
+  }, {
+    "from" : "f9",
+    "to" : "n88",
+    "type" : "FRAME_HOSTED_BY_ELEMENT"
+  }, {
+    "from" : "n88",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n88",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "f9",
+    "to" : "doc:f9",
+    "type" : "FRAME_HAS_DOCUMENT"
+  }, {
+    "from" : "shadow:n45",
+    "to" : "doc:f4",
+    "type" : "SHADOW_ROOT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n45",
+    "to" : "doc:f4",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n45",
+    "to" : "f4",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "shadow:n53",
+    "to" : "doc:f0",
+    "type" : "SHADOW_ROOT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n53",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n53",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  }, {
+    "from" : "shadow:n54",
+    "to" : "doc:f0",
+    "type" : "SHADOW_ROOT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n54",
+    "to" : "doc:f0",
+    "type" : "ELEMENT_BELONGS_TO_DOCUMENT"
+  }, {
+    "from" : "n54",
+    "to" : "f0",
+    "type" : "ELEMENT_BELONGS_TO_FRAME"
+  } ],
+  "syncState" : "SYNCHRONIZED"
+}

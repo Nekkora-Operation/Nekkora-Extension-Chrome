@@ -1,0 +1,231 @@
+{
+  "browserMs" : 3.5,
+  "captureId" : "cap-ps-mv7le4r7-y2u41g-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:cloudflare.challenge-page@doc:f0",
+      "basis" : "THIRD_PARTY_OBSERVATION",
+      "category" : "CHALLENGE_PAGE",
+      "challengeState" : "CHALLENGE_ACTIVE",
+      "confidence" : "MEDIUM",
+      "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (RESOURCE)" ],
+      "evidence" : [ {
+        "detail" : "script da plataforma de desafios servido no próprio domínio (/cdn-cgi/challenge-platform/h/): http://127.0.0.1:18765/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1 [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfchl.platform-script",
+        "nodeId" : null,
+        "signal" : "CHALLENGE_PAGE",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      }, {
+        "detail" : "elementos da página de desafio (form#challenge-form)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfchl.form",
+        "nodeId" : "n6",
+        "signal" : "CHALLENGE_PAGE",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "DOM_ELEMENT",
+        "visible" : true
+      }, {
+        "detail" : "elementos da página de desafio (div#challenge-stage)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfchl.form",
+        "nodeId" : "n7",
+        "signal" : "CHALLENGE_PAGE",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "DOM_ELEMENT",
+        "visible" : true
+      }, {
+        "detail" : "título típico da página intersticial: «Just a moment...»",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfchl.title",
+        "nodeId" : null,
+        "signal" : "CHALLENGE_PAGE",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "DOCUMENT_TITLE",
+        "visible" : true
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento form foi encontrado, diretamente no documento principal.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "9037D32F267D625F4DB5F7C5429420AB",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "Just a moment...",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "form#challenge-form",
+            "locator" : "form#challenge-form",
+            "locatorStrategy" : "ID",
+            "matchCount" : 1,
+            "nodeId" : "n6",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "FORM",
+            "name" : "form#challenge-form"
+          },
+          "targetNodeId" : "n6"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n6"
+      },
+      "product" : "CHALLENGE_PAGE",
+      "provider" : "CLOUDFLARE",
+      "signatureId" : "cloudflare.challenge-page",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ {
+      "detail" : "pedido genérico de verificação humana (inglês): «Checking if the site connection is secure»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-en",
+      "nodeId" : "n5",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "pedido genérico de verificação humana (inglês): «Verify you are human»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-en",
+      "nodeId" : "n7",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    } ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+    "status" : "OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "desafio de verificação humana ativo", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 1,
+      "observed" : 8
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Desafio de verificação humana ATIVO",
+      "evidence" : [ "CLOUDFLARE CHALLENGE_PAGE (MEDIUM, CHALLENGE_ACTIVE)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "HIGH",
+      "type" : "HUMAN_VERIFICATION"
+    } ],
+    "page" : {
+      "title" : "Just a moment...",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+    },
+    "protectionStatus" : "OBSERVED",
+    "protections" : [ {
+      "category" : "CHALLENGE_PAGE",
+      "challengeState" : "CHALLENGE_ACTIVE",
+      "confidence" : "MEDIUM",
+      "documentId" : "doc:f0",
+      "product" : "CHALLENGE_PAGE",
+      "provider" : "CLOUDFLARE"
+    } ],
+    "recommendations" : [ {
+      "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "HUMAN_INTERVENTION"
+    }, {
+      "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "ENVIRONMENT_CONFIGURATION"
+    }, {
+      "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "AUTHORIZED_API"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_HUMAN_INTERVENTION"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.01,
+    "protectionMs" : 0.46,
+    "readinessMs" : 0.07,
+    "totalMs" : 0.55
+  }
+}

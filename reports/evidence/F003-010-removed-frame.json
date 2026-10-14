@@ -1,0 +1,28 @@
+{
+  "resolution" : {
+    "attributeChanges" : { },
+    "candidates" : [ ],
+    "captureId" : "cap-ps-mv7ld61w-07ufx0-2",
+    "diagnostics" : [ "FRAME_NOT_FOUND" ],
+    "evidence" : [ "HOST_NOT_FOUND: host do escopo (iframe#f-pedidos) não encontrado" ],
+    "locatorChecks" : [ ],
+    "nodeReplaced" : false,
+    "resolvedNodeId" : null,
+    "schemaVersion" : "0.1.0",
+    "scope" : "HOST_NOT_FOUND: host do escopo (iframe#f-pedidos) não encontrado",
+    "score" : 0,
+    "status" : "NOT_FOUND",
+    "targetId" : "tgt-c0ae4055-91e2-48ac-8839-0fb0da63ee70",
+    "updatedIdentity" : null,
+    "updatedLocators" : null
+  },
+  "graph" : {
+    "documents" : 5,
+    "frames" : 4,
+    "inaccessible" : 0,
+    "inspected" : 5,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 1
+  }
+}

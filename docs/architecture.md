@@ -155,3 +155,40 @@ Arquivos JSON locais (`%LOCALAPPDATA%\Nekkora\ExtensionChrome` ou `NEKKORA_DATA_
 `targets/registry.json`, `pagemaps/<captura>.json` (exportação manual) e
 `pagemaps/<sessão>-<operação>.json` (exportação da gravação, escrita atômica), `logs/native-host-*.log`. PostgreSQL não é usado
 (decisão D-006).
+
+## CHROME-003 — Frame Intelligence e diagnóstico
+
+Novos pacotes do motor (sem dependências de runtime): `core/frames` (`UrlSanitizer`, `BrowserFrameMetadata`,
+`FrameIdentity`/`FrameIdentities`, `FrameDescriptor`, `DocumentDescriptor`, `FrameGraph`, `FrameGraphBuilder`,
+`ElementAccessPath`, `AccessPathBuilder`), `core/protection` (`SignatureCatalog`, `ProtectionDetector`,
+`ProtectionAssessment`, `ProtectionEvidence`, `ProtectionReport`) e `core/diagnostics` (`AutomationDiagnostics`,
+`AutomationObstacle`, `AutomationReadinessAssessment`). No host: `FrameCommands`, `CatalogLoader` (catálogo
+empacotado de `contracts/`) e as novas seções no `StreamingPageMapWriter`. Na extensão: `background/diagnostics.js`
+(metadados do Chrome e comandos), handshake no dono da captura (`frames.js`), detecção de troca de documento de
+iframe (`mutation-tracker.js`), recursos observáveis e redação de URLs (`capture.js`) e as seções TRAJETÓRIA e
+DIAGNÓSTICO do painel.
+
+```mermaid
+flowchart TB
+  subgraph Extensão
+    CAP["capture.js<br/>FrameInfo · ResourceRef · redação"] --> TR["mutation-tracker.js<br/>deltas · troca de documento"]
+    TR --> CSS["capture-session.js<br/>barreira"]
+    WN["webNavigation"] --> DG["diagnostics.js<br/>BrowserFrameMetadata"]
+    FR["frames.js<br/>handshake / anexos"] --> DG
+  end
+  subgraph Motor
+    TS["TabState<br/>capturas + browserFrames"] --> FGB["FrameGraphBuilder"]
+    FGB --> APB["AccessPathBuilder"]
+    FGB --> PDT["ProtectionDetector ← SignatureCatalog"]
+    PDT --> ADG["AutomationDiagnostics"]
+    FGB --> TRS["TargetResolver (salto de frame por identidade)"]
+    APB & PDT & ADG --> PMA["PageMapAssembler / StreamingPageMapWriter (0.2.0)"]
+  end
+  CSS -->|"capture.session.delta"| TS
+  DG -->|"capture.frames.metadata"| TS
+  DG -->|"frames.graph · element.accessPath · protection.assess · diagnostics.readiness · page.diagnose"| FGB
+```
+
+Responsabilidade única: o grafo não conhece proteções; o detector não conhece o painel; a prontidão só combina
+resultados. As regras ficam no Java; o JavaScript coleta o que só o navegador sabe (DOM vivo, `webNavigation`,
+Resource Timing) — nenhuma regra é duplicada (§33).

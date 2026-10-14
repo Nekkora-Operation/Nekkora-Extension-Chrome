@@ -69,3 +69,26 @@ marcados no fim).
 | Exportação 10k ~3,3 s; heap ~550–830 MB (6 capturas por aba) | exportação em fluxo (≈ 1,1 s); 3 capturas + referência; liberação ao encerrar | C002-038/040 |
 | Painel lateral testado somente como aba | painel nativo homologado | C002-047 |
 | Automação somente no Chrome for Testing | homologação no Chrome convencional | BrandedChromeIT |
+
+## CHROME-003
+
+Lista completa em [chrome-003/known-limitations.md](chrome-003/known-limitations.md). Principais:
+
+- Diagnóstico de proteções vê somente o documento: `NOT_OBSERVED` não significa ausência; proteções no servidor/borda
+  podem não deixar evidência.
+- Assinaturas de observação de terceiros (Cloudflare challenge/bot management/bloqueio, Akamai, HUMAN, Imperva) têm
+  teto `MEDIUM`/`LOW` e precisam de revisão periódica do catálogo.
+- Validação somente com fixtures simuladas (referências inertes); páginas reais não foram homologadas.
+- Iframes sem permissão e sandbox sem `allow-same-origin`: só atributos e metadados do Chrome.
+- Vários about:blank irmãos ficam sem `documentId` do Chrome (nunca adivinhado).
+- `document.frames[].url` (contrato 0.1.0) mantém a URL completa por compatibilidade.
+- Desempenho medido em uma execução por tamanho (variação entre rodadas de ±10–20%); PageMap ≈ 0,5% maior.
+
+### Resolvidas na CHROME-003
+
+| Limitação anterior | Solução | Evidência |
+|---|---|---|
+| Frames sem identidade própria; reencontro dependia do caminho de escopo | `FrameIdentity` + salto de frame por identidade + diagnósticos de frame | F003-008..011, N003-F |
+| Sem relação entre frames e documentos do navegador | grafo documental com `documentId` do Chrome | F003-001/002 |
+| Navegação interna de iframe de mesma origem não era observada | detecção de troca de documento | F003-003/017/018 |
+| Nenhuma informação sobre CAPTCHA/antibot | Protection Detection Engine passivo | P003-001..015 |

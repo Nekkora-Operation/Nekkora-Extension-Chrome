@@ -1,0 +1,480 @@
+{
+  "captura" : {
+    "deltas" : 0,
+    "fullCaptures" : 1,
+    "nodes" : 59
+  },
+  "hierarquia" : {
+    "counts" : {
+      "documents" : 6,
+      "frames" : 5,
+      "inaccessible" : 0,
+      "inspected" : 6,
+      "loading" : 0,
+      "shadowRootsClosed" : 0,
+      "shadowRootsOpen" : 1
+    },
+    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
+    "maxDepth" : 1
+  },
+  "identificacao" : {
+    "targetId" : "tgt-d79345d6-20ca-45c8-8df6-5ddf80c2a38e",
+    "frameChain" : [ {
+      "container" : "heading:Pagamentos 1",
+      "depth" : 1,
+      "idAttr" : "f-branco",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : null,
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Rascunho",
+      "urlPath" : "about:blank"
+    } ],
+    "name" : "Guardar nota",
+    "kind" : "BUTTON"
+  },
+  "familia" : {
+    "form" : null,
+    "region" : null,
+    "scope" : [ {
+      "idAttr" : "f-branco",
+      "keyAttributes" : { },
+      "kind" : "IFRAME",
+      "name" : "Rascunho",
+      "nodeId" : "n10",
+      "tag" : "iframe"
+    } ]
+  },
+  "localizadores" : {
+    "verification" : {
+      "agreement" : [ {
+        "agrees" : true,
+        "css" : null,
+        "cssCount" : -1,
+        "error" : null,
+        "semantic" : "button {text=\"Guardar nota\"}",
+        "snapshotCount" : 1,
+        "strategy" : "TEXT",
+        "xpath" : "//button[normalize-space(.)=\"Guardar nota\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "html > body > button:nth-of-type(1)",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "html >> body >> button {nth-of-type 1}",
+        "snapshotCount" : 1,
+        "strategy" : "POSITIONAL",
+        "xpath" : "//html/body/button[1]",
+        "xpathCount" : 1
+      } ],
+      "allAgree" : true,
+      "compared" : 2,
+      "locators" : {
+        "fallbacks" : [ {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Guardar nota",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : -1,
+            "cssMatchesTarget" : false,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n55" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "text" : "Guardar nota",
+                "type" : "TEXT_EQUALS"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "iframe#f-branco",
+              "hostNodeId" : "n10",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "f-branco"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@id=\"f-branco\"]"
+            } ],
+            "frameId" : "f4",
+            "scopeId" : "doc:f4",
+            "type" : "FRAME"
+          },
+          "score" : 0.608,
+          "semantic" : "button {text=\"Guardar nota\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "TEXT",
+          "warnings" : [ ],
+          "xpath" : "//button[normalize-space(.)=\"Guardar nota\"]"
+        }, {
+          "css" : "html > body > button:nth-of-type(1)",
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Guardar nota",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n55" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "iframe#f-branco",
+              "hostNodeId" : "n10",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "f-branco"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@id=\"f-branco\"]"
+            } ],
+            "frameId" : "f4",
+            "scopeId" : "doc:f4",
+            "type" : "FRAME"
+          },
+          "score" : 0.09,
+          "semantic" : "html >> body >> button {nth-of-type 1}",
+          "stability" : "HEURISTIC_UNSTABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "depende de posição (nth-of-type)" ],
+          "strategy" : "POSITIONAL",
+          "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type)" ],
+          "xpath" : "//html/body/button[1]"
+        } ],
+        "nodeId" : "n55",
+        "primary" : {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Guardar nota",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n55" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "role" : "button",
+                "type" : "ROLE_IS"
+              }, {
+                "name" : "Guardar nota",
+                "type" : "NAME_EQUALS"
+              } ],
+              "tag" : null
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "iframe#f-branco",
+              "hostNodeId" : "n10",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "f-branco"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@id=\"f-branco\"]"
+            } ],
+            "frameId" : "f4",
+            "scopeId" : "doc:f4",
+            "type" : "FRAME"
+          },
+          "score" : 0.712,
+          "semantic" : "* {role=button} {name=\"Guardar nota\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ROLE_NAME",
+          "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+          "xpath" : null
+        },
+        "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
+      }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Guardar nota",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n55" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Guardar nota",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-branco",
+          "hostNodeId" : "n10",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-branco"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-branco\"]"
+        } ],
+        "frameId" : "f4",
+        "scopeId" : "doc:f4",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Guardar nota\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    }
+  },
+  "trajetoria" : {
+    "accessible" : true,
+    "blockingRestriction" : null,
+    "documentsTraversed" : 2,
+    "explanation" : "O elemento button «Guardar nota» foi encontrado, no 1º nível de iframe da página. O documento principal contém o iframe «Rascunho» (iframe#f-branco). A identidade é sustentada por: nome acessível, hierarquia documental.",
+    "frameDepth" : 1,
+    "shadowDepth" : 0,
+    "stability" : "HEURISTIC_STABLE",
+    "steps" : [ {
+      "browserDocumentId" : "656735301D6182F0AD9DACE1465BC66B",
+      "documentId" : null,
+      "enteredDocumentId" : "doc:f0",
+      "expectedCondition" : "DOCUMENT_ACTIVE",
+      "frameIdentity" : null,
+      "label" : "Frame Intelligence — ciclo de vida",
+      "locator" : null,
+      "locatorStrategy" : null,
+      "matchCount" : 0,
+      "nodeId" : null,
+      "restriction" : null,
+      "stability" : null,
+      "type" : "MAIN_DOCUMENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
+    }, {
+      "browserDocumentId" : "2DD00801E25800DD9F245412777A5C16",
+      "documentId" : "doc:f0",
+      "enteredDocumentId" : "doc:f4",
+      "expectedCondition" : "FRAME_DOCUMENT_LOADED (about:blank)",
+      "frameIdentity" : {
+        "container" : "heading:Pagamentos 1",
+        "depth" : 1,
+        "idAttr" : "f-branco",
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : null,
+        "parentKey" : "main",
+        "stableAttributes" : { },
+        "title" : "Rascunho",
+        "urlPath" : "about:blank"
+      },
+      "label" : "Rascunho",
+      "locator" : "iframe#f-branco",
+      "locatorStrategy" : "ID",
+      "matchCount" : 1,
+      "nodeId" : "n10",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "IFRAME",
+      "url" : "about:blank"
+    }, {
+      "browserDocumentId" : null,
+      "documentId" : "doc:f4",
+      "enteredDocumentId" : null,
+      "expectedCondition" : "ELEMENT_PRESENT",
+      "frameIdentity" : null,
+      "label" : "Guardar nota",
+      "locator" : "* {role=button} {name=\"Guardar nota\"}",
+      "locatorStrategy" : "ROLE_NAME",
+      "matchCount" : 1,
+      "nodeId" : "n55",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "ELEMENT",
+      "url" : null
+    } ],
+    "target" : {
+      "kind" : "BUTTON",
+      "name" : "Guardar nota"
+    },
+    "targetNodeId" : "n55"
+  },
+  "reencontro" : {
+    "status" : "RESOLVED",
+    "score" : 1,
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+  },
+  "diagnostico" : {
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
+    },
+    "readiness" : {
+      "basis" : [ "somente obstáculos de severidade baixa", "todas as regiões observáveis foram inspecionadas" ],
+      "confidence" : "HIGH",
+      "documents" : {
+        "count" : 6,
+        "inaccessible" : 0,
+        "loading" : 0,
+        "maximumFrameDepth" : 1
+      },
+      "elements" : {
+        "interactive" : 19,
+        "observed" : 59
+      },
+      "interactionDependencies" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "obstacles" : [ {
+        "count" : 5,
+        "description" : "Elementos em iframe exigem troca de contexto de documento",
+        "evidence" : [ "5 iframe(s) no documento principal" ],
+        "frameIds" : [ "f1", "f2", "f3", "f4", "f5" ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "LOW",
+        "type" : "FRAME_CONTEXT"
+      }, {
+        "count" : 1,
+        "description" : "Elementos em shadow roots abertos exigem atravessar o host",
+        "evidence" : [ "1 shadow root(s) aberto(s)" ],
+        "frameIds" : [ ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "LOW",
+        "type" : "SHADOW_DOM"
+      } ],
+      "page" : {
+        "title" : "Frame Intelligence — ciclo de vida",
+        "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
+      },
+      "protectionStatus" : "NOT_OBSERVED",
+      "protections" : [ ],
+      "recommendations" : [ {
+        "reason" : "Nenhum obstáculo específico observado",
+        "relatedObstacles" : [ ],
+        "type" : "NO_ACTION_REQUIRED"
+      } ],
+      "shadowRoots" : {
+        "closed" : 0,
+        "open" : 1
+      },
+      "status" : "MANAGEABLE"
+    },
+    "timings" : {
+      "graphMs" : 0.25,
+      "protectionMs" : 0.53,
+      "readinessMs" : 0.27,
+      "totalMs" : 1.06
+    }
+  },
+  "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]
+}
