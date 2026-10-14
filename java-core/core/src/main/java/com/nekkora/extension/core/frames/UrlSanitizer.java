@@ -34,7 +34,8 @@ public final class UrlSanitizer {
                 return s.length() > MAX ? s.substring(0, MAX) : s;
             }
             String s = uri.getScheme().toLowerCase(Locale.ROOT) + "://" + uri.getHost().toLowerCase(Locale.ROOT)
-                    + (uri.getPort() > 0 ? ":" + uri.getPort() : "") + (uri.getRawPath() == null ? "" : uri.getRawPath());
+                    + (uri.getPort() > 0 ? ":" + uri.getPort() : "")
+                    + (uri.getRawPath() == null ? "" : com.nekkora.extension.core.privacy.Privacy.sanitizePathOnly(uri.getRawPath()));
             return s.length() > MAX ? s.substring(0, MAX) : s;
         } catch (IllegalArgumentException e) {
             int cut = indexOfAny(u, '?', '#');

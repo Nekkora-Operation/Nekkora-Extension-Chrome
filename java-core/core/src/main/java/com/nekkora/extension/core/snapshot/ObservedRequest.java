@@ -10,4 +10,9 @@ package com.nekkora.extension.core.snapshot;
  * @param duration      duração (ms)
  */
 public record ObservedRequest(String url, String initiatorType, double startTime, double duration) {
+
+    /** Segunda barreira de privacidade (NEKKORA-REAL-001). */
+    public ObservedRequest {
+        url = com.nekkora.extension.core.privacy.Privacy.sanitizeUrl(url);
+    }
 }

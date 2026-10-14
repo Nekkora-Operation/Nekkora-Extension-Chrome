@@ -10,6 +10,7 @@
  */
 import { client, host, toContent, tabKey, broadcast, withLock, assertAllowed, frameOfNode, errorInfo, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
+import * as injection from './injection.js';
 
 const KEY = 'nk.insp.';
 const states = new Map(); // tabId -> estado
@@ -118,6 +119,23 @@ export async function toggle(tabId) {
   return (s.state === 'ACTIVE' || s.state === 'DEGRADED') ? deactivate(tabId) : activate(tabId);
 }
 
+/**
+ * Permissão revogada (ou navegação para origem não autorizada) durante a inspeção: remove ouvintes e destaques,
+ * libera o consumidor e registra o motivo — o estado nunca indica ativo numa origem sem permissão.
+ */
+export function revoke(tabId, reason) {
+  return withLock('insp:' + tabId, async () => {
+    const s = stateOf(tabId);
+    const wasActive = s.state !== 'INACTIVE' && s.state !== 'ERROR';
+    await stopInspector(tabId);
+    await capture.release(tabId, 'inspection', reason).catch(() => {});
+    s.selected = null;
+    setState(s, 'INACTIVE', wasActive ? { code: reason, reason, message: reason === 'PERMISSION_REVOKED'
+      ? 'A autorização deste site foi revogada: a inspeção foi encerrada.' : 'A página saiu de uma origem autorizada: a inspeção foi encerrada.' } : null);
+    return describe(tabId);
+  });
+}
+
 export function forget(tabId) {
   states.delete(tabId);
   chrome.storage.session.remove(KEY + tabId).catch(() => {});
@@ -128,6 +146,7 @@ export function forget(tabId) {
 /** Captura completa avulsa (fluxo CHROME-001), usada somente quando não há sessão automática na aba. */
 export async function captureOnce(tabId, options = {}) {
   await assertAllowed(tabId);
+  await injection.ensureInjected(tabId);
   const s = stateOf(tabId);
   const t0 = performance.now();
   const snapshot = await toContent(tabId, 'cs.capture', { maxNodes: options.maxNodes, navigationKind: options.navigationKind });

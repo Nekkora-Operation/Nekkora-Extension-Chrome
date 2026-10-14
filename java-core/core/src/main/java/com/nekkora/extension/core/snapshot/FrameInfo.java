@@ -16,6 +16,12 @@ package com.nekkora.extension.core.snapshot;
 public record FrameInfo(String frameId, String parentFrameId, String hostNodeId, String url, boolean accessible, String reason,
                         String title, String readyState) {
 
+    /** Segunda barreira de privacidade (NEKKORA-REAL-001): {@code url} sanitizada (antes: URL completa). */
+    public FrameInfo {
+        url = com.nekkora.extension.core.privacy.Privacy.sanitizeUrl(url);
+        title = com.nekkora.extension.core.privacy.Privacy.maskText(title);
+    }
+
     /** Construtor CHROME-001/002. */
     public FrameInfo(String frameId, String parentFrameId, String hostNodeId, String url, boolean accessible, String reason) {
         this(frameId, parentFrameId, hostNodeId, url, accessible, reason, null, null);

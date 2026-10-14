@@ -23,6 +23,8 @@ import java.util.Objects;
 public final class ExportCommands implements CommandRouter.CommandGroup {
 
     private final EngineServices s;
+    /** Limite do PageMap devolvido na resposta (o arquivo persistido é sempre completo). */
+    static final long INLINE_LIMIT_BYTES = 48L * 1024 * 1024; // margem para o limite de 64 MiB do Chrome
 
     public ExportCommands(EngineServices services) {
         this.s = services;
@@ -55,7 +57,15 @@ public final class ExportCommands implements CommandRouter.CommandGroup {
             out.put("path", file == null ? null : file.toString());
             out.put("bytes", file == null ? -1 : Files.size(file));
             out.put("exportMs", EngineServices.ms(t0));
-            out.put("pageMap", Payloads.flag(p, "returnPageMap", true) ? map : null);
+            // NEKKORA-REAL-001: páginas reais grandes produzem PageMaps acima do limite de mensagens internas do Chrome
+            // (64 MiB entre páginas da extensão). Acima de INLINE_LIMIT_BYTES só o arquivo persistido é devolvido.
+            // Tamanho real da resposta (JSON compacto), não do arquivo formatado.
+            boolean inline = Payloads.flag(p, "returnPageMap", true) && s.json.mapper().writeValueAsBytes(map).length <= INLINE_LIMIT_BYTES;
+            out.put("pageMap", inline ? map : null);
+            if (Payloads.flag(p, "returnPageMap", true) && !inline) {
+                out.put("pageMapOmitted", "TOO_LARGE_FOR_MESSAGE");
+                out.put("inlineLimitBytes", INLINE_LIMIT_BYTES);
+            }
             return out;
         });
 

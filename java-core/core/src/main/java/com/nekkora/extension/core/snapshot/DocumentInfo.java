@@ -13,4 +13,10 @@ package com.nekkora.extension.core.snapshot;
  */
 public record DocumentInfo(String url, String title, String readyState, Viewport viewport, String navigationKind,
                            String pageSessionId) {
+
+    /** Segunda barreira de privacidade (NEKKORA-REAL-001): URL e título sob a mesma política do navegador. */
+    public DocumentInfo {
+        url = com.nekkora.extension.core.privacy.Privacy.sanitizeUrl(url);
+        title = com.nekkora.extension.core.privacy.Privacy.maskText(title);
+    }
 }

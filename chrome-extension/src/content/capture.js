@@ -13,6 +13,7 @@
   if (NS.capture) {
     return;
   }
+  const P = root.NekkoraPrivacy; // política de privacidade (src/shared/privacy.js), aplicada antes de qualquer envio
   const SKIP = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'title', 'base']);
   const LEAF = new Set(['svg', 'math', 'canvas', 'video', 'audio', 'object', 'embed']);
   const SHADOW_CAPABLE = new Set(['article', 'aside', 'blockquote', 'body', 'div', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -30,6 +31,7 @@
   const knownShadows = new Map();      // host -> ShadowRootInfo (lista atual enviada nos deltas)
   const knownFrames = new Map();       // iframe host -> FrameInfo (lista atual enviada nos deltas)
   const geometry = new WeakMap();      // Element -> chave de geometria (rect + inViewport) do último envio
+  const visibility = new WeakMap();    // Element -> visível no último envio (varredura de subárvores grandes)
   let frameCounter = 0;
   let captureSeq = 0;
   /**
@@ -80,7 +82,7 @@
         s += ' ' + n.nodeValue;
       }
     }
-    s = s.replace(/\s+/g, ' ').trim();
+    s = P.maskText(s.replace(/\s+/g, ' ').trim());
     return s.length > MAX_TEXT_LEN ? s.slice(0, MAX_TEXT_LEN) : s;
   }
 
@@ -99,7 +101,7 @@
       if (n.nodeType === Node.TEXT_NODE) {
         cur += ' ' + n.nodeValue;
       } else if (n.nodeType === 1 && matched < childIds.length && NS.registry.peek(n) === childIds[matched]) {
-        segs.push(cur.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN));
+        segs.push(P.maskText(cur.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN));
         cur = '';
         matched++;
       }
@@ -107,17 +109,32 @@
     if (matched !== childIds.length) {
       return undefined;
     }
-    segs.push(cur.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN));
+    segs.push(P.maskText(cur.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN));
     return segs;
   }
 
   /** O SVG é capturado como folha; seu <title> compõe o nome acessível (botões de ícone). */
   function svgTitle(el) {
     const t = el.querySelector(':scope > title');
-    return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN) : '';
+    return t ? P.maskText(t.textContent.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN) : '';
   }
 
   const URL_ATTRIBUTE_HOSTS = new Set(['IFRAME', 'FRAME', 'SCRIPT']);
+  /** Atributos que carregam URL (forma original preservada; valores sensíveis redigidos pela política). */
+  const URL_ATTRIBUTES = new Set(['href', 'src', 'action', 'formaction', 'poster', 'data', 'cite', 'background', 'longdesc',
+    'xlink:href', 'manifest', 'codebase', 'ping']);
+  const SRCSET_ATTRIBUTES = new Set(['srcset', 'imagesrcset']);
+  /** Atributos de TEXTO livre que podem conter dados pessoais (placeholder fica de fora: é dica da interface). */
+  const TEXT_ATTRIBUTES = new Set(['title', 'alt', 'aria-label', 'aria-description', 'aria-valuetext', 'aria-roledescription',
+    'aria-placeholder', 'label', 'content', 'value', 'summary', 'abbr', 'download']);
+
+  function sanitizeSrcset(v) {
+    return v.split(',').map((part) => {
+      const t = part.trim();
+      const sp = t.search(/\s/);
+      return sp < 0 ? P.sanitizeUrl(t) : P.sanitizeUrl(t.slice(0, sp)) + t.slice(sp);
+    }).join(', ');
+  }
   const KEPT_FRAGMENT_KEYS = new Set(['frame']); // tipo de frame de widgets (ex.: hCaptcha #frame=challenge)
 
   /**
@@ -159,9 +176,17 @@
       } else if (name === 'data-sitekey') {
         v = '[redacted]'; // chave pública de CAPTCHA: presença registrada, valor não
       } else if ((name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName)) || name === 'data-nekkora-simulated-src') {
-        v = redactUrlValues(v, el.ownerDocument.baseURI);
+        v = P.sanitizeUrl(redactUrlValues(v, el.ownerDocument.baseURI));
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
+      } else if (URL_ATTRIBUTES.has(name)) {
+        v = name === 'ping' ? v.split(/\s+/).map(P.sanitizeUrl).join(' ') : P.sanitizeUrl(v);
+      } else if (SRCSET_ATTRIBUTES.has(name)) {
+        v = sanitizeSrcset(v);
+      } else if (TEXT_ATTRIBUTES.has(name)) {
+        v = P.maskText(v);
+      } else if (name.startsWith('data-')) {
+        v = v.length >= 16 && P.looksSecret(v) ? '[redacted]' : P.maskText(v);
       }
       out[name] = v.length > MAX_ATTR_LEN ? v.slice(0, MAX_ATTR_LEN) : v;
     }
@@ -211,6 +236,7 @@
     const tag = el.tagName.toLowerCase();
     const win = el.ownerDocument.defaultView;
     const vis = visibilityOf(el, tag, ctx.parentVisible);
+    visibility.set(el, vis.visible);
     const rectObj = el.getBoundingClientRect();
     const rect = { x: round(rectObj.x), y: round(rectObj.y), width: round(rectObj.width), height: round(rectObj.height) };
     const vw = win.innerWidth;
@@ -244,7 +270,7 @@
       hasValue = v.length > 0;
       valueLength = sensitive ? null : v.length;
       if (textEntry && NS.sensitivity.isSearchField(el)) {
-        exposedValue = v.length > 200 ? v.slice(0, 200) : v;
+        exposedValue = P.maskText(v.length > 200 ? v.slice(0, 200) : v);
       }
     }
 
@@ -392,12 +418,12 @@
       if (doc && doc.documentElement) {
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
-        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: doc.location.href, accessible: true, reason: null,
-          title: (doc.title || '').slice(0, 200) || null, readyState: doc.readyState };
+        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: P.sanitizeUrl(doc.location.href), accessible: true, reason: null,
+          title: P.maskText((doc.title || '').slice(0, 200)) || null, readyState: doc.readyState };
         out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
       } else {
         fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
-          url: el.getAttribute('src') ? new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href : null, accessible: false, reason };
+          url: el.getAttribute('src') ? P.sanitizeUrl(new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href) : null, accessible: false, reason };
       }
       knownFrames.set(el, fi);
       info.frames.push(fi);
@@ -498,8 +524,8 @@
   }
 
   function rootFrameInfo() {
-    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: location.href, accessible: true, reason: null,
-      title: (document.title || '').slice(0, 200) || null, readyState: document.readyState };
+    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: P.sanitizeUrl(location.href), accessible: true, reason: null,
+      title: P.maskText((document.title || '').slice(0, 200)) || null, readyState: document.readyState };
   }
 
   /** URL sanitizada: esquema, host, porta e caminho (sem query, fragmento ou credenciais) + NOMES dos parâmetros. */
@@ -511,11 +537,11 @@
       }
       const keys = [];
       for (const k of u.searchParams.keys()) {
-        if (!keys.includes(k) && keys.length < 20) {
+        if (!keys.includes(k) && keys.length < 20 && !P.looksSecret(k)) {
           keys.push(k);
         }
       }
-      return { url: (u.origin + u.pathname).slice(0, 300), queryKeys: keys };
+      return { url: P.originAndPath(u.href), queryKeys: keys };
     } catch (e) {
       return null;
     }
@@ -588,7 +614,7 @@
       return performance.getEntriesByType('resource')
         .filter((e) => e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest')
         .slice(-200)
-        .map((e) => ({ url: e.name, initiatorType: e.initiatorType, startTime: Math.round(e.startTime * 10) / 10, duration: Math.round(e.duration * 10) / 10 }));
+        .map((e) => ({ url: P.sanitizeUrl(e.name), initiatorType: e.initiatorType, startTime: Math.round(e.startTime * 10) / 10, duration: Math.round(e.duration * 10) / 10 }));
     } catch (e) {
       return [];
     }
@@ -596,8 +622,8 @@
 
   function documentInfo(navigationKind) {
     return {
-      url: location.href,
-      title: document.title,
+      url: P.sanitizeUrl(location.href),
+      title: P.maskText(document.title),
       readyState: document.readyState,
       viewport: { width: innerWidth, height: innerHeight, scrollX: Math.round(scrollX), scrollY: Math.round(scrollY), devicePixelRatio },
       navigationKind: navigationKind || 'MANUAL',
@@ -837,6 +863,50 @@
         }
       }
       return out;
+    },
+    /**
+     * Descendentes de {@code rootEl} cuja visibilidade mudou desde o último envio (NEKKORA-REAL-001). Usado quando uma
+     * classe/estilo muda num ancestral com subárvore grande (ex.: classe do body ao rolar): em vez de redescrever toda
+     * a subárvore, só os elementos que de fato mudaram de visibilidade são redescritos.
+     */
+    visibilityChanges(rootEl, limit) {
+      const out = [];
+      for (const el of NS.registry.connectedElements()) {
+        const last = visibility.get(el);
+        if (last === undefined || el === rootEl || !rootEl.contains(el) || isOverlay(el)) {
+          continue;
+        }
+        const tag = el.tagName.toLowerCase();
+        if (tag === 'option' || tag === 'optgroup') {
+          continue; // sem caixa própria: seguem o pai
+        }
+        const now = typeof el.checkVisibility === 'function'
+          ? el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true, contentVisibilityAuto: true })
+          : el.getClientRects().length > 0;
+        if (now !== last) {
+          out.push(el);
+          if (out.length >= limit) {
+            break;
+          }
+        }
+      }
+      return out;
+    },
+    /** Atualização compacta de geometria (NEKKORA-REAL-001): retângulo atual e presença no viewport. */
+    geometryOf(el) {
+      const id = NS.registry.peek(el);
+      if (!id || isOverlay(el)) {
+        return null;
+      }
+      const r = el.getBoundingClientRect();
+      const win = el.ownerDocument.defaultView;
+      const x = round(r.x);
+      const y = round(r.y);
+      const width = round(r.width);
+      const height = round(r.height);
+      const inViewport = width > 0 && height > 0 && x < win.innerWidth && y < win.innerHeight && x + width > 0 && y + height > 0;
+      geometry.set(el, x + ',' + y + ',' + width + ',' + height + ',' + inViewport);
+      return { id, x, y, width, height, inViewport };
     },
     frameOffset(el) {
       // Deslocamento acumulado de iframes até o documento principal (coordenadas do viewport principal).

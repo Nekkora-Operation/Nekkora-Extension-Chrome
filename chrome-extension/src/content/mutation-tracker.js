@@ -24,6 +24,18 @@
   const MAX_PENDING = 50000;
   const RECONCILE_MS = 1000;
   const GEOMETRY_DEBOUNCE_MS = 300;
+  /**
+   * NEKKORA-REAL-001: mudanças SOMENTE de geometria (rolagem, redimensionamento, deslocamento de layout) seguem como
+   * atualizações compactas (id + retângulo + no viewport), sem redescrever o elemento. Antes, rolar uma página real com
+   * mais de MAX_DELTA_NODES elementos alterava o retângulo (relativo ao viewport) de TODOS e forçava recaptura completa.
+   */
+  const MAX_GEOMETRY_UPDATES = 60000;
+  /**
+   * NEKKORA-REAL-001: classe/estilo alterados num ancestral com subárvore acima deste tamanho (ex.: classe do body
+   * trocada ao rolar) ⇒ redescreve o próprio elemento e somente os descendentes cuja VISIBILIDADE mudou (a geometria
+   * segue pelas atualizações compactas). Evita recaptura completa a cada transição em páginas reais grandes.
+   */
+  const LARGE_SUBTREE = 2000;
   const SUBTREE_ATTRS = new Set(['class', 'style', 'hidden', 'open', 'inert']);
   const SKIP = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'title', 'base']);
 
@@ -33,6 +45,7 @@
   let sink = null;              // async (delta) => { ok, error }
   let observers = new Map();    // raiz observada -> MutationObserver
   let dirty = new Map();        // Element -> subtree:boolean
+  let geoDirty = new Set();     // Element com geometria alterada (sem outra mudança)
   let removed = new Set();      // ids temporários
   let raw = 0;
   let batches = 0;
@@ -47,7 +60,7 @@
   let failFlushes = 0;          // instrumento de homologação (DEV): próximas barreiras falham
   let keepLast = false;         // instrumento de homologação (DEV): guarda o último delta enviado
   let lastDelta = null;
-  const stats = { geometryRefreshes: 0, geometryChanged: 0, deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
+  const stats = { geometryRefreshes: 0, geometryChanged: 0, geometryUpdates: 0, largeSubtreeScans: 0, deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
     shadowRootsDiscovered: 0, resyncs: 0, swept: 0, lastError: null, lastDeltaAt: 0, frameDocumentsReplaced: 0 };
   // CHROME-003 §22: documento atual de cada iframe de mesma origem. Navegação interna, carregamento tardio
   // (about:blank inicial → documento real) e recarga trocam o documento SEM mutação no pai: a troca é detectada
@@ -71,6 +84,7 @@
     if (dirty.size > MAX_PENDING) {
       overflow = true; // sem limite de memória ilimitado: força ressincronização
       dirty = new Map();
+      geoDirty = new Set();
       removed = new Set();
     }
   }
@@ -232,11 +246,16 @@
     if (mode !== 'ACTIVE' && mode !== 'BUFFER') {
       return 0;
     }
-    const changed = NS.capture.geometryChanges(MAX_DELTA_NODES);
+    const changed = NS.capture.geometryChanges(MAX_GEOMETRY_UPDATES);
     stats.geometryRefreshes++;
     stats.geometryChanged += changed.length;
+    if (changed.length >= MAX_GEOMETRY_UPDATES) {
+      overflow = true; // acima do limite compacto: ressincronização controlada
+    }
     for (const el of changed) {
-      mark(el, false);
+      if (!dirty.has(el)) {
+        geoDirty.add(el);
+      }
     }
     if (changed.length) {
       if (!firstAt) {
@@ -261,7 +280,7 @@
     if (inFlight) {
       await inFlight; // um delta por vez: a sequência é estritamente crescente
     }
-    if (mode !== 'ACTIVE' || !sink || (!force && dirty.size === 0 && removed.size === 0 && !pendingNavigation)) {
+    if (mode !== 'ACTIVE' || !sink || (!force && dirty.size === 0 && removed.size === 0 && geoDirty.size === 0 && !pendingNavigation)) {
       firstAt = 0;
       return { sent: false };
     }
@@ -276,6 +295,8 @@
     const t0 = performance.now();
     const entries = dirty;
     const gone = removed;
+    const geo = geoDirty;
+    geoDirty = new Set();
     const rawCount = raw;
     const batchCount = batches;
     dirty = new Map();
@@ -283,6 +304,17 @@
     raw = 0;
     batches = 0;
     firstAt = 0;
+    for (const [el, sub] of Array.from(entries)) {
+      if (sub && el.isConnected && el.getElementsByTagName('*').length > LARGE_SUBTREE) {
+        entries.set(el, false);
+        stats.largeSubtreeScans++;
+        for (const x of NS.capture.visibilityChanges(el, MAX_DELTA_NODES)) {
+          if (!entries.has(x)) {
+            entries.set(x, false);
+          }
+        }
+      }
+    }
     const subtreeRoots = new Set();
     for (const [el, sub] of entries) {
       if (sub) {
@@ -297,6 +329,16 @@
     }
     const removedIds = Array.from(gone).filter((id) => !NS.registry.isConnected(id));
     const part = NS.capture.partial(list, MAX_DELTA_NODES);
+    const geometry = [];
+    for (const el of geo) {
+      if (el.isConnected && !entries.has(el)) {
+        const g = NS.capture.geometryOf(el);
+        if (g) {
+          geometry.push(g);
+        }
+      }
+    }
+    stats.geometryUpdates += geometry.length;
     observeRoots(); // escopos novos (shadow roots / frames de mesma origem) entram na observação
     const allRequests = NS.capture.observedRequests();
     const newRequests = allRequests.slice(Math.min(requestsSeen, allRequests.length));
@@ -325,6 +367,7 @@
       shadowRoots: NS.capture.shadowRootList(),
       requests: newRequests,
       resources: NS.capture.resourceList(),
+      geometry: geometry.length ? geometry : null,
       rawMutationCount: rawCount,
       batchCount,
       stats: { elementsVisited: part.nodes.length, nodesEmitted: part.nodes.length, durationMs, truncated: false, maxNodes: MAX_DELTA_NODES },
@@ -393,6 +436,7 @@
       session = { sessionId: cfg.sessionId, source: cfg.source || 'top', epoch: 0 };
       sink = deltaSink;
       dirty = new Map();
+      geoDirty = new Set();
       removed = new Set();
       raw = 0;
       batches = 0;
@@ -445,6 +489,7 @@
       session = null;
       sink = null;
       dirty = new Map();
+      geoDirty = new Set();
       removed = new Set();
     },
     active() {
@@ -472,7 +517,7 @@
       if (inFlight) {
         await inFlight;
       }
-      return { ...r, pending: dirty.size + removed.size, mode, seq };
+      return { ...r, pending: dirty.size + geoDirty.size + removed.size, mode, seq };
     },
     reconcileNow() {
       reconcileScopes();
@@ -495,7 +540,7 @@
     },
     stats() {
       return { ...stats, active: mode !== 'OFF', mode, sessionId: session ? session.sessionId : null, epoch: session ? session.epoch : null,
-        seq, pending: dirty.size + removed.size, inFlight: !!inFlight, observers: observers.size };
+        seq, pending: dirty.size + geoDirty.size + removed.size, inFlight: !!inFlight, observers: observers.size };
     },
   };
 })(globalThis);

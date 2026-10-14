@@ -247,6 +247,63 @@ const CAPTURE_TEXT = {
   RECOVERING: 'Ressincronizando…', FINALIZING: 'Finalizando gravação…', COMPLETED: 'Inativa', ERROR: 'Erro na captura',
 };
 
+// ------------------------------------------------------------------------- acesso ao site (REAL-001)
+
+const BROAD = ['https://*/*', 'http://*/*'];
+const ACCESS_TEXT = {
+  LAB: 'Laboratório local',
+  PERMISSION_REQUIRED: 'Não autorizado',
+  BROWSER_INTERNAL: 'Página interna do navegador (indisponível)',
+  BROWSER_RESTRICTED: 'Bloqueado pelo Chrome (indisponível)',
+  UNSUPPORTED_SCHEME: 'Esquema não suportado (somente http/https)',
+  INVALID_URL: 'Endereço inválido',
+  URL_UNAVAILABLE: 'Página não informada pelo Chrome',
+};
+let access = null;
+
+function renderAccess(d) {
+  access = d;
+  const kind = d.allowed ? d.kind : 'DENIED';
+  setText($('acc-origin'), d.origin || '—');
+  $('acc-state').dataset.kind = kind;
+  setText($('acc-state'), d.allowed
+    ? (d.kind === 'LAB' ? ACCESS_TEXT.LAB : 'Autorizado' + (BROAD.includes(d.pattern) ? ' (autorização ampla)' : ' (este site)'))
+    : ACCESS_TEXT[d.reason] || d.reason);
+  setText($('acc-hint'), d.allowed ? (d.kind === 'AUTHORIZED' ? 'A captura só começa quando você ativar a inspeção.' : '') : (d.message || ''));
+  $('btn-authorize').hidden = d.reason !== 'PERMISSION_REQUIRED';
+  $('btn-authorize-all').hidden = d.reason !== 'PERMISSION_REQUIRED' || d.broad;
+  $('btn-revoke').hidden = d.kind !== 'AUTHORIZED';
+  setText($('btn-revoke'), BROAD.includes(d.pattern) ? 'Revogar autorização ampla' : 'Revogar acesso a este site');
+  if (d.reason !== 'PERMISSION_REQUIRED') {
+    $('acc-confirm-all').hidden = true;
+  }
+}
+
+async function refreshAccess() {
+  if (tabId == null) {
+    return;
+  }
+  try {
+    renderAccess(await call('access.describe'));
+  } catch (e) {
+    renderAccess({ allowed: false, reason: 'URL_UNAVAILABLE', message: String(e.message || e) });
+  }
+}
+
+/** Concessão: SEMPRE no clique do usuário, pelo diálogo do Chrome (nunca automática). */
+async function requestOrigins(origins) {
+  message('');
+  let granted = false;
+  try {
+    granted = await chrome.permissions.request({ origins });
+  } catch (e) {
+    message('O Chrome recusou o pedido de autorização: ' + (e.message || e));
+    return;
+  }
+  message(granted ? 'Autorização concedida. Ative a inspeção quando quiser inspecionar a página.' : 'Autorização não concedida.', granted);
+  await refreshAccess();
+}
+
 function renderInspectionState(st) {
   const b = $('btn-inspect');
   const cfg = BUTTON[st.state] || BUTTON.INACTIVE;
@@ -259,6 +316,8 @@ function renderInspectionState(st) {
     message('Falha ao ativar a inspeção: ' + st.error.code + ' — ' + st.error.message);
   } else if (st.state === 'DEGRADED') {
     message('Inspeção ativa com captura degradada' + (st.error ? ' (' + st.error.code + ')' : '') + '. Recuperando…');
+  } else if (st.state === 'INACTIVE' && st.error) {
+    message(st.error.message || st.error.code); // ex.: autorização revogada durante a inspeção
   } else if (st.state === 'ACTIVE' || st.state === 'INACTIVE') {
     message('');
   }
@@ -344,7 +403,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       element: $('element-info').textContent, width: innerWidth, height: innerHeight,
       documents: $('st-docs').textContent, frames: $('st-frames').textContent, shadowRoots: $('st-shadow').textContent,
       path: $('path-info').textContent, pathSteps: [...$('path-steps').children].map((li) => li.textContent),
-      explanation: $('path-explanation').textContent, diagnosis: $('diag-info').textContent });
+      explanation: $('path-explanation').textContent, diagnosis: $('diag-info').textContent,
+      access: { origin: $('acc-origin').textContent, state: $('acc-state').textContent, kind: $('acc-state').dataset.kind,
+        hint: $('acc-hint').textContent, authorize: !$('btn-authorize').hidden, authorizeAll: !$('btn-authorize-all').hidden,
+        revoke: !$('btn-revoke').hidden }, message: $('message').hidden ? '' : $('message').textContent });
   } else if (msg.cmd === 'panel.click' && $(msg.id)) {
     $(msg.id).click();
     sendResponse({ clicked: msg.id });
@@ -362,10 +424,16 @@ chrome.runtime.onMessage.addListener((msg) => {
     location.reload();
     return;
   }
+  if (msg.event === 'access-changed') {
+    refreshAccess();
+    return;
+  }
   if (!msg.data || msg.data.tabId !== tabId) {
     return;
   }
-  if (msg.event === 'inspection-state') {
+  if (msg.event === 'tab-navigated' || msg.event === 'access-revoked') {
+    refreshAccess();
+  } else if (msg.event === 'inspection-state') {
     renderInspectionState(msg.data);
   } else if (msg.event === 'session-status') {
     const sess = msg.data.session;
@@ -401,6 +469,7 @@ async function switchTab(id) {
   $('path-steps').replaceChildren();
   setText($('path-explanation'), '');
   clearDiagnosis();
+  await refreshAccess();
   await refreshState();
   const stored = await chrome.storage.session.get('inspection:' + tabId).catch(() => ({}));
   if (stored && stored['inspection:' + tabId]) {
@@ -418,6 +487,22 @@ async function switchTab(id) {
     // Painel nativo: acompanha a aba ativa da janela (o estado é por aba).
     chrome.tabs.onActivated.addListener((info) => switchTab(info.tabId));
   }
+  $('btn-authorize').onclick = () => access && access.pattern && requestOrigins([access.pattern]);
+  $('btn-authorize-all').onclick = () => {
+    $('acc-confirm-all').hidden = false; // autorização ampla exige uma segunda confirmação explícita
+  };
+  $('btn-cancel-all').onclick = () => {
+    $('acc-confirm-all').hidden = true;
+  };
+  $('btn-confirm-all').onclick = () => {
+    $('acc-confirm-all').hidden = true;
+    requestOrigins(BROAD);
+  };
+  $('btn-revoke').onclick = (e) => run(e.target, async () => {
+    const r = await call('access.revoke', { pattern: access && access.pattern });
+    message(r.removed ? 'Autorização revogada (' + r.pattern + ').' : 'O Chrome não removeu a autorização.', r.removed);
+    await refreshAccess();
+  });
   $('btn-inspect').onclick = async (e) => {
     const b = e.currentTarget;
     if (b.disabled) {
@@ -455,6 +540,10 @@ async function switchTab(id) {
   });
   $('btn-export').onclick = (e) => run(e.target, async () => {
     const r = await call('pagemap.export', { fresh: true });
+    if (!r.pageMap) {
+      message('PageMap grande demais para o download pelo painel (' + Math.round(r.bytes / 1048576) + ' MB). Cópia completa: ' + r.path, true);
+      return;
+    }
     const blob = new Blob([JSON.stringify(r.pageMap, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

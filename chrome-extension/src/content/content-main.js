@@ -58,7 +58,7 @@
 
   function diagnostics() {
     return {
-      url: location.href,
+      url: NS.privacyUrl(),
       pageSessionId: NS.registry.pageSessionId,
       inspectorMode: NS.inspector.mode(),
       listeners: NS.inspector.listenerCount(),
@@ -70,7 +70,7 @@
   }
 
   const handlers = {
-    'cs.ping': () => ({ ok: true, url: location.href, pageSessionId: NS.registry.pageSessionId }),
+    'cs.ping': () => ({ ok: true, url: NS.privacyUrl(), pageSessionId: NS.registry.pageSessionId }),
     'cs.capture': (a) => NS.capture.full({ maxNodes: a && a.maxNodes, navigationKind: a && a.navigationKind }),
     'cs.inspect.start': () => {
       NS.inspector.start(onInspectorSelect);
@@ -181,7 +181,7 @@
       }
       return { error: 'UNKNOWN_DEBUG_ACTION' };
     },
-    'cs.session.status': () => ({ tracker: NS.tracker.stats(), inspectorMode: NS.inspector.mode(), url: location.href,
+    'cs.session.status': () => ({ tracker: NS.tracker.stats(), inspectorMode: NS.inspector.mode(), url: NS.privacyUrl(),
       pageSessionId: NS.registry.pageSessionId, source: NS.capture.source() }),
     // ---- iframes de outra origem permitida: handshake para localizar o iframe hospedeiro no documento pai
     'cs.frame.announce': (a) => {
@@ -255,5 +255,5 @@
   });
 
   NS.main = { diagnostics };
-  send('content-ready', { url: location.href, pageSessionId: NS.registry.pageSessionId, top: root.top === root });
+  send('content-ready', { url: NS.privacyUrl(), pageSessionId: NS.registry.pageSessionId, top: root.top === root });
 })(globalThis);

@@ -7,11 +7,18 @@
     return; // injeção repetida (ex.: recarga da extensão): mantém a instância existente
   }
   const NekkoraCS = {
-    version: '0.1.0',
-    /** Somente origens de laboratório local. Defesa em profundidade além de host_permissions. */
+    version: '0.3.0',
+    /**
+     * Somente documentos http/https. O content script só existe onde o Chrome concedeu acesso (laboratório local por
+     * host_permissions; demais origens por autorização explícita do usuário, injeção pelo service worker), e o
+     * service worker revalida a origem de toda mensagem com a política central (background/access-policy.js).
+     */
     isAllowedLocation(loc) {
-      return (loc.protocol === 'http:' || loc.protocol === 'https:')
-        && (loc.hostname === '127.0.0.1' || loc.hostname === 'localhost');
+      return loc.protocol === 'http:' || loc.protocol === 'https:';
+    },
+    /** URL do documento já sanitizada pela política de privacidade (nunca location.href bruto). */
+    privacyUrl() {
+      return root.NekkoraPrivacy ? root.NekkoraPrivacy.sanitizeUrl(root.location.href) : null;
     },
     log(...args) {
       if (root.__NEKKORA_DEBUG__) {

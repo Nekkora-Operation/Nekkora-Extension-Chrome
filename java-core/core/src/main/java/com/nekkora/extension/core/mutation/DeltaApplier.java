@@ -30,7 +30,9 @@ public final class DeltaApplier {
         for (String root : delta.removed()) {
             removeSubtree(nodes, root);
         }
+        Set<String> upserted = new HashSet<>();
         for (RawNode n : delta.upserts()) {
+            upserted.add(n.id());
             RawNode old = nodes.get(n.id());
             if (old != null && n.parentId() == null && old.parentId() != null && !Sources.TOP.equals(delta.sourceOrTop())) {
                 n = n.withParentId(old.parentId()); // raiz do documento de um iframe anexado: mantém o hospedeiro
@@ -51,6 +53,13 @@ public final class DeltaApplier {
                 }
             }
             nodes.put(n.id(), n);
+        }
+        // Atualizações compactas de geometria (rolagem/layout): só retângulo e presença no viewport.
+        for (GeometryUpdate g : delta.geometry()) {
+            RawNode n = nodes.get(g.id());
+            if (n != null && !upserted.contains(g.id())) {
+                nodes.put(g.id(), n.withGeometry(g.rect(), g.inViewport()));
+            }
         }
         // Descarta nós que deixaram de ser alcançáveis (pai atualizado sem eles).
         Set<String> reachable = new HashSet<>();

@@ -118,6 +118,44 @@
         "seq": {
           "type": "integer",
           "minimum": 1
+        },
+        "geometry": {
+          "description": "NEKKORA-REAL-001: atualizações compactas de geometria (rolagem/layout) de nós já conhecidos — somente retângulo e presença no viewport; null/ausente = nenhuma.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "x",
+              "y",
+              "width",
+              "height",
+              "inViewport"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              },
+              "inViewport": {
+                "type": "boolean"
+              }
+            }
+          }
         }
       }
     },

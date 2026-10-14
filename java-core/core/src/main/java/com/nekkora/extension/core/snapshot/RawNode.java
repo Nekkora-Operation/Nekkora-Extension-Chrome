@@ -55,14 +55,17 @@ public record RawNode(
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(tag, "tag");
         childIds = childIds == null ? List.of() : List.copyOf(childIds);
-        attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+        // Segunda barreira de privacidade (NEKKORA-REAL-001): atributos e textos sob a mesma política do navegador.
+        attributes = attributes == null ? Map.of() : com.nekkora.extension.core.privacy.AttributePrivacy.sanitize(Map.copyOf(attributes));
         labelIds = labelIds == null ? List.of() : List.copyOf(labelIds);
-        ownText = ownText == null ? "" : ownText;
+        ownText = ownText == null ? "" : com.nekkora.extension.core.privacy.Privacy.maskText(ownText);
+        exposedValue = com.nekkora.extension.core.privacy.Privacy.maskText(exposedValue);
         state = state == null ? NodeState.UNKNOWN : state;
         frameId = frameId == null ? "f0" : frameId;
         scopeId = scopeId == null ? "doc:" + frameId : scopeId;
         tag = tag.toLowerCase(java.util.Locale.ROOT);
-        textSegments = textSegments == null || textSegments.size() != childIds.size() + 1 ? null : List.copyOf(textSegments);
+        textSegments = textSegments == null || textSegments.size() != childIds.size() + 1 ? null
+                : List.copyOf(textSegments.stream().map(t -> t == null ? "" : com.nekkora.extension.core.privacy.Privacy.maskText(t)).toList());
     }
 
     public String attr(String name) {
@@ -77,6 +80,12 @@ public record RawNode(
         // Filhos alterados (ex.: documento de frame anexado): os segmentos deixam de corresponder e são descartados.
         List<String> segs = newChildIds != null && newChildIds.equals(childIds) ? textSegments : null;
         return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, segs);
+    }
+
+    /** Mesmo nó com geometria atualizada (retângulo, presença no viewport, área nula). */
+    public RawNode withGeometry(Rect newRect, boolean inViewport) {
+        return new RawNode(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText,
+                state.withGeometry(inViewport, newRect.width() == 0 || newRect.height() == 0), newRect, labelIds, scroll, exposedValue, textSegments);
     }
 
     public RawNode withParentId(String newParentId) {

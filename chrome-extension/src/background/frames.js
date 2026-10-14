@@ -1,5 +1,7 @@
 /*
- * Iframes de OUTRA origem local permitida (ex.: página em 127.0.0.1:8765 com iframe de localhost:8766).
+ * Iframes de OUTRA origem permitida (laboratório local ou origem AUTORIZADA pelo usuário; ex.: página em
+ * 127.0.0.1:8765 com iframe de localhost:8766). Origens sem autorização não recebem content script e ficam
+ * declaradas como sem permissão — a autorização da página principal NUNCA se estende às origens dos frames.
  *
  * O documento principal não consegue ler esses frames; o content script injetado NO PRÓPRIO frame
  * (all_frames) captura o documento com ids prefixados ({@code x<frameId>n…}) e o motor Java o anexa ao
@@ -11,8 +13,11 @@
  *   - iframe com atributo sandbox ⇒ não anexado (POLICY_SANDBOX);
  *   - origem sem permissão ⇒ não há content script; permanece declarado como inacessível pelo pai.
  */
+import '../shared/privacy.js';
 import { host, toContent, isAllowedUrl, broadcast, errorInfo, withLock, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
+
+const P = globalThis.NekkoraPrivacy;
 
 const MAX_FRAMES_PER_TAB = 20;
 
@@ -56,7 +61,7 @@ export async function attach(rec, frameId, info) {
   if (existing && existing.epoch === rec.epoch && existing.status === 'ATTACHED' && (!info || !info.documentId || existing.documentId === info.documentId)) {
     return existing;
   }
-  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null, url: info && info.url, reason: null,
+  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null, url: info && P.sanitizeUrl(info.url), reason: null,
     documentId: info && info.documentId, parentFrameId: info && info.parentFrameId != null ? info.parentFrameId : 0 };
   rec.frames[src] = entry;
   try {

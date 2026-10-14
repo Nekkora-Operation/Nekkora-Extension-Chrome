@@ -7,24 +7,15 @@
  *   - destaque da região do iframe imediato de um elemento (DEV).
  * As regras de análise estão no Java; aqui só há coleta de dados do navegador e orquestração.
  */
+import '../shared/privacy.js';
 import { host, toContent, tabKey, isAllowedUrl, assertAllowed, frameOfNode, broadcast, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
 
 const pendingSync = new Map(); // tabId -> timer
 
+/** Origem + caminho sanitizado (política de privacidade): metadados do Chrome nunca levam consulta/fragmento. */
 function sanitize(url) {
-  if (!url) {
-    return null;
-  }
-  try {
-    const u = new URL(url);
-    if (u.protocol === 'about:') {
-      return 'about:' + u.pathname;
-    }
-    return (u.origin + u.pathname).slice(0, 300);
-  } catch (e) {
-    return null;
-  }
+  return url ? globalThis.NekkoraPrivacy.originAndPath(url) : null;
 }
 
 async function allFrames(tabId) {
@@ -91,7 +82,7 @@ export function scheduleFrameSync(tabId, delayMs = 250) {
 
 /** Prepara a consulta: barreira (com geometria) + metadados de frames atuais. */
 async function prepare(tabId) {
-  await assertAllowed(tabId); // somente páginas locais permitidas (a permissão nunca é presumida)
+  await assertAllowed(tabId); // somente páginas permitidas pela política central (a permissão nunca é presumida)
   const rec = capture.get(tabId);
   if (rec && capture.isActive(tabId)) {
     const sync = await capture.synchronize(tabId);

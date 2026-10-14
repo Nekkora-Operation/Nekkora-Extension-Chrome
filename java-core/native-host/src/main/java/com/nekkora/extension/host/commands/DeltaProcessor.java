@@ -44,7 +44,11 @@ final class DeltaProcessor {
         RawSnapshot applied = s.deltas.apply(base.model().snapshot(), delta);
         Set<String> changed = new HashSet<>();
         delta.upserts().forEach(n -> changed.add(n.id()));
-        PageAnalysis analysis = s.session.analyzer().reanalyze(applied, base, changed);
+        // Atualizações compactas de geometria (NEKKORA-REAL-001): reclassificadas (condições como OUT_OF_VIEWPORT),
+        // mas não disparam reencontro automático — posição não altera identidade.
+        Set<String> reanalyzed = new HashSet<>(changed);
+        delta.geometry().forEach(g -> reanalyzed.add(g.id()));
+        PageAnalysis analysis = s.session.analyzer().reanalyze(applied, base, reanalyzed);
         long t1 = System.nanoTime();
         tab.putCapture(analysis);
         MutationRecord record = s.comparator.compare(base.graph(), analysis.graph(), "INCREMENTAL",
