@@ -12,38 +12,27 @@
     "ignored" : 0,
     "inFlight" : false,
     "largeSubtreeScans" : 1,
-    "lastDeltaAt" : 1791997499562,
-    "lastDeltaMs" : 8.3,
+    "lastDeltaAt" : 1792001791936,
+    "lastDeltaMs" : 8.9,
     "lastError" : null,
-    "maxDeltaMs" : 18.5,
+    "maxDeltaMs" : 20.6,
     "mode" : "ACTIVE",
     "observers" : 1,
     "pending" : 0,
     "rawMutations" : 4,
     "resyncs" : 0,
     "seq" : 4,
-    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
+    "sessionId" : "cs-870373009-mv8fli8x-7h3x",
     "shadowRootsDiscovered" : 0,
     "swept" : 0
   },
-  "targetConditions" : [ "INTERACTIVE", "HIDDEN", "PRESENT", "ENABLED" ],
-  "sync" : {
-    "epoch" : 1,
-    "latestCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-5",
-    "ms" : 167.8,
-    "nodes" : 7467,
-    "pending" : 0,
-    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
-    "syncState" : "SYNCHRONIZED",
-    "unconfirmed" : [ ]
-  },
   "session" : {
-    "baseCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
+    "baseCaptureId" : "cap-ps-mv8fli59-mi0z2k-1",
     "consumers" : [ "inspection" ],
     "deltasApplied" : 4,
     "deltasRejected" : 0,
     "deltasStale" : 0,
-    "documentId" : "ps-mv8d1i5j-ibzpfe",
+    "documentId" : "ps-mv8fli59-mi0z2k",
     "endedAt" : null,
     "epoch" : 1,
     "error" : null,
@@ -51,11 +40,11 @@
     "fullCaptures" : 1,
     "hostState" : "OK",
     "initialCapture" : {
-      "at" : "2026-10-14T17:04:57.993Z",
-      "browserMs" : 294.4,
+      "at" : "2026-10-14T18:16:30.359Z",
+      "browserMs" : 290.4,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
-      "captureMs" : 292.1,
+      "captureId" : "cap-ps-mv8fli59-mi0z2k-1",
+      "captureMs" : 288.2,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -81,7 +70,7 @@
           "TABLE_ROW" : 402,
           "TEXT" : 532
         },
-        "captureDurationMs" : 292.1,
+        "captureDurationMs" : 288.2,
         "elementCount" : 7466,
         "frames" : [ ],
         "hidden" : 0,
@@ -94,9 +83,9 @@
         "unknownState" : 0,
         "visible" : 7466
       },
-      "hostMs" : 426.6,
+      "hostMs" : 465,
       "interactive" : 1998,
-      "maxSliceMs" : 9.9,
+      "maxSliceMs" : 9.4,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -127,21 +116,21 @@
       },
       "nodes" : 7466,
       "reason" : "SESSION_START",
-      "slices" : 29,
+      "slices" : 28,
       "text" : 2933,
       "timings" : {
-        "classificationMs" : 94.42,
-        "hostTotalMs" : 304.91,
-        "indexMs" : 22.87
+        "classificationMs" : 103.95,
+        "hostTotalMs" : 336.32,
+        "indexMs" : 24.57
       },
-      "totalMs" : 721.7
+      "totalMs" : 757.8
     },
     "lastCapture" : {
-      "at" : "2026-10-14T17:04:57.993Z",
-      "browserMs" : 294.4,
+      "at" : "2026-10-14T18:16:30.359Z",
+      "browserMs" : 290.4,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d1i5j-ibzpfe-1",
-      "captureMs" : 292.1,
+      "captureId" : "cap-ps-mv8fli59-mi0z2k-1",
+      "captureMs" : 288.2,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -167,7 +156,7 @@
           "TABLE_ROW" : 402,
           "TEXT" : 532
         },
-        "captureDurationMs" : 292.1,
+        "captureDurationMs" : 288.2,
         "elementCount" : 7466,
         "frames" : [ ],
         "hidden" : 0,
@@ -180,9 +169,9 @@
         "unknownState" : 0,
         "visible" : 7466
       },
-      "hostMs" : 426.6,
+      "hostMs" : 465,
       "interactive" : 1998,
-      "maxSliceMs" : 9.9,
+      "maxSliceMs" : 9.4,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -213,26 +202,37 @@
       },
       "nodes" : 7466,
       "reason" : "SESSION_START",
-      "slices" : 29,
+      "slices" : 28,
       "text" : 2933,
       "timings" : {
-        "classificationMs" : 94.42,
-        "hostTotalMs" : 304.91,
-        "indexMs" : 22.87
+        "classificationMs" : 103.95,
+        "hostTotalMs" : 336.32,
+        "indexMs" : 24.57
       },
-      "totalMs" : 721.7
+      "totalMs" : 757.8
     },
-    "lastDeltaAt" : "2026-10-14T17:04:59.560Z",
+    "lastDeltaAt" : "2026-10-14T18:16:31.935Z",
     "lastExport" : null,
-    "lastUpdateAt" : "2026-10-14T17:04:59.560Z",
-    "latestCaptureId" : "cap-ps-mv8d1i5j-ibzpfe-5",
+    "lastUpdateAt" : "2026-10-14T18:16:31.935Z",
+    "latestCaptureId" : "cap-ps-mv8fli59-mi0z2k-5",
     "nodes" : 7467,
     "reason" : "SESSION_START",
     "resyncs" : 0,
-    "sessionId" : "cs-1768684587-mv8d1i9j-z0z9",
-    "startedAt" : "2026-10-14T17:04:57.271Z",
+    "sessionId" : "cs-870373009-mv8fli8x-7h3x",
+    "startedAt" : "2026-10-14T18:16:29.601Z",
     "status" : "ACTIVE",
-    "tabId" : 1768684587,
+    "tabId" : 870373009,
     "url" : "http://site-a.nekkora.test:18765/generated/large?n=8000"
-  }
+  },
+  "sync" : {
+    "epoch" : 1,
+    "latestCaptureId" : "cap-ps-mv8fli59-mi0z2k-5",
+    "ms" : 174.7,
+    "nodes" : 7467,
+    "pending" : 0,
+    "sessionId" : "cs-870373009-mv8fli8x-7h3x",
+    "syncState" : "SYNCHRONIZED",
+    "unconfirmed" : [ ]
+  },
+  "targetConditions" : [ "ENABLED", "PRESENT", "INTERACTIVE", "HIDDEN" ]
 }

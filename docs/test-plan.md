@@ -190,6 +190,7 @@ intencional de contrato — D-037).
 | R001-09 | `Real001PilotIT` | 9 — revogação durante a sessão (página e frame) |
 | R001-10 | `Real001PilotIT` | 10 — exportação sem informações sensíveis |
 | R001-11 | `Real001PilotIT` | página grande: rolagem + classe no `body` sem recaptura |
+| R001-12 | `Real001PermissionDialogManualIT` (assistido, `-Test`) | diálogo nativo no Chrome convencional: autorizar site, revogar, autorização ampla, revogar |
 | RW-01..05 | `Real001LiveWebIT` (`-Suite real`) | Wikipedia: 1, 2, 5, 7, 8, 9, 10 em página real |
 | RP-01 | `Real001PerformanceIT` | §7 — variabilidade da seleção, frio × aquecido |
 

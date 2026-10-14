@@ -1,23 +1,4 @@
 {
-  "access" : {
-    "allowed" : true,
-    "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
-    "broad" : false,
-    "kind" : "AUTHORIZED",
-    "message" : null,
-    "origin" : "http://site-a.nekkora.test:18765",
-    "pattern" : "http://site-a.nekkora.test/*",
-    "reason" : null,
-    "registration" : {
-      "allFrames" : true,
-      "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
-      "id" : "nekkora-authorized-origins",
-      "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/content/ns.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/content/content-main.js" ],
-      "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
-      "runAt" : "document_idle"
-    },
-    "tabId" : 1768684533
-  },
   "selection" : {
     "accessPath" : {
       "accessible" : true,
@@ -28,7 +9,7 @@
       "shadowDepth" : 0,
       "stability" : "HEURISTIC_STABLE",
       "steps" : [ {
-        "browserDocumentId" : "4F853A902AE59318D2D525FCDE2AC618",
+        "browserDocumentId" : "1A619172319E223D6B5874BC54EBAB81",
         "documentId" : null,
         "enteredDocumentId" : "doc:f0",
         "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -64,9 +45,9 @@
       },
       "targetNodeId" : "n20"
     },
-    "captureId" : "cap-ps-mv8d1a2n-apk1ba-1+x1384",
+    "captureId" : "cap-ps-mv8fl9k8-ad08c5-1+x1384",
     "classification" : {
-      "conditions" : [ "INTERACTIVE", "ENABLED", "PRESENT", "VISIBLE" ],
+      "conditions" : [ "INTERACTIVE", "VISIBLE", "PRESENT", "ENABLED" ],
       "confidence" : "HIGH",
       "evidence" : [ "<button>" ],
       "kind" : "BUTTON",
@@ -104,7 +85,7 @@
       "children" : [ ],
       "column" : null,
       "containerHeading" : "Minha conta",
-      "contextualTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]" ],
+      "contextualTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]", "Configurações" ],
       "description" : null,
       "dialog" : null,
       "fieldGroup" : null,
@@ -192,6 +173,18 @@
         "name" : "Enviar e-mail",
         "nodeId" : "n18",
         "tag" : "a"
+      }, {
+        "idAttr" : "config",
+        "keyAttributes" : {
+          "data-config" : "{\"endpoint\":\"https://api.example.test/v1?apiKey=REDACTED\",\"pin\":\"REDACTED\",\"theme\":\"escuro\"}",
+          "data-password" : "[redacted]",
+          "data-reset-url" : "https://example.test/reset?token=REDACTED",
+          "data-tema" : "escuro"
+        },
+        "kind" : "TEXT",
+        "name" : "Configurações",
+        "nodeId" : "n21",
+        "tag" : "div"
       } ],
       "table" : null,
       "visualContainer" : {
@@ -450,7 +443,7 @@
       "column" : null,
       "compatibility" : "button",
       "containerHeading" : "Minha conta",
-      "contextTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]" ],
+      "contextTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]", "Configurações" ],
       "dialog" : null,
       "fieldGroup" : null,
       "form" : null,
@@ -473,9 +466,28 @@
     },
     "tag" : "button",
     "timings" : {
-      "familyMs" : 0.24,
-      "hostTotalMs" : 1.76,
-      "locatorMs" : 0.42
+      "familyMs" : 0.16,
+      "hostTotalMs" : 1.48,
+      "locatorMs" : 0.41
     }
+  },
+  "access" : {
+    "allowed" : true,
+    "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+    "broad" : false,
+    "kind" : "AUTHORIZED",
+    "message" : null,
+    "origin" : "http://site-a.nekkora.test:18765",
+    "pattern" : "http://site-a.nekkora.test/*",
+    "reason" : null,
+    "registration" : {
+      "allFrames" : true,
+      "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
+      "id" : "nekkora-authorized-origins",
+      "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/content/ns.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/content/content-main.js" ],
+      "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+      "runAt" : "document_idle"
+    },
+    "tabId" : 870372955
   }
 }

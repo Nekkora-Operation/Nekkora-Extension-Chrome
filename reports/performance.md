@@ -1,13 +1,13 @@
 # Desempenho medido (T036 / T037)
 
-Gerado em 2026-10-14T17:04:26.016024800Z · Chrome for Testing 155.0.8059.39 · Java 21.0.12 · Windows 11 10.0
+Gerado em 2026-10-14T18:15:56.535772300Z · Chrome for Testing 155.0.8059.39 · Java 21.0.12 · Windows 11 10.0
 
 | Elementos | Nós | Interativos | Captura (ms) | Maior bloqueio da página (ms) [base] | Snapshot (KB) | Classificação Java (ms) | Ciclo captura (ms) | Seleção ponta a ponta (ms) | Reencontro (ms) | Localizadores média (ms) | Export PageMap (ms) | Heap host (MB) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 100 | 92 | 23 | 3.9 | 8.8 [5.8] | 49 | 0.4 | 30.09 | 54.94 | 1.71 | 0.2 | 16.25 | 265.5 |
-| 1000 | 932 | 248 | 17.7 | 21.1 [6.6] | 501 | 3.27 | 59.96 | 91.79 | 7.91 | 0.2 | 186.85 | 299.4 |
-| 5000 | 4666 | 1248 | 115.5 | 131.1 [5.7] | 2526 | 13.85 | 253.63 | 241.18 | 38.75 | 0.41 | 857.41 | 447.2 |
-| 10000 | 9332 | 2498 | 317.0 | 338.7 [6.3] | 5061 | 16.83 | 537.0 | 379.68 | 42.68 | 0.9 | 2771.73 | 981.8 |
+| 100 | 92 | 23 | 4.2 | 8.5 [6.3] | 49 | 0.46 | 29.04 | 55.08 | 1.77 | 0.22 | 18.15 | 266.4 |
+| 1000 | 932 | 248 | 20.8 | 23.9 [6.2] | 501 | 3.41 | 66.89 | 93.42 | 7.81 | 0.2 | 164.35 | 361.9 |
+| 5000 | 4666 | 1248 | 118.9 | 133.2 [6.2] | 2526 | 15.58 | 256.97 | 301.18 | 29.72 | 0.42 | 981.75 | 453.4 |
+| 10000 | 9332 | 2498 | 333.2 | 358.9 [6.3] | 5061 | 29.19 | 563.46 | 393.17 | 55.81 | 0.97 | 3059.66 | 607.5 |
 
 ## Mutações frequentes (relógio a cada 20 ms por 3 s)
 
@@ -21,8 +21,8 @@ Gerado em 2026-10-14T17:04:26.016024800Z · Chrome for Testing 155.0.8059.39 · 
   "upsertedNodes" : 26,
   "ignoredRecords" : 0,
   "browserMaxDeltaMs" : 0.7,
-  "hostMaxDeltaMs" : 0.65,
-  "hostAvgDeltaMs" : 0.5,
+  "hostMaxDeltaMs" : 0.77,
+  "hostAvgDeltaMs" : 0.55,
   "resyncs" : 0
 }
 ```

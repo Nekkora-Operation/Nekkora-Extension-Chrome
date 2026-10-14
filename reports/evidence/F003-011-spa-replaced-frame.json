@@ -1,4 +1,58 @@
 {
+  "frame" : {
+    "browser" : {
+      "browserDocumentId" : "D0A4C8592BF94D6C7DF0FCF8EA140D70",
+      "browserFrameId" : 598,
+      "documentLifecycle" : "active",
+      "frameType" : "sub_frame",
+      "hostNodeId" : "n61",
+      "inspection" : "CAPTURED_BY_PARENT",
+      "mapping" : "HANDSHAKE",
+      "parentBrowserFrameId" : 0,
+      "parentDocumentId" : "31C961A880808F3290A61FD42056A78D",
+      "reason" : null,
+      "source" : null,
+      "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+    },
+    "childFrameIds" : [ ],
+    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "depth" : 1,
+    "documentId" : "doc:f6",
+    "documentKind" : "NETWORK",
+    "documentTitle" : "Contas",
+    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
+    "elementCount" : 9,
+    "frameId" : "f6",
+    "hostNodeId" : "n61",
+    "identity" : {
+      "container" : "region:Cadastro",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Cadastro",
+      "urlPath" : "/lab/chrome003/contas.html"
+    },
+    "identityAmbiguous" : false,
+    "insideShadowRoot" : false,
+    "inspectedBy" : "top",
+    "interactiveCount" : 3,
+    "locator" : "section[aria-label=\"Cadastro\"] iframe[title=\"Cadastro\"]",
+    "locatorStability" : "HEURISTIC_STABLE",
+    "name" : null,
+    "origin" : "http://127.0.0.1:18765",
+    "parentDocumentId" : "doc:f0",
+    "parentFrameId" : "f0",
+    "reason" : null,
+    "sandbox" : null,
+    "shadowRoots" : 0,
+    "srcdoc" : false,
+    "status" : "INSPECTED",
+    "title" : "Cadastro"
+  },
   "resolution" : {
     "attributeChanges" : { },
     "candidates" : [ {
@@ -117,7 +171,7 @@
       "score" : 1,
       "verdict" : "CONFIRMED"
     } ],
-    "captureId" : "cap-ps-mv8cyi4v-2tkmph-2",
+    "captureId" : "cap-ps-mv8fievn-xcbyh7-2",
     "diagnostics" : [ ],
     "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "locatorChecks" : [ {
@@ -152,7 +206,7 @@
     "scope" : "AVAILABLE: [doc:f6]",
     "score" : 1,
     "status" : "RESOLVED",
-    "targetId" : "tgt-ff7b9aa4-0cc8-40d1-913d-38e2e52fbfd7",
+    "targetId" : "tgt-763db299-3257-4e12-80b0-6c207f24f729",
     "updatedIdentity" : {
       "attributeHistory" : {
         "id" : [ null, null, null ],
@@ -171,9 +225,9 @@
         "title" : "Cadastro",
         "urlPath" : "/lab/chrome003/contas.html"
       } ],
-      "lastCaptureId" : "cap-ps-mv8cyi4v-2tkmph-2",
+      "lastCaptureId" : "cap-ps-mv8fievn-xcbyh7-2",
       "lastNodeId" : "n70",
-      "lastPageSessionId" : "ps-mv8cyi4v-2tkmph",
+      "lastPageSessionId" : "ps-mv8fievn-xcbyh7",
       "locators" : {
         "fallbacks" : [ {
           "css" : null,
@@ -538,7 +592,7 @@
       },
       "lookalikeCount" : 0,
       "origin" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html",
-      "registeredAt" : "2026-10-14T17:02:37.290017900Z",
+      "registeredAt" : "2026-10-14T18:14:05.432591400Z",
       "schemaVersion" : "0.1.0",
       "signature" : {
         "column" : null,
@@ -565,7 +619,7 @@
         "text" : "Salvar",
         "typeAttribute" : "submit"
       },
-      "targetId" : "tgt-ff7b9aa4-0cc8-40d1-913d-38e2e52fbfd7",
+      "targetId" : "tgt-763db299-3257-4e12-80b0-6c207f24f729",
       "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
     },
     "updatedLocators" : {
@@ -930,59 +984,5 @@
       },
       "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
     }
-  },
-  "frame" : {
-    "browser" : {
-      "browserDocumentId" : "32636AB29FE001F7E7273705A70E0FF1",
-      "browserFrameId" : 598,
-      "documentLifecycle" : "active",
-      "frameType" : "sub_frame",
-      "hostNodeId" : "n61",
-      "inspection" : "CAPTURED_BY_PARENT",
-      "mapping" : "HANDSHAKE",
-      "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "81D328943EBBD65A57147D5BFB57B200",
-      "reason" : null,
-      "source" : null,
-      "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
-    },
-    "childFrameIds" : [ ],
-    "declaredSrc" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
-    "depth" : 1,
-    "documentId" : "doc:f6",
-    "documentKind" : "NETWORK",
-    "documentTitle" : "Contas",
-    "effectiveUrl" : "http://127.0.0.1:18765/lab/chrome003/contas.html",
-    "elementCount" : 9,
-    "frameId" : "f6",
-    "hostNodeId" : "n61",
-    "identity" : {
-      "container" : "region:Cadastro",
-      "depth" : 1,
-      "idAttr" : null,
-      "insideShadowRoot" : false,
-      "name" : null,
-      "origin" : "http://127.0.0.1:18765",
-      "parentKey" : "main",
-      "stableAttributes" : { },
-      "title" : "Cadastro",
-      "urlPath" : "/lab/chrome003/contas.html"
-    },
-    "identityAmbiguous" : false,
-    "insideShadowRoot" : false,
-    "inspectedBy" : "top",
-    "interactiveCount" : 3,
-    "locator" : "section[aria-label=\"Cadastro\"] iframe[title=\"Cadastro\"]",
-    "locatorStability" : "HEURISTIC_STABLE",
-    "name" : null,
-    "origin" : "http://127.0.0.1:18765",
-    "parentDocumentId" : "doc:f0",
-    "parentFrameId" : "f0",
-    "reason" : null,
-    "sandbox" : null,
-    "shadowRoots" : 0,
-    "srcdoc" : false,
-    "status" : "INSPECTED",
-    "title" : "Cadastro"
   }
 }

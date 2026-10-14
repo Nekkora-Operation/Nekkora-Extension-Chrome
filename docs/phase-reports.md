@@ -317,6 +317,14 @@ Branch `feat/nekkora-real-web-pilot` (base `5bcc108`, CHROME-003 integrada). Nú
   geometria (D-060) e por classe do `body` (D-061); criação de conta servida por outra origem (recusa correta).
 - **Testes**: RW-01..05 (`-Suite real`), R001-11, `GeometryUpdateTest`.
 
+## Revisão do PR #3 — P1: atributos personalizados
+
+- **Problema**: `data-*` só era redigido com valor ≥ 16 caracteres com aparência de segredo; `data-password="hunter2"`
+  e URLs com token em atributos personalizados passavam.
+- **Correção**: regra única de atributos no navegador e no Java (D-065); revogação ampla remove o par https+http.
+- **Testes**: vetores de atributos compartilhados (35 casos), `PrivacyTest`, `privacy.test.js`, R001-10 com 20 valores
+  plantados (inclui snapshot bruto); R001-12 — diálogo nativo aprovado por pessoa no Chrome convencional.
+
 ## Fase 5 — Desempenho, regressão, documentação e publicação
 
 - **Implementado**: RP-01 (7 execuções, frio × aquecido); regressão completa; `docs/real-001/*`; relatório final; PR.

@@ -1,12 +1,11 @@
 {
   "captura" : {
-    "fullCaptures" : 1,
+    "deltas" : 1,
     "nodes" : 59,
-    "deltas" : 1
+    "fullCaptures" : 1
   },
   "hierarquia" : {
     "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Cadastro:INSPECTED" ],
-    "maxDepth" : 1,
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -15,12 +14,10 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
-    }
+    },
+    "maxDepth" : 1
   },
   "identificacao" : {
-    "name" : "Salvar",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-fb2007c5-b864-4e4c-8cfa-0e21ccae1e58",
     "frameChain" : [ {
       "container" : "region:Cadastro",
       "depth" : 1,
@@ -32,7 +29,10 @@
       "stableAttributes" : { },
       "title" : "Cadastro",
       "urlPath" : "/lab/chrome003/contas.html"
-    } ]
+    } ],
+    "targetId" : "tgt-25f1182d-d3e2-47d8-a8ee-3813b256c016",
+    "kind" : "BUTTON",
+    "name" : "Salvar"
   },
   "familia" : {
     "region" : {
@@ -45,14 +45,6 @@
       "nodeId" : "n60",
       "tag" : "section"
     },
-    "scope" : [ {
-      "idAttr" : null,
-      "keyAttributes" : { },
-      "kind" : "IFRAME",
-      "name" : "Cadastro",
-      "nodeId" : "n61",
-      "tag" : "iframe"
-    } ],
     "form" : {
       "idAttr" : "form-conta",
       "keyAttributes" : {
@@ -62,83 +54,17 @@
       "name" : "Nova conta",
       "nodeId" : "n65",
       "tag" : "form"
-    }
+    },
+    "scope" : [ {
+      "idAttr" : null,
+      "keyAttributes" : { },
+      "kind" : "IFRAME",
+      "name" : "Cadastro",
+      "nodeId" : "n61",
+      "tag" : "iframe"
+    } ]
   },
   "localizadores" : {
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "#form-conta",
-        "heading" : "Contas",
-        "kind" : "BUTTON",
-        "name" : "Salvar",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n70" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "form-conta"
-          } ],
-          "tag" : "form"
-        }, {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "text" : "Salvar",
-            "type" : "TEXT_EQUALS"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "section[aria-label=\"Cadastro\"] iframe[title=\"Cadastro\"]",
-          "hostNodeId" : "n61",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "aria-label",
-                "type" : "ATTR_EQUALS",
-                "value" : "Cadastro"
-              } ],
-              "tag" : "section"
-            }, {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "title",
-                "type" : "ATTR_EQUALS",
-                "value" : "Cadastro"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//section[@aria-label=\"Cadastro\"]//iframe[@title=\"Cadastro\"]"
-        } ],
-        "frameId" : "f6",
-        "scopeId" : "doc:f6",
-        "type" : "FRAME"
-      },
-      "score" : 0.745,
-      "semantic" : "form {id=form-conta} >> button {text=\"Salvar\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"form-conta\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "CONTEXTUAL",
-      "warnings" : [ "escopo: FORM \"Nova conta\"" ],
-      "xpath" : "//form[@id=\"form-conta\"]//button[normalize-space(.)=\"Salvar\"]"
-    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -569,6 +495,80 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
       }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "#form-conta",
+        "heading" : "Contas",
+        "kind" : "BUTTON",
+        "name" : "Salvar",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n70" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "form-conta"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Salvar",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "section[aria-label=\"Cadastro\"] iframe[title=\"Cadastro\"]",
+          "hostNodeId" : "n61",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "aria-label",
+                "type" : "ATTR_EQUALS",
+                "value" : "Cadastro"
+              } ],
+              "tag" : "section"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Cadastro"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//section[@aria-label=\"Cadastro\"]//iframe[@title=\"Cadastro\"]"
+        } ],
+        "frameId" : "f6",
+        "scopeId" : "doc:f6",
+        "type" : "FRAME"
+      },
+      "score" : 0.745,
+      "semantic" : "form {id=form-conta} >> button {text=\"Salvar\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"form-conta\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM \"Nova conta\"" ],
+      "xpath" : "//form[@id=\"form-conta\"]//button[normalize-space(.)=\"Salvar\"]"
     }
   },
   "trajetoria" : {
@@ -580,7 +580,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "D613EEBA9F961124D5E8B3FE6BDE6BCC",
+      "browserDocumentId" : "81E7F5ABA3DD34CFF33A4BF437F8EF8A",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -595,7 +595,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "1B10A88DCDED664D0CFE0D14AB8D4CD7",
+      "browserDocumentId" : "AC414DED6C65BE148AC19BAD2426D4E5",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f6",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/contas.html)",
@@ -643,17 +643,16 @@
     "targetNodeId" : "n70"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.47,
+      "protectionMs" : 0.48,
+      "readinessMs" : 0.33,
+      "totalMs" : 1.29
     },
     "readiness" : {
       "basis" : [ "somente obstáculos de severidade baixa", "todas as regiões observáveis foram inspecionadas" ],
@@ -715,11 +714,12 @@
       },
       "status" : "MANAGEABLE"
     },
-    "timings" : {
-      "graphMs" : 0.3,
-      "protectionMs" : 0.43,
-      "readinessMs" : 0.39,
-      "totalMs" : 1.13
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

@@ -46,8 +46,24 @@ livre (`title`, `alt`, `aria-label`, `aria-description`, `aria-valuetext`, `labe
 | telefone em formato explícito (`(11) 9…`, `+55 …`) | `[telefone]` |
 | JWT, `Bearer …`, `Basic …` | `[token]` |
 
-Atributos `data-*` com aparência de segredo (≥ 16 caracteres) viram `[redacted]`. `placeholder` não é mascarado
-(é dica da interface, ex.: `(11) 99999-9999`). As regras anteriores continuam: valores de campos nunca saem da
+### Atributos personalizados (revisão do PR #3, P1)
+
+Todo atributo que **não** é estrutural (`id`, `class`, `name`, `type`, `role`, `aria-*` de referência, atributos
+de layout/SVG…) nem de URL/texto — ou seja, `data-*` e atributos personalizados de qualquer nome — segue a regra
+única `sanitizeAttribute` (navegador) / `AttributePrivacy` (motor), verificada pelos vetores compartilhados:
+
+| Situação | Resultado | Exemplo |
+|---|---|---|
+| **Nome** sensível (token, password, secret, key, session, sid, auth, pin, otp, email, phone, cpf, card, user, account…; prefixos `data-`/`aria-` ignorados) | `[redacted]`, independentemente do tamanho | `data-password="hunter2"` → `[redacted]`; `x-session-token` → `[redacted]` |
+| Valor é URL | política de URLs | `data-reset-url="https://example.test/reset?token=abc123"` → `…?token=REDACTED` |
+| URL embutida em texto/JSON | cada URL sanitizada | `{"endpoint":"https://api…?apiKey=K"}` → `apiKey=REDACTED` |
+| Pares `chave=valor` ou JSON com chave sensível | só o valor redigido | `{"password":"x","theme":"dark"}` → `{"password":"REDACTED","theme":"dark"}` |
+| Valor longo (≥ 16) com aparência de segredo | `[redacted]` | `DTK-0a1b2c…` |
+| Dados pessoais reconhecíveis | mascarados | `data-owner="ana@x.com"` → `[email]` |
+
+A lista de palavras de NOME é mais estreita que a de parâmetros de URL: palavras genéricas de interface (`state`,
+`code`, `next`, `url`…) não apagam atributos comuns de componentes (ex.: `data-state="open"` é preservado).
+`placeholder` não é mascarado (é dica da interface, ex.: `(11) 99999-9999`). As regras anteriores continuam: valores de campos nunca saem da
 página (exceto pesquisa), senhas/cartões/documentos são sensíveis, `data-sitekey` é redigido, hooks da página só no
 laboratório.
 
@@ -69,7 +85,8 @@ Chrome: só o arquivo da exportação explícita é gerado (`pageMapOmitted: TOO
 
 ## Verificação
 
-`R001-10` planta 15 valores fictícios (tokens em consulta, fragmento, caminho, `data-*`, URL de imagem assinada,
+`R001-10` planta 20 valores fictícios (15 originais + 5 em atributos personalizados: segredo curto, URL com token,
+JSON com chave de API e PIN, atributo fora de `data-*`) (tokens em consulta, fragmento, caminho, `data-*`, URL de imagem assinada,
 `fetch` com chave, e-mail/CPF/telefone/cartão em texto e atributos, iframe com `sid`) e verifica que **nenhum**
-aparece no PageMap exportado, no estado da sessão, nos eventos, no grafo documental nem em qualquer arquivo do
-diretório do motor (inclusive o log, lido após encerrar o processo).
+aparece no snapshot bruto enviado ao motor, no PageMap exportado, no estado da sessão, nos eventos, no grafo
+documental nem em qualquer arquivo do diretório do motor (inclusive o log, lido após encerrar o processo).

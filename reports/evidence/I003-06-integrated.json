@@ -1,12 +1,11 @@
 {
   "captura" : {
-    "fullCaptures" : 1,
+    "deltas" : 0,
     "nodes" : 59,
-    "deltas" : 0
+    "fullCaptures" : 1
   },
   "hierarquia" : {
     "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
-    "maxDepth" : 1,
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -15,12 +14,10 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
-    }
+    },
+    "maxDepth" : 1
   },
   "identificacao" : {
-    "name" : "Guardar nota",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-4349c924-c7fc-42b6-8ff5-11015d983b0f",
     "frameChain" : [ {
       "container" : "heading:Pagamentos 1",
       "depth" : 1,
@@ -32,10 +29,14 @@
       "stableAttributes" : { },
       "title" : "Rascunho",
       "urlPath" : "about:blank"
-    } ]
+    } ],
+    "targetId" : "tgt-110246c1-3ebb-41a6-abd9-95076b1b30cb",
+    "kind" : "BUTTON",
+    "name" : "Guardar nota"
   },
   "familia" : {
     "region" : null,
+    "form" : null,
     "scope" : [ {
       "idAttr" : "f-branco",
       "keyAttributes" : { },
@@ -43,71 +44,9 @@
       "name" : "Rascunho",
       "nodeId" : "n10",
       "tag" : "iframe"
-    } ],
-    "form" : null
+    } ]
   },
   "localizadores" : {
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : null,
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Guardar nota",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n55" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "role" : "button",
-            "type" : "ROLE_IS"
-          }, {
-            "name" : "Guardar nota",
-            "type" : "NAME_EQUALS"
-          } ],
-          "tag" : null
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "iframe#f-branco",
-          "hostNodeId" : "n10",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "id",
-                "type" : "ATTR_EQUALS",
-                "value" : "f-branco"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@id=\"f-branco\"]"
-        } ],
-        "frameId" : "f4",
-        "scopeId" : "doc:f4",
-        "type" : "FRAME"
-      },
-      "score" : 0.712,
-      "semantic" : "* {role=button} {name=\"Guardar nota\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "ROLE_NAME",
-      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
-    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -332,6 +271,67 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
       }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : null,
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Guardar nota",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n55" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Guardar nota",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "iframe#f-branco",
+          "hostNodeId" : "n10",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "f-branco"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@id=\"f-branco\"]"
+        } ],
+        "frameId" : "f4",
+        "scopeId" : "doc:f4",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Guardar nota\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -343,7 +343,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "3801ABE6DA7B58B081E4F71347D4E1F9",
+      "browserDocumentId" : "EF21C7AEB54FC401A032C9D8913865BF",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -358,7 +358,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "440DEF2618444496C36A99A3A1839ADB",
+      "browserDocumentId" : "299BE8283E3B1CE08C80E31606ACD904",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (about:blank)",
@@ -406,17 +406,16 @@
     "targetNodeId" : "n55"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.29,
+      "protectionMs" : 0.42,
+      "readinessMs" : 0.2,
+      "totalMs" : 0.92
     },
     "readiness" : {
       "basis" : [ "somente obstáculos de severidade baixa", "todas as regiões observáveis foram inspecionadas" ],
@@ -469,11 +468,12 @@
       },
       "status" : "MANAGEABLE"
     },
-    "timings" : {
-      "graphMs" : 0.4,
-      "protectionMs" : 0.42,
-      "readinessMs" : 0.19,
-      "totalMs" : 1.02
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

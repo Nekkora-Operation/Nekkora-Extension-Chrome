@@ -10,9 +10,10 @@ homologação para produção.
    sem aviso, e a suíte depende de internet.
 2. Iframes de outra origem, SPA, Shadow DOM aberto, revogação e fixtures de proteção em origem "externa" foram
    homologados com hosts de teste (`*.nekkora.test` → 127.0.0.1), não em sites de terceiros.
-3. O **diálogo real** de permissão do Chrome ("Autorizar este site" / "Autorizar todos os sites…") não é clicado
-   pela automação; a concessão na homologação é feita na instalação da construção de teste. A verificação do
-   diálogo é manual.
+3. O **diálogo real** de permissão do Chrome não é clicado pela automação. Foi verificado com aprovação humana no
+   Google Chrome 155 convencional (R001-12, `Real001PermissionDialogManualIT`, fora da suíte padrão); a suíte
+   automatizada usa a construção de teste com origens concedidas na instalação. A janela do Chrome de teste pode abrir
+   atrás das outras no Windows — o diálogo fica dentro dela.
 4. Windows 11 + Chrome for Testing 155 / Chrome 155, como nas missões anteriores.
 
 ## Privacidade

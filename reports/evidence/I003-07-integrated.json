@@ -1,12 +1,11 @@
 {
   "captura" : {
-    "fullCaptures" : 1,
+    "deltas" : 0,
     "nodes" : 18,
-    "deltas" : 0
+    "fullCaptures" : 1
   },
   "hierarquia" : {
     "frames" : [ "f0:null:INSPECTED", "f1:reCAPTCHA:INSPECTED" ],
-    "maxDepth" : 1,
     "counts" : {
       "documents" : 2,
       "frames" : 1,
@@ -15,17 +14,17 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
-    }
+    },
+    "maxDepth" : 1
   },
   "identificacao" : {
-    "name" : "Enviar",
+    "frameChain" : [ ],
+    "targetId" : "tgt-b7b41673-ff0a-4755-8eee-a6d54845e8ae",
     "kind" : "BUTTON",
-    "targetId" : "tgt-4ceb4d8b-95bb-4e4e-ac2c-c8ef71372800",
-    "frameChain" : [ ]
+    "name" : "Enviar"
   },
   "familia" : {
     "region" : null,
-    "scope" : [ ],
     "form" : {
       "idAttr" : "contato",
       "keyAttributes" : { },
@@ -33,58 +32,10 @@
       "name" : "",
       "nodeId" : "n6",
       "tag" : "form"
-    }
+    },
+    "scope" : [ ]
   },
   "localizadores" : {
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "#contato",
-        "heading" : "Contato",
-        "kind" : "BUTTON",
-        "name" : "Enviar",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n12" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "contato"
-          } ],
-          "tag" : "form"
-        }, {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "text" : "Enviar",
-            "type" : "TEXT_EQUALS"
-          } ],
-          "tag" : "button"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ ],
-        "frameId" : "f0",
-        "scopeId" : "doc:f0",
-        "type" : "MAIN_DOCUMENT"
-      },
-      "score" : 0.745,
-      "semantic" : "form {id=contato} >> button {text=\"Enviar\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"contato\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "CONTEXTUAL",
-      "warnings" : [ "escopo: FORM" ],
-      "xpath" : "//form[@id=\"contato\"]//button[normalize-space(.)=\"Enviar\"]"
-    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -390,6 +341,55 @@
         },
         "warnings" : [ ]
       }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "#contato",
+        "heading" : "Contato",
+        "kind" : "BUTTON",
+        "name" : "Enviar",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n12" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "contato"
+          } ],
+          "tag" : "form"
+        }, {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "text" : "Enviar",
+            "type" : "TEXT_EQUALS"
+          } ],
+          "tag" : "button"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.745,
+      "semantic" : "form {id=contato} >> button {text=\"Enviar\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"contato\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "CONTEXTUAL",
+      "warnings" : [ "escopo: FORM" ],
+      "xpath" : "//form[@id=\"contato\"]//button[normalize-space(.)=\"Enviar\"]"
     }
   },
   "trajetoria" : {
@@ -401,7 +401,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "19591A6C6C31A1BEB26B02A412C52948",
+      "browserDocumentId" : "06F5C121113375D268295163B54078AD",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -438,11 +438,83 @@
     "targetNodeId" : "n12"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
+    "timings" : {
+      "graphMs" : 0.16,
+      "protectionMs" : 0.68,
+      "readinessMs" : 0.17,
+      "totalMs" : 1.02
+    },
+    "readiness" : {
+      "basis" : [ "obstáculo(s) de severidade alta: [HUMAN_VERIFICATION]", "todas as regiões observáveis foram inspecionadas" ],
+      "confidence" : "HIGH",
+      "documents" : {
+        "count" : 2,
+        "inaccessible" : 0,
+        "loading" : 0,
+        "maximumFrameDepth" : 1
+      },
+      "elements" : {
+        "interactive" : 6,
+        "observed" : 18
+      },
+      "interactionDependencies" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "obstacles" : [ {
+        "count" : 1,
+        "description" : "Elementos em iframe exigem troca de contexto de documento",
+        "evidence" : [ "1 iframe(s) no documento principal" ],
+        "frameIds" : [ "f1" ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "LOW",
+        "type" : "FRAME_CONTEXT"
+      }, {
+        "count" : 1,
+        "description" : "Mecanismo de verificação humana presente (desafio não necessariamente ativo)",
+        "evidence" : [ "GOOGLE RECAPTCHA_V2 (HIGH, CHALLENGE_PRESENT)" ],
+        "frameIds" : [ ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "HIGH",
+        "type" : "HUMAN_VERIFICATION"
+      } ],
+      "page" : {
+        "title" : "LAB-P01 — reCAPTCHA v2 (simulado)",
+        "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html"
+      },
+      "protectionStatus" : "OBSERVED",
+      "protections" : [ {
+        "category" : "CAPTCHA",
+        "challengeState" : "CHALLENGE_PRESENT",
+        "confidence" : "HIGH",
+        "documentId" : "doc:f0",
+        "product" : "RECAPTCHA_V2",
+        "provider" : "GOOGLE"
+      } ],
+      "recommendations" : [ {
+        "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "HUMAN_INTERVENTION"
+      }, {
+        "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "ENVIRONMENT_CONFIGURATION"
+      }, {
+        "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "AUTHORIZED_API"
+      } ],
+      "shadowRoots" : {
+        "closed" : 0,
+        "open" : 0
+      },
+      "status" : "REQUIRES_SPECIAL_HANDLING"
+    },
     "protection" : {
       "assessments" : [ {
         "assessmentId" : "protection:google.recaptcha.v2@doc:f0",
@@ -511,7 +583,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "19591A6C6C31A1BEB26B02A412C52948",
+              "browserDocumentId" : "06F5C121113375D268295163B54078AD",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -564,78 +636,6 @@
       "genericIndicators" : [ ],
       "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
       "status" : "OBSERVED"
-    },
-    "readiness" : {
-      "basis" : [ "obstáculo(s) de severidade alta: [HUMAN_VERIFICATION]", "todas as regiões observáveis foram inspecionadas" ],
-      "confidence" : "HIGH",
-      "documents" : {
-        "count" : 2,
-        "inaccessible" : 0,
-        "loading" : 0,
-        "maximumFrameDepth" : 1
-      },
-      "elements" : {
-        "interactive" : 6,
-        "observed" : 18
-      },
-      "interactionDependencies" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "obstacles" : [ {
-        "count" : 1,
-        "description" : "Elementos em iframe exigem troca de contexto de documento",
-        "evidence" : [ "1 iframe(s) no documento principal" ],
-        "frameIds" : [ "f1" ],
-        "heuristic" : false,
-        "nodeIds" : [ ],
-        "severity" : "LOW",
-        "type" : "FRAME_CONTEXT"
-      }, {
-        "count" : 1,
-        "description" : "Mecanismo de verificação humana presente (desafio não necessariamente ativo)",
-        "evidence" : [ "GOOGLE RECAPTCHA_V2 (HIGH, CHALLENGE_PRESENT)" ],
-        "frameIds" : [ ],
-        "heuristic" : false,
-        "nodeIds" : [ ],
-        "severity" : "HIGH",
-        "type" : "HUMAN_VERIFICATION"
-      } ],
-      "page" : {
-        "title" : "LAB-P01 — reCAPTCHA v2 (simulado)",
-        "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html"
-      },
-      "protectionStatus" : "OBSERVED",
-      "protections" : [ {
-        "category" : "CAPTCHA",
-        "challengeState" : "CHALLENGE_PRESENT",
-        "confidence" : "HIGH",
-        "documentId" : "doc:f0",
-        "product" : "RECAPTCHA_V2",
-        "provider" : "GOOGLE"
-      } ],
-      "recommendations" : [ {
-        "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "HUMAN_INTERVENTION"
-      }, {
-        "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "ENVIRONMENT_CONFIGURATION"
-      }, {
-        "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "AUTHORIZED_API"
-      } ],
-      "shadowRoots" : {
-        "closed" : 0,
-        "open" : 0
-      },
-      "status" : "REQUIRES_SPECIAL_HANDLING"
-    },
-    "timings" : {
-      "graphMs" : 0.18,
-      "protectionMs" : 0.78,
-      "readinessMs" : 0.23,
-      "totalMs" : 1.2
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

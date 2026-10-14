@@ -16,15 +16,15 @@
       "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
       "runAt" : "document_idle"
     },
-    "tabId" : 896321684
+    "tabId" : 1403983217
   },
   "session" : {
-    "baseCaptureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+    "baseCaptureId" : "cap-ps-mv8flyub-ctzotz-1",
     "consumers" : [ "inspection" ],
     "deltasApplied" : 0,
     "deltasRejected" : 0,
     "deltasStale" : 0,
-    "documentId" : "ps-mv8d1yll-0vkw4s",
+    "documentId" : "ps-mv8flyub-ctzotz",
     "endedAt" : null,
     "epoch" : 1,
     "error" : null,
@@ -32,11 +32,11 @@
     "fullCaptures" : 1,
     "hostState" : "OK",
     "initialCapture" : {
-      "at" : "2026-10-14T17:05:20.593Z",
-      "browserMs" : 619.6,
+      "at" : "2026-10-14T18:16:53.494Z",
+      "browserMs" : 603.1,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d1yll-0vkw4s-1",
-      "captureMs" : 611.1,
+      "captureId" : "cap-ps-mv8flyub-ctzotz-1",
+      "captureMs" : 599.4,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -72,7 +72,7 @@
           "TEXT" : 5171,
           "VALIDATION_MESSAGE" : 2
         },
-        "captureDurationMs" : 611.1,
+        "captureDurationMs" : 599.4,
         "elementCount" : 16628,
         "frames" : [ ],
         "hidden" : 4293,
@@ -85,9 +85,9 @@
         "unknownState" : 0,
         "visible" : 12335
       },
-      "hostMs" : 921.4,
+      "hostMs" : 978,
       "interactive" : 5038,
-      "maxSliceMs" : 17.5,
+      "maxSliceMs" : 11.5,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -114,21 +114,21 @@
       },
       "nodes" : 16628,
       "reason" : "SESSION_START",
-      "slices" : 40,
+      "slices" : 39,
       "text" : 5789,
       "timings" : {
-        "classificationMs" : 194.24,
-        "hostTotalMs" : 616.47,
-        "indexMs" : 72.87
+        "classificationMs" : 180.76,
+        "hostTotalMs" : 651.57,
+        "indexMs" : 53.2
       },
-      "totalMs" : 1541.9
+      "totalMs" : 1582.1
     },
     "lastCapture" : {
-      "at" : "2026-10-14T17:05:20.593Z",
-      "browserMs" : 619.6,
+      "at" : "2026-10-14T18:16:53.494Z",
+      "browserMs" : 603.1,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d1yll-0vkw4s-1",
-      "captureMs" : 611.1,
+      "captureId" : "cap-ps-mv8flyub-ctzotz-1",
+      "captureMs" : 599.4,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -164,7 +164,7 @@
           "TEXT" : 5171,
           "VALIDATION_MESSAGE" : 2
         },
-        "captureDurationMs" : 611.1,
+        "captureDurationMs" : 599.4,
         "elementCount" : 16628,
         "frames" : [ ],
         "hidden" : 4293,
@@ -177,9 +177,9 @@
         "unknownState" : 0,
         "visible" : 12335
       },
-      "hostMs" : 921.4,
+      "hostMs" : 978,
       "interactive" : 5038,
-      "maxSliceMs" : 17.5,
+      "maxSliceMs" : 11.5,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -206,30 +206,30 @@
       },
       "nodes" : 16628,
       "reason" : "SESSION_START",
-      "slices" : 40,
+      "slices" : 39,
       "text" : 5789,
       "timings" : {
-        "classificationMs" : 194.24,
-        "hostTotalMs" : 616.47,
-        "indexMs" : 72.87
+        "classificationMs" : 180.76,
+        "hostTotalMs" : 651.57,
+        "indexMs" : 53.2
       },
-      "totalMs" : 1541.9
+      "totalMs" : 1582.1
     },
     "lastDeltaAt" : null,
     "lastExport" : null,
-    "lastUpdateAt" : "2026-10-14T17:05:20.593Z",
-    "latestCaptureId" : "cap-ps-mv8d1yll-0vkw4s-1",
+    "lastUpdateAt" : "2026-10-14T18:16:53.494Z",
+    "latestCaptureId" : "cap-ps-mv8flyub-ctzotz-1",
     "nodes" : 16628,
     "reason" : "SESSION_START",
     "resyncs" : 0,
-    "sessionId" : "cs-896321684-mv8d1z2i-6cu0",
-    "startedAt" : "2026-10-14T17:05:19.050Z",
+    "sessionId" : "cs-1403983217-mv8flzgn-bffx",
+    "startedAt" : "2026-10-14T18:16:51.911Z",
     "status" : "ACTIVE",
-    "tabId" : 896321684,
+    "tabId" : 1403983217,
     "url" : "https://en.wikipedia.org/wiki/Brazil"
   },
   "heading" : {
-    "conditions" : [ "VISIBLE", "PRESENT", "NON_INTERACTIVE" ],
+    "conditions" : [ "PRESENT", "NON_INTERACTIVE", "VISIBLE" ],
     "confidence" : "HIGH",
     "evidence" : [ "<h1>" ],
     "kind" : "HEADING",
@@ -559,7 +559,7 @@
     "warnings" : [ ]
   },
   "search" : {
-    "conditions" : [ "PRESENT", "VISIBLE", "INTERACTIVE", "ENABLED" ],
+    "conditions" : [ "ENABLED", "PRESENT", "INTERACTIVE", "VISIBLE" ],
     "confidence" : "HIGH",
     "evidence" : [ "<input type=search>" ],
     "kind" : "SEARCH_INPUT",
@@ -987,7 +987,7 @@
     "warnings" : [ ]
   },
   "elements" : 13136,
-  "exportBytes" : 146230930,
+  "exportBytes" : 146229702,
   "pageMapOmitted" : "TOO_LARGE_FOR_MESSAGE",
   "documentUrl" : "https://en.wikipedia.org/wiki/Brazil",
   "frameGraphCounts" : {

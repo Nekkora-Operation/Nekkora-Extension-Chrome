@@ -1,0 +1,17 @@
+{
+  "browser" : "Chrome/155.0.8059.40",
+  "beforeGrant" : "Não autorizado",
+  "site_panelMessageAfterClick" : "",
+  "site_approvalSeconds" : 89.8,
+  "afterGrant" : "Autorizado (este site)",
+  "selection" : "HEADING Brazil",
+  "afterRevoke" : {
+    "code" : "PERMISSION_REVOKED",
+    "message" : "A autorização deste site foi revogada: a inspeção foi encerrada.",
+    "reason" : "PERMISSION_REVOKED"
+  },
+  "broad_panelMessageAfterClick" : "Autorização concedida. Ative a inspeção quando quiser inspecionar a página.",
+  "broad_approvalSeconds" : 0.0,
+  "afterBroad" : "Autorizado (autorização ampla)",
+  "afterBroadRevoke" : "Não autorizado"
+}

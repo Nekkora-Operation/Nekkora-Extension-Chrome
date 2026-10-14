@@ -1,12 +1,11 @@
 {
   "captura" : {
-    "fullCaptures" : 1,
+    "deltas" : 0,
     "nodes" : 8,
-    "deltas" : 0
+    "fullCaptures" : 1
   },
   "hierarquia" : {
     "frames" : [ "f0:null:INSPECTED" ],
-    "maxDepth" : 0,
     "counts" : {
       "documents" : 1,
       "frames" : 0,
@@ -15,17 +14,17 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
-    }
+    },
+    "maxDepth" : 0
   },
   "identificacao" : {
-    "name" : "Verify you are human",
+    "frameChain" : [ ],
+    "targetId" : "tgt-96d7023c-cb2e-4409-956d-7aac08ac3a3a",
     "kind" : "CHECKBOX",
-    "targetId" : "tgt-1121ebf8-f07f-4188-a592-baab8a204a43",
-    "frameChain" : [ ]
+    "name" : "Verify you are human"
   },
   "familia" : {
     "region" : null,
-    "scope" : [ ],
     "form" : {
       "idAttr" : "challenge-form",
       "keyAttributes" : { },
@@ -33,51 +32,10 @@
       "name" : "",
       "nodeId" : "n6",
       "tag" : "form"
-    }
+    },
+    "scope" : [ ]
   },
   "localizadores" : {
-    "primary" : {
-      "css" : "input#caixa",
-      "expected" : {
-        "dialog" : null,
-        "form" : "#challenge-form",
-        "heading" : "127.0.0.1",
-        "kind" : "CHECKBOX",
-        "name" : "Verify you are human",
-        "role" : "checkbox",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n8" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "name" : "id",
-            "type" : "ATTR_EQUALS",
-            "value" : "caixa"
-          } ],
-          "tag" : "input"
-        } ]
-      },
-      "scope" : {
-        "chain" : [ ],
-        "frameId" : "f0",
-        "scopeId" : "doc:f0",
-        "type" : "MAIN_DOCUMENT"
-      },
-      "score" : 0.9,
-      "semantic" : "input {id=caixa}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ "id=\"caixa\": sem indícios de geração dinâmica (inferência)" ],
-      "strategy" : "ID",
-      "warnings" : [ ],
-      "xpath" : "//input[@id=\"caixa\"]"
-    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -506,6 +464,48 @@
         },
         "warnings" : [ ]
       }
+    },
+    "primary" : {
+      "css" : "input#caixa",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#challenge-form",
+        "heading" : "127.0.0.1",
+        "kind" : "CHECKBOX",
+        "name" : "Verify you are human",
+        "role" : "checkbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n8" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "caixa"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.9,
+      "semantic" : "input {id=caixa}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"caixa\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "ID",
+      "warnings" : [ ],
+      "xpath" : "//input[@id=\"caixa\"]"
     }
   },
   "trajetoria" : {
@@ -517,7 +517,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "5D292CA78A8132C7350217820011F45B",
+      "browserDocumentId" : "FB5F748DAE01998C91248E71E05C51D8",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -554,11 +554,74 @@
     "targetNodeId" : "n8"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
+    "timings" : {
+      "graphMs" : 0.06,
+      "protectionMs" : 3.28,
+      "readinessMs" : 0.27,
+      "totalMs" : 3.63
+    },
+    "readiness" : {
+      "basis" : [ "desafio de verificação humana ativo", "todas as regiões observáveis foram inspecionadas" ],
+      "confidence" : "HIGH",
+      "documents" : {
+        "count" : 1,
+        "inaccessible" : 0,
+        "loading" : 0,
+        "maximumFrameDepth" : 0
+      },
+      "elements" : {
+        "interactive" : 1,
+        "observed" : 8
+      },
+      "interactionDependencies" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+      "obstacles" : [ {
+        "count" : 1,
+        "description" : "Desafio de verificação humana ATIVO",
+        "evidence" : [ "CLOUDFLARE CHALLENGE_PAGE (MEDIUM, CHALLENGE_ACTIVE)" ],
+        "frameIds" : [ ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "HIGH",
+        "type" : "HUMAN_VERIFICATION"
+      } ],
+      "page" : {
+        "title" : "Just a moment...",
+        "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+      },
+      "protectionStatus" : "OBSERVED",
+      "protections" : [ {
+        "category" : "CHALLENGE_PAGE",
+        "challengeState" : "CHALLENGE_ACTIVE",
+        "confidence" : "MEDIUM",
+        "documentId" : "doc:f0",
+        "product" : "CHALLENGE_PAGE",
+        "provider" : "CLOUDFLARE"
+      } ],
+      "recommendations" : [ {
+        "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "HUMAN_INTERVENTION"
+      }, {
+        "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "ENVIRONMENT_CONFIGURATION"
+      }, {
+        "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "AUTHORIZED_API"
+      } ],
+      "shadowRoots" : {
+        "closed" : 0,
+        "open" : 0
+      },
+      "status" : "REQUIRES_HUMAN_INTERVENTION"
+    },
     "protection" : {
       "assessments" : [ {
         "assessmentId" : "protection:cloudflare.challenge-page@doc:f0",
@@ -627,7 +690,7 @@
             "shadowDepth" : 0,
             "stability" : "HEURISTIC_STABLE",
             "steps" : [ {
-              "browserDocumentId" : "5D292CA78A8132C7350217820011F45B",
+              "browserDocumentId" : "FB5F748DAE01998C91248E71E05C51D8",
               "documentId" : null,
               "enteredDocumentId" : "doc:f0",
               "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -704,69 +767,6 @@
       } ],
       "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
       "status" : "OBSERVED"
-    },
-    "readiness" : {
-      "basis" : [ "desafio de verificação humana ativo", "todas as regiões observáveis foram inspecionadas" ],
-      "confidence" : "HIGH",
-      "documents" : {
-        "count" : 1,
-        "inaccessible" : 0,
-        "loading" : 0,
-        "maximumFrameDepth" : 0
-      },
-      "elements" : {
-        "interactive" : 1,
-        "observed" : 8
-      },
-      "interactionDependencies" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
-      "obstacles" : [ {
-        "count" : 1,
-        "description" : "Desafio de verificação humana ATIVO",
-        "evidence" : [ "CLOUDFLARE CHALLENGE_PAGE (MEDIUM, CHALLENGE_ACTIVE)" ],
-        "frameIds" : [ ],
-        "heuristic" : false,
-        "nodeIds" : [ ],
-        "severity" : "HIGH",
-        "type" : "HUMAN_VERIFICATION"
-      } ],
-      "page" : {
-        "title" : "Just a moment...",
-        "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
-      },
-      "protectionStatus" : "OBSERVED",
-      "protections" : [ {
-        "category" : "CHALLENGE_PAGE",
-        "challengeState" : "CHALLENGE_ACTIVE",
-        "confidence" : "MEDIUM",
-        "documentId" : "doc:f0",
-        "product" : "CHALLENGE_PAGE",
-        "provider" : "CLOUDFLARE"
-      } ],
-      "recommendations" : [ {
-        "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "HUMAN_INTERVENTION"
-      }, {
-        "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "ENVIRONMENT_CONFIGURATION"
-      }, {
-        "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
-        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
-        "type" : "AUTHORIZED_API"
-      } ],
-      "shadowRoots" : {
-        "closed" : 0,
-        "open" : 0
-      },
-      "status" : "REQUIRES_HUMAN_INTERVENTION"
-    },
-    "timings" : {
-      "graphMs" : 0.05,
-      "protectionMs" : 3.19,
-      "readinessMs" : 0.26,
-      "totalMs" : 3.52
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ]

@@ -7,7 +7,7 @@
   "shadowDepth" : 1,
   "stability" : "HEURISTIC_STABLE",
   "steps" : [ {
-    "browserDocumentId" : "67088F41AD5BDDF4D120FFC668F65116",
+    "browserDocumentId" : "2D2CAEB884597AD7F0BBD83B020E9594",
     "documentId" : null,
     "enteredDocumentId" : "doc:f0",
     "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -31,7 +31,7 @@
     "locator" : "perfil-card#card",
     "locatorStrategy" : "ID",
     "matchCount" : 1,
-    "nodeId" : "n45",
+    "nodeId" : "n46",
     "restriction" : null,
     "stability" : "HEURISTIC_STABLE",
     "type" : "SHADOW_ROOT",
@@ -46,7 +46,7 @@
     "locator" : "button#upgrade",
     "locatorStrategy" : "ID",
     "matchCount" : 1,
-    "nodeId" : "n48",
+    "nodeId" : "n49",
     "restriction" : null,
     "stability" : "HEURISTIC_STABLE",
     "type" : "ELEMENT",
@@ -56,5 +56,5 @@
     "kind" : "BUTTON",
     "name" : "Mudar plano"
   },
-  "targetNodeId" : "n48"
+  "targetNodeId" : "n49"
 }

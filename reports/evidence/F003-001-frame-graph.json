@@ -10,21 +10,21 @@
   },
   "documents" : [ {
     "accessible" : true,
-    "browserDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+    "browserDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
     "documentId" : "doc:f0",
     "elementCount" : 37,
     "frameId" : "f0",
     "kind" : "MAIN",
     "lifecycle" : "ACTIVE",
     "origin" : "http://127.0.0.1:18765",
-    "pageSessionId" : "ps-mv8cydne-atdwix",
+    "pageSessionId" : "ps-mv8fiaa4-gnllyr",
     "queryKeys" : [ ],
     "readyState" : "complete",
     "title" : "Frame Intelligence — hierarquias",
     "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "A99AADC9DDD6AF8A1F7AD28B31D914F5",
+    "browserDocumentId" : "E670EA8E390A74ED90CB94DDF457B7C0",
     "documentId" : "doc:f1",
     "elementCount" : 9,
     "frameId" : "f1",
@@ -38,7 +38,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "DA227E3355CB15FFDA220439F41A870D",
+    "browserDocumentId" : "494FD3D4EABD81334AAC903354179B6A",
     "documentId" : "doc:f2",
     "elementCount" : 6,
     "frameId" : "f2",
@@ -52,7 +52,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "D159560E8DB25DFB2FC29006F4CB7AAD",
+    "browserDocumentId" : "F74D299A8550D86849D5A139C8F15CEC",
     "documentId" : "doc:f3",
     "elementCount" : 9,
     "frameId" : "f3",
@@ -66,7 +66,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "C8EA49F5B597F050DE53FACD8FAE3F79",
+    "browserDocumentId" : "A712D09F8825A7C845723AA1AC5B220D",
     "documentId" : "doc:f4",
     "elementCount" : 10,
     "frameId" : "f4",
@@ -80,7 +80,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "4AC89E63F6E1FBA061F39851D85D36B4",
+    "browserDocumentId" : "3E85CAFDF02CEBE2137F60744F7DF8C8",
     "documentId" : "doc:f5",
     "elementCount" : 5,
     "frameId" : "f5",
@@ -94,7 +94,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "D955412BC9EAA8607ED3DBE7A5355E6C",
+    "browserDocumentId" : "375776011AB220B1AD2A06508B087C65",
     "documentId" : "doc:f6",
     "elementCount" : 4,
     "frameId" : "f6",
@@ -108,7 +108,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "88461377E360E84245D03B9E524015E4",
+    "browserDocumentId" : "80E4F2D8448A22ABF048DCB6848290BA",
     "documentId" : "doc:f7",
     "elementCount" : 4,
     "frameId" : "f7",
@@ -122,7 +122,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "E7C1BEAD09D3EEAAF265C8065B82F98B",
+    "browserDocumentId" : "A0D47F63E3A79A613F1A88E821AAA97F",
     "documentId" : "doc:f8",
     "elementCount" : 4,
     "frameId" : "f8",
@@ -136,7 +136,7 @@
     "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
   }, {
     "accessible" : true,
-    "browserDocumentId" : "AC1B2E444CE18F522990FDE614F5029F",
+    "browserDocumentId" : "BBCD5B30A20EBF84EA7CADEB630E794E",
     "documentId" : "doc:f9",
     "elementCount" : 4,
     "frameId" : "f9",
@@ -151,7 +151,7 @@
   } ],
   "frames" : [ {
     "browser" : {
-      "browserDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "browserDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "browserFrameId" : 0,
       "documentLifecycle" : "active",
       "frameType" : "outermost_frame",
@@ -193,7 +193,7 @@
     "title" : null
   }, {
     "browser" : {
-      "browserDocumentId" : "A99AADC9DDD6AF8A1F7AD28B31D914F5",
+      "browserDocumentId" : "E670EA8E390A74ED90CB94DDF457B7C0",
       "browserFrameId" : 493,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -201,7 +201,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
@@ -246,7 +246,7 @@
     "title" : "Contas"
   }, {
     "browser" : {
-      "browserDocumentId" : "DA227E3355CB15FFDA220439F41A870D",
+      "browserDocumentId" : "494FD3D4EABD81334AAC903354179B6A",
       "browserFrameId" : 494,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -254,7 +254,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/financeiro.html"
@@ -299,7 +299,7 @@
     "title" : "Financeiro"
   }, {
     "browser" : {
-      "browserDocumentId" : "D159560E8DB25DFB2FC29006F4CB7AAD",
+      "browserDocumentId" : "F74D299A8550D86849D5A139C8F15CEC",
       "browserFrameId" : 500,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -307,7 +307,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 494,
-      "parentDocumentId" : "DA227E3355CB15FFDA220439F41A870D",
+      "parentDocumentId" : "494FD3D4EABD81334AAC903354179B6A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
@@ -352,7 +352,7 @@
     "title" : "Contas a pagar"
   }, {
     "browser" : {
-      "browserDocumentId" : "C8EA49F5B597F050DE53FACD8FAE3F79",
+      "browserDocumentId" : "A712D09F8825A7C845723AA1AC5B220D",
       "browserFrameId" : 501,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -360,7 +360,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 494,
-      "parentDocumentId" : "DA227E3355CB15FFDA220439F41A870D",
+      "parentDocumentId" : "494FD3D4EABD81334AAC903354179B6A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/pagamentos.html"
@@ -405,7 +405,7 @@
     "title" : "Pagamentos"
   }, {
     "browser" : {
-      "browserDocumentId" : "4AC89E63F6E1FBA061F39851D85D36B4",
+      "browserDocumentId" : "3E85CAFDF02CEBE2137F60744F7DF8C8",
       "browserFrameId" : 499,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -413,7 +413,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/widget.html"
@@ -458,7 +458,7 @@
     "title" : "Widget de suporte"
   }, {
     "browser" : {
-      "browserDocumentId" : "D955412BC9EAA8607ED3DBE7A5355E6C",
+      "browserDocumentId" : "375776011AB220B1AD2A06508B087C65",
       "browserFrameId" : 495,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -466,7 +466,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
@@ -511,7 +511,7 @@
     "title" : "Filial Norte"
   }, {
     "browser" : {
-      "browserDocumentId" : "88461377E360E84245D03B9E524015E4",
+      "browserDocumentId" : "80E4F2D8448A22ABF048DCB6848290BA",
       "browserFrameId" : 496,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -519,7 +519,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/filial.html"
@@ -564,7 +564,7 @@
     "title" : "Filial Sul"
   }, {
     "browser" : {
-      "browserDocumentId" : "E7C1BEAD09D3EEAAF265C8065B82F98B",
+      "browserDocumentId" : "A0D47F63E3A79A613F1A88E821AAA97F",
       "browserFrameId" : 497,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -572,7 +572,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"
@@ -617,7 +617,7 @@
     "title" : null
   }, {
     "browser" : {
-      "browserDocumentId" : "AC1B2E444CE18F522990FDE614F5029F",
+      "browserDocumentId" : "BBCD5B30A20EBF84EA7CADEB630E794E",
       "browserFrameId" : 498,
       "documentLifecycle" : "active",
       "frameType" : "sub_frame",
@@ -625,7 +625,7 @@
       "inspection" : "CAPTURED_BY_PARENT",
       "mapping" : "HANDSHAKE",
       "parentBrowserFrameId" : 0,
-      "parentDocumentId" : "E8AEDEEE0EA577C4DE29708F648B3BC9",
+      "parentDocumentId" : "322B54EFEAA800DD518DCCE9F69B274A",
       "reason" : null,
       "source" : null,
       "url" : "http://127.0.0.1:18765/lab/chrome003/painel.html"

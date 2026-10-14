@@ -90,7 +90,7 @@
         "shadowDepth" : 0,
         "stability" : "HEURISTIC_STABLE",
         "steps" : [ {
-          "browserDocumentId" : "D2A8ED75C00FF7F91BF076EA4300599E",
+          "browserDocumentId" : "48977304AC68FB6A14740FEDBD225FC0",
           "documentId" : null,
           "enteredDocumentId" : "doc:f0",
           "expectedCondition" : "DOCUMENT_ACTIVE",

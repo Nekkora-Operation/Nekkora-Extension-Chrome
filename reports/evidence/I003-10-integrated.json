@@ -1,12 +1,11 @@
 {
   "captura" : {
-    "fullCaptures" : 1,
+    "deltas" : 0,
     "nodes" : 175,
-    "deltas" : 0
+    "fullCaptures" : 1
   },
   "hierarquia" : {
     "frames" : [ "f0:null:INSPECTED", "f1:Frame 1 nível 1:INSPECTED", "f2:Frame 1 nível 2:INSPECTED", "f3:Frame 1 nível 3:INSPECTED", "f4:Frame 2 nível 1:INSPECTED", "f5:Frame 2 nível 2:INSPECTED", "f6:Frame 2 nível 3:INSPECTED", "f7:Frame 3 nível 1:INSPECTED", "f8:Frame 3 nível 2:INSPECTED", "f9:Frame 3 nível 3:INSPECTED", "f10:Frame 4 nível 1:INSPECTED", "f11:Frame 4 nível 2:INSPECTED", "f12:Frame 4 nível 3:INSPECTED", "f13:Frame 5 nível 1:INSPECTED", "f14:Frame 5 nível 2:INSPECTED", "f15:Frame 5 nível 3:INSPECTED", "f16:Frame 6 nível 1:INSPECTED", "f17:Frame 6 nível 2:INSPECTED", "f18:Frame 6 nível 3:INSPECTED", "f19:Frame 7 nível 1:INSPECTED", "f20:Frame 7 nível 2:INSPECTED", "f21:Frame 7 nível 3:INSPECTED", "f22:Frame 8 nível 1:INSPECTED", "f23:Frame 8 nível 2:INSPECTED", "f24:Frame 8 nível 3:INSPECTED", "f25:Frame 9 nível 1:INSPECTED", "f26:Frame 9 nível 2:INSPECTED", "f27:Frame 9 nível 3:INSPECTED", "f28:Frame 10 nível 1:INSPECTED", "f29:Frame 10 nível 2:INSPECTED", "f30:Frame 10 nível 3:INSPECTED" ],
-    "maxDepth" : 3,
     "counts" : {
       "documents" : 31,
       "frames" : 30,
@@ -15,12 +14,10 @@
       "loading" : 0,
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
-    }
+    },
+    "maxDepth" : 3
   },
   "identificacao" : {
-    "name" : "Confirmar 7",
-    "kind" : "BUTTON",
-    "targetId" : "tgt-d6188bc8-7b8b-4b1d-a80e-19a66ff61d81",
     "frameChain" : [ {
       "container" : "region:Bloco 7",
       "depth" : 1,
@@ -54,7 +51,10 @@
       "stableAttributes" : { },
       "title" : "Frame 7 nível 3",
       "urlPath" : "/generated/frame"
-    } ]
+    } ],
+    "targetId" : "tgt-d9642eb3-9579-4af7-82c8-85935f9a509e",
+    "kind" : "BUTTON",
+    "name" : "Confirmar 7"
   },
   "familia" : {
     "region" : {
@@ -66,6 +66,16 @@
       "name" : "Bloco 7",
       "nodeId" : "n12",
       "tag" : "section"
+    },
+    "form" : {
+      "idAttr" : null,
+      "keyAttributes" : {
+        "aria-label" : "Formulário 7"
+      },
+      "kind" : "FORM",
+      "name" : "Formulário 7",
+      "nodeId" : "n124",
+      "tag" : "form"
     },
     "scope" : [ {
       "idAttr" : null,
@@ -88,122 +98,9 @@
       "name" : "Frame 7 nível 3",
       "nodeId" : "n120",
       "tag" : "iframe"
-    } ],
-    "form" : {
-      "idAttr" : null,
-      "keyAttributes" : {
-        "aria-label" : "Formulário 7"
-      },
-      "kind" : "FORM",
-      "name" : "Formulário 7",
-      "nodeId" : "n124",
-      "tag" : "form"
-    }
+    } ]
   },
   "localizadores" : {
-    "primary" : {
-      "css" : null,
-      "expected" : {
-        "dialog" : null,
-        "form" : "Formulário 7",
-        "heading" : null,
-        "kind" : "BUTTON",
-        "name" : "Confirmar 7",
-        "role" : "button",
-        "rowKey" : { },
-        "table" : null
-      },
-      "live" : null,
-      "matchCount" : 1,
-      "matchedNodeIds" : [ "n127" ],
-      "matchesTarget" : true,
-      "query" : {
-        "steps" : [ {
-          "axis" : "DESCENDANT",
-          "predicates" : [ {
-            "role" : "button",
-            "type" : "ROLE_IS"
-          }, {
-            "name" : "Confirmar 7",
-            "type" : "NAME_EQUALS"
-          } ],
-          "tag" : null
-        } ]
-      },
-      "scope" : {
-        "chain" : [ {
-          "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
-          "hostNodeId" : "n112",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "aria-label",
-                "type" : "ATTR_EQUALS",
-                "value" : "Bloco 7"
-              } ],
-              "tag" : "section"
-            }, {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "title",
-                "type" : "ATTR_EQUALS",
-                "value" : "Frame 7 nível 1"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
-        }, {
-          "css" : "iframe[title=\"Frame 7 nível 2\"]",
-          "hostNodeId" : "n116",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "title",
-                "type" : "ATTR_EQUALS",
-                "value" : "Frame 7 nível 2"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
-        }, {
-          "css" : "iframe[title=\"Frame 7 nível 3\"]",
-          "hostNodeId" : "n120",
-          "kind" : "FRAME",
-          "matchCount" : 1,
-          "query" : {
-            "steps" : [ {
-              "axis" : "DESCENDANT",
-              "predicates" : [ {
-                "name" : "title",
-                "type" : "ATTR_EQUALS",
-                "value" : "Frame 7 nível 3"
-              } ],
-              "tag" : "iframe"
-            } ]
-          },
-          "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
-        } ],
-        "frameId" : "f21",
-        "scopeId" : "doc:f21",
-        "type" : "FRAME"
-      },
-      "score" : 0.712,
-      "semantic" : "* {role=button} {name=\"Confirmar 7\"}",
-      "stability" : "HEURISTIC_STABLE",
-      "stabilityBasis" : "HEURISTIC",
-      "stabilityReasons" : [ ],
-      "strategy" : "ROLE_NAME",
-      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
-      "xpath" : null
-    },
     "verification" : {
       "agreement" : [ {
         "agrees" : true,
@@ -684,6 +581,109 @@
         },
         "warnings" : [ "SCOPED: executar dentro de FRAME (3 salto(s))" ]
       }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "Formulário 7",
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Confirmar 7",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n127" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Confirmar 7",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+          "hostNodeId" : "n112",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "aria-label",
+                "type" : "ATTR_EQUALS",
+                "value" : "Bloco 7"
+              } ],
+              "tag" : "section"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 1"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+        }, {
+          "css" : "iframe[title=\"Frame 7 nível 2\"]",
+          "hostNodeId" : "n116",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 2"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+        }, {
+          "css" : "iframe[title=\"Frame 7 nível 3\"]",
+          "hostNodeId" : "n120",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 3"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+        } ],
+        "frameId" : "f21",
+        "scopeId" : "doc:f21",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Confirmar 7\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
     }
   },
   "trajetoria" : {
@@ -695,7 +695,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "EB86DD66810BEE6FAACC060EE7E0E88D",
+      "browserDocumentId" : "F091086F0F5090FF456B20FAB45D99B9",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -710,7 +710,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/generated/frames"
     }, {
-      "browserDocumentId" : "3317E9EF527D268C869FD7604B90FC06",
+      "browserDocumentId" : "52B1BF9E3ED7005C7C2A4A40909EFE5C",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f19",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -736,7 +736,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "305B529D31629F6C7FB3C433D604DE52",
+      "browserDocumentId" : "68F0039DF33CF584581CB5AA42780AAE",
       "documentId" : "doc:f19",
       "enteredDocumentId" : "doc:f20",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -762,7 +762,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "1AFA1B4236C84E47EF3A46C809382A0C",
+      "browserDocumentId" : "B306BD9F0863D7EB5402A36DDC728AC5",
       "documentId" : "doc:f20",
       "enteredDocumentId" : "doc:f21",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -810,17 +810,16 @@
     "targetNodeId" : "n127"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 1.8,
+      "protectionMs" : 1.27,
+      "readinessMs" : 0.27,
+      "totalMs" : 3.34
     },
     "readiness" : {
       "basis" : [ "obstáculo(s) de severidade média: [NESTED_IFRAME]", "todas as regiões observáveis foram inspecionadas" ],
@@ -864,11 +863,12 @@
       },
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
-    "timings" : {
-      "graphMs" : 1.57,
-      "protectionMs" : 1.33,
-      "readinessMs" : 0.31,
-      "totalMs" : 3.23
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

@@ -10,11 +10,12 @@ Branch `feat/nekkora-real-web-pilot` (base `5bcc108`, CHROME-003 integrada). Dat
 
 | Item | Resultado |
 |---|---|
-| Homologação no navegador (suíte padrão, Chrome for Testing 155) | **186/186** em 10 min 1 s (Chrome for Testing 155.0.8059.39, Java 21.0.12, Windows 11) |
+| Homologação no navegador (suíte padrão, Chrome for Testing 155) | **186/186** em 10 min 10 s (Chrome for Testing 155.0.8059.39, Java 21.0.12, Windows 11) |
 | — linha de base (CHROME-001/002/003, sem remoções nem afrouxamentos) | 174/174 |
 | — novos (R001-01..11 em hosts "externos" de teste, RP-01 desempenho) | 12/12 |
+| Diálogo nativo de permissão, Chrome 155 convencional, aprovação humana (R001-12) | **1/1** |
 | Página real autorizada (Wikipedia, `-Suite real`) | **5/5** (RW-01..05) em 38 s; matriz em [test-matrix-real-web.md](test-matrix-real-web.md) |
-| Unitários Java core / host / laboratório · contrato · extensão (Node) | 174 / 27 / 4 · 2 · 25 — todos aprovados |
+| Unitários Java core / host / laboratório · contrato · extensão (Node) | 175 / 27 / 4 · 2 · 26 — todos aprovados |
 
 ## 2. Permissões
 
@@ -52,9 +53,11 @@ Decisões D-053..D-064 em [docs/decisions.md](../docs/decisions.md).
 - Textos e atributos de texto livre: e-mail, CPF, CNPJ, cartão (Luhn), telefone, JWT/Bearer mascarados.
 - Valores redigidos/mascarados nunca viram localizadores.
 - Persistência: nada de sites externos é gravado em disco sem exportação explícita; logs sem conteúdo de página.
-- **R001-10**: 15 valores fictícios plantados (tokens em consulta/fragmento/caminho/`data-*`, URL assinada, `fetch`
-  com chave, `sid` de iframe, e-mail/CPF/telefone/cartão) — **nenhum** encontrado no PageMap exportado, na sessão, nos
-  eventos, no grafo nem em qualquer arquivo do motor (inclusive o log). Evidência:
+- **R001-10**: 20 valores fictícios plantados (tokens em consulta/fragmento/caminho/`data-*`, URL assinada, `fetch`
+  com chave, `sid` de iframe, e-mail/CPF/telefone/cartão e — após a revisão do PR #3 — senha curta em `data-password`,
+  URL com token em `data-reset-url`, chave de API e PIN em JSON de `data-config`, `x-session-token`) — **nenhum**
+  encontrado no snapshot bruto, no PageMap exportado, na sessão, nos eventos, no grafo nem em qualquer arquivo do motor
+  (inclusive o log). Evidência:
   [R001-10-sensitive-data-check.json](evidence/R001-10-sensitive-data-check.json).
 - Diagnóstico de proteções continua estritamente passivo; nenhuma recomendação de contorno; nada de CAPTCHA,
   fingerprint ou simulação humana.
@@ -74,7 +77,7 @@ Pendência de segurança da revisão do PR #2 (`document.frames[].url` com URL c
 | 7 | Tecnologia de proteção observável | R001-07, RW-04 | aprovado com fixture simulada em origem externa (reCAPTCHA v2 DETECTED; falso positivo NOT_OBSERVED); na Wikipedia nenhuma tecnologia observada e a página de criação de conta é de outra origem (§6) |
 | 8 | Desativação e reativação | R001-08, RW-05 | aprovado (ouvintes/observadores = 0; nova sessão) |
 | 9 | Revogação durante a sessão | R001-09, RW-05 | aprovado (frame ⇒ PERMISSION_DENIED; página ⇒ sessão e inspeção encerradas com PERMISSION_REVOKED; reconcessão restabelece) |
-| 10 | Exportação sem informações sensíveis | R001-10, RW-01 | aprovado (nenhum dos 15 valores plantados; nenhum e-mail no PageMap da Wikipedia) |
+| 10 | Exportação sem informações sensíveis | R001-10, RW-01 | aprovado (nenhum dos 20 valores plantados; nenhum e-mail no PageMap da Wikipedia) |
 
 ### Página real — Wikipedia (autorizada pela usuária para o teste)
 
@@ -109,12 +112,12 @@ tamanho, página nova a cada execução; 1ª seleção = fria, 10 seguintes = aq
 
 | Métrica | amostras | mediana | p95 | média | desvio | CV | mín. | máx. |
 |---|---|---|---|---|---|---|---|---|
-| 5000 · início da sessão | 7 | 230.9 | 254.1 | 231.5 | 11.3 | 4.9% | 221.6 | 254.1 |
-| 5000 · seleção FRIA (1ª) | 7 | 54.9 | 63.3 | 56.0 | 3.7 | 6.6% | 52.7 | 63.3 |
-| 5000 · seleção AQUECIDA | 70 | 42.6 | 78.9 | 46.4 | 11.6 | 25.0% | 37.6 | 88.4 |
-| 10000 · início da sessão | 7 | 503.0 | 560.9 | 514.6 | 23.8 | 4.6% | 495.0 | 560.9 |
-| 10000 · seleção FRIA (1ª) | 7 | 84.6 | 91.7 | 85.7 | 4.4 | 5.1% | 80.1 | 91.7 |
-| 10000 · seleção AQUECIDA | 70 | 61.8 | 130.7 | 74.2 | 28.5 | 38.4% | 51.0 | 159.7 |
+| 5000 · início da sessão | 7 | 241.6 | 265.3 | 242.7 | 11.4 | 4.7% | 227.0 | 265.3 |
+| 5000 · seleção FRIA (1ª) | 7 | 61.0 | 64.9 | 60.8 | 2.7 | 4.5% | 57.2 | 64.9 |
+| 5000 · seleção AQUECIDA | 70 | 46.4 | 88.7 | 50.1 | 13.8 | 27.5% | 38.0 | 99.9 |
+| 10000 · início da sessão | 7 | 540.3 | 596.2 | 547.8 | 28.3 | 5.2% | 519.6 | 596.2 |
+| 10000 · seleção FRIA (1ª) | 7 | 92.5 | 94.3 | 91.9 | 2.9 | 3.2% | 85.6 | 94.3 |
+| 10000 · seleção AQUECIDA | 70 | 65.2 | 143.2 | 79.6 | 30.2 | 38.0% | 55.3 | 165.8 |
 
 Rodada isolada (JVM do motor recém-iniciada, [performance-isolated-jvm-cold.md](real-001/performance-isolated-jvm-cold.md)):
 a **primeira** execução é o ponto fora da curva —
@@ -127,12 +130,12 @@ a **primeira** execução é o ponto fora da curva —
 (máximo = 1ª execução: início 1.064 ms e 1ª seleção 303 ms, contra ≈ 240 ms e ≈ 55 ms nas seguintes).
 
 **Conclusão sobre a oscilação 86 × 127 ms (CHROME-003)**: em 10.000 elementos a seleção fria é estável (CV ≈ 5%,
-80–92 ms), mas a aquecida tem cauda longa (mediana ≈ 62 ms, p95 ≈ 131 ms, máx. ≈ 160 ms; CV ≈ 38%) e a primeira
+86–94 ms), mas a aquecida tem cauda longa (mediana ≈ 65 ms, p95 ≈ 143 ms, máx. ≈ 166 ms; CV ≈ 38%) e a primeira
 medição após iniciar a JVM é várias vezes mais lenta. Os valores 86, 92 e 127 ms medidos uma vez cada estão dentro
 dessa distribuição: **não há evidência de regressão**, e uma única medição não permite concluir nada.
 
 Comparação com o baseline (D003-002 na mesma rodada, procedimento C002-038, 10.000 elementos, agora / CHROME-002):
-sessão 283 / 280 ms, seleção 89 / 86 ms, exportação em fluxo 1.052 / 1.067 ms — dentro da variação.
+sessão 294 / 280 ms, seleção 88 / 86 ms, exportação em fluxo 1.054 / 1.067 ms — dentro da variação.
 
 ## 8. Defeitos encontrados e corrigidos
 
@@ -165,9 +168,8 @@ detecção de proteções de fornecedores reais não homologada; PageMaps de pá
 
 ## 11. Pendência para a usuária
 
-- **Verificação manual do diálogo do Chrome** (não automatizada por segurança): abrir um site http/https não
-  autorizado, abrir o painel, clicar "Autorizar este site", aceitar no diálogo do Chrome, ativar a inspeção; depois
-  "Revogar acesso a este site". Repetir com "Autorizar todos os sites…".
+- ~~Verificação manual do diálogo do Chrome~~ — **concluída** (§13, R001-12): aprovação humana no Google Chrome
+  155.0.8059.40 convencional.
 - Licença do repositório: não modificada.
 - Nekkora Studio: **não** iniciado.
 
@@ -178,3 +180,42 @@ detecção de proteções de fornecedores reais não homologada; PageMaps de pá
 .\scripts\run-tests.ps1 -Suite integration -Test "Real001PilotIT,Real001PerformanceIT"
 .\scripts\run-tests.ps1 -Suite real                # Wikipedia (internet)
 ```
+
+## 13. Revisão do PR #3
+
+### P1 — atributos personalizados podiam expor segredos (corrigido)
+
+`data-*` só era redigido com valor ≥ 16 caracteres com aparência de segredo: `data-password="hunter2"` e
+`data-reset-url="https://example.test/reset?token=abc123"` passavam. Correção (D-065), idêntica no navegador
+(`privacy.js › sanitizeAttribute`) e no motor (`AttributePrivacy`), conferida pelos vetores compartilhados (35 casos de
+atributos): todo atributo **não estrutural** — `data-*` e personalizados — tem nome sensível ⇒ `[redacted]`; URL
+inteira ou embutida ⇒ política de URLs; pares `chave=valor`/JSON com chave sensível ⇒ valor `REDACTED`; segredo longo
+⇒ `[redacted]`; dados pessoais ⇒ mascarados. Atributos genéricos de componentes (`data-state="open"`) e os do
+laboratório continuam intactos. Testes: `PrivacyTest` (+1), `privacy.test.js` (+1), vetores, R001-10 ampliado para 20
+valores e verificação do snapshot bruto.
+
+Durante a correção, um bloco removido do `capture.js` levou junto a constante que preserva `#frame=challenge` do
+hCaptcha; a regressão completa acusou (P003-003, P003-014, N003) e a constante foi restaurada antes da rodada final.
+
+Também corrigido: "Revogar autorização ampla" removia só o padrão que casava com a aba (`http://*/*` ou
+`https://*/*`); agora remove o par.
+
+### Diálogo nativo de permissão (verificado com aprovação humana)
+
+`Real001PermissionDialogManualIT` (R001-12, fora da suíte padrão) no **Google Chrome 155.0.8059.40 convencional** com a
+extensão **publicada** (nada concedido na instalação); a automação só clica nos botões do painel, a usuária aprovou os
+diálogos:
+
+| Passo | Resultado |
+|---|---|
+| Antes | painel "Não autorizado" (`en.wikipedia.org`) |
+| "Autorizar este site" → diálogo do Chrome → aprovado | "Autorizado (este site)"; inspeção ativada na aba aberta ANTES da autorização (injeção nos frames que faltavam); `#firstHeading` → HEADING "Brazil" |
+| "Revogar acesso a este site" | permissão removida; inspeção encerrada com `PERMISSION_REVOKED`; painel "Não autorizado" |
+| "Autorizar todos os sites…" | segunda confirmação exibida e nada concedido só com o 1º clique |
+| "Confirmar autorização ampla" → diálogo → aprovado | "Autorizado (autorização ampla)" em `pt.wikipedia.org`; inspeção ativa |
+| "Revogar autorização ampla" | `https://*/*` e `http://*/*` removidos; inspeção encerrada; "Não autorizado" |
+
+Evidências: [R001-12-permission-dialog-manual.json](evidence/R001-12-permission-dialog-manual.json) e capturas
+`R001-12-panel-*.png`. Observação prática: no Windows a janela do Chrome de teste pode abrir atrás das demais — o
+diálogo fica dentro dela (as duas primeiras tentativas esgotaram a espera por isso).
+

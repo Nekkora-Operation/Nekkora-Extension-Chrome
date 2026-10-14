@@ -1,11 +1,11 @@
 {
   "session" : {
-    "baseCaptureId" : "cap-ps-mv8d2fta-9y1q0t-1",
+    "baseCaptureId" : "cap-ps-mv8fmgma-3oxfy3-1",
     "consumers" : [ "rw-observer" ],
     "deltasApplied" : 2,
     "deltasRejected" : 0,
     "deltasStale" : 0,
-    "documentId" : "ps-mv8d2fta-9y1q0t",
+    "documentId" : "ps-mv8fmgma-3oxfy3",
     "endedAt" : null,
     "epoch" : 1,
     "error" : null,
@@ -13,11 +13,11 @@
     "fullCaptures" : 1,
     "hostState" : "OK",
     "initialCapture" : {
-      "at" : "2026-10-14T17:05:42.030Z",
-      "browserMs" : 552.4,
+      "at" : "2026-10-14T18:17:15.437Z",
+      "browserMs" : 539.9,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d2fta-9y1q0t-1",
-      "captureMs" : 547.5,
+      "captureId" : "cap-ps-mv8fmgma-3oxfy3-1",
+      "captureMs" : 534,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -53,7 +53,7 @@
           "TEXT" : 5171,
           "VALIDATION_MESSAGE" : 2
         },
-        "captureDurationMs" : 547.5,
+        "captureDurationMs" : 534,
         "elementCount" : 16628,
         "frames" : [ ],
         "hidden" : 4293,
@@ -66,9 +66,9 @@
         "unknownState" : 0,
         "visible" : 12335
       },
-      "hostMs" : 436.2,
+      "hostMs" : 440.7,
       "interactive" : 5038,
-      "maxSliceMs" : 14.6,
+      "maxSliceMs" : 16.6,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -95,21 +95,21 @@
       },
       "nodes" : 16628,
       "reason" : "SESSION_START",
-      "slices" : 44,
+      "slices" : 42,
       "text" : 5789,
       "timings" : {
-        "classificationMs" : 57.21,
-        "hostTotalMs" : 217.84,
-        "indexMs" : 26.56
+        "classificationMs" : 58.64,
+        "hostTotalMs" : 258.22,
+        "indexMs" : 26.91
       },
-      "totalMs" : 989.3
+      "totalMs" : 981.4
     },
     "lastCapture" : {
-      "at" : "2026-10-14T17:05:42.030Z",
-      "browserMs" : 552.4,
+      "at" : "2026-10-14T18:17:15.437Z",
+      "browserMs" : 539.9,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8d2fta-9y1q0t-1",
-      "captureMs" : 547.5,
+      "captureId" : "cap-ps-mv8fmgma-3oxfy3-1",
+      "captureMs" : 534,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -145,7 +145,7 @@
           "TEXT" : 5171,
           "VALIDATION_MESSAGE" : 2
         },
-        "captureDurationMs" : 547.5,
+        "captureDurationMs" : 534,
         "elementCount" : 16628,
         "frames" : [ ],
         "hidden" : 4293,
@@ -158,9 +158,9 @@
         "unknownState" : 0,
         "visible" : 12335
       },
-      "hostMs" : 436.2,
+      "hostMs" : 440.7,
       "interactive" : 5038,
-      "maxSliceMs" : 14.6,
+      "maxSliceMs" : 16.6,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -187,35 +187,35 @@
       },
       "nodes" : 16628,
       "reason" : "SESSION_START",
-      "slices" : 44,
+      "slices" : 42,
       "text" : 5789,
       "timings" : {
-        "classificationMs" : 57.21,
-        "hostTotalMs" : 217.84,
-        "indexMs" : 26.56
+        "classificationMs" : 58.64,
+        "hostTotalMs" : 258.22,
+        "indexMs" : 26.91
       },
-      "totalMs" : 989.3
+      "totalMs" : 981.4
     },
-    "lastDeltaAt" : "2026-10-14T17:05:42.851Z",
+    "lastDeltaAt" : "2026-10-14T18:17:16.338Z",
     "lastExport" : null,
-    "lastUpdateAt" : "2026-10-14T17:05:42.851Z",
-    "latestCaptureId" : "cap-ps-mv8d2fta-9y1q0t-3",
+    "lastUpdateAt" : "2026-10-14T18:17:16.338Z",
+    "latestCaptureId" : "cap-ps-mv8fmgma-3oxfy3-3",
     "nodes" : 16628,
     "reason" : "SESSION_START",
     "resyncs" : 0,
-    "sessionId" : "cs-896321690-mv8d2g1c-ri2c",
-    "startedAt" : "2026-10-14T17:05:41.040Z",
+    "sessionId" : "cs-1403983223-mv8fmguw-vy35",
+    "startedAt" : "2026-10-14T18:17:14.456Z",
     "status" : "ACTIVE",
-    "tabId" : 896321690,
+    "tabId" : 1403983223,
     "url" : "https://en.wikipedia.org/wiki/Brazil"
   },
   "sync" : {
     "epoch" : 1,
-    "latestCaptureId" : "cap-ps-mv8d2fta-9y1q0t-3",
-    "ms" : 0.9,
+    "latestCaptureId" : "cap-ps-mv8fmgma-3oxfy3-3",
+    "ms" : 1.9,
     "nodes" : 16628,
     "pending" : 0,
-    "sessionId" : "cs-896321690-mv8d2g1c-ri2c",
+    "sessionId" : "cs-1403983223-mv8fmguw-vy35",
     "syncState" : "SYNCHRONIZED",
     "unconfirmed" : [ ]
   },

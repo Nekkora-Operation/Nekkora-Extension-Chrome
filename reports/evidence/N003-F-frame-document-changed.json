@@ -1,7 +1,7 @@
 {
   "attributeChanges" : { },
   "candidates" : [ ],
-  "captureId" : "cap-ps-mv8cytfl-psy0m9-2",
+  "captureId" : "cap-ps-mv8fiqly-723ugw-2",
   "diagnostics" : [ "FRAME_DOCUMENT_CHANGED" ],
   "evidence" : [ "0 candidato(s) avaliado(s): 0 confirmado(s), 0 plausível(is) sem comprovação", "O nó n29 foi removido da página nesta sessão e não há substituto confirmável" ],
   "locatorChecks" : [ {
@@ -36,7 +36,7 @@
   "scope" : "AVAILABLE: [doc:f6]",
   "score" : 0,
   "status" : "STALE_TARGET",
-  "targetId" : "tgt-54215d50-a1d3-423c-bb80-965189e0a537",
+  "targetId" : "tgt-9403de47-b95a-4086-a55a-5fb5eb43e579",
   "updatedIdentity" : null,
   "updatedLocators" : null
 }

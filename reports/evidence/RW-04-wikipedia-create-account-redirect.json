@@ -16,7 +16,7 @@
       "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
       "runAt" : "document_idle"
     },
-    "tabId" : 896321693
+    "tabId" : 1403983226
   },
   "finalOrigin" : "https://auth.wikimedia.org"
 }

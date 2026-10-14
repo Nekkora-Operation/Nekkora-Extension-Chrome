@@ -1,6 +1,6 @@
 {
-  "browserMs" : 4.4,
-  "captureId" : "cap-ps-mv8czd72-7nklzg-1",
+  "browserMs" : 4.3,
+  "captureId" : "cap-ps-mv8fjaph-2m8uzg-1",
   "counts" : {
     "documents" : 3,
     "frames" : 2,
@@ -74,7 +74,7 @@
           "shadowDepth" : 0,
           "stability" : "HEURISTIC_STABLE",
           "steps" : [ {
-            "browserDocumentId" : "47E98CC7119AB123B95BE4044304D268",
+            "browserDocumentId" : "970F13D70C70F61B9FB43A2F4DAC4589",
             "documentId" : null,
             "enteredDocumentId" : "doc:f0",
             "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -89,7 +89,7 @@
             "type" : "MAIN_DOCUMENT",
             "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-in-iframe.html"
           }, {
-            "browserDocumentId" : "A0526F96E93FF64069CE252C0C949BF6",
+            "browserDocumentId" : "081DE92724D0F8462E90EAAF916247F4",
             "documentId" : "doc:f0",
             "enteredDocumentId" : "doc:f1",
             "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-frame.html)",
@@ -115,7 +115,7 @@
             "type" : "IFRAME",
             "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p08-frame.html"
           }, {
-            "browserDocumentId" : "734FEBF9A2BFD13ECBA98B957EA4E830",
+            "browserDocumentId" : "1BC8A31C55CC114BEC85A92256DDAD3A",
             "documentId" : "doc:f1",
             "enteredDocumentId" : "doc:f2",
             "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/protection/p08-inner.html)",
@@ -248,9 +248,9 @@
   },
   "syncState" : "SYNCHRONIZED",
   "timings" : {
-    "graphMs" : 0.13,
-    "protectionMs" : 0.57,
-    "readinessMs" : 0.18,
-    "totalMs" : 0.91
+    "graphMs" : 0.17,
+    "protectionMs" : 0.62,
+    "readinessMs" : 0.14,
+    "totalMs" : 0.98
   }
 }

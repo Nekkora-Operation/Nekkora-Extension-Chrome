@@ -1,47 +1,4 @@
 {
-  "falsePositive" : {
-    "assessments" : [ ],
-    "catalogVersion" : "2026.10.1",
-    "genericIndicators" : [ {
-      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Como funciona um CAPTCHA»",
-      "documentId" : "doc:f0",
-      "frameId" : "f0",
-      "indicatorId" : "generic.text.captcha",
-      "nodeId" : "n7",
-      "signal" : "MENTION",
-      "simulated" : false,
-      "source" : "DOM",
-      "strength" : "WEAK",
-      "type" : "TEXT",
-      "visible" : true
-    }, {
-      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Um CAPTCHA é um teste para diferenciar pessoas de programas. Este artigo menciona CAPTCHA, reCAPTCHA e hCaptcha apena...»",
-      "documentId" : "doc:f0",
-      "frameId" : "f0",
-      "indicatorId" : "generic.text.captcha",
-      "nodeId" : "n8",
-      "signal" : "MENTION",
-      "simulated" : false,
-      "source" : "DOM",
-      "strength" : "WEAK",
-      "type" : "TEXT",
-      "visible" : true
-    }, {
-      "detail" : "pedido genérico de verificação humana (português): «Frases como \"não sou um robô\" aparecem aqui somente como exemplo.»",
-      "documentId" : "doc:f0",
-      "frameId" : "f0",
-      "indicatorId" : "generic.text.human-pt",
-      "nodeId" : "n9",
-      "signal" : "MENTION",
-      "simulated" : false,
-      "source" : "DOM",
-      "strength" : "WEAK",
-      "type" : "TEXT",
-      "visible" : true
-    } ],
-    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Menção textual a verificação humana sem mecanismo associado: não confirma tecnologia nem desafio" ],
-    "status" : "NOT_OBSERVED"
-  },
   "recaptcha" : {
     "assessmentId" : "protection:google.recaptcha.v2@doc:f0",
     "basis" : "OFFICIAL_DOCUMENTATION",
@@ -109,7 +66,7 @@
         "shadowDepth" : 0,
         "stability" : "HEURISTIC_STABLE",
         "steps" : [ {
-          "browserDocumentId" : "D4A5F5EB14D9A5180FC4269321F9B9A0",
+          "browserDocumentId" : "4035733FB1B2F3EAA643422780D275E1",
           "documentId" : null,
           "enteredDocumentId" : "doc:f0",
           "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -157,5 +114,48 @@
     "signatureId" : "google.recaptcha.v2",
     "signatureVersion" : "1",
     "status" : "DETECTED"
+  },
+  "falsePositive" : {
+    "assessments" : [ ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ {
+      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Como funciona um CAPTCHA»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.captcha",
+      "nodeId" : "n7",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Um CAPTCHA é um teste para diferenciar pessoas de programas. Este artigo menciona CAPTCHA, reCAPTCHA e hCaptcha apena...»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.captcha",
+      "nodeId" : "n8",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "pedido genérico de verificação humana (português): «Frases como \"não sou um robô\" aparecem aqui somente como exemplo.»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-pt",
+      "nodeId" : "n9",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    } ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Menção textual a verificação humana sem mecanismo associado: não confirma tecnologia nem desafio" ],
+    "status" : "NOT_OBSERVED"
   }
 }

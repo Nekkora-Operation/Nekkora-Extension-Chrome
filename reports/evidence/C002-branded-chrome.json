@@ -5,7 +5,7 @@
     "commands" : [ "capture.frames.metadata", "capture.pin", "capture.session.attachFrame", "capture.session.delta", "capture.session.list", "capture.session.start", "capture.session.status", "capture.session.stop", "diagnostics.readiness", "element.accessPath", "element.inspect", "export.session", "frames.graph", "host.echo", "host.fail", "host.generate", "host.memory", "host.ping", "interaction.observe", "locators.verify", "page.diagnose", "pagemap.export", "protection.assess", "session.reset", "snapshot.compare", "snapshot.delta", "snapshot.submit", "target.get", "target.list", "target.register", "target.resolve" ],
     "dataDir" : "C:\\Users\\nicol\\nekkora\\Nekkora-Extension-Chrome\\integration-tests\\target\\host-data-branded",
     "heapMaxMb" : 7992,
-    "heapUsedMb" : 21.1,
+    "heapUsedMb" : 21,
     "hostVersion" : "0.1.0",
     "java" : "21.0.12",
     "limits" : {
@@ -14,16 +14,16 @@
       "maxOutboundBytes" : 1048576,
       "singleMessageLimit" : 921600
     },
-    "pid" : 50052,
+    "pid" : 35808,
     "protocol" : "nekkora-nm/1",
     "tabs" : 0,
-    "targets" : 11,
-    "uptimeMs" : 275
+    "targets" : 13,
+    "uptimeMs" : 280
   },
   "sidePanelContexts" : [ {
-    "contextId" : "3b8deb9c-b393-4924-b1b2-2f88e97e708e",
+    "contextId" : "2a3826c8-9fe4-4661-a790-7e81bef8bb9d",
     "contextType" : "SIDE_PANEL",
-    "documentId" : "766CBE72FA16AF782F10E209E92CD477",
+    "documentId" : "09542DF5833F25B07F5F2D14179F2E5E",
     "documentOrigin" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj",
     "documentUrl" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "frameId" : 0,
@@ -43,11 +43,11 @@
     },
     "button" : "Desativar inspeção",
     "capture" : "Automática ativa",
-    "deltas" : "1",
+    "deltas" : "2",
     "devTools" : true,
     "diagnosis" : "Páginaative a inspeção para diagnosticar",
     "documents" : "—",
-    "element" : "Nó (temporário)n29Alvo lógicotgt-fbd243ae-bbec-46c8-b99e-42131244634aTipoBUTTON · papel button · HIGHNomeAprovar pedido (CONTENT, MEDIUM)CondiçõesVISIBLE, ENABLED, PRESENT, INTERACTIVEEvidências<button>Parecidos0 elemento(s)",
+    "element" : "Nó (temporário)n29Alvo lógicotgt-5388ff47-5757-4b46-b5ff-821cbafed0e5TipoBUTTON · papel button · HIGHNomeAprovar pedido (CONTENT, MEDIUM)CondiçõesENABLED, PRESENT, VISIBLE, INTERACTIVEEvidências<button>Parecidos0 elemento(s)",
     "explanation" : "O elemento button «Aprovar pedido» foi encontrado, diretamente no documento principal. A identidade é sustentada por: nome acessível.",
     "frames" : "—",
     "height" : 757,
@@ -59,18 +59,18 @@
     "pathSteps" : [ "DOCUMENTOCaptura contínua", "ELEMENTOAprovar pedido — button#aprovar" ],
     "pressed" : "true",
     "shadowRoots" : "—",
-    "tabId" : 497505687,
+    "tabId" : 1495461589,
     "updated" : "agora",
     "url" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "width" : 360
   },
   "session" : {
-    "baseCaptureId" : "cap-ps-mv8coy50-i9lobp-1",
+    "baseCaptureId" : "cap-ps-mv8f8rlq-4ou80y-1",
     "consumers" : [ "inspection" ],
     "deltasApplied" : 0,
     "deltasRejected" : 0,
     "deltasStale" : 0,
-    "documentId" : "ps-mv8coy50-i9lobp",
+    "documentId" : "ps-mv8f8rlq-4ou80y",
     "endedAt" : null,
     "epoch" : 1,
     "error" : null,
@@ -78,11 +78,11 @@
     "fullCaptures" : 1,
     "hostState" : "OK",
     "initialCapture" : {
-      "at" : "2026-10-14T16:55:11.691Z",
-      "browserMs" : 16.9,
+      "at" : "2026-10-14T18:06:35.604Z",
+      "browserMs" : 20.4,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8coy50-i9lobp-1",
-      "captureMs" : 6.6,
+      "captureId" : "cap-ps-mv8f8rlq-4ou80y-1",
+      "captureMs" : 7.9,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -106,7 +106,7 @@
           "TEXT" : 2,
           "TEXT_INPUT" : 2
         },
-        "captureDurationMs" : 6.6,
+        "captureDurationMs" : 7.9,
         "elementCount" : 43,
         "frames" : [ ],
         "hidden" : 0,
@@ -119,9 +119,9 @@
         "unknownState" : 0,
         "visible" : 43
       },
-      "hostMs" : 90.6,
+      "hostMs" : 109.5,
       "interactive" : 16,
-      "maxSliceMs" : 3.7,
+      "maxSliceMs" : 4.3,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -151,18 +151,18 @@
       "slices" : 1,
       "text" : 12,
       "timings" : {
-        "classificationMs" : 24.48,
-        "hostTotalMs" : 68.72,
-        "indexMs" : 2.19
+        "classificationMs" : 27.91,
+        "hostTotalMs" : 87.43,
+        "indexMs" : 2.66
       },
-      "totalMs" : 111.9
+      "totalMs" : 133.2
     },
     "lastCapture" : {
-      "at" : "2026-10-14T16:55:11.691Z",
-      "browserMs" : 16.9,
+      "at" : "2026-10-14T18:06:35.604Z",
+      "browserMs" : 20.4,
       "buffered" : 0,
-      "captureId" : "cap-ps-mv8coy50-i9lobp-1",
-      "captureMs" : 6.6,
+      "captureId" : "cap-ps-mv8f8rlq-4ou80y-1",
+      "captureMs" : 7.9,
       "consistency" : "BASE_PLUS_DELTA",
       "coverage" : {
         "byCategory" : {
@@ -186,7 +186,7 @@
           "TEXT" : 2,
           "TEXT_INPUT" : 2
         },
-        "captureDurationMs" : 6.6,
+        "captureDurationMs" : 7.9,
         "elementCount" : 43,
         "frames" : [ ],
         "hidden" : 0,
@@ -199,9 +199,9 @@
         "unknownState" : 0,
         "visible" : 43
       },
-      "hostMs" : 90.6,
+      "hostMs" : 109.5,
       "interactive" : 16,
-      "maxSliceMs" : 3.7,
+      "maxSliceMs" : 4.3,
       "mode" : "COOPERATIVE",
       "navigation" : {
         "inferred" : {
@@ -231,23 +231,23 @@
       "slices" : 1,
       "text" : 12,
       "timings" : {
-        "classificationMs" : 24.48,
-        "hostTotalMs" : 68.72,
-        "indexMs" : 2.19
+        "classificationMs" : 27.91,
+        "hostTotalMs" : 87.43,
+        "indexMs" : 2.66
       },
-      "totalMs" : 111.9
+      "totalMs" : 133.2
     },
     "lastDeltaAt" : null,
     "lastExport" : null,
-    "lastUpdateAt" : "2026-10-14T16:55:11.691Z",
-    "latestCaptureId" : "cap-ps-mv8coy50-i9lobp-1",
+    "lastUpdateAt" : "2026-10-14T18:06:35.604Z",
+    "latestCaptureId" : "cap-ps-mv8f8rlq-4ou80y-1",
     "nodes" : 43,
     "reason" : "SESSION_START",
     "resyncs" : 0,
-    "sessionId" : "cs-497505687-mv8coycb-bl04",
-    "startedAt" : "2026-10-14T16:55:11.579Z",
+    "sessionId" : "cs-1495461589-mv8f8rta-qcrd",
+    "startedAt" : "2026-10-14T18:06:35.470Z",
     "status" : "ACTIVE",
-    "tabId" : 497505687,
+    "tabId" : 1495461589,
     "url" : "http://127.0.0.1:18865/lab/chrome002/continuous.html"
   },
   "result" : "APROVADO",
