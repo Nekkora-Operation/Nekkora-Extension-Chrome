@@ -82,8 +82,10 @@ sequenceDiagram
 
 O PageMap é **escrito em fluxo** (`StreamingPageMapWriter`): elementos gerados em blocos paralelos de
 256 (ordem preservada) e serializados direto no arquivo, sem materializar o documento inteiro. Em
-10.000 elementos a exportação caiu de **2.709,8 ms** (CHROME-001, mesma execução) para
-**1.021,4 ms**; em 20.000, de **14.614 ms** para **2.250,6 ms** (`reports/chrome-002/performance.md`).
+10.000 elementos a exportação caiu de **2.410,5 ms** (CHROME-001, mesma execução) para
+**1.070,1 ms**; em 20.000, de **13.344 ms** para **2.243,7 ms** (`reports/chrome-002/performance.md`).
+Em páginas pequenas (100–1.000 elementos) a exportação nova é dezenas de ms mais lenta (validação
+do schema por elemento, cálculo do SHA-256 e movimento atômico) — custo fixo aceito pela garantia.
 O conteúdo é idêntico ao da exportação anterior campo a campo (`streamedExportMatchesLegacyExport`).
 
 ## Exportação manual (DEV)

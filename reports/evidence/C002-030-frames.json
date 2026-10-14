@@ -1,0 +1,125 @@
+{
+  "chrome" : [ {
+    "documentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 0,
+    "frameType" : "outermost_frame",
+    "parentFrameId" : -1,
+    "processId" : 39,
+    "url" : "http://127.0.0.1:18765/lab/chrome002/iframes.html"
+  }, {
+    "documentId" : "EDCB28DB6F8B18D2CE75AD2D237A2E8F",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 109,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "parentFrameId" : 0,
+    "processId" : 39,
+    "url" : "http://127.0.0.1:18765/lab/chrome002/frame-child.html?mesma=1"
+  }, {
+    "documentId" : "4BA7BF8FE459C69041806043E7B386AB",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 110,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "parentFrameId" : 0,
+    "processId" : 40,
+    "url" : "http://localhost:18766/lab/chrome002/frame-child.html?outra=1"
+  }, {
+    "documentId" : "979AC1AC052ECED48D58223E3DFD7FE9",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 111,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "parentFrameId" : 0,
+    "processId" : 40,
+    "url" : "http://localhost:18766/lab/chrome002/frame-nested.html"
+  }, {
+    "documentId" : "B65CA45B8A6AE231BB258A50714FBF82",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 112,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "parentFrameId" : 0,
+    "processId" : 41,
+    "url" : "http://127.0.0.2:18765/lab/chrome002/frame-child.html?sem=1"
+  }, {
+    "documentId" : "A97987258A6651C6C4301A886721FBA8",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 113,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "E97E75EB7A359F264D974A17C7FB8BD7",
+    "parentFrameId" : 0,
+    "processId" : 42,
+    "url" : "http://localhost:18766/lab/chrome002/frame-child.html?sandbox=1"
+  }, {
+    "documentId" : "6A77064C53E713D6C8AAB4F926FC3A2E",
+    "documentLifecycle" : "active",
+    "errorOccurred" : false,
+    "frameId" : 114,
+    "frameType" : "sub_frame",
+    "parentDocumentId" : "979AC1AC052ECED48D58223E3DFD7FE9",
+    "parentFrameId" : 111,
+    "processId" : 39,
+    "url" : "http://127.0.0.1:18766/lab/chrome002/frame-child.html?neto=1"
+  } ],
+  "session" : {
+    "x109" : {
+      "epoch" : 1,
+      "frameId" : 109,
+      "hostNodeId" : "n13",
+      "reason" : null,
+      "source" : "x109",
+      "status" : "CAPTURED_BY_PARENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome002/frame-child.html?mesma=1"
+    },
+    "x110" : {
+      "documentId" : "ps-mv7dyzda-ajkrl4",
+      "epoch" : 1,
+      "frameId" : 110,
+      "hostNodeId" : "n14",
+      "nodes" : 12,
+      "reason" : null,
+      "source" : "x110",
+      "status" : "ATTACHED",
+      "url" : "http://localhost:18766/lab/chrome002/frame-child.html?outra=1"
+    },
+    "x111" : {
+      "documentId" : "ps-mv7dyzed-zi3qz7",
+      "epoch" : 1,
+      "frameId" : 111,
+      "hostNodeId" : "n15",
+      "nodes" : 6,
+      "reason" : null,
+      "source" : "x111",
+      "status" : "ATTACHED",
+      "url" : "http://localhost:18766/lab/chrome002/frame-nested.html"
+    },
+    "x113" : {
+      "epoch" : 1,
+      "frameId" : 113,
+      "hostNodeId" : "n17",
+      "reason" : "POLICY_SANDBOX",
+      "source" : "x113",
+      "status" : "NOT_ATTACHED",
+      "url" : "http://localhost:18766/lab/chrome002/frame-child.html?sandbox=1"
+    },
+    "x114" : {
+      "documentId" : "ps-mv7dyze3-mwfm49",
+      "epoch" : 1,
+      "frameId" : 114,
+      "hostNodeId" : "x111n5",
+      "nodes" : 12,
+      "reason" : null,
+      "source" : "x114",
+      "status" : "ATTACHED",
+      "url" : "http://127.0.0.1:18766/lab/chrome002/frame-child.html?neto=1"
+    }
+  }
+}

@@ -62,6 +62,6 @@ marcados no fim).
 | Shadow roots/iframes criados depois de ligar o rastreamento só entravam após nova captura completa | observação incremental + reconciliação | C002-026/028/031 |
 | AccName com um nível de `aria-labelledby`; ordem texto/elemento perdida ("Mostrar itens 20") | AccName 1.2 (múltiplo, recursivo, circular, oculto, autorreferência) + `textSegments` | C002-033..037, `AccNameConformanceTest` |
 | Captura síncrona bloqueava ~340 ms em 10.000 elementos | captura cooperativa (maior fatia ≈ 9 ms; bloqueio medido ≈ 22 ms) | C002-038/039 |
-| Exportação 10k ~3,3 s; heap ~550–830 MB (6 capturas por aba) | exportação em fluxo (≈ 1,0 s); 3 capturas + referência; liberação ao encerrar | C002-038/040 |
+| Exportação 10k ~3,3 s; heap ~550–830 MB (6 capturas por aba) | exportação em fluxo (≈ 1,1 s); 3 capturas + referência; liberação ao encerrar | C002-038/040 |
 | Painel lateral testado somente como aba | painel nativo homologado | C002-047 |
 | Automação somente no Chrome for Testing | homologação no Chrome convencional | BrandedChromeIT |
