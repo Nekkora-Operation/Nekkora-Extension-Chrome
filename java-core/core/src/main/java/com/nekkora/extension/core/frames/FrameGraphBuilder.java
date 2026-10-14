@@ -100,6 +100,25 @@ public final class FrameGraphBuilder {
             }
         }
 
+        // URL candidata de cada frame lógico sem handshake (base do URL_MATCH) — usada para exigir unicidade também do
+        // lado lógico: um único registro do Chrome não identifica qual de dois irmãos equivalentes ele descreve.
+        Map<String, String> urlCandidates = new HashMap<>();
+        for (FrameInfo f : ordered) {
+            if (f.parentFrameId() == null || f.hostNodeId() == null) {
+                continue;
+            }
+            RawNode host = a.model().find(f.hostNodeId()).orElse(null);
+            if (host == null || byHost.containsKey(host.id())) {
+                continue;
+            }
+            FrameInfo parent = infos.get(f.parentFrameId());
+            String declared = UrlSanitizer.sanitize(UrlSanitizer.resolve(parent == null ? null : parent.url(), host.attr("src")));
+            String candidate = declared != null ? declared : UrlSanitizer.sanitize(f.url());
+            if (candidate != null) {
+                urlCandidates.put(f.frameId(), candidate);
+            }
+        }
+
         Map<String, BrowserFrameMetadata> associated = new HashMap<>(); // frame lógico -> metadados do Chrome
         for (FrameInfo f : ordered) {
             boolean main = f.parentFrameId() == null && "f0".equals(f.frameId());
@@ -114,11 +133,12 @@ public final class FrameGraphBuilder {
             String effective = UrlSanitizer.sanitize(f.url());
             BrowserFrameMetadata m = main ? topMeta : (host == null ? null : byHost.get(host.id()));
             if (m == null && !main && host != null) {
-                // Sem handshake (ex.: about:blank/srcdoc, que não recebem content script): associa somente quando a
-                // URL é ÚNICA entre os filhos do mesmo frame pai no Chrome. Nunca por posição ou ordem.
+                // Sem handshake (ex.: about:blank/srcdoc, que não recebem content script): associa somente quando o pai
+                // tem identidade confirmada no Chrome e a URL é ÚNICA tanto entre os filhos desse pai no Chrome quanto
+                // entre os iframes lógicos elegíveis do mesmo pai (D-052). Nunca por posição ou ordem.
                 BrowserFrameMetadata parentMeta = associated.get(f.parentFrameId());
-                String candidate = declared != null ? declared : UrlSanitizer.sanitize(f.url());
-                m = matchByUrl(unmapped, candidate, parentMeta == null ? null : parentMeta.browserFrameId());
+                String candidate = urlCandidates.get(f.frameId());
+                m = uniqueLogicalCandidate(urlCandidates, infos, f, candidate) ? matchByUrl(unmapped, candidate, parentMeta) : null;
                 if (m != null) {
                     unmapped.remove(m);
                     m = new BrowserFrameMetadata(m.browserFrameId(), m.browserDocumentId(), m.parentBrowserFrameId(), m.parentDocumentId(),
@@ -232,14 +252,40 @@ public final class FrameGraphBuilder {
         }
     }
 
-    private static BrowserFrameMetadata matchByUrl(List<BrowserFrameMetadata> unmapped, String declared, Integer parentBrowserFrameId) {
-        if (declared == null) {
+    /** A URL candidata pertence a um único iframe lógico elegível (sem handshake) sob o mesmo pai. */
+    private static boolean uniqueLogicalCandidate(Map<String, String> urlCandidates, Map<String, FrameInfo> infos, FrameInfo f, String candidate) {
+        if (candidate == null) {
+            return false;
+        }
+        int same = 0;
+        for (Map.Entry<String, String> e : urlCandidates.entrySet()) {
+            FrameInfo other = infos.get(e.getKey());
+            if (other != null && f.parentFrameId().equals(other.parentFrameId()) && candidate.equals(e.getValue())) {
+                same++;
+            }
+        }
+        return same == 1;
+    }
+
+    private static final Set<String> CONFIRMED_MAPPINGS = Set.of("TOP", "HANDSHAKE", "URL_MATCH");
+
+    /**
+     * Candidato do Chrome com a URL indicada, filho do pai já confirmado. Sem pai confirmado (sem {@code frameId} do
+     * Chrome ou associação não confirmada), sem pai declarado no candidato, com {@code documentId} do pai divergente ou
+     * com mais de um candidato: nenhuma associação.
+     */
+    private static BrowserFrameMetadata matchByUrl(List<BrowserFrameMetadata> unmapped, String declared, BrowserFrameMetadata parentMeta) {
+        if (declared == null || parentMeta == null || parentMeta.browserFrameId() == null || !CONFIRMED_MAPPINGS.contains(parentMeta.mapping())) {
             return null;
         }
+        Integer parentBrowserFrameId = parentMeta.browserFrameId();
         BrowserFrameMetadata found = null;
         for (BrowserFrameMetadata m : unmapped) {
-            if (parentBrowserFrameId != null && m.parentBrowserFrameId() != null && !parentBrowserFrameId.equals(m.parentBrowserFrameId())) {
-                continue; // filho de outro frame
+            if (m.parentBrowserFrameId() == null || !parentBrowserFrameId.equals(m.parentBrowserFrameId())) {
+                continue; // filho de outro frame (ou pai não informado pelo Chrome)
+            }
+            if (m.parentDocumentId() != null && parentMeta.browserDocumentId() != null && !parentMeta.browserDocumentId().equals(m.parentDocumentId())) {
+                continue; // mesmo frameId do pai, mas outro documento (navegação do pai)
             }
             if (declared.equals(m.url())) {
                 if (found != null) {

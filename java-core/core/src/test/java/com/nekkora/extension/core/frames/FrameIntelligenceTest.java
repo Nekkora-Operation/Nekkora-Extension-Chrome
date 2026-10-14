@@ -293,6 +293,77 @@ class FrameIntelligenceTest {
         assertNull(g2.frameHostedBy(two.idOf("#b2")).orElseThrow().browser());
     }
 
+    private static BrowserFrameMetadata top() {
+        return new BrowserFrameMetadata(0, "DOC-TOP", -1, null, "http://127.0.0.1:8765/lab/test.html", "outermost_frame", "active", null, "TOP", "TOP", "top", null);
+    }
+
+    private static BrowserFrameMetadata blank(int frameId, String documentId, Integer parentFrameId, String parentDocumentId) {
+        return new BrowserFrameMetadata(frameId, documentId, parentFrameId, parentDocumentId, "about:blank", "sub_frame", "active", null, "UNMAPPED",
+                "NO_CONTENT_SCRIPT", null, null);
+    }
+
+    @Test
+    void twoAboutBlankSiblingsWithASingleBrowserCandidateStayUnassociated() { // P1 (revisão do PR #2), cenário B
+        HtmlSnapshot two = HtmlSnapshot.of("<iframe id=b1 data-fixture-frame=x></iframe><iframe id=b2 data-fixture-frame=z></iframe>")
+                .frame("x", "<p>x</p>", true, null, "about:blank")
+                .frame("z", "<p>z</p>", true, null, "about:blank");
+        // Durante uma navegação o Chrome informa temporariamente só um dos dois documentos.
+        FrameGraph g = builder.build(Engine.analyze(two), List.of(top(), blank(4, "DOC-BLANK", 0, "DOC-TOP")));
+        assertNull(g.frameHostedBy(two.idOf("#b1")).orElseThrow().browser(), "um único registro do Chrome não identifica qual dos irmãos ele descreve");
+        assertNull(g.frameHostedBy(two.idOf("#b2")).orElseThrow().browser());
+        assertNull(g.document(g.frameHostedBy(two.idOf("#b1")).orElseThrow().documentId()).orElseThrow().browserDocumentId());
+        assertNull(g.document(g.frameHostedBy(two.idOf("#b2")).orElseThrow().documentId()).orElseThrow().browserDocumentId());
+
+        // Irmão com outra URL não interfere: o about:blank continua único entre os iframes lógicos elegíveis.
+        HtmlSnapshot mixed = HtmlSnapshot.of("<iframe id=b1 data-fixture-frame=x></iframe><iframe id=n1 data-fixture-frame=n src=\"/n.html\"></iframe>")
+                .frame("x", "<p>x</p>", true, null, "about:blank")
+                .frame("n", "<p>n</p>", true, null, "http://127.0.0.1:8765/n.html");
+        FrameGraph gm = builder.build(Engine.analyze(mixed), List.of(top(), blank(4, "DOC-BLANK", 0, "DOC-TOP")));
+        assertEquals("DOC-BLANK", gm.frameHostedBy(mixed.idOf("#b1")).orElseThrow().browser().browserDocumentId());
+        assertNull(gm.frameHostedBy(mixed.idOf("#n1")).orElseThrow().browser());
+    }
+
+    private static HtmlSnapshot nestedBlank() {
+        return HtmlSnapshot.of("<iframe id=f1 data-fixture-frame=a src=\"/a.html\"></iframe>")
+                .frame("a", "<p>a</p><iframe id=inner data-fixture-frame=ab></iframe>", true, null, "http://127.0.0.1:8765/a.html")
+                .frame("ab", "<p>rascunho</p>", true, null, "about:blank");
+    }
+
+    @Test
+    void nestedAboutBlankRequiresAConfirmedParent() { // P1 (revisão do PR #2), cenário A
+        HtmlSnapshot h = nestedBlank();
+        PageAnalysis a = Engine.analyze(h);
+        String inner = h.idInFrame("a", "#inner");
+        BrowserFrameMetadata parentA = new BrowserFrameMetadata(7, "DOC-A", 0, "DOC-TOP", "http://127.0.0.1:8765/a.html", "sub_frame", "active",
+                h.idOf("#f1"), "HANDSHAKE", "CAPTURED_BY_PARENT", null, null);
+
+        // Pai sem metadados confirmados: o about:blank único da aba (de outro documento) não é atribuído ao aninhado.
+        FrameGraph noParent = builder.build(a, List.of(top(), blank(8, "DOC-OUTRO", 3, "DOC-X")));
+        assertNull(noParent.frameHostedBy(inner).orElseThrow().browser(), "sem pai confirmado: nenhuma associação");
+
+        // Pai confirmado, mas o candidato pertence a outro frame pai ou não declara o pai.
+        assertNull(builder.build(a, List.of(top(), parentA, blank(8, "DOC-OUTRO", 3, "DOC-X"))).frameHostedBy(inner).orElseThrow().browser());
+        assertNull(builder.build(a, List.of(top(), parentA, blank(8, "DOC-SEM-PAI", null, null))).frameHostedBy(inner).orElseThrow().browser(),
+                "candidato sem pai informado pelo Chrome não comprova a hierarquia");
+
+        // Mesmo frameId do pai, mas documento do pai diferente (o pai navegou): nenhuma associação.
+        assertNull(builder.build(a, List.of(top(), parentA, blank(8, "DOC-AB", 7, "DOC-A-ANTIGO"))).frameHostedBy(inner).orElseThrow().browser());
+
+        // Pai confirmado + candidato único filho dele + iframe lógico único: associado.
+        FrameDescriptor ok = builder.build(a, List.of(top(), parentA, blank(8, "DOC-AB", 7, "DOC-A"))).frameHostedBy(inner).orElseThrow();
+        assertEquals("DOC-AB", ok.browser().browserDocumentId());
+        assertEquals("URL_MATCH", ok.browser().mapping());
+    }
+
+    @Test
+    void aboutBlankUnderAParentWithoutBrowserFrameIdStaysUnassociated() { // P1: pai sem frameId do Chrome
+        HtmlSnapshot h = nestedBlank();
+        BrowserFrameMetadata parentWithoutId = new BrowserFrameMetadata(null, null, 0, "DOC-TOP", "http://127.0.0.1:8765/a.html", "sub_frame", "active",
+                h.idOf("#f1"), "HANDSHAKE", "CAPTURED_BY_PARENT", null, null);
+        FrameGraph g = builder.build(Engine.analyze(h), List.of(top(), parentWithoutId, blank(8, "DOC-AB", 7, "DOC-A")));
+        assertNull(g.frameHostedBy(h.idInFrame("a", "#inner")).orElseThrow().browser());
+    }
+
     @Test
     void urlsAreSanitized() { // §31
         assertEquals("https://www.google.com/recaptcha/api.js", UrlSanitizer.sanitize("https://www.google.com/recaptcha/api.js?render=KEY&hl=pt#x"));
