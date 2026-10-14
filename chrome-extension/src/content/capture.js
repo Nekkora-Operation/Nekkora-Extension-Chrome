@@ -117,6 +117,35 @@
     return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN) : '';
   }
 
+  const URL_ATTRIBUTE_HOSTS = new Set(['IFRAME', 'FRAME', 'SCRIPT']);
+  const KEPT_FRAGMENT_KEYS = new Set(['frame']); // tipo de frame de widgets (ex.: hCaptcha #frame=challenge)
+
+  /**
+   * URL de recurso com os VALORES de parâmetros redigidos (chaves de site, tokens e identificadores nunca são
+   * coletados); nomes dos parâmetros e o caminho são mantidos para a análise determinística.
+   */
+  function redactUrlValues(raw, base) {
+    let u;
+    try {
+      u = new URL(raw, base);
+    } catch (e) {
+      return raw;
+    }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return raw;
+    }
+    const redact = (params, kept) => [...params.keys()].map((k) => k + '=' + (kept && kept.has(k) ? params.get(k) : 'REDACTED')).join('&');
+    let out = u.origin + u.pathname;
+    if (u.search) {
+      out += '?' + redact(u.searchParams);
+    }
+    if (u.hash) {
+      const h = u.hash.slice(1);
+      out += '#' + (h.includes('=') ? redact(new URLSearchParams(h), KEPT_FRAGMENT_KEYS) : h.slice(0, 40));
+    }
+    return out;
+  }
+
   function attributes(el) {
     const out = {};
     for (const a of el.attributes) {
@@ -129,6 +158,8 @@
         v = '[manipulador declarado]';
       } else if (name === 'data-sitekey') {
         v = '[redacted]'; // chave pública de CAPTCHA: presença registrada, valor não
+      } else if ((name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName)) || name === 'data-nekkora-simulated-src') {
+        v = redactUrlValues(v, el.ownerDocument.baseURI);
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
       }
