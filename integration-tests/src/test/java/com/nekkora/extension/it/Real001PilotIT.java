@@ -42,7 +42,9 @@ class Real001PilotIT extends FrameIT {
     /** Valores plantados na página que NUNCA podem aparecer em dados enviados, mantidos ou exportados. */
     static final List<String> PLANTED = List.of("SESS-7f3a9c2e1b44", "TKN-SECRETO-123", "AT-SECRETO-456", "CODE-SECRETO-789", "SIG-SECRETA-0a1b2c",
             "DTK-0a1b2c3d4e5f6a7b8c9d0e1f", "KEY-SECRETA-321", "SID-SECRETO-654", "REF-SECRETO-111", "ana.silva", "exemplo.com", "123.456.789-09",
-            "98765-4321", "4111 1111 1111 1111", "550e8400-e29b-41d4-a716-446655440000");
+            "98765-4321", "4111 1111 1111 1111", "550e8400-e29b-41d4-a716-446655440000",
+            // revisão do PR #3 (P1): atributos personalizados
+            "hunter2", "RST-SECRETO-222", "CFG-SECRETA-333", "PIN-SECRETO-444", "XST-SECRETO-555");
 
     private String siteA() {
         return lab.externalUrl(BrowserLab.SITE_A, SITE_QUERY);
@@ -297,6 +299,9 @@ class Real001PilotIT extends FrameIT {
         found.put("session", leaks(session(p).toString()));
         found.put("events", leaks(lab.events(null).toString()));
         found.put("frameGraph", leaks(graph(p).toString()));
+        // Snapshot bruto (o que o content script envia ao motor) também sem os valores.
+        JsonNode raw = lab.call("page.rawSnapshot", p);
+        found.put("rawSnapshot", leaks(raw.toString()));
         // O log do motor fica bloqueado enquanto o processo do host está aberto: fecha a aba (sem sessão ativa não há
         // reconexão automática), encerra o host e lê TUDO o que foi gravado em disco.
         lab.close(p);
@@ -340,6 +345,30 @@ class Real001PilotIT extends FrameIT {
         assertTrue(json.contains("[email]") && json.contains("[cpf]") && json.contains("[telefone]") && json.contains("[cartão]"), "textos mascarados");
         assertTrue(json.contains("token=REDACTED") && json.contains("code=REDACTED"), "parâmetros sensíveis redigidos");
         assertTrue(json.contains(":redacted"), "segmento de caminho com identificador mascarado");
+        JsonNode config = null;
+        for (JsonNode e : map.get("elements")) {
+            if ("config".equals(e.at("/attributes/id").asText())) {
+                config = e.get("attributes");
+            }
+        }
+        if (config != null) { // elemento exportado: atributos redigidos, atributo neutro preservado
+            assertEquals("[redacted]", config.path("data-password").asText());
+            assertEquals("escuro", config.path("data-tema").asText());
+        }
+        assertEquals(List.of(), found.get("rawSnapshot"), "dados sensíveis no snapshot bruto");
+        boolean sawConfig = false;
+        for (JsonNode n : raw.get("nodes")) {
+            if ("config".equals(n.at("/attributes/id").asText())) {
+                sawConfig = true;
+                assertEquals("[redacted]", n.at("/attributes/data-password").asText());
+                assertEquals("https://example.test/reset?token=REDACTED", n.at("/attributes/data-reset-url").asText());
+                assertTrue(n.at("/attributes/data-config").asText().contains("apiKey=REDACTED") && n.at("/attributes/data-config").asText().contains("\"pin\":\"REDACTED\""),
+                        n.at("/attributes/data-config").asText());
+                assertEquals("[redacted]", n.at("/attributes/x-session-token").asText());
+                assertEquals("escuro", n.at("/attributes/data-tema").asText());
+            }
+        }
+        assertTrue(sawConfig, "elemento #config capturado");
         for (JsonNode f : map.at("/document/frames")) {
             assertFalse(f.path("url").asText().contains("SID-SECRETO"), "document.frames[].url sem a URL completa: " + f);
         }

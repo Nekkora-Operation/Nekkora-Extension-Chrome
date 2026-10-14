@@ -90,6 +90,8 @@
                    (scripts/run-tests.ps1 -Suite real, que seleciona a classe por -Dit.test). -->
               <excludes>
                 <exclude>**/*LiveWebIT.java</exclude>
+                <!-- Verificação ASSISTIDA (aprovação humana no diálogo do Chrome): somente por -Dit.test. -->
+                <exclude>**/*ManualIT.java</exclude>
               </excludes>
               <runOrder>alphabetical</runOrder>
               <systemPropertyVariables>

@@ -30,6 +30,10 @@
       <img id="avatar" alt="Foto de ana.silva@exemplo.com" width="32" height="32"
            src="/lab/real001/avatar.svg?X-Amz-Signature=SIG-SECRETA-0a1b2c&amp;X-Amz-Expires=300">
       <button id="salvar" type="button" data-user-token="DTK-0a1b2c3d4e5f6a7b8c9d0e1f">Salvar preferências</button>
+      <!-- Revisão do PR #3 (P1): segredos em atributos personalizados — curto, URL com token, JSON e fora de data-*. -->
+      <div id="config" data-password="hunter2" data-reset-url="https://example.test/reset?token=RST-SECRETO-222"
+           data-config='{"endpoint":"https://api.example.test/v1?apiKey=CFG-SECRETA-333","pin":"PIN-SECRETO-444","theme":"escuro"}'
+           x-session-token="XST-SECRETO-555" data-tema="escuro">Configurações</div>
     </section>
 
     <section aria-labelledby="h-pedidos">
