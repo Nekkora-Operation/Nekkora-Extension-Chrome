@@ -329,6 +329,55 @@ class Chrome002PerformanceIT extends SessionIT {
     }
 
     @Test
+    @DisplayName("C002-RAP — Alterações rápidas a 10, 50 e 100 mutações/s: agrupadas, sem ressincronização, estado equivalente")
+    void rapidRates() throws Exception {
+        ArrayNode rates = REPORT.putArray("rapidRates");
+        for (int rate : new int[]{10, 50, 100}) {
+            Page p = open("/lab/chrome002/rapid.html?rows=50&taxa=" + rate);
+            acquire(p, true);
+            lab.clearEvents();
+            lab.js(p, "window.__start = Date.now(); document.getElementById('r" + rate + "').onclick();");
+            Thread.sleep(5000);
+            lab.js(p, "document.getElementById('parar').onclick()");
+            JsonNode sync = sync(p);
+            JsonNode s = session(p);
+            JsonNode t = diagnostics(p).get("tracker");
+            double maxHost = 0;
+            double sumHost = 0;
+            int n = 0;
+            for (JsonNode e : lab.events("delta")) {
+                if (e.at("/data/tabId").asInt() == p.tabId()) {
+                    double ms = e.at("/data/mutation/processingMs").asDouble();
+                    maxHost = Math.max(maxHost, ms);
+                    sumHost += ms;
+                    n++;
+                }
+            }
+            int generated = ((Number) lab.js(p, "return Number(document.getElementById('geradas').value)")).intValue();
+            ObjectNode r = rates.addObject();
+            r.put("ratePerSecond", rate);
+            r.put("generatedMutations", generated);
+            r.put("rawMutationRecords", t.get("rawMutations").asInt());
+            r.put("deltasApplied", s.get("deltasApplied").asInt());
+            r.put("resyncs", s.get("resyncs").asInt());
+            r.put("browserMaxDeltaMs", t.get("maxDeltaMs").asDouble());
+            r.put("hostMaxDeltaMs", round(maxHost));
+            r.put("hostAvgDeltaMs", round(sumHost / Math.max(1, n)));
+            r.put("syncState", sync.get("syncState").asText());
+            assertTrue(generated >= rate * 4, rate + "/s: mutações geradas " + generated);
+            assertEquals(0, s.get("resyncs").asInt(), rate + "/s: sem ressincronização");
+            assertEquals(1, s.get("fullCaptures").asInt(), rate + "/s: somente a base");
+            assertTrue(s.get("deltasApplied").asInt() <= 5 * 12, rate + "/s: deltas agrupados (" + s.get("deltasApplied") + ")");
+            assertTrue(maxHost <= 200, rate + "/s: processamento de delta no host " + maxHost);
+            assertEquals("SYNCHRONIZED", sync.get("syncState").asText());
+            int incremental = s.get("nodes").asInt();
+            assertEquals(lab.call("session.forceFull", p).get("nodes").asInt(), incremental, rate + "/s: estado incremental = captura completa");
+            release(p);
+            lab.close(p);
+        }
+    }
+
+    @Test
     @DisplayName("C002-042 — Descarte de sessão: aba fechada libera navegador e motor")
     void sessionDiscard() {
         Page p = open("/generated/large?n=1000&descarte=1");
@@ -430,7 +479,7 @@ class Chrome002PerformanceIT extends SessionIT {
                         .append(" | ").append(r.get("hostRssMb")).append(" |\n");
             }
         }
-        for (String k : List.of("cooperativeConsistency", "memory", "incrementalVsFull", "longSession_5min", "longSession_15min", "longSession_30min")) {
+        for (String k : List.of("cooperativeConsistency", "rapidRates", "memory", "incrementalVsFull", "longSession_5min", "longSession_15min", "longSession_30min")) {
             if (report.has(k)) {
                 JsonNode v = report.get(k).deepCopy();
                 if (v.has("samples") && v.get("samples").size() > 12) {
