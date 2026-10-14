@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>LAB-P10 — metadados insuficientes</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe{width:46%;height:160px;border:1px solid #999}</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <p class="sim-banner">Fixture SIMULADA — somente um contêiner com id genérico e um iframe de origem sem permissão.</p>
+  <h1>Área restrita</h1>
+  <div id="captcha-container" style="width:300px;height:60px;border:1px dashed #999"></div>
+  <iframe id="f-verificacao" title="Verificação de segurança"></iframe>
+  <button type="button">Prosseguir</button>
+  <script src="/lab/lab.js"></script>
+  <script>
+    document.getElementById('f-verificacao').src = 'http://127.0.0.2:' + location.port + '/lab/chrome003/protection/simulated-widget.html';
+  </script>
+</body>
+</html>

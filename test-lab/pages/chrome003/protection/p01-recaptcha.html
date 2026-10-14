@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>LAB-P01 — reCAPTCHA v2 (simulado)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <!-- Referência INERTE: tipo não executável; o navegador não busca nem executa. Nenhuma chave real. -->
+  <script type="application/x-nekkora-inert" src="https://www.google.com/recaptcha/api.js"></script>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <p class="sim-banner">Fixture SIMULADA — assinatura observável (classe, URL de script e de iframe) sem serviço real.</p>
+  <h1>Contato</h1>
+  <form id="contato" onsubmit="event.preventDefault()">
+    <label for="email">E-mail</label> <input id="email" name="email" type="email">
+    <div class="g-recaptcha" data-sitekey="LAB-FICTICIA-0001">
+      <iframe title="reCAPTCHA" width="304" height="78" src="/lab/chrome003/protection/simulated-widget.html"
+              data-nekkora-simulated-src="https://www.google.com/recaptcha/api2/anchor?k=LAB-FICTICIA-0001&amp;co=lab"></iframe>
+      <textarea id="g-recaptcha-response" name="g-recaptcha-response" style="display:none"></textarea>
+    </div>
+    <button type="submit">Enviar</button>
+  </form>
+  <button type="button" id="concluir">Simular resposta preenchida</button>
+  <script src="/lab/lab.js"></script>
+  <script>
+    // Isca (N003-I): funções com o mesmo nome da API do fornecedor. A detecção é passiva: nenhuma deve ser chamada.
+    window.__chamadasIsca = 0;
+    window.grecaptcha = {
+      execute() { window.__chamadasIsca++; }, render() { window.__chamadasIsca++; },
+      getResponse() { window.__chamadasIsca++; }, reset() { window.__chamadasIsca++; },
+    };
+    // Simula SOMENTE o estado observável "campo de resposta preenchido" (nenhum desafio é resolvido).
+    document.getElementById('concluir').onclick = () => { document.getElementById('g-recaptcha-response').value = 'SIMULADO'; };
+  </script>
+</body>
+</html>

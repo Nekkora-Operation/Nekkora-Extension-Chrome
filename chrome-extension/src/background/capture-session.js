@@ -151,7 +151,7 @@ export async function captureBase(tabId, frameId, sessionId, source, options = {
     }
     return {
       captureId: header.captureId, capturedAt: header.capturedAt, document: header.document, frames: header.frames,
-      shadowRoots: header.shadowRoots, nodes, requests: header.requests, stats: header.stats,
+      shadowRoots: header.shadowRoots, nodes, requests: header.requests, stats: header.stats, resources: header.resources || [],
     };
   } finally {
     parts.delete(key);

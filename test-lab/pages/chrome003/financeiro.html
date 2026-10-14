@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Financeiro</title>
+  <style>body{font:14px system-ui;margin:8px} iframe{width:96%;height:200px;border:1px solid #999}</style>
+</head>
+<body>
+  <h3>Financeiro</h3>
+  <button type="button" id="atualizar">Atualizar</button>
+  <!-- B: dois níveis (documento → Financeiro → Contas a pagar) -->
+  <iframe id="f-contas-pagar" title="Contas a pagar" src="/lab/chrome003/contas.html?nivel=2"></iframe>
+  <!-- C: dois níveis + Shadow DOM (documento → Financeiro → Pagamentos → shadow root → botão) -->
+  <iframe id="f-pagamentos" title="Pagamentos" src="/lab/chrome003/pagamentos.html"></iframe>
+</body>
+</html>

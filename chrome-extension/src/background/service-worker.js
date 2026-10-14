@@ -12,6 +12,7 @@ import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, ass
 import * as config from './config.js';
 import * as capture from './capture-session.js';
 import * as frames from './frames.js';
+import * as docs from './diagnostics.js';
 import * as inspection from './inspection.js';
 import * as recording from './recording.js';
 
@@ -113,6 +114,31 @@ const commands = {
   'session.debug': async (a) => toContent(a.tabId, 'cs.session.debug', { action: a.action, count: a.count }, a.frameId || 0),
   'frames.list': async (a) => ({ chrome: await chrome.webNavigation.getAllFrames({ tabId: a.tabId }), session: (capture.get(a.tabId) || { frames: {} }).frames }),
   'sw.diagnostics': async () => ({ ...capture.diagnostics(), mode: config.describe(), client: client.status() }),
+
+  // Inteligência documental e diagnóstico (CHROME-003)
+  'frames.graph': async (a) => docs.frameGraph(a.tabId),
+  'element.accessPath': async (a) => {
+    let nodeId = a.nodeId;
+    if (!nodeId && a.css) {
+      const found = await toContent(a.tabId, 'cs.idFor', { css: a.css, scope: a.scope }, a.frameId || 0);
+      if (found.error || found.count !== 1) {
+        throw new HostError(found.count > 1 ? 'AMBIGUOUS_SELECTOR' : 'NOT_FOUND', a.css + ' → ' + (found.error || found.count + ' elementos'));
+      }
+      nodeId = found.nodeIds[0];
+    }
+    return docs.accessPath(a.tabId, nodeId);
+  },
+  'protection.assess': async (a) => docs.protection(a.tabId),
+  'diagnostics.readiness': async (a) => docs.readiness(a.tabId),
+  'page.diagnose': async (a) => docs.diagnose(a.tabId),
+  'frames.syncMetadata': async (a) => {
+    const rec = capture.get(a.tabId);
+    if (!rec) {
+      throw new HostError('NO_SESSION', 'Nenhuma sessão de captura ativa');
+    }
+    return docs.syncFrameMetadata(rec);
+  },
+  'page.highlightFrame': async (a) => docs.highlightFrame(a.tabId, a.nodeId || (inspection.get(a.tabId).selected || {}).nodeId),
 
   // Gravação (eventos simulados pelo harness; contrato futuro da plataforma)
   'recording.event': async (a) => recording.dispatch(a.event || a),

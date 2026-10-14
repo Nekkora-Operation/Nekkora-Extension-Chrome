@@ -66,6 +66,8 @@ public final class ProtectionDetector {
         Map<String, Group> groups = new LinkedHashMap<>();
         Map<String, Set<String>> strongDomProviders = new HashMap<>();
         Set<String> matchedDomNodes = new HashSet<>();
+        Map<String, List<String[]>> urlMatches = new HashMap<>(); // observação -> [assinatura, fornecedor, específico]
+        Map<String, Set<String>> urlObsByGroup = new HashMap<>();   // grupo -> observações de URL usadas
 
         for (SignatureCatalog.Signature sig : catalog.signatures()) {
             for (SignatureCatalog.Indicator ind : sig.indicators()) {
@@ -82,6 +84,10 @@ public final class ProtectionDetector {
                             if (!urlMatches(ind, u)) {
                                 continue;
                             }
+                            String obsKey = u.kind() + "|" + u.url() + "|" + u.frameId() + "|" + u.nodeId() + "|" + u.source();
+                            urlMatches.computeIfAbsent(obsKey, k -> new ArrayList<>())
+                                    .add(new String[]{sig.id(), sig.provider(), Boolean.toString(ind.requiresQueryKey() != null || ind.requiresFragment() != null)});
+                            urlObsByGroup.computeIfAbsent(sig.id() + "@" + u.frameId(), k -> new HashSet<>()).add(obsKey);
                             String type = u.kind().equals("SCRIPT") ? "SCRIPT_RESOURCE" : u.kind().equals("FRAME") ? "FRAME_RESOURCE" : "NETWORK_RESOURCE";
                             add(groups, sig, u.frameId(), new ProtectionEvidence(type, ind.id(),
                                     ind.description() + ": " + u.url() + (u.simulated() ? " [simulado no laboratório]" : ""), u.source(),
@@ -163,8 +169,9 @@ public final class ProtectionDetector {
         }
 
         List<ProtectionAssessment> assessments = new ArrayList<>();
-        for (Group g : groups.values()) {
-            assessments.add(classify(a, graph, g, strongDomProviders));
+        for (Map.Entry<String, Group> e : groups.entrySet()) {
+            assessments.add(classify(a, graph, e.getValue(), strongDomProviders,
+                    shadowedBy(e.getValue(), urlObsByGroup.getOrDefault(e.getKey(), Set.of()), urlMatches)));
         }
         assessments.removeIf(x -> x == null);
         List<String> limitations = new ArrayList<>();
@@ -192,7 +199,37 @@ public final class ProtectionDetector {
         return new ProtectionReport(catalog.catalogVersion(), status, assessments, generic, limitations);
     }
 
-    private ProtectionAssessment classify(PageAnalysis a, FrameGraph graph, Group g, Map<String, Set<String>> strongDomProviders) {
+    /**
+     * Assinatura "sombreada": TODA a sua evidência vem de URLs que também casaram, por um indicador MAIS específico
+     * (parâmetro/fragmento exigido), com outra assinatura do MESMO fornecedor (ex.: {@code api.js?render=} é
+     * compatível com reCAPTCHA v2 em renderização explícita e com v3; o valor do parâmetro não é coletado).
+     * Devolve a assinatura mais específica, ou {@code null}.
+     */
+    private static String shadowedBy(Group g, Set<String> obsKeys, Map<String, List<String[]>> urlMatches) {
+        if (obsKeys.isEmpty() || g.evidence().stream().anyMatch(e -> !"RESOURCE".equals(channel(e.type())))) {
+            return null;
+        }
+        String by = null;
+        for (String k : obsKeys) {
+            String own = null;
+            String other = null;
+            for (String[] m : urlMatches.getOrDefault(k, List.of())) {
+                if (m[0].equals(g.signature().id())) {
+                    own = m[2];
+                } else if (m[1].equals(g.signature().provider()) && "true".equals(m[2])) {
+                    other = m[0];
+                }
+            }
+            if (other == null || "true".equals(own)) {
+                return null;
+            }
+            by = other;
+        }
+        return by;
+    }
+
+    private ProtectionAssessment classify(PageAnalysis a, FrameGraph graph, Group g, Map<String, Set<String>> strongDomProviders,
+                                          String shadowedBy) {
         SignatureCatalog.Signature sig = g.signature();
         List<ProtectionEvidence> ev = dedupe(g.evidence());
         int strong = 0;
@@ -241,6 +278,13 @@ public final class ProtectionDetector {
             reasons.add("reduzida: o mesmo elemento corresponde a assinaturas de fornecedores diferentes");
             limitations.add("Assinaturas conflitantes no mesmo elemento: evidências preservadas, fornecedor incerto");
         }
+        if (shadowedBy != null) {
+            int i = ORDER.indexOf(confidence);
+            confidence = ORDER.get(Math.max(0, i - 1));
+            reasons.add("reduzida: a mesma referência corresponde de forma mais específica a " + shadowedBy);
+            limitations.add("Referência compatível com mais de um produto do fornecedor (valores de parâmetros não são coletados): "
+                    + "produto incerto");
+        }
         if (ev.stream().anyMatch(ProtectionEvidence::simulated)) {
             limitations.add("Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)");
         }
@@ -262,6 +306,11 @@ public final class ProtectionDetector {
             state = "CHALLENGE_PRESENT";
         } else {
             state = "TECHNOLOGY_DETECTED";
+        }
+        boolean weakOnly = ev.stream().allMatch(e -> "WEAK".equals(e.strength()));
+        if (weakOnly && !"ACCESS_BLOCKED".equals(state)) {
+            state = "UNKNOWN"; // evidência fraca não sustenta afirmação sobre desafio
+            limitations.add("Somente evidência fraca: o estado de desafio não pode ser afirmado");
         }
         if (completed && !widgetVisible) {
             limitations.add("Campo de resposta preenchido sem widget visível: conclusão não confirmada");

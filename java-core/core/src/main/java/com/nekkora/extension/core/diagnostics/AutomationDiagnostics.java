@@ -253,8 +253,8 @@ public final class AutomationDiagnostics {
             s.put("challengeState", p.challengeState());
             s.put("documentId", p.location() == null ? null : p.location().documentId());
             protections.add(s);
-            if ("UNKNOWN".equals(p.provider())) {
-                unknownProtection = true;
+            if ("UNKNOWN".equals(p.provider()) || "POSSIBLE".equals(p.status())) {
+                unknownProtection = true; // fornecedor desconhecido ou evidência insuficiente: validar, não presumir
                 continue;
             }
             switch (p.challengeState()) {
@@ -289,7 +289,7 @@ public final class AutomationDiagnostics {
         }
         if (unknownProtection) {
             obstacles.add(new AutomationObstacle("UNKNOWN_PROTECTION", "MEDIUM",
-                    "Indicadores genéricos de verificação humana sem fornecedor identificável",
+                    "Possível proteção sem evidência suficiente para identificar fornecedor ou estado",
                     List.of("status do diagnóstico: " + protection.status()), List.of(), List.of(), 1, false));
         }
         limitations.addAll(protection.limitations());

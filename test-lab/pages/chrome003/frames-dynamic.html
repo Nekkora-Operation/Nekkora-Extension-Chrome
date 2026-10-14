@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Frame Intelligence — ciclo de vida</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe { width: 46%; height: 180px; border: 1px solid #999; margin: 4px; vertical-align: top; }</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Frame Intelligence — ciclo de vida dos documentos</h1>
+  <p class="muted">Cenários G (iframe removido), H (iframe substituído por re-renderização de SPA), I (about:blank),
+    srcdoc, carregamento lento, navegação interna e inserção dinâmica.</p>
+  <div>
+    <button type="button" id="remover">Remover iframe Pedidos</button>
+    <button type="button" id="spa">Re-renderizar (SPA)</button>
+    <button type="button" id="inserir">Inserir iframe</button>
+    <button type="button" id="navegar">Navegar iframe Pagamentos</button>
+    <button type="button" id="lento">Inserir iframe lento</button>
+    <button type="button" id="mudar-src">Trocar src de Pedidos</button>
+  </div>
+  <div id="area-pedidos"><iframe id="f-pedidos" title="Pedidos" src="/lab/chrome003/contas.html?pedidos=1"></iframe></div>
+  <div id="spa-root"></div>
+  <iframe id="f-pagamentos" title="Pagamentos" src="/lab/chrome003/pagamentos.html"></iframe>
+  <iframe id="f-branco" title="Rascunho"></iframe>
+  <iframe id="f-srcdoc" title="Resumo" srcdoc="<p>Resumo gerado</p><button type=button>Fechar resumo</button>"></iframe>
+  <div id="dinamicos"></div>
+  <script src="/lab/lab.js"></script>
+  <script>
+    // I: about:blank preenchido pelo documento pai (herda a origem do pai).
+    const branco = document.getElementById('f-branco').contentDocument;
+    branco.body.innerHTML = '<label for="nota">Nota</label> <input id="nota"><button type="button">Guardar nota</button>';
+
+    // H: "componente" de SPA que re-renderiza: o iframe é DESTRUÍDO e recriado com os mesmos atributos.
+    let versao = 0;
+    function renderSpa() {
+      versao++;
+      document.getElementById('spa-root').innerHTML =
+        '<section aria-label="Cadastro"><iframe title="Cadastro" src="/lab/chrome003/contas.html?spa=1"></iframe></section>';
+    }
+    renderSpa();
+    document.getElementById('spa').onclick = renderSpa;
+
+    // G: remoção do iframe durante a inspeção.
+    document.getElementById('remover').onclick = () => { const f = document.getElementById('f-pedidos'); if (f) f.remove(); };
+    document.getElementById('mudar-src').onclick = () => { document.getElementById('f-pedidos').src = '/lab/chrome003/widget.html'; };
+    document.getElementById('navegar').onclick = () => { document.getElementById('f-pagamentos').contentWindow.location.href = '/lab/chrome003/widget.html?navegado=1'; };
+    let n = 0;
+    document.getElementById('inserir').onclick = () => {
+      const f = document.createElement('iframe');
+      f.title = 'Inserido ' + (++n);
+      f.src = '/lab/chrome003/widget.html?inserido=' + n;
+      document.getElementById('dinamicos').appendChild(f);
+    };
+    document.getElementById('lento').onclick = () => {
+      const f = document.createElement('iframe');
+      f.id = 'f-lento';
+      f.title = 'Relatório lento';
+      f.src = '/generated/slow-frame?ms=4000';
+      document.getElementById('dinamicos').appendChild(f);
+    };
+  </script>
+</body>
+</html>

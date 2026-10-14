@@ -2488,6 +2488,8 @@
                   "FRAME_PARENT_OF",
                   "FRAME_CHILD_OF",
                   "FRAME_HOSTED_BY_ELEMENT",
+                  "ELEMENT_BELONGS_TO_DOCUMENT",
+                  "ELEMENT_BELONGS_TO_FRAME",
                   "SHADOW_ROOT_BELONGS_TO_DOCUMENT"
                 ]
               },

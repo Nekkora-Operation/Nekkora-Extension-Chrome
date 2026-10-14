@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Relatórios</title>
+  <style>body{font:14px system-ui;margin:8px} iframe{width:96%;height:150px;border:1px solid #999}</style>
+</head>
+<body>
+  <h3>Relatórios (<span id="origem"></span>)</h3>
+  <button type="button" id="gerar">Gerar relatório</button>
+  <!-- Aninhado na MESMA origem deste frame (capturado pelo content script deste frame). -->
+  <iframe id="f-graficos" title="Gráficos" src="/lab/chrome003/graficos.html"></iframe>
+  <script>document.getElementById('origem').textContent = location.host;</script>
+</body>
+</html>

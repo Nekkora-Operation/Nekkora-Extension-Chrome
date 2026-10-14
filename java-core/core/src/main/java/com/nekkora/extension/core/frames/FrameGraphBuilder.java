@@ -100,6 +100,7 @@ public final class FrameGraphBuilder {
             }
         }
 
+        Map<String, BrowserFrameMetadata> associated = new HashMap<>(); // frame lógico -> metadados do Chrome
         for (FrameInfo f : ordered) {
             boolean main = f.parentFrameId() == null && "f0".equals(f.frameId());
             RawNode host = f.hostNodeId() == null ? null : a.model().find(f.hostNodeId()).orElse(null);
@@ -113,7 +114,19 @@ public final class FrameGraphBuilder {
             String effective = UrlSanitizer.sanitize(f.url());
             BrowserFrameMetadata m = main ? topMeta : (host == null ? null : byHost.get(host.id()));
             if (m == null && !main && host != null) {
-                m = matchByUrl(unmapped, declared);
+                // Sem handshake (ex.: about:blank/srcdoc, que não recebem content script): associa somente quando a
+                // URL é ÚNICA entre os filhos do mesmo frame pai no Chrome. Nunca por posição ou ordem.
+                BrowserFrameMetadata parentMeta = associated.get(f.parentFrameId());
+                String candidate = declared != null ? declared : UrlSanitizer.sanitize(f.url());
+                m = matchByUrl(unmapped, candidate, parentMeta == null ? null : parentMeta.browserFrameId());
+                if (m != null) {
+                    unmapped.remove(m);
+                    m = new BrowserFrameMetadata(m.browserFrameId(), m.browserDocumentId(), m.parentBrowserFrameId(), m.parentDocumentId(),
+                            m.url(), m.frameType(), m.documentLifecycle(), m.hostNodeId(), "URL_MATCH", m.inspection(), m.source(), m.reason());
+                }
+            }
+            if (m != null) {
+                associated.put(f.frameId(), m);
             }
             if ((effective == null || effective.isEmpty()) && m != null && m.url() != null) {
                 effective = m.url();
@@ -162,6 +175,10 @@ public final class FrameGraphBuilder {
                 relations.add(new FrameGraph.Relation("FRAME_PARENT_OF", f.parentFrameId(), f.frameId()));
                 if (f.hostNodeId() != null) {
                     relations.add(new FrameGraph.Relation("FRAME_HOSTED_BY_ELEMENT", f.frameId(), f.hostNodeId()));
+                    // Pertença dos elementos ESTRUTURAIS (hosts) ao documento/frame; a de cada elemento comum é dada por
+                    // elements[].documentId no PageMap (evita uma relação por nó).
+                    relations.add(new FrameGraph.Relation("ELEMENT_BELONGS_TO_DOCUMENT", f.hostNodeId(), parentDocumentId));
+                    relations.add(new FrameGraph.Relation("ELEMENT_BELONGS_TO_FRAME", f.hostNodeId(), f.parentFrameId()));
                 }
             }
             relations.add(new FrameGraph.Relation("FRAME_HAS_DOCUMENT", f.frameId(), documentId));
@@ -172,6 +189,10 @@ public final class FrameGraphBuilder {
         for (ShadowRootInfo s : snap.shadowRoots()) {
             String frame = a.model().find(s.hostNodeId()).map(RawNode::frameId).orElse("f0");
             relations.add(new FrameGraph.Relation("SHADOW_ROOT_BELONGS_TO_DOCUMENT", "shadow:" + s.hostNodeId(), "doc:" + frame));
+            if (a.model().contains(s.hostNodeId())) {
+                relations.add(new FrameGraph.Relation("ELEMENT_BELONGS_TO_DOCUMENT", s.hostNodeId(), "doc:" + frame));
+                relations.add(new FrameGraph.Relation("ELEMENT_BELONGS_TO_FRAME", s.hostNodeId(), frame));
+            }
         }
         frames = markAmbiguousSiblings(frames);
         if (meta.isEmpty()) {
@@ -211,12 +232,15 @@ public final class FrameGraphBuilder {
         }
     }
 
-    private static BrowserFrameMetadata matchByUrl(List<BrowserFrameMetadata> unmapped, String declared) {
+    private static BrowserFrameMetadata matchByUrl(List<BrowserFrameMetadata> unmapped, String declared, Integer parentBrowserFrameId) {
         if (declared == null) {
             return null;
         }
         BrowserFrameMetadata found = null;
         for (BrowserFrameMetadata m : unmapped) {
+            if (parentBrowserFrameId != null && m.parentBrowserFrameId() != null && !parentBrowserFrameId.equals(m.parentBrowserFrameId())) {
+                continue; // filho de outro frame
+            }
             if (declared.equals(m.url())) {
                 if (found != null) {
                     return null; // mais de um frame com a mesma URL: não associa por adivinhação

@@ -28,6 +28,27 @@ async function frameDetails(tabId) {
   }
 }
 
+/**
+ * Frame cujo content script capturou o documento {@code frameId}: o próprio frame quando anexado; o dono da
+ * captura do pai quando o documento foi capturado pelo pai (mesma origem); 0 para o documento principal.
+ */
+function captureOwner(rec, frameId) {
+  for (let id = frameId, guard = 0; guard < 20; guard++) {
+    if (!id) {
+      return 0;
+    }
+    const e = Object.values(rec.frames).find((x) => x.frameId === id);
+    if (!e || e.status === 'ATTACHED') {
+      return id;
+    }
+    if (e.status !== 'CAPTURED_BY_PARENT') {
+      return id;
+    }
+    id = e.parentFrameId;
+  }
+  return 0;
+}
+
 /** Anexa um frame de outra origem permitida à sessão da aba. Idempotente para a época corrente. */
 export async function attach(rec, frameId, info) {
   const src = 'x' + frameId;
@@ -35,7 +56,8 @@ export async function attach(rec, frameId, info) {
   if (existing && existing.epoch === rec.epoch && existing.status === 'ATTACHED' && (!info || !info.documentId || existing.documentId === info.documentId)) {
     return existing;
   }
-  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null, url: info && info.url, reason: null, documentId: info && info.documentId };
+  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null, url: info && info.url, reason: null,
+    documentId: info && info.documentId, parentFrameId: info && info.parentFrameId != null ? info.parentFrameId : 0 };
   rec.frames[src] = entry;
   try {
     if (Object.keys(rec.frames).length > MAX_FRAMES_PER_TAB) {
@@ -44,9 +66,10 @@ export async function attach(rec, frameId, info) {
     const parentFrameId = info && info.parentFrameId != null ? info.parentFrameId : 0;
     const t = token();
     await toContent(rec.tabId, 'cs.frame.announce', { token: t }, frameId);
-    // O iframe hospedeiro precisa existir no estado do motor: sincroniza o pai antes de procurar.
-    await toContent(rec.tabId, 'cs.session.flush', {}, parentFrameId).catch(() => {});
-    const look = await toContent(rec.tabId, 'cs.frame.lookup', { token: t, waitMs: 1500 }, parentFrameId);
+    // O iframe hospedeiro é procurado no frame DONO da captura do pai (o id do nó precisa ser o do estado do motor).
+    const owner = captureOwner(rec, parentFrameId);
+    await toContent(rec.tabId, 'cs.session.flush', {}, owner).catch(() => {});
+    const look = await toContent(rec.tabId, 'cs.frame.lookup', { token: t, waitMs: 1500 }, owner);
     if (!look.found) {
       throw new HostError('FRAME_HOST_NOT_FOUND', 'handshake sem resposta do frame ' + frameId);
     }

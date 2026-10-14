@@ -206,4 +206,33 @@ class ProtectionDetectorTest {
         h.dom().getElementById("box").remove();
         assertEquals("NOT_OBSERVED", assess(h.reload()).status());
     }
+
+    @Test
+    void lessSpecificSignatureSharingTheSameReferenceIsDowngraded() { // LAB-P07: api.js?render= é v2 explícito OU v3
+        ProtectionReport r = assess(HtmlSnapshot.of("""
+                <script src="https://www.google.com/recaptcha/api.js?render=CHAVE-FICTICIA" %s></script>
+                <div class="grecaptcha-badge"></div><button>Comprar</button>""".formatted(INERT)));
+        ProtectionAssessment v3 = only(r, "RECAPTCHA_V3");
+        ProtectionAssessment v2 = only(r, "RECAPTCHA_V2");
+        assertEquals("MEDIUM", v3.confidence());
+        assertEquals("LOW", v2.confidence(), v2.confidenceReasons().toString());
+        assertEquals("POSSIBLE", v2.status());
+        assertTrue(v2.confidenceReasons().stream().anyMatch(x -> x.contains("google.recaptcha.v3")));
+        assertTrue(v2.limitations().stream().anyMatch(x -> x.contains("produto incerto")));
+
+        // Com o widget v2 (evidência DOM própria) não há sombreamento.
+        ProtectionReport w = assess(HtmlSnapshot.of("""
+                <script src="https://www.google.com/recaptcha/api.js?render=explicit" %s></script>
+                <div class="g-recaptcha"></div>""".formatted(INERT)));
+        assertEquals("HIGH", only(w, "RECAPTCHA_V2").confidence());
+    }
+
+    @Test
+    void weakOnlyEvidenceDoesNotClaimAChallengeState() { // LAB-P10
+        ProtectionReport r = assess(HtmlSnapshot.of("<div id=captcha-container style=\"width:300px;height:60px\">.</div><button>Prosseguir</button>"));
+        ProtectionAssessment a = only(r, "WAF_CAPTCHA");
+        assertEquals("POSSIBLE", a.status());
+        assertEquals("LOW", a.confidence());
+        assertEquals("UNKNOWN", a.challengeState(), "evidência fraca não afirma desafio presente");
+    }
 }

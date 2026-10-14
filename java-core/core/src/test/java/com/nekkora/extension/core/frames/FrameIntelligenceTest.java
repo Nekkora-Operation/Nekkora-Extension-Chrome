@@ -85,6 +85,13 @@ class FrameIntelligenceTest {
         assertTrue(p.explanation().contains("3º nível de iframe"), p.explanation());
         assertTrue(p.explanation().contains("Sistema Financeiro") && p.explanation().contains("hierarquia documental"), p.explanation());
         assertEquals("Confirmar pagamento", p.target().name());
+        var types = g.relations().stream().map(FrameGraph.Relation::type).distinct().toList();
+        for (String t : List.of("DOCUMENT_CONTAINS_FRAME", "FRAME_HAS_DOCUMENT", "FRAME_PARENT_OF", "FRAME_CHILD_OF", "FRAME_HOSTED_BY_ELEMENT",
+                "ELEMENT_BELONGS_TO_DOCUMENT", "ELEMENT_BELONGS_TO_FRAME", "SHADOW_ROOT_BELONGS_TO_DOCUMENT")) {
+            assertTrue(types.contains(t), t + " em " + types); // §6
+        }
+        String host = h.idOf("#financeiro");
+        assertTrue(g.relations().contains(new FrameGraph.Relation("ELEMENT_BELONGS_TO_DOCUMENT", host, "doc:f0")));
     }
 
     @Test
@@ -257,6 +264,33 @@ class FrameIntelligenceTest {
         assertNull(fb.browser(), "sem associação por handshake e URL diferente: nada é inventado");
         assertNull(g.document(fb.documentId()).orElseThrow().browserDocumentId());
         assertTrue(g.limitations().stream().noneMatch(l -> l.contains("indisponíveis")));
+    }
+
+    @Test
+    void aboutBlankWithoutContentScriptIsAssociatedOnlyWhenTheUrlIsUniqueUnderTheSameParent() { // §5.2 / §5.3
+        HtmlSnapshot one = HtmlSnapshot.of("<iframe id=b1 title=Rascunho data-fixture-frame=x></iframe><iframe id=s1 srcdoc=\"<p>r</p>\" data-fixture-frame=y></iframe>")
+                .frame("x", "<p>x</p>", true, null, "about:blank")
+                .frame("y", "<p>r</p>", true, null, "about:srcdoc");
+        List<BrowserFrameMetadata> meta = List.of(
+                new BrowserFrameMetadata(0, "DOC-TOP", -1, null, "http://127.0.0.1:8765/lab/test.html", "outermost_frame", "active", null, "TOP", "TOP", "top", null),
+                new BrowserFrameMetadata(4, "DOC-BLANK", 0, "DOC-TOP", "about:blank", "sub_frame", "active", null, "UNMAPPED", "NO_CONTENT_SCRIPT", null, null),
+                new BrowserFrameMetadata(5, "DOC-SRCDOC", 0, "DOC-TOP", "about:srcdoc", "sub_frame", "active", null, "UNMAPPED", "NO_CONTENT_SCRIPT", null, null),
+                new BrowserFrameMetadata(8, "DOC-OTHER", 3, "DOC-X", "about:blank", "sub_frame", "active", null, "UNMAPPED", "NO_CONTENT_SCRIPT", null, null));
+        FrameGraph g = builder.build(Engine.analyze(one), meta);
+        FrameDescriptor blank = g.frameHostedBy(one.idOf("#b1")).orElseThrow();
+        assertEquals("DOC-BLANK", blank.browser().browserDocumentId(), "filho do mesmo pai com URL única (o about:blank de outro pai é ignorado)");
+        assertEquals("URL_MATCH", blank.browser().mapping());
+        assertEquals("ABOUT_BLANK", blank.documentKind());
+        assertEquals("DOC-SRCDOC", g.frameHostedBy(one.idOf("#s1")).orElseThrow().browser().browserDocumentId());
+
+        HtmlSnapshot two = HtmlSnapshot.of("<iframe id=b1 data-fixture-frame=x></iframe><iframe id=b2 data-fixture-frame=z></iframe>")
+                .frame("x", "<p>x</p>", true, null, "about:blank")
+                .frame("z", "<p>z</p>", true, null, "about:blank");
+        List<BrowserFrameMetadata> meta2 = List.of(meta.get(0), meta.get(1),
+                new BrowserFrameMetadata(6, "DOC-BLANK-2", 0, "DOC-TOP", "about:blank", "sub_frame", "active", null, "UNMAPPED", "NO_CONTENT_SCRIPT", null, null));
+        FrameGraph g2 = builder.build(Engine.analyze(two), meta2);
+        assertNull(g2.frameHostedBy(two.idOf("#b1")).orElseThrow().browser(), "dois about:blank no mesmo pai: nenhuma associação por adivinhação");
+        assertNull(g2.frameHostedBy(two.idOf("#b2")).orElseThrow().browser());
     }
 
     @Test

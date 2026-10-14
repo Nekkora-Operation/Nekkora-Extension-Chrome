@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>LAB-P03 — Cloudflare Turnstile (simulado)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <script type="application/x-nekkora-inert" src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <p class="sim-banner">Fixture SIMULADA — Turnstile sem serviço real (classe cf-turnstile e script inerte).</p>
+  <h1>Entrar</h1>
+  <form id="entrar" onsubmit="event.preventDefault()">
+    <label for="usuario">Usuário</label> <input id="usuario" name="usuario" autocomplete="off">
+    <div class="cf-turnstile" data-sitekey="LAB-FICTICIA-0003" style="width:300px;height:65px;border:1px dashed #999">Turnstile simulado</div>
+    <input type="hidden" name="cf-turnstile-response" value="">
+    <button type="submit">Entrar</button>
+  </form>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>
