@@ -53,7 +53,7 @@ class Chrome002ExportIT extends SessionIT {
     /** Verifica o resultado de exportação e devolve o PageMap gravado. */
     private JsonNode assertExported(JsonNode r) throws Exception {
         assertEquals("EXPORTED", r.get("status").asText(), r.toString());
-        assertEquals("0.1.0", r.get("schemaVersion").asText());
+        assertEquals("0.2.0", r.get("schemaVersion").asText());
         assertTrue(r.get("elementCount").asInt() > 0);
         assertTrue(r.get("complete").asBoolean());
         assertEquals("SYNCHRONIZED", r.get("syncState").asText());

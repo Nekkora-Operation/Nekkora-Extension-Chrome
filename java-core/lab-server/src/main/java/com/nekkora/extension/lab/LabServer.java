@@ -34,6 +34,8 @@ import java.util.concurrent.Executors;
  *   <li>{@code /lab/spa/*} — aplicação SPA (fallback para spa/app.html);</li>
  *   <li>{@code /api/clientes}, {@code /api/cidades} — API JSON de teste;</li>
  *   <li>{@code /generated/large?n=N} — página com N elementos para medição de desempenho;</li>
+ *   <li>{@code /generated/frames?count=N&depth=D} e {@code /generated/frame} — N iframes com D níveis (CHROME-003);</li>
+ *   <li>{@code /generated/slow-frame?ms=M} — documento que só responde após M ms (frame em carregamento);</li>
  *   <li>{@code /health} — verificação de disponibilidade.</li>
  * </ul>
  */
@@ -48,7 +50,7 @@ public final class LabServer {
     public LabServer(int port, Path root) throws IOException {
         this.root = root.toAbsolutePath().normalize();
         this.server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 64);
-        this.server.setExecutor(Executors.newFixedThreadPool(8));
+        this.server.setExecutor(Executors.newFixedThreadPool(16));
         this.server.createContext("/", this::handle);
         int main = server.getAddress().getPort();
         addListener(InetAddress.getLoopbackAddress(), main + 1);
@@ -114,6 +116,18 @@ public final class LabServer {
             } else if (path.equals("/generated/large")) {
                 int n = Math.max(10, Math.min(parseInt(query.get("n"), 1000), 20_000));
                 send(ex, 200, "text/html; charset=utf-8", LargePageGenerator.generate(n));
+            } else if (path.equals("/generated/frames")) {
+                int count = Math.max(1, Math.min(parseInt(query.get("count"), 5), FramePageGenerator.MAX_COUNT));
+                int depth = Math.max(1, Math.min(parseInt(query.get("depth"), 1), FramePageGenerator.MAX_DEPTH));
+                send(ex, 200, "text/html; charset=utf-8", FramePageGenerator.page(count, depth));
+            } else if (path.equals("/generated/frame")) {
+                int depth = Math.max(1, Math.min(parseInt(query.get("depth"), 1), FramePageGenerator.MAX_DEPTH));
+                int level = Math.max(1, Math.min(parseInt(query.get("level"), 1), depth));
+                send(ex, 200, "text/html; charset=utf-8", FramePageGenerator.frame(parseInt(query.get("i"), 1), level, depth));
+            } else if (path.equals("/generated/slow-frame")) {
+                int ms = Math.max(0, Math.min(parseInt(query.get("ms"), 3000), 15_000));
+                Thread.sleep(ms);
+                send(ex, 200, "text/html; charset=utf-8", FramePageGenerator.slow(ms));
             } else {
                 send(ex, 404, "text/plain; charset=utf-8", "Não encontrado: " + path);
             }

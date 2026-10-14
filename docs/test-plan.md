@@ -160,6 +160,21 @@ Valores completos em [`reports/performance.md`](../reports/performance.md). O or
 (não afrouxado); a exportação completa do PageMap de 10.000 elementos (3,3 s) não tem orçamento
 definido e é registrada como ponto de atenção.
 
+## CHROME-003
+
+| Matriz | Classe | Casos | Conteúdo |
+|---|---|---|---|
+| F003-001..020 | `Chrome003FrameIT` | 20 | grafo documental, ids do Chrome × lógicos, URL declarada × efetiva × origem, cenários A–J, sandbox, outra origem aninhada, carregamento lento, observação contínua, painel, PageMap 0.2.0 |
+| P003-001..015 | `Chrome003ProtectionIT` | 15 | LAB-P01..P11, estados, confiança, localização, passividade, recomendações, catálogo e determinismo |
+| N003-A..J | `Chrome003NegativeIT` | 10 | origem sem permissão, nó inexistente, handshake forjado, destaque sem iframe, interior inacessível, documento trocado, shadow fechado, frame sem content script, página inalterada, sem captura |
+| I003-01..10 | `Chrome003IntegratedIT` | 10 | cenários integrados (captura, hierarquia, identificação, família, localizadores, trajetória, reencontro, diagnóstico, evidências, limitações) |
+| D003-001..002 | `Chrome003PerformanceIT` | 2 | 1/5/10/25 iframes e profundidades 1–5; comparação com o baseline da CHROME-002 |
+| unitários | `FrameIntelligenceTest`, `ProtectionDetectorTest`, `AutomationDiagnosticsTest`, `FrameCommandsTest`, `LabServerTest` | 14 + 17 + 5 + 2 + 1 | regras do motor sem navegador |
+
+Baseline: `reports/chrome-003/baseline/` (CHROME-002 na `main`: 117/117 no navegador). Todos os testes anteriores
+continuam na suíte; nenhum foi removido ou afrouxado (as asserções de versão `0.1.0` → `0.2.0` acompanham a mudança
+intencional de contrato — D-037).
+
 ## Como executar
 
 ```powershell

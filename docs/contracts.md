@@ -114,8 +114,26 @@ são atendidos pela barreira de sincronização (`page.select`, `target.resolve`
 Detalhes: [ciclo de captura](chrome-002/capture-lifecycle.md) · [inspeção](chrome-002/inspection.md) ·
 [exportação](chrome-002/export.md) · [iframes, Shadow DOM e AccName](chrome-002/frames-shadow-accname.md).
 
+## CHROME-003 (PageMap 0.2.0)
+
+| Contrato | Mudança | Compatibilidade |
+|---|---|---|
+| `page-map.schema.json` | `version` ∈ {`0.1.0`, `0.2.0`}; novas seções opcionais/anuláveis `frameGraph` (`FrameGraph`, `FrameDescriptor`, `DocumentDescriptor`, `BrowserFrameMetadata`, `FrameIdentity`, relações), `accessPaths` (`ElementAccessPath`), `protection` (`ProtectionReport`, `ProtectionAssessment`, `ProtectionEvidence`), `readiness` (`AutomationReadinessAssessment`, `AutomationObstacle`, `Recommendation`, `InteractionDependency`); `elements[].documentId`; `TargetIdentity.frameChain`; `ResolutionResult.diagnostics` | nova versão (D-037); sem as seções novas valida no 0.1.0 (`contracts/v0.1.0/`) |
+| `raw-snapshot.schema.json` | `resources[]` (`ResourceRef`: tipo, URL sanitizada, `observedBy` DOM/RESOURCE_TIMING, frame, tipo do script, nomes de parâmetros); `FrameInfo.title`/`readyState` | aditiva |
+| `native-protocol.schema.json` | `capture.frames.metadata`, `frames.graph`, `element.accessPath`, `protection.assess`, `diagnostics.readiness`, `page.diagnose` | aditiva (`FrameCommandsTest` valida requisições e respostas) |
+| `capture-session.schema.json` | `schemaVersion` aceita `0.2.0` | aditiva |
+| `protection-signatures.json` + `protection-catalog.schema.json` | catálogo versionado de assinaturas (`catalogVersion`, `reviewedAt`, base, teto, fontes, indicadores) | novo |
+
+Comandos do service worker (CHROME-003): `frames.graph`, `element.accessPath` (por `nodeId` ou CSS + escopo),
+`protection.assess`, `diagnostics.readiness`, `page.diagnose`, `frames.syncMetadata`, `page.highlightFrame` (DEV).
+Todos recusam origens não permitidas (`ORIGIN_NOT_ALLOWED`) e, havendo sessão, executam a barreira de
+sincronização e atualizam os metadados de frames antes de consultar o motor.
+
+Detalhes: [Frame Intelligence](chrome-003/frame-intelligence.md) · [identidade](chrome-003/document-identity.md) ·
+[Access Path](chrome-003/element-access-path.md) · [proteções](chrome-003/protection-diagnostics.md).
+
 ## Evolução
 
-Mudanças incompatíveis exigem nova versão (`0.2.0`) do schema e de `PageMap.VERSION`. Campos novos
+Mudanças incompatíveis exigem nova versão do schema e de `PageMap.VERSION` (a CHROME-003 introduziu a `0.2.0`). Campos novos
 opcionais exigem atualizar o schema (os objetos principais usam `additionalProperties: false` para
 detectar divergência entre código e contrato).

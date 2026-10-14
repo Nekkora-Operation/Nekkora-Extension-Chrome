@@ -1,0 +1,1246 @@
+{
+  "first" : {
+    "attributeChanges" : { },
+    "candidates" : [ {
+      "features" : [ {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "TEST_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "{}",
+        "expected" : null,
+        "feature" : "ROW_KEY",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "TABLE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "DIALOG",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "FORM",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "FIELD_GROUP",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "LABEL",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "CONTAINER_HEADING",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "[]",
+        "expected" : null,
+        "feature" : "ROW_TEXTS",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "COLUMN",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "#sec-e",
+        "expected" : "#sec-e",
+        "feature" : "REGION",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "[]",
+        "expected" : null,
+        "feature" : "CONTEXT_TEXTS",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "Aprovar",
+        "expected" : "Aprovar",
+        "feature" : "NAME",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "Aprovar",
+        "expected" : "Aprovar",
+        "feature" : "TEXT",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "NAME_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "ID_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "button",
+        "expected" : "button",
+        "feature" : "TYPE_ATTRIBUTE",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "[iframe]",
+        "expected" : "[iframe]",
+        "feature" : "SCOPE",
+        "outcome" : "MATCH",
+        "quality" : 1
+      } ],
+      "foundBy" : [ "ROLE_NAME", "TEXT", "POSITIONAL", "BROAD_SEARCH" ],
+      "nodeId" : "n77",
+      "reasons" : [ "identidade confirmada (pontuação 1.0)" ],
+      "score" : 1,
+      "verdict" : "CONFIRMED"
+    } ],
+    "captureId" : "cap-ps-mv84d7ly-c5dy9n-2",
+    "diagnostics" : [ ],
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
+    "locatorChecks" : [ {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n77" ],
+      "semantic" : "* {role=button} {name=\"Aprovar\"}",
+      "strategy" : "ROLE_NAME"
+    }, {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n77" ],
+      "semantic" : "button {text=\"Aprovar\"}",
+      "strategy" : "TEXT"
+    }, {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n77" ],
+      "semantic" : "html >> body >> button {nth-of-type 1}",
+      "strategy" : "POSITIONAL"
+    } ],
+    "nodeReplaced" : false,
+    "resolvedNodeId" : "n77",
+    "schemaVersion" : "0.1.0",
+    "scope" : "AVAILABLE: [doc:f7]",
+    "score" : 1,
+    "status" : "RESOLVED",
+    "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
+    "updatedIdentity" : {
+      "attributeHistory" : {
+        "id" : [ null, null ],
+        "name" : [ null, null ]
+      },
+      "discriminators" : [ ],
+      "frameChain" : [ {
+        "container" : "region:sec-e",
+        "depth" : 1,
+        "idAttr" : null,
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : "http://127.0.0.1:18765",
+        "parentKey" : "main",
+        "stableAttributes" : { },
+        "title" : "Filial Sul",
+        "urlPath" : "/lab/chrome003/filial.html"
+      } ],
+      "lastCaptureId" : "cap-ps-mv84d7ly-c5dy9n-2",
+      "lastNodeId" : "n77",
+      "lastPageSessionId" : "ps-mv84d7ly-c5dy9n",
+      "locators" : {
+        "fallbacks" : [ {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n77" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "text" : "Aprovar",
+                "type" : "TEXT_EQUALS"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f7",
+            "scopeId" : "doc:f7",
+            "type" : "FRAME"
+          },
+          "score" : 0.608,
+          "semantic" : "button {text=\"Aprovar\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "TEXT",
+          "warnings" : [ ],
+          "xpath" : "//button[normalize-space(.)=\"Aprovar\"]"
+        }, {
+          "css" : "html > body > button:nth-of-type(1)",
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n77" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f7",
+            "scopeId" : "doc:f7",
+            "type" : "FRAME"
+          },
+          "score" : 0.09,
+          "semantic" : "html >> body >> button {nth-of-type 1}",
+          "stability" : "HEURISTIC_UNSTABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "depende de posição (nth-of-type)" ],
+          "strategy" : "POSITIONAL",
+          "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type)" ],
+          "xpath" : "//html/body/button[1]"
+        } ],
+        "nodeId" : "n77",
+        "primary" : {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n77" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "role" : "button",
+                "type" : "ROLE_IS"
+              }, {
+                "name" : "Aprovar",
+                "type" : "NAME_EQUALS"
+              } ],
+              "tag" : null
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f7",
+            "scopeId" : "doc:f7",
+            "type" : "FRAME"
+          },
+          "score" : 0.712,
+          "semantic" : "* {role=button} {name=\"Aprovar\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ROLE_NAME",
+          "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+          "xpath" : null
+        },
+        "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
+      },
+      "lookalikeCount" : 0,
+      "origin" : "http://127.0.0.1:18765/lab/chrome003/frames.html",
+      "registeredAt" : "2026-10-14T13:02:06.955933200Z",
+      "schemaVersion" : "0.1.0",
+      "signature" : {
+        "column" : null,
+        "compatibility" : "button",
+        "containerHeading" : null,
+        "contextTexts" : [ ],
+        "dialog" : null,
+        "fieldGroup" : null,
+        "form" : null,
+        "idAttribute" : null,
+        "kind" : "BUTTON",
+        "label" : null,
+        "name" : "Aprovar",
+        "nameAttribute" : null,
+        "region" : "#sec-e",
+        "role" : "button",
+        "rowKey" : { },
+        "rowKeySource" : null,
+        "rowTexts" : [ ],
+        "scopePath" : [ "iframe" ],
+        "table" : null,
+        "tag" : "button",
+        "testAttribute" : null,
+        "text" : "Aprovar",
+        "typeAttribute" : "button"
+      },
+      "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
+      "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
+    },
+    "updatedLocators" : {
+      "fallbacks" : [ {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n77" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "text" : "Aprovar",
+              "type" : "TEXT_EQUALS"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f7",
+          "scopeId" : "doc:f7",
+          "type" : "FRAME"
+        },
+        "score" : 0.608,
+        "semantic" : "button {text=\"Aprovar\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "TEXT",
+        "warnings" : [ ],
+        "xpath" : "//button[normalize-space(.)=\"Aprovar\"]"
+      }, {
+        "css" : "html > body > button:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n77" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f7",
+          "scopeId" : "doc:f7",
+          "type" : "FRAME"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> button {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/button[1]"
+      } ],
+      "nodeId" : "n77",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n77" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "role" : "button",
+              "type" : "ROLE_IS"
+            }, {
+              "name" : "Aprovar",
+              "type" : "NAME_EQUALS"
+            } ],
+            "tag" : null
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f7",
+          "scopeId" : "doc:f7",
+          "type" : "FRAME"
+        },
+        "score" : 0.712,
+        "semantic" : "* {role=button} {name=\"Aprovar\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "ROLE_NAME",
+        "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+        "xpath" : null
+      },
+      "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
+    }
+  },
+  "afterReload" : {
+    "attributeChanges" : { },
+    "candidates" : [ {
+      "features" : [ {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "TEST_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "{}",
+        "expected" : null,
+        "feature" : "ROW_KEY",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "TABLE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "DIALOG",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "FORM",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "FIELD_GROUP",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "LABEL",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "CONTAINER_HEADING",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "[]",
+        "expected" : null,
+        "feature" : "ROW_TEXTS",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "COLUMN",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "#sec-e",
+        "expected" : "#sec-e",
+        "feature" : "REGION",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "[]",
+        "expected" : null,
+        "feature" : "CONTEXT_TEXTS",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "Aprovar",
+        "expected" : "Aprovar",
+        "feature" : "NAME",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "Aprovar",
+        "expected" : "Aprovar",
+        "feature" : "TEXT",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "NAME_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : null,
+        "expected" : null,
+        "feature" : "ID_ATTRIBUTE",
+        "outcome" : "NOT_APPLICABLE",
+        "quality" : 0
+      }, {
+        "actual" : "button",
+        "expected" : "button",
+        "feature" : "TYPE_ATTRIBUTE",
+        "outcome" : "MATCH",
+        "quality" : 1
+      }, {
+        "actual" : "[iframe]",
+        "expected" : "[iframe]",
+        "feature" : "SCOPE",
+        "outcome" : "MATCH",
+        "quality" : 1
+      } ],
+      "foundBy" : [ "ROLE_NAME", "TEXT", "POSITIONAL", "BROAD_SEARCH" ],
+      "nodeId" : "n96",
+      "reasons" : [ "identidade confirmada (pontuação 1.0)" ],
+      "score" : 1,
+      "verdict" : "CONFIRMED"
+    } ],
+    "captureId" : "cap-ps-mv84d7ly-c5dy9n-3",
+    "diagnostics" : [ ],
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
+    "locatorChecks" : [ {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n96" ],
+      "semantic" : "* {role=button} {name=\"Aprovar\"}",
+      "strategy" : "ROLE_NAME"
+    }, {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n96" ],
+      "semantic" : "button {text=\"Aprovar\"}",
+      "strategy" : "TEXT"
+    }, {
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n96" ],
+      "semantic" : "html >> body >> button {nth-of-type 1}",
+      "strategy" : "POSITIONAL"
+    } ],
+    "nodeReplaced" : false,
+    "resolvedNodeId" : "n96",
+    "schemaVersion" : "0.1.0",
+    "scope" : "AVAILABLE: [doc:f10]",
+    "score" : 1,
+    "status" : "RESOLVED",
+    "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
+    "updatedIdentity" : {
+      "attributeHistory" : {
+        "id" : [ null, null, null, null ],
+        "name" : [ null, null, null, null ]
+      },
+      "discriminators" : [ ],
+      "frameChain" : [ {
+        "container" : "region:sec-e",
+        "depth" : 1,
+        "idAttr" : null,
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : "http://127.0.0.1:18765",
+        "parentKey" : "main",
+        "stableAttributes" : { },
+        "title" : "Filial Sul",
+        "urlPath" : "/lab/chrome003/filial.html"
+      } ],
+      "lastCaptureId" : "cap-ps-mv84d7ly-c5dy9n-3",
+      "lastNodeId" : "n96",
+      "lastPageSessionId" : "ps-mv84d7ly-c5dy9n",
+      "locators" : {
+        "fallbacks" : [ {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n96" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "text" : "Aprovar",
+                "type" : "TEXT_EQUALS"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f10",
+            "scopeId" : "doc:f10",
+            "type" : "FRAME"
+          },
+          "score" : 0.608,
+          "semantic" : "button {text=\"Aprovar\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "TEXT",
+          "warnings" : [ ],
+          "xpath" : "//button[normalize-space(.)=\"Aprovar\"]"
+        }, {
+          "css" : "html > body > button:nth-of-type(1)",
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n96" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f10",
+            "scopeId" : "doc:f10",
+            "type" : "FRAME"
+          },
+          "score" : 0.09,
+          "semantic" : "html >> body >> button {nth-of-type 1}",
+          "stability" : "HEURISTIC_UNSTABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "depende de posição (nth-of-type)" ],
+          "strategy" : "POSITIONAL",
+          "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type)" ],
+          "xpath" : "//html/body/button[1]"
+        } ],
+        "nodeId" : "n96",
+        "primary" : {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : null,
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Aprovar",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n96" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "role" : "button",
+                "type" : "ROLE_IS"
+              }, {
+                "name" : "Aprovar",
+                "type" : "NAME_EQUALS"
+              } ],
+              "tag" : null
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+              "hostNodeId" : "n73",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "id",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "filial-sul"
+                  } ],
+                  "tag" : "div"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Filial Sul"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+            } ],
+            "frameId" : "f10",
+            "scopeId" : "doc:f10",
+            "type" : "FRAME"
+          },
+          "score" : 0.712,
+          "semantic" : "* {role=button} {name=\"Aprovar\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ROLE_NAME",
+          "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+          "xpath" : null
+        },
+        "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
+      },
+      "lookalikeCount" : 0,
+      "origin" : "http://127.0.0.1:18765/lab/chrome003/frames.html",
+      "registeredAt" : "2026-10-14T13:02:06.955933200Z",
+      "schemaVersion" : "0.1.0",
+      "signature" : {
+        "column" : null,
+        "compatibility" : "button",
+        "containerHeading" : null,
+        "contextTexts" : [ ],
+        "dialog" : null,
+        "fieldGroup" : null,
+        "form" : null,
+        "idAttribute" : null,
+        "kind" : "BUTTON",
+        "label" : null,
+        "name" : "Aprovar",
+        "nameAttribute" : null,
+        "region" : "#sec-e",
+        "role" : "button",
+        "rowKey" : { },
+        "rowKeySource" : null,
+        "rowTexts" : [ ],
+        "scopePath" : [ "iframe" ],
+        "table" : null,
+        "tag" : "button",
+        "testAttribute" : null,
+        "text" : "Aprovar",
+        "typeAttribute" : "button"
+      },
+      "targetId" : "tgt-0d88b543-7109-4e5d-b61b-e1be89fa5f54",
+      "warnings" : [ "DISTINGUISHED_BY_FRAME: 1 elemento(s) parecido(s) em frame(s) de identidade diferente" ]
+    },
+    "updatedLocators" : {
+      "fallbacks" : [ {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n96" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "text" : "Aprovar",
+              "type" : "TEXT_EQUALS"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f10",
+          "scopeId" : "doc:f10",
+          "type" : "FRAME"
+        },
+        "score" : 0.608,
+        "semantic" : "button {text=\"Aprovar\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "TEXT",
+        "warnings" : [ ],
+        "xpath" : "//button[normalize-space(.)=\"Aprovar\"]"
+      }, {
+        "css" : "html > body > button:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n96" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f10",
+          "scopeId" : "doc:f10",
+          "type" : "FRAME"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> button {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/button[1]"
+      } ],
+      "nodeId" : "n96",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "BUTTON",
+          "name" : "Aprovar",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n96" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "role" : "button",
+              "type" : "ROLE_IS"
+            }, {
+              "name" : "Aprovar",
+              "type" : "NAME_EQUALS"
+            } ],
+            "tag" : null
+          } ]
+        },
+        "scope" : {
+          "chain" : [ {
+            "css" : "div#filial-sul iframe[title=\"Filial Sul\"]",
+            "hostNodeId" : "n73",
+            "kind" : "FRAME",
+            "matchCount" : 1,
+            "query" : {
+              "steps" : [ {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "id",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "filial-sul"
+                } ],
+                "tag" : "div"
+              }, {
+                "axis" : "DESCENDANT",
+                "predicates" : [ {
+                  "name" : "title",
+                  "type" : "ATTR_EQUALS",
+                  "value" : "Filial Sul"
+                } ],
+                "tag" : "iframe"
+              } ]
+            },
+            "xpath" : "//div[@id=\"filial-sul\"]//iframe[@title=\"Filial Sul\"]"
+          } ],
+          "frameId" : "f10",
+          "scopeId" : "doc:f10",
+          "type" : "FRAME"
+        },
+        "score" : 0.712,
+        "semantic" : "* {role=button} {name=\"Aprovar\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "ROLE_NAME",
+        "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+        "xpath" : null
+      },
+      "warnings" : [ "SCOPED: executar dentro de FRAME (1 salto(s))" ]
+    }
+  }
+}

@@ -115,6 +115,114 @@ function renderInspection(data) {
     tbody.append(tr);
     tr.children[1].className = 'sel';
   });
+  renderAccessPath(ins.accessPath, ins.documentId);
+}
+
+const STEP_TEXT = { MAIN_DOCUMENT: 'DOCUMENTO', IFRAME: 'IFRAME', SHADOW_ROOT: 'SHADOW', ELEMENT: 'ELEMENTO' };
+
+/** Trajetória (documento → iframes → shadow roots → elemento) produzida pelo motor Java. */
+function renderAccessPath(path, documentId) {
+  const ol = $('path-steps');
+  ol.replaceChildren();
+  if (!path) {
+    kv($('path-info'), [['Trajetória', 'indisponível para este nó']]);
+    setText($('path-explanation'), '');
+    return;
+  }
+  const iframes = path.steps.filter((s) => s.type === 'IFRAME');
+  const current = iframes[iframes.length - 1];
+  const element = path.steps[path.steps.length - 1];
+  kv($('path-info'), [
+    ['Elemento', path.target.kind + (path.target.name ? ' · ' + path.target.name : '')],
+    ['Documento', element.documentId || documentId],
+    ['Iframe atual', current ? current.label : 'nenhum (documento principal)'],
+    ['Profundidade', path.frameDepth + ' iframe(s) · ' + path.shadowDepth + ' shadow root(s)'],
+    ['Estado', path.accessible ? 'acessível' : 'restrito: ' + path.blockingRestriction],
+    ['Estabilidade', path.stability],
+  ]);
+  for (const s of path.steps) {
+    const li = document.createElement('li');
+    const t = document.createElement('span');
+    t.className = 'step-type';
+    t.textContent = STEP_TEXT[s.type] || s.type;
+    li.append(t, document.createTextNode((s.label || '—') + (s.locator && s.type !== 'MAIN_DOCUMENT' ? ' — ' + s.locator : '')));
+    if (s.restriction) {
+      li.dataset.restricted = s.restriction;
+      li.title = s.restriction;
+    }
+    ol.append(li);
+  }
+  setText($('path-explanation'), path.explanation || '');
+}
+
+const PROTECTION_TEXT = {
+  NOT_OBSERVED: 'nenhuma proteção observada (não significa ausência)', TECHNOLOGY_DETECTED: 'tecnologia detectada',
+  CHALLENGE_PRESENT: 'desafio presente', CHALLENGE_ACTIVE: 'desafio ativo', CHALLENGE_COMPLETED: 'desafio concluído',
+  ACCESS_BLOCKED: 'acesso bloqueado', UNKNOWN: 'indeterminado', INSUFFICIENT_EVIDENCE: 'evidência insuficiente',
+};
+
+let lastDiagnosis = null;
+
+function renderDiagnosis(d) {
+  lastDiagnosis = d;
+  const c = d.counts || {};
+  setText($('st-docs'), nf.format(c.documents || 0) + (c.inaccessible ? ' (' + c.inaccessible + ' inacessível)' : ''));
+  setText($('st-frames'), nf.format(c.frames || 0) + (d.maxDepth ? ' · profundidade ' + d.maxDepth : ''));
+  setText($('st-shadow'), nf.format((c.shadowRootsOpen || 0) + (c.shadowRootsClosed || 0)) + (c.shadowRootsClosed ? ' (' + c.shadowRootsClosed + ' fechado)' : ''));
+  const p = d.protection;
+  const top = p.assessments[0];
+  const r = d.readiness;
+  const loc = top && top.location;
+  kv($('diag-info'), [
+    ['Proteção', top ? p.assessments.map((a) => a.provider + (a.product ? ' ' + a.product : '')).join(', ') : PROTECTION_TEXT[p.status] || p.status],
+    ['Confiança', top ? top.confidence : '—'],
+    ['Estado', PROTECTION_TEXT[top ? top.status : p.status] || (top ? top.status : p.status)],
+    ['Localização', loc ? (loc.documentId || '') + (loc.frameChain.length ? ' · iframe nível ' + loc.frameChain.length : '') + (loc.inspectable ? '' : ' · não inspecionável') : null],
+    ['Prontidão', r.status + ' (confiança ' + r.confidence + ')'],
+    ['Obstáculos', r.obstacles.length ? r.obstacles.map((o) => o.type + (o.count > 1 ? ' ×' + o.count : '')).join(', ') : 'nenhum conhecido'],
+    ['Recomendação', r.recommendations.map((x) => x.type).join(', ')],
+  ]);
+  for (const dd of $('diag-info').querySelectorAll('dd')) {
+    const key = dd.previousElementSibling.textContent;
+    if (key === 'Confiança') {
+      dd.dataset.level = top ? top.confidence : '';
+    } else if (key === 'Prontidão') {
+      dd.dataset.level = r.status;
+    }
+  }
+}
+
+let diagTimer = null;
+let diagRunning = false;
+
+/** Diagnóstico com limitação de frequência: no máximo um a cada 2 s, nunca dois em paralelo. */
+function scheduleDiagnosis(delayMs = 2000) {
+  if (diagTimer || tabId == null) {
+    return;
+  }
+  diagTimer = setTimeout(async () => {
+    diagTimer = null;
+    if (diagRunning) {
+      scheduleDiagnosis();
+      return;
+    }
+    diagRunning = true;
+    try {
+      renderDiagnosis(await call('page.diagnose'));
+    } catch (e) {
+      // sem captura ainda (ou motor indisponível): o painel mantém o último diagnóstico
+    } finally {
+      diagRunning = false;
+    }
+  }, delayMs);
+}
+
+function clearDiagnosis() {
+  lastDiagnosis = null;
+  for (const id of ['st-docs', 'st-frames', 'st-shadow']) {
+    setText($(id), '—');
+  }
+  kv($('diag-info'), [['Página', 'ative a inspeção para diagnosticar']]);
 }
 
 function renderResolution(r) {
@@ -153,6 +261,11 @@ function renderInspectionState(st) {
     message('Inspeção ativa com captura degradada' + (st.error ? ' (' + st.error.code + ')' : '') + '. Recuperando…');
   } else if (st.state === 'ACTIVE' || st.state === 'INACTIVE') {
     message('');
+  }
+  if (st.state === 'ACTIVE' || st.state === 'DEGRADED') {
+    scheduleDiagnosis(lastDiagnosis ? 2000 : 300);
+  } else if (st.state === 'INACTIVE') {
+    clearDiagnosis();
   }
   renderSession(st.capture);
 }
@@ -228,7 +341,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse({ url: location.href, tabId, mode, button: b.textContent, pressed: b.getAttribute('aria-pressed'),
       capture: $('st-capture').textContent, nodes: $('st-nodes').textContent, deltas: $('st-deltas').textContent,
       updated: $('st-updated').textContent, host: $('host-status').textContent, devTools: !!$('dev-tools'),
-      element: $('element-info').textContent, width: innerWidth, height: innerHeight });
+      element: $('element-info').textContent, width: innerWidth, height: innerHeight,
+      documents: $('st-docs').textContent, frames: $('st-frames').textContent, shadowRoots: $('st-shadow').textContent,
+      path: $('path-info').textContent, pathSteps: [...$('path-steps').children].map((li) => li.textContent),
+      explanation: $('path-explanation').textContent, diagnosis: $('diag-info').textContent });
   } else if (msg.cmd === 'panel.click' && $(msg.id)) {
     $(msg.id).click();
     sendResponse({ clicked: msg.id });
@@ -254,12 +370,17 @@ chrome.runtime.onMessage.addListener((msg) => {
   } else if (msg.event === 'session-status') {
     const sess = msg.data.session;
     renderSession(sess && sess.status !== 'COMPLETED' ? sess : null);
+    if (sess && sess.status === 'ACTIVE') {
+      scheduleDiagnosis();
+    }
     if (sess && sess.hostState === 'DEGRADED') {
       setText($('host-status'), 'Indisponível · reconectando…');
       $('host-status').className = 'status err';
     } else if (sess && sess.hostState === 'OK' && $('host-status').className !== 'status ok') {
       refreshHost();
     }
+  } else if (msg.event === 'frames-updated') {
+    scheduleDiagnosis(300);
   } else if (msg.event === 'inspection') {
     renderInspection(msg.data);
   } else if (msg.event === 'resolution') {
@@ -276,6 +397,10 @@ async function switchTab(id) {
   $('element-info').replaceChildren();
   $('family-info').replaceChildren();
   $('locators').querySelector('tbody').replaceChildren();
+  $('path-info').replaceChildren();
+  $('path-steps').replaceChildren();
+  setText($('path-explanation'), '');
+  clearDiagnosis();
   await refreshState();
   const stored = await chrome.storage.session.get('inspection:' + tabId).catch(() => ({}));
   if (stored && stored['inspection:' + tabId]) {
@@ -313,6 +438,15 @@ async function switchTab(id) {
   $('btn-capture').onclick = (e) => run(e.target, async () => {
     const r = await call('page.capture');
     message('Captura completa: ' + nf.format(r.nodes) + ' elementos (' + r.browser.captureMs + ' ms na página).', true);
+  });
+  $('btn-frame').onclick = (e) => run(e.target, async () => {
+    const r = await call('page.highlightFrame');
+    message(r.highlighted ? 'Iframe destacado: ' + r.label + ' (nível ' + r.depth + ').' : 'O elemento está no documento principal.', true);
+  });
+  $('btn-diagnose').onclick = (e) => run(e.target, async () => {
+    const d = await call('page.diagnose');
+    renderDiagnosis(d);
+    $('resolution').textContent = JSON.stringify({ protecao: d.protection, prontidao: d.readiness, tempos: d.timings }, null, 2);
   });
   $('btn-resolve').onclick = (e) => run(e.target, async () => renderResolution((await call('target.resolve')).result));
   $('btn-compare').onclick = (e) => run(e.target, async () => {

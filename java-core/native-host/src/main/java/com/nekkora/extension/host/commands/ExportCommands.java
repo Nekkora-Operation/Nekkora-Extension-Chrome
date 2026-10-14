@@ -46,7 +46,7 @@ public final class ExportCommands implements CommandRouter.CommandGroup {
                 }
             }
             PageMap map = s.assembler.assemble(a, opts, tab.optionHistory(), targets, tab.resolutions(), tab.mutations(),
-                    tab.evidence(), Instant.now().toString(), "FULL");
+                    tab.evidence(), Instant.now().toString(), "FULL", s.diagnosticsInput(tab));
             Map<String, Object> out = new LinkedHashMap<>();
             Path file = null;
             if (Payloads.flag(p, "persist", true) && s.session.store() != null) {

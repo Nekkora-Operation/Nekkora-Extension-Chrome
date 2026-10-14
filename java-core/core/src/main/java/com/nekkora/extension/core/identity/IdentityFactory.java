@@ -57,6 +57,21 @@ public final class IdentityFactory {
         Set<IdentityFeature> discriminators = EnumSet.noneOf(IdentityFeature.class);
 
         List<String> lookalikes = lookalikes(nodeId, sig, graph);
+        // CHROME-003: um parecido em OUTRO frame cuja identidade documental difere é distinguido pela hierarquia
+        // (a resolução valida a cadeia de frames antes dos candidatos); só permanecem os de frames equivalentes.
+        RawNode self = graph.model().node(nodeId);
+        String selfChain = chainKey(graph, self);
+        List<String> otherFrames = new ArrayList<>();
+        for (String other : lookalikes) {
+            RawNode o = graph.model().node(other);
+            if (!o.frameId().equals(self.frameId()) && !chainKey(graph, o).equals(selfChain)) {
+                otherFrames.add(other);
+            }
+        }
+        lookalikes.removeAll(otherFrames);
+        if (!otherFrames.isEmpty()) {
+            warnings.add("DISTINGUISHED_BY_FRAME: " + otherFrames.size() + " elemento(s) parecido(s) em frame(s) de identidade diferente");
+        }
         List<String> indistinguishable = new ArrayList<>();
         for (String other : lookalikes) {
             IdentitySignature o = extractor.extract(other, graph);
@@ -82,7 +97,15 @@ public final class IdentityFactory {
         DocumentInfo doc = graph.model().snapshot().document();
         return new TargetIdentity(idGenerator.get(), TargetIdentity.SCHEMA_VERSION, clock.get(), originOf(doc),
                 sig, discriminators, lookalikes.size(), set, nodeId, doc == null ? null : doc.pageSessionId(),
-                captureId, history, warnings);
+                captureId, history, warnings, com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
+    }
+
+    private static String chainKey(ContextGraph graph, RawNode node) {
+        StringBuilder sb = new StringBuilder();
+        for (var f : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node)) {
+            sb.append(f.key()).append(" > ");
+        }
+        return sb.toString();
     }
 
     /** Elementos da mesma família de compatibilidade com o mesmo nome (ou mesmo texto, sem nome). */

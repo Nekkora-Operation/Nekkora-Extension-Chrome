@@ -1,0 +1,875 @@
+{
+  "captura" : {
+    "deltas" : 0,
+    "fullCaptures" : 1,
+    "nodes" : 175
+  },
+  "hierarquia" : {
+    "counts" : {
+      "documents" : 31,
+      "frames" : 30,
+      "inaccessible" : 0,
+      "inspected" : 31,
+      "loading" : 0,
+      "shadowRootsClosed" : 0,
+      "shadowRootsOpen" : 0
+    },
+    "frames" : [ "f0:null:INSPECTED", "f1:Frame 1 nível 1:INSPECTED", "f2:Frame 1 nível 2:INSPECTED", "f3:Frame 1 nível 3:INSPECTED", "f4:Frame 2 nível 1:INSPECTED", "f5:Frame 2 nível 2:INSPECTED", "f6:Frame 2 nível 3:INSPECTED", "f7:Frame 3 nível 1:INSPECTED", "f8:Frame 3 nível 2:INSPECTED", "f9:Frame 3 nível 3:INSPECTED", "f10:Frame 4 nível 1:INSPECTED", "f11:Frame 4 nível 2:INSPECTED", "f12:Frame 4 nível 3:INSPECTED", "f13:Frame 5 nível 1:INSPECTED", "f14:Frame 5 nível 2:INSPECTED", "f15:Frame 5 nível 3:INSPECTED", "f16:Frame 6 nível 1:INSPECTED", "f17:Frame 6 nível 2:INSPECTED", "f18:Frame 6 nível 3:INSPECTED", "f19:Frame 7 nível 1:INSPECTED", "f20:Frame 7 nível 2:INSPECTED", "f21:Frame 7 nível 3:INSPECTED", "f22:Frame 8 nível 1:INSPECTED", "f23:Frame 8 nível 2:INSPECTED", "f24:Frame 8 nível 3:INSPECTED", "f25:Frame 9 nível 1:INSPECTED", "f26:Frame 9 nível 2:INSPECTED", "f27:Frame 9 nível 3:INSPECTED", "f28:Frame 10 nível 1:INSPECTED", "f29:Frame 10 nível 2:INSPECTED", "f30:Frame 10 nível 3:INSPECTED" ],
+    "maxDepth" : 3
+  },
+  "identificacao" : {
+    "frameChain" : [ {
+      "container" : "region:Bloco 7",
+      "depth" : 1,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Frame 7 nível 1",
+      "urlPath" : "/generated/frame"
+    }, {
+      "container" : "region:Bloco 7",
+      "depth" : 2,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main|id=|name=|title=Frame 7 nível 1|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765",
+      "stableAttributes" : { },
+      "title" : "Frame 7 nível 2",
+      "urlPath" : "/generated/frame"
+    }, {
+      "container" : "region:Bloco 7",
+      "depth" : 3,
+      "idAttr" : null,
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main|id=|name=|title=Frame 7 nível 1|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765|id=|name=|title=Frame 7 nível 2|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765",
+      "stableAttributes" : { },
+      "title" : "Frame 7 nível 3",
+      "urlPath" : "/generated/frame"
+    } ],
+    "name" : "Confirmar 7",
+    "kind" : "BUTTON",
+    "targetId" : "tgt-609d141b-ff12-467d-bd73-3c126df9ca52"
+  },
+  "familia" : {
+    "form" : {
+      "idAttr" : null,
+      "keyAttributes" : {
+        "aria-label" : "Formulário 7"
+      },
+      "kind" : "FORM",
+      "name" : "Formulário 7",
+      "nodeId" : "n124",
+      "tag" : "form"
+    },
+    "region" : {
+      "idAttr" : null,
+      "keyAttributes" : {
+        "aria-label" : "Bloco 7"
+      },
+      "kind" : "LANDMARK",
+      "name" : "Bloco 7",
+      "nodeId" : "n12",
+      "tag" : "section"
+    },
+    "scope" : [ {
+      "idAttr" : null,
+      "keyAttributes" : { },
+      "kind" : "IFRAME",
+      "name" : "Frame 7 nível 1",
+      "nodeId" : "n112",
+      "tag" : "iframe"
+    }, {
+      "idAttr" : null,
+      "keyAttributes" : { },
+      "kind" : "IFRAME",
+      "name" : "Frame 7 nível 2",
+      "nodeId" : "n116",
+      "tag" : "iframe"
+    }, {
+      "idAttr" : null,
+      "keyAttributes" : { },
+      "kind" : "IFRAME",
+      "name" : "Frame 7 nível 3",
+      "nodeId" : "n120",
+      "tag" : "iframe"
+    } ]
+  },
+  "localizadores" : {
+    "verification" : {
+      "agreement" : [ {
+        "agrees" : true,
+        "css" : null,
+        "cssCount" : -1,
+        "error" : null,
+        "semantic" : "form {aria-label=Formulário 7} >> button {text=\"Confirmar 7\"}",
+        "snapshotCount" : 1,
+        "strategy" : "CONTEXTUAL",
+        "xpath" : "//form[@aria-label=\"Formulário 7\"]//button[normalize-space(.)=\"Confirmar 7\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : null,
+        "cssCount" : -1,
+        "error" : null,
+        "semantic" : "button {text=\"Confirmar 7\"}",
+        "snapshotCount" : 1,
+        "strategy" : "TEXT",
+        "xpath" : "//button[normalize-space(.)=\"Confirmar 7\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "html > body > form:nth-of-type(1) > button:nth-of-type(1)",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "html >> body >> form {nth-of-type 1} >> button {nth-of-type 1}",
+        "snapshotCount" : 1,
+        "strategy" : "POSITIONAL",
+        "xpath" : "//html/body/form[1]/button[1]",
+        "xpathCount" : 1
+      } ],
+      "allAgree" : true,
+      "compared" : 3,
+      "locators" : {
+        "fallbacks" : [ {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : "Formulário 7",
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Confirmar 7",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : -1,
+            "cssMatchesTarget" : false,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n127" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "aria-label",
+                "type" : "ATTR_EQUALS",
+                "value" : "Formulário 7"
+              } ],
+              "tag" : "form"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "text" : "Confirmar 7",
+                "type" : "TEXT_EQUALS"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+              "hostNodeId" : "n112",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "aria-label",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Bloco 7"
+                  } ],
+                  "tag" : "section"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 1"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 2\"]",
+              "hostNodeId" : "n116",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 2"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 3\"]",
+              "hostNodeId" : "n120",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 3"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+            } ],
+            "frameId" : "f21",
+            "scopeId" : "doc:f21",
+            "type" : "FRAME"
+          },
+          "score" : 0.633,
+          "semantic" : "form {aria-label=Formulário 7} >> button {text=\"Confirmar 7\"}",
+          "stability" : "UNKNOWN",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "texto contém números (pode ser conteúdo dinâmico)" ],
+          "strategy" : "CONTEXTUAL",
+          "warnings" : [ "escopo: FORM \"Formulário 7\"" ],
+          "xpath" : "//form[@aria-label=\"Formulário 7\"]//button[normalize-space(.)=\"Confirmar 7\"]"
+        }, {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : "Formulário 7",
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Confirmar 7",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : -1,
+            "cssMatchesTarget" : false,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n127" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "text" : "Confirmar 7",
+                "type" : "TEXT_EQUALS"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+              "hostNodeId" : "n112",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "aria-label",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Bloco 7"
+                  } ],
+                  "tag" : "section"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 1"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 2\"]",
+              "hostNodeId" : "n116",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 2"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 3\"]",
+              "hostNodeId" : "n120",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 3"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+            } ],
+            "frameId" : "f21",
+            "scopeId" : "doc:f21",
+            "type" : "FRAME"
+          },
+          "score" : 0.516,
+          "semantic" : "button {text=\"Confirmar 7\"}",
+          "stability" : "UNKNOWN",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "texto contém números (pode ser conteúdo dinâmico)" ],
+          "strategy" : "TEXT",
+          "warnings" : [ ],
+          "xpath" : "//button[normalize-space(.)=\"Confirmar 7\"]"
+        }, {
+          "css" : "html > body > form:nth-of-type(1) > button:nth-of-type(1)",
+          "expected" : {
+            "dialog" : null,
+            "form" : "Formulário 7",
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Confirmar 7",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n127" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "form"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "button"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+              "hostNodeId" : "n112",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "aria-label",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Bloco 7"
+                  } ],
+                  "tag" : "section"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 1"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 2\"]",
+              "hostNodeId" : "n116",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 2"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 3\"]",
+              "hostNodeId" : "n120",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 3"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+            } ],
+            "frameId" : "f21",
+            "scopeId" : "doc:f21",
+            "type" : "FRAME"
+          },
+          "score" : 0.09,
+          "semantic" : "html >> body >> form {nth-of-type 1} >> button {nth-of-type 1}",
+          "stability" : "HEURISTIC_UNSTABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+          "strategy" : "POSITIONAL",
+          "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+          "xpath" : "//html/body/form[1]/button[1]"
+        } ],
+        "nodeId" : "n127",
+        "primary" : {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : "Formulário 7",
+            "heading" : null,
+            "kind" : "BUTTON",
+            "name" : "Confirmar 7",
+            "role" : "button",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n127" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "role" : "button",
+                "type" : "ROLE_IS"
+              }, {
+                "name" : "Confirmar 7",
+                "type" : "NAME_EQUALS"
+              } ],
+              "tag" : null
+            } ]
+          },
+          "scope" : {
+            "chain" : [ {
+              "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+              "hostNodeId" : "n112",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "aria-label",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Bloco 7"
+                  } ],
+                  "tag" : "section"
+                }, {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 1"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 2\"]",
+              "hostNodeId" : "n116",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 2"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+            }, {
+              "css" : "iframe[title=\"Frame 7 nível 3\"]",
+              "hostNodeId" : "n120",
+              "kind" : "FRAME",
+              "matchCount" : 1,
+              "query" : {
+                "steps" : [ {
+                  "axis" : "DESCENDANT",
+                  "predicates" : [ {
+                    "name" : "title",
+                    "type" : "ATTR_EQUALS",
+                    "value" : "Frame 7 nível 3"
+                  } ],
+                  "tag" : "iframe"
+                } ]
+              },
+              "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+            } ],
+            "frameId" : "f21",
+            "scopeId" : "doc:f21",
+            "type" : "FRAME"
+          },
+          "score" : 0.712,
+          "semantic" : "* {role=button} {name=\"Confirmar 7\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ROLE_NAME",
+          "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+          "xpath" : null
+        },
+        "warnings" : [ "SCOPED: executar dentro de FRAME (3 salto(s))" ]
+      }
+    },
+    "primary" : {
+      "css" : null,
+      "expected" : {
+        "dialog" : null,
+        "form" : "Formulário 7",
+        "heading" : null,
+        "kind" : "BUTTON",
+        "name" : "Confirmar 7",
+        "role" : "button",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n127" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "role" : "button",
+            "type" : "ROLE_IS"
+          }, {
+            "name" : "Confirmar 7",
+            "type" : "NAME_EQUALS"
+          } ],
+          "tag" : null
+        } ]
+      },
+      "scope" : {
+        "chain" : [ {
+          "css" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+          "hostNodeId" : "n112",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "aria-label",
+                "type" : "ATTR_EQUALS",
+                "value" : "Bloco 7"
+              } ],
+              "tag" : "section"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 1"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//section[@aria-label=\"Bloco 7\"]//iframe[@title=\"Frame 7 nível 1\"]"
+        }, {
+          "css" : "iframe[title=\"Frame 7 nível 2\"]",
+          "hostNodeId" : "n116",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 2"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@title=\"Frame 7 nível 2\"]"
+        }, {
+          "css" : "iframe[title=\"Frame 7 nível 3\"]",
+          "hostNodeId" : "n120",
+          "kind" : "FRAME",
+          "matchCount" : 1,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "title",
+                "type" : "ATTR_EQUALS",
+                "value" : "Frame 7 nível 3"
+              } ],
+              "tag" : "iframe"
+            } ]
+          },
+          "xpath" : "//iframe[@title=\"Frame 7 nível 3\"]"
+        } ],
+        "frameId" : "f21",
+        "scopeId" : "doc:f21",
+        "type" : "FRAME"
+      },
+      "score" : 0.712,
+      "semantic" : "* {role=button} {name=\"Confirmar 7\"}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ ],
+      "strategy" : "ROLE_NAME",
+      "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+      "xpath" : null
+    }
+  },
+  "trajetoria" : {
+    "accessible" : true,
+    "blockingRestriction" : null,
+    "documentsTraversed" : 4,
+    "explanation" : "O elemento button «Confirmar 7» foi encontrado no formulário «Formulário 7», no 3º nível de iframe da página. O documento principal contém o iframe «Frame 7 nível 1» (section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]), que contém o iframe «Frame 7 nível 2» (iframe[title=\"Frame 7 nível 2\"]), que contém o iframe «Frame 7 nível 3» (iframe[title=\"Frame 7 nível 3\"]). A identidade é sustentada por: nome acessível, formulário associado, hierarquia documental.",
+    "frameDepth" : 3,
+    "shadowDepth" : 0,
+    "stability" : "HEURISTIC_STABLE",
+    "steps" : [ {
+      "browserDocumentId" : "EEF96F771BA243C7E5BDA9437039FCAE",
+      "documentId" : null,
+      "enteredDocumentId" : "doc:f0",
+      "expectedCondition" : "DOCUMENT_ACTIVE",
+      "frameIdentity" : null,
+      "label" : "Frames gerados (10 × profundidade 3)",
+      "locator" : null,
+      "locatorStrategy" : null,
+      "matchCount" : 0,
+      "nodeId" : null,
+      "restriction" : null,
+      "stability" : null,
+      "type" : "MAIN_DOCUMENT",
+      "url" : "http://127.0.0.1:18765/generated/frames"
+    }, {
+      "browserDocumentId" : "61C0FBDAEA7083B106DC2B3991AFBFC1",
+      "documentId" : "doc:f0",
+      "enteredDocumentId" : "doc:f19",
+      "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
+      "frameIdentity" : {
+        "container" : "region:Bloco 7",
+        "depth" : 1,
+        "idAttr" : null,
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : "http://127.0.0.1:18765",
+        "parentKey" : "main",
+        "stableAttributes" : { },
+        "title" : "Frame 7 nível 1",
+        "urlPath" : "/generated/frame"
+      },
+      "label" : "Frame 7 nível 1",
+      "locator" : "section[aria-label=\"Bloco 7\"] iframe[title=\"Frame 7 nível 1\"]",
+      "locatorStrategy" : "CONTEXTUAL",
+      "matchCount" : 1,
+      "nodeId" : "n112",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "IFRAME",
+      "url" : "http://127.0.0.1:18765/generated/frame"
+    }, {
+      "browserDocumentId" : "02554769104B45E1D951074153887146",
+      "documentId" : "doc:f19",
+      "enteredDocumentId" : "doc:f20",
+      "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
+      "frameIdentity" : {
+        "container" : "region:Bloco 7",
+        "depth" : 2,
+        "idAttr" : null,
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : "http://127.0.0.1:18765",
+        "parentKey" : "main|id=|name=|title=Frame 7 nível 1|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765",
+        "stableAttributes" : { },
+        "title" : "Frame 7 nível 2",
+        "urlPath" : "/generated/frame"
+      },
+      "label" : "Frame 7 nível 2",
+      "locator" : "iframe[title=\"Frame 7 nível 2\"]",
+      "locatorStrategy" : "ATTRIBUTE",
+      "matchCount" : 1,
+      "nodeId" : "n116",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "IFRAME",
+      "url" : "http://127.0.0.1:18765/generated/frame"
+    }, {
+      "browserDocumentId" : "3306642F190D2E65179B537D687BFEBA",
+      "documentId" : "doc:f20",
+      "enteredDocumentId" : "doc:f21",
+      "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
+      "frameIdentity" : {
+        "container" : "region:Bloco 7",
+        "depth" : 3,
+        "idAttr" : null,
+        "insideShadowRoot" : false,
+        "name" : null,
+        "origin" : "http://127.0.0.1:18765",
+        "parentKey" : "main|id=|name=|title=Frame 7 nível 1|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765|id=|name=|title=Frame 7 nível 2|in=region:Bloco 7|path=/generated/frame|origin=http://127.0.0.1:18765",
+        "stableAttributes" : { },
+        "title" : "Frame 7 nível 3",
+        "urlPath" : "/generated/frame"
+      },
+      "label" : "Frame 7 nível 3",
+      "locator" : "iframe[title=\"Frame 7 nível 3\"]",
+      "locatorStrategy" : "ATTRIBUTE",
+      "matchCount" : 1,
+      "nodeId" : "n120",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "IFRAME",
+      "url" : "http://127.0.0.1:18765/generated/frame"
+    }, {
+      "browserDocumentId" : null,
+      "documentId" : "doc:f21",
+      "enteredDocumentId" : null,
+      "expectedCondition" : "ELEMENT_PRESENT",
+      "frameIdentity" : null,
+      "label" : "Confirmar 7",
+      "locator" : "* {role=button} {name=\"Confirmar 7\"}",
+      "locatorStrategy" : "ROLE_NAME",
+      "matchCount" : 1,
+      "nodeId" : "n127",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "ELEMENT",
+      "url" : null
+    } ],
+    "target" : {
+      "kind" : "BUTTON",
+      "name" : "Confirmar 7"
+    },
+    "targetNodeId" : "n127"
+  },
+  "reencontro" : {
+    "status" : "RESOLVED",
+    "score" : 1,
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+  },
+  "diagnostico" : {
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
+    },
+    "readiness" : {
+      "basis" : [ "obstáculo(s) de severidade média: [NESTED_IFRAME]", "todas as regiões observáveis foram inspecionadas" ],
+      "confidence" : "HIGH",
+      "documents" : {
+        "count" : 31,
+        "inaccessible" : 0,
+        "loading" : 0,
+        "maximumFrameDepth" : 3
+      },
+      "elements" : {
+        "interactive" : 21,
+        "observed" : 175
+      },
+      "interactionDependencies" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "obstacles" : [ {
+        "count" : 20,
+        "description" : "Iframes aninhados (profundidade máxima 3): a automação precisa atravessar documentos em sequência",
+        "evidence" : [ "20 frame(s) com profundidade ≥ 2" ],
+        "frameIds" : [ "f2", "f3", "f5", "f6", "f8", "f9", "f11", "f12", "f14", "f15", "f17", "f18", "f20", "f21", "f23", "f24", "f26", "f27", "f29", "f30" ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "MEDIUM",
+        "type" : "NESTED_IFRAME"
+      } ],
+      "page" : {
+        "title" : "Frames gerados (10 × profundidade 3)",
+        "url" : "http://127.0.0.1:18765/generated/frames"
+      },
+      "protectionStatus" : "NOT_OBSERVED",
+      "protections" : [ ],
+      "recommendations" : [ {
+        "reason" : "Nenhum obstáculo específico observado",
+        "relatedObstacles" : [ ],
+        "type" : "NO_ACTION_REQUIRED"
+      } ],
+      "shadowRoots" : {
+        "closed" : 0,
+        "open" : 0
+      },
+      "status" : "REQUIRES_SPECIAL_HANDLING"
+    },
+    "timings" : {
+      "graphMs" : 1.09,
+      "protectionMs" : 1.25,
+      "readinessMs" : 0.28,
+      "totalMs" : 2.64
+    }
+  },
+  "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]
+}

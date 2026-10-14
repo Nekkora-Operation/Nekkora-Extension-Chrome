@@ -39,7 +39,7 @@ class Chrome002ContractIT extends SessionIT {
         JsonNode map = lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
         Contracts.assertValid("page-map.schema.json", map);
         assertEquals("nekkora.pagemap", map.get("schema").asText());
-        assertEquals("0.1.0", map.get("version").asText(), "versão do contrato inalterada");
+        assertEquals("0.2.0", map.get("version").asText(), "versão do contrato (0.2.0 desde a CHROME-003; 0.1.0 arquivado em contracts/v0.1.0)");
         boolean frameNodes = false;
         for (JsonNode e : map.get("elements")) {
             frameNodes |= e.get("nodeId").asText().startsWith("x");

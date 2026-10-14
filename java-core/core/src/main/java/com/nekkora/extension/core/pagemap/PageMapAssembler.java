@@ -54,8 +54,32 @@ public final class PageMapAssembler {
     public record Suffix(List<com.nekkora.extension.core.context.ContextRelation> relations,
                          List<com.nekkora.extension.core.options.OptionSet> optionSets, List<TargetIdentity> targets,
                          List<ResolutionResult> resolutions, List<MutationRecord> mutations,
-                         List<InspectionEvidence> evidence, Map<String, Double> metrics) {
+                         List<InspectionEvidence> evidence, Map<String, Double> metrics,
+                         com.nekkora.extension.core.frames.FrameGraph frameGraph,
+                         List<com.nekkora.extension.core.frames.ElementAccessPath> accessPaths,
+                         com.nekkora.extension.core.protection.ProtectionReport protection,
+                         com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness) {
     }
+
+    /**
+     * Entradas do diagnóstico documental e de proteções (CHROME-003).
+     *
+     * @param browserFrames metadados de frames informados pelo navegador (pode ser vazio)
+     * @param catalog       catálogo de assinaturas ({@code null} = diagnóstico de proteções não executado)
+     */
+    public record DiagnosticsInput(List<com.nekkora.extension.core.frames.BrowserFrameMetadata> browserFrames,
+                                   com.nekkora.extension.core.protection.SignatureCatalog catalog) {
+        public static DiagnosticsInput none() {
+            return new DiagnosticsInput(List.of(), null);
+        }
+    }
+
+    /** Máximo de trajetórias exportadas para elementos interativos em escopos aninhados (alvos registrados sempre entram). */
+    public static final int MAX_NESTED_ACCESS_PATHS = 300;
+    private final com.nekkora.extension.core.frames.FrameGraphBuilder frameGraphs = new com.nekkora.extension.core.frames.FrameGraphBuilder();
+    private final com.nekkora.extension.core.frames.AccessPathBuilder accessPaths = new com.nekkora.extension.core.frames.AccessPathBuilder();
+    private final com.nekkora.extension.core.protection.ProtectionDetector protections = new com.nekkora.extension.core.protection.ProtectionDetector();
+    private final com.nekkora.extension.core.diagnostics.AutomationDiagnostics diagnostics = new com.nekkora.extension.core.diagnostics.AutomationDiagnostics();
 
     /** Medições da geração dos elementos. */
     public record ElementStats(int exported, int locatorTargets, double familyMs, double locatorMs, double wallMs,
@@ -71,6 +95,12 @@ public final class PageMapAssembler {
     public PageMap assemble(PageAnalysis a, PageMapOptions opts, OptionHistory history, List<TargetIdentity> targets,
                             List<ResolutionResult> resolutions, List<MutationRecord> mutations,
                             List<InspectionEvidence> evidence, String generatedAt, String mode) {
+        return assemble(a, opts, history, targets, resolutions, mutations, evidence, generatedAt, mode, DiagnosticsInput.none());
+    }
+
+    public PageMap assemble(PageAnalysis a, PageMapOptions opts, OptionHistory history, List<TargetIdentity> targets,
+                            List<ResolutionResult> resolutions, List<MutationRecord> mutations,
+                            List<InspectionEvidence> evidence, String generatedAt, String mode, DiagnosticsInput input) {
         Prefix p = prefix(a, generatedAt, mode);
         List<ElementDescriptor> elements = new ArrayList<>();
         ElementStats st;
@@ -79,9 +109,10 @@ public final class PageMapAssembler {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-        Suffix sf = suffix(a, history, targets, resolutions, mutations, evidence, st);
+        Suffix sf = suffix(a, history, targets, resolutions, mutations, evidence, st, input);
         return new PageMap(p.schema(), p.version(), p.generatedAt(), p.generator(), p.snapshot(), p.document(), p.coverage(),
-                elements, sf.relations(), sf.optionSets(), sf.targets(), sf.resolutions(), sf.mutations(), sf.evidence(), sf.metrics());
+                elements, sf.relations(), sf.optionSets(), sf.targets(), sf.resolutions(), sf.mutations(), sf.evidence(), sf.metrics(),
+                sf.frameGraph(), sf.accessPaths(), sf.protection(), sf.readiness());
     }
 
     public Prefix prefix(PageAnalysis a, String generatedAt, String mode) {
@@ -180,12 +211,18 @@ public final class PageMapAssembler {
         return new ElementDescriptor(n.id(), n.tag(), n.scopeId(), n.frameId(), n.parentId(), c.kind().name(),
                 c.category().name(), c.role(), c.nativeSemantics(), c.confidence().name(), text,
                 exportableAttributes(n, c), c.conditions(), c.sensitive(), n.rect(), family, locators, c.evidence(),
-                c.uncertainties());
+                c.uncertainties(), "doc:" + n.frameId());
     }
 
     public Suffix suffix(PageAnalysis a, OptionHistory history, List<TargetIdentity> targets,
                          List<ResolutionResult> resolutions, List<MutationRecord> mutations,
                          List<InspectionEvidence> evidence, ElementStats st) {
+        return suffix(a, history, targets, resolutions, mutations, evidence, st, DiagnosticsInput.none());
+    }
+
+    public Suffix suffix(PageAnalysis a, OptionHistory history, List<TargetIdentity> targets,
+                         List<ResolutionResult> resolutions, List<MutationRecord> mutations,
+                         List<InspectionEvidence> evidence, ElementStats st, DiagnosticsInput input) {
         long t1 = System.nanoTime();
         var optionSets = options.analyzeAll(a.graph(), history);
         long t2 = System.nanoTime();
@@ -201,7 +238,52 @@ public final class PageMapAssembler {
         metrics.put("nodesProcessed", (double) a.model().size());
         metrics.put("elementsExported", (double) st.exported());
         metrics.put("parallelism", (double) st.parallelism());
-        return new Suffix(a.graph().declaredRelations(), optionSets, targets, resolutions, mutations, evidence, metrics);
+        DiagnosticsInput in = input == null ? DiagnosticsInput.none() : input;
+        long g0 = System.nanoTime();
+        var graph = frameGraphs.build(a, in.browserFrames());
+        long g1 = System.nanoTime();
+        var paths = accessPathsFor(a, graph, targets);
+        long g2 = System.nanoTime();
+        var protection = in.catalog() == null ? null : protections.assess(a, graph, in.catalog());
+        long g3 = System.nanoTime();
+        var readiness = protection == null ? null : diagnostics.assess(a, graph, protection, optionSets, mutations);
+        long g4 = System.nanoTime();
+        metrics.put("frameGraphMs", round((g1 - g0) / 1e6));
+        metrics.put("accessPathsMs", round((g2 - g1) / 1e6));
+        metrics.put("protectionMs", round((g3 - g2) / 1e6));
+        metrics.put("readinessMs", round((g4 - g3) / 1e6));
+        return new Suffix(a.graph().declaredRelations(), optionSets, targets, resolutions, mutations, evidence, metrics,
+                graph, paths, protection, readiness);
+    }
+
+    /** Trajetórias: todos os alvos registrados presentes na captura + interativos em escopos aninhados (limitado). */
+    private List<com.nekkora.extension.core.frames.ElementAccessPath> accessPathsFor(PageAnalysis a,
+                                                                                     com.nekkora.extension.core.frames.FrameGraph graph,
+                                                                                     List<TargetIdentity> targets) {
+        java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>();
+        for (TargetIdentity t : targets) {
+            if (t.lastNodeId() != null && a.model().contains(t.lastNodeId())) {
+                ids.add(t.lastNodeId());
+            }
+        }
+        int nested = 0;
+        for (RawNode n : a.model().inDocumentOrder()) {
+            if (nested >= MAX_NESTED_ACCESS_PATHS) {
+                break;
+            }
+            if (!n.scopeId().equals("doc:f0") && a.semantics().get(n.id()).interactive() && ids.add(n.id())) {
+                nested++;
+            }
+        }
+        List<com.nekkora.extension.core.frames.ElementAccessPath> out = new ArrayList<>();
+        for (String id : ids) {
+            try {
+                out.add(accessPaths.build(a, graph, id));
+            } catch (RuntimeException ignored) {
+                // trajetória indisponível para o nó: omitida (o motivo aparece na cobertura)
+            }
+        }
+        return out;
     }
 
     /** Atributos exportáveis: sem valores de campos, sem conteúdo de manipuladores, valores longos truncados. */
@@ -218,6 +300,10 @@ public final class PageMapAssembler {
                 continue; // valores de campos nunca são exportados
             }
             if (k.equals("style")) {
+                continue;
+            }
+            if (k.equals("data-sitekey")) {
+                out.put(e.getKey(), "[redacted]"); // chave pública de CAPTCHA: presença registrada, valor não
                 continue;
             }
             out.put(e.getKey(), v != null && v.length() > 200 ? v.substring(0, 200) + "…" : v);

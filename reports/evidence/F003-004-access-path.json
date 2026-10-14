@@ -1,0 +1,71 @@
+{
+  "accessible" : true,
+  "blockingRestriction" : null,
+  "documentsTraversed" : 2,
+  "explanation" : "O elemento button «Salvar» foi encontrado no formulário «Nova conta», no 1º nível de iframe da página. O documento principal contém o iframe «Contas» (iframe#f-contas). A identidade é sustentada por: nome acessível, formulário associado, hierarquia documental.",
+  "frameDepth" : 1,
+  "shadowDepth" : 0,
+  "stability" : "HEURISTIC_STABLE",
+  "steps" : [ {
+    "browserDocumentId" : "6DF1F7FDD9D8F0104E48B77322211423",
+    "documentId" : null,
+    "enteredDocumentId" : "doc:f0",
+    "expectedCondition" : "DOCUMENT_ACTIVE",
+    "frameIdentity" : null,
+    "label" : "Frame Intelligence — hierarquias",
+    "locator" : null,
+    "locatorStrategy" : null,
+    "matchCount" : 0,
+    "nodeId" : null,
+    "restriction" : null,
+    "stability" : null,
+    "type" : "MAIN_DOCUMENT",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
+  }, {
+    "browserDocumentId" : "768A1BB3650BF291D62F743B3E3BEECA",
+    "documentId" : "doc:f0",
+    "enteredDocumentId" : "doc:f1",
+    "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/contas.html)",
+    "frameIdentity" : {
+      "container" : "region:sec-a",
+      "depth" : 1,
+      "idAttr" : "f-contas",
+      "insideShadowRoot" : false,
+      "name" : null,
+      "origin" : "http://127.0.0.1:18765",
+      "parentKey" : "main",
+      "stableAttributes" : { },
+      "title" : "Contas",
+      "urlPath" : "/lab/chrome003/contas.html"
+    },
+    "label" : "Contas",
+    "locator" : "iframe#f-contas",
+    "locatorStrategy" : "ID",
+    "matchCount" : 1,
+    "nodeId" : "n15",
+    "restriction" : null,
+    "stability" : "HEURISTIC_STABLE",
+    "type" : "IFRAME",
+    "url" : "http://127.0.0.1:18765/lab/chrome003/contas.html"
+  }, {
+    "browserDocumentId" : null,
+    "documentId" : "doc:f1",
+    "enteredDocumentId" : null,
+    "expectedCondition" : "ELEMENT_PRESENT",
+    "frameIdentity" : null,
+    "label" : "Salvar",
+    "locator" : "form {id=form-conta} >> button {text=\"Salvar\"}",
+    "locatorStrategy" : "CONTEXTUAL",
+    "matchCount" : 1,
+    "nodeId" : "n24",
+    "restriction" : null,
+    "stability" : "HEURISTIC_STABLE",
+    "type" : "ELEMENT",
+    "url" : null
+  } ],
+  "target" : {
+    "kind" : "BUTTON",
+    "name" : "Salvar"
+  },
+  "targetNodeId" : "n24"
+}

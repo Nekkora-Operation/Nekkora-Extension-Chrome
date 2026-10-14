@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Frame Intelligence — hierarquias</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    iframe { width: 96%; height: 210px; border: 1px solid #999; margin: 4px 0; }
+    .lado { display: inline-block; width: 46%; vertical-align: top; margin-right: 2%; }
+    section { border-top: 1px dashed #ccc; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Frame Intelligence — hierarquias de documentos</h1>
+  <p class="muted">Cenários A–F da CHROME-003 (todos locais, mesma origem): iframe simples, dois níveis, dois níveis com
+    Shadow DOM, Shadow DOM contendo iframe, iframes irmãos com botões idênticos e iframes com o mesmo name/URL em
+    contêineres diferentes.</p>
+  <button type="button" id="salvar-principal">Salvar</button>
+  <button type="button" id="igualar">Tornar contêineres idênticos</button>
+
+  <section id="sec-a" aria-labelledby="h-a">
+    <h2 id="h-a">A — Contas</h2>
+    <iframe id="f-contas" title="Contas" src="/lab/chrome003/contas.html"></iframe>
+  </section>
+
+  <section id="sec-b" aria-labelledby="h-b">
+    <h2 id="h-b">B/C — Financeiro</h2>
+    <iframe id="f-financeiro" title="Financeiro" src="/lab/chrome003/financeiro.html" style="height:520px"></iframe>
+  </section>
+
+  <section id="sec-d" aria-labelledby="h-d">
+    <h2 id="h-d">D — Shadow DOM contendo iframe</h2>
+    <nk-suporte id="suporte"></nk-suporte>
+    <nk-cofre id="cofre"></nk-cofre>
+  </section>
+
+  <section id="sec-e" aria-labelledby="h-e">
+    <h2 id="h-e">E — Filiais (iframes irmãos idênticos)</h2>
+    <div class="lado filial" id="filial-norte"><h3>Filial Norte</h3><iframe title="Filial Norte" src="/lab/chrome003/filial.html"></iframe></div>
+    <div class="lado filial" id="filial-sul"><h3>Filial Sul</h3><iframe title="Filial Sul" src="/lab/chrome003/filial.html"></iframe></div>
+  </section>
+
+  <section id="sec-f" aria-labelledby="h-f">
+    <h2 id="h-f">F — Mesmo name e URL em contêineres diferentes</h2>
+    <div class="lado" id="vendas" role="region" aria-labelledby="h-vendas"><h3 id="h-vendas">Vendas</h3><iframe name="painel" src="/lab/chrome003/painel.html"></iframe></div>
+    <div class="lado" id="compras" role="region" aria-labelledby="h-compras"><h3 id="h-compras">Compras</h3><iframe name="painel" src="/lab/chrome003/painel.html"></iframe></div>
+  </section>
+
+  <script src="/lab/lab.js"></script>
+  <script>
+    class Suporte extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        this.attachShadow({ mode: 'open' }).innerHTML =
+          '<div part="caixa"><strong>Atendimento</strong>' +
+          '<iframe id="f-widget" title="Widget de suporte" src="/lab/chrome003/widget.html" style="width:96%;height:150px;border:1px solid #999"></iframe></div>';
+      }
+    }
+    customElements.define('nk-suporte', Suporte);
+    // Shadow root FECHADO: o conteúdo não é observável por scripts externos e nunca é inventado.
+    class Cofre extends HTMLElement {
+      connectedCallback() {
+        if (this._r) return;
+        this._r = this.attachShadow({ mode: 'closed' });
+        this._r.innerHTML = '<button type="button">Abrir cofre</button>';
+      }
+    }
+    customElements.define('nk-cofre', Cofre);
+    // Ambiguidade (§7.3): remove tudo o que distingue os contêineres do cenário F.
+    document.getElementById('igualar').onclick = () => {
+      for (const id of ['vendas', 'compras']) {
+        const c = document.getElementById(id);
+        c.removeAttribute('aria-labelledby');
+        c.removeAttribute('role');
+        c.querySelector('h3').removeAttribute('id');
+        c.querySelector('h3').textContent = 'Painel';
+        c.removeAttribute('id');
+      }
+    };
+  </script>
+</body>
+</html>

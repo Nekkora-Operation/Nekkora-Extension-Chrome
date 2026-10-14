@@ -75,10 +75,14 @@ public final class DeltaApplier {
         var frames = delta.frames() == null ? base.frames() : Sources.mergeFrames(base.frames(), delta.frames(), delta.sourceOrTop());
         var shadows = delta.shadowRoots() == null ? base.shadowRoots()
                 : Sources.mergeShadowRoots(base.shadowRoots(), delta.shadowRoots(), delta.sourceOrTop());
+        var liveFrames = Sources.pruneDetachedFrames(frames, reachable);
+        var resources = delta.resources() == null ? base.resources()
+                : Sources.mergeResources(base.resources(), delta.resources(), delta.sourceOrTop());
         return new RawSnapshot(delta.captureId(), delta.capturedAt(),
                 delta.document() == null || !Sources.TOP.equals(delta.sourceOrTop()) ? base.document() : delta.document(),
-                Sources.pruneDetachedFrames(frames, reachable), Sources.pruneDetachedShadowRoots(shadows, reachable),
-                ordered, requests, delta.stats() == null ? base.stats() : delta.stats());
+                liveFrames, Sources.pruneDetachedShadowRoots(shadows, reachable),
+                ordered, requests, delta.stats() == null ? base.stats() : delta.stats(),
+                Sources.pruneDetachedResources(resources, liveFrames));
     }
 
     private static void visit(Map<String, RawNode> nodes, String rootId, Set<String> reachable, List<RawNode> out) {

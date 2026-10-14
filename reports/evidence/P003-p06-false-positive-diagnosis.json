@@ -1,0 +1,104 @@
+{
+  "browserMs" : 5.3,
+  "captureId" : "cap-ps-mv84e8o1-2nfrlg-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p06-false-positive.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ {
+      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Como funciona um CAPTCHA»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.captcha",
+      "nodeId" : "n7",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo): «Um CAPTCHA é um teste para diferenciar pessoas de programas. Este artigo menciona CAPTCHA, reCAPTCHA e hCaptcha apena...»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.captcha",
+      "nodeId" : "n8",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    }, {
+      "detail" : "pedido genérico de verificação humana (português): «Frases como \"não sou um robô\" aparecem aqui somente como exemplo.»",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "generic.text.human-pt",
+      "nodeId" : "n9",
+      "signal" : "MENTION",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "WEAK",
+      "type" : "TEXT",
+      "visible" : true
+    } ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Menção textual a verificação humana sem mecanismo associado: não confirma tecnologia nem desafio" ],
+    "status" : "NOT_OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "nenhum obstáculo observado (não comprova ausência de proteções no servidor)", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 2,
+      "observed" : 11
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Menção textual a verificação humana sem mecanismo associado: não confirma tecnologia nem desafio" ],
+    "obstacles" : [ ],
+    "page" : {
+      "title" : "LAB-P06 — artigo sobre CAPTCHA",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p06-false-positive.html"
+    },
+    "protectionStatus" : "NOT_OBSERVED",
+    "protections" : [ ],
+    "recommendations" : [ {
+      "reason" : "Nenhum obstáculo específico observado",
+      "relatedObstacles" : [ ],
+      "type" : "NO_ACTION_REQUIRED"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "NO_KNOWN_OBSTACLES"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.02,
+    "protectionMs" : 0.32,
+    "readinessMs" : 0.1,
+    "totalMs" : 0.47
+  }
+}

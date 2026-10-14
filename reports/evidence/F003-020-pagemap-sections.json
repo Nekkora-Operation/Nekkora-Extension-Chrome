@@ -1,0 +1,15 @@
+{
+  "accessPaths" : 16,
+  "frameGraphCounts" : {
+    "documents" : 10,
+    "frames" : 9,
+    "inaccessible" : 0,
+    "inspected" : 10,
+    "loading" : 0,
+    "shadowRootsClosed" : 1,
+    "shadowRootsOpen" : 2
+  },
+  "protection" : "NOT_OBSERVED",
+  "readiness" : "REQUIRES_SPECIAL_HANDLING",
+  "version" : "0.2.0"
+}

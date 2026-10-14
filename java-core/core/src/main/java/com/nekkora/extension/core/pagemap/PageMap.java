@@ -49,10 +49,15 @@ public record PageMap(
         List<ResolutionResult> resolutions,
         List<MutationRecord> mutations,
         List<InspectionEvidence> evidence,
-        Map<String, Double> metrics) {
+        Map<String, Double> metrics,
+        com.nekkora.extension.core.frames.FrameGraph frameGraph,
+        List<com.nekkora.extension.core.frames.ElementAccessPath> accessPaths,
+        com.nekkora.extension.core.protection.ProtectionReport protection,
+        com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness) {
 
     public static final String SCHEMA = "nekkora.pagemap";
-    public static final String VERSION = "0.1.0";
+    /** 0.2.0 (CHROME-003): frameGraph, accessPaths, protection, readiness; documentId nos elementos. */
+    public static final String VERSION = "0.2.0";
 
     /**
      * Estado da página no momento da observação.

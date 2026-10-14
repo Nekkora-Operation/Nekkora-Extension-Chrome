@@ -23,6 +23,9 @@
       <dt>Elementos</dt><dd id="st-nodes">—</dd>
       <dt>Última atualização</dt><dd id="st-updated">—</dd>
       <dt>Deltas</dt><dd id="st-deltas">—</dd>
+      <dt>Documentos</dt><dd id="st-docs">—</dd>
+      <dt>Iframes</dt><dd id="st-frames">—</dd>
+      <dt>Shadow Roots</dt><dd id="st-shadow">—</dd>
     </dl>
   </section>
 
@@ -34,6 +37,8 @@
     <button id="btn-compare" type="button">Comparar snapshots</button>
     <button id="btn-export" type="button">Exportar mapa</button>
     <button id="btn-capture" type="button">Forçar captura completa</button>
+    <button id="btn-frame" type="button">Destacar iframe</button>
+    <button id="btn-diagnose" type="button">Diagnosticar página</button>
   </section>
 
   <section aria-labelledby="h-element">
@@ -52,6 +57,18 @@
       <thead><tr><th>Estratégia</th><th>Seletor</th><th title="Correspondências no snapshot">Snap</th><th title="Correspondências na DOM real (CSS/XPath)">Real</th><th>Estabilidade</th></tr></thead>
       <tbody></tbody>
     </table>
+  </section>
+
+  <section aria-labelledby="h-path">
+    <h2 id="h-path">Trajetória</h2>
+    <dl id="path-info" class="kv"></dl>
+    <ol id="path-steps" class="steps"></ol>
+    <p id="path-explanation" class="explanation"></p>
+  </section>
+
+  <section aria-labelledby="h-diagnostics">
+    <h2 id="h-diagnostics">Diagnóstico</h2>
+    <dl id="diag-info" class="kv"><dt>Página</dt><dd>ative a inspeção para diagnosticar</dd></dl>
   </section>
 
   <section id="dev-output" aria-labelledby="h-resolution" hidden>

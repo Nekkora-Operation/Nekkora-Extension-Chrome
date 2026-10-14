@@ -44,6 +44,7 @@ public final class ExportService {
     private static final java.time.format.DateTimeFormatter PARTIAL_STAMP =
             java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS").withZone(java.time.ZoneOffset.UTC);
     private static final java.util.concurrent.atomic.AtomicLong PARTIALS = new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.function.Function<TabState, com.nekkora.extension.core.pagemap.PageMapAssembler.DiagnosticsInput> diagnostics;
     private static final Logger LOG = Logger.getLogger(ExportService.class.getName());
     private static final Pattern SAFE = Pattern.compile("[^A-Za-z0-9._-]");
 
@@ -52,6 +53,13 @@ public final class ExportService {
     private final StreamingPageMapWriter writer;
 
     public ExportService(HostSession session, DataDirectory dataDir, JsonCodec json) {
+        this(session, dataDir, json, tab -> com.nekkora.extension.core.pagemap.PageMapAssembler.DiagnosticsInput.none());
+    }
+
+    /** @param diagnostics entradas do diagnóstico documental/proteções por aba (CHROME-003) */
+    public ExportService(HostSession session, DataDirectory dataDir, JsonCodec json,
+                         java.util.function.Function<TabState, com.nekkora.extension.core.pagemap.PageMapAssembler.DiagnosticsInput> diagnostics) {
+        this.diagnostics = diagnostics;
         this.session = session;
         this.dataDir = dataDir;
         PageMapSchema schema;
@@ -131,7 +139,8 @@ public final class ExportService {
             StreamingPageMapWriter.Outcome o;
             try (OutputStream out = new DigestOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp), 1 << 16), sha)) {
                 o = writer.write(out, a, PageMapOptions.defaults(), tab.optionHistory(), targets, tab.resolutions(),
-                        tab.mutations(), tab.evidence(), Instant.now().toString(), "FULL", parallelism);
+                        tab.mutations(), tab.evidence(), Instant.now().toString(), "FULL", parallelism,
+                        diagnostics.apply(tab));
             }
             ExportResult.Validation validation = new ExportResult.Validation(o.validationErrors().isEmpty(),
                     o.validatedElements(), o.validationErrors());

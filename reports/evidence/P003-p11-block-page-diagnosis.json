@@ -1,0 +1,192 @@
+{
+  "browserMs" : 3.5,
+  "captureId" : "cap-ps-mv84e9sc-d17fd7-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p11-block-page.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:cloudflare.block-page@doc:f0",
+      "basis" : "THIRD_PARTY_OBSERVATION",
+      "category" : "ACCESS_BLOCK",
+      "challengeState" : "ACCESS_BLOCKED",
+      "confidence" : "MEDIUM",
+      "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (DOM)" ],
+      "evidence" : [ {
+        "detail" : "bloco de detalhes da página de bloqueio (div#cf-error-details)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfblock.details",
+        "nodeId" : "n5",
+        "signal" : "BLOCKED",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "DOM_ELEMENT",
+        "visible" : true
+      }, {
+        "detail" : "contêiner da página de bloqueio (div#cf-wrapper)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "cfblock.wrapper",
+        "nodeId" : "n4",
+        "signal" : "BLOCKED",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "DOM_ELEMENT",
+        "visible" : true
+      } ],
+      "limitations" : [ ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento generic container foi encontrado, diretamente no documento principal.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "0031EF0F63DBE66F4763B4F91FAB4BDE",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "Access denied",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p11-block-page.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div#cf-error-details",
+            "locator" : "div#cf-error-details",
+            "locatorStrategy" : "ID",
+            "matchCount" : 1,
+            "nodeId" : "n5",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "GENERIC_CONTAINER",
+            "name" : "div#cf-error-details"
+          },
+          "targetNodeId" : "n5"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n5"
+      },
+      "product" : "BLOCK_PAGE",
+      "provider" : "CLOUDFLARE",
+      "signatureId" : "cloudflare.block-page",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+    "status" : "OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "acesso bloqueado observado", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 0,
+      "observed" : 7
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Página de bloqueio de acesso observada",
+      "evidence" : [ "CLOUDFLARE BLOCK_PAGE (MEDIUM, ACCESS_BLOCKED)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "HIGH",
+      "type" : "ACCESS_BLOCKED"
+    }, {
+      "count" : 1,
+      "description" : "Tecnologia de gerenciamento de bots/avaliação de risco identificada: presença não implica falha da automação",
+      "evidence" : [ "CLOUDFLARE BLOCK_PAGE (MEDIUM, ACCESS_BLOCKED)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "MEDIUM",
+      "type" : "ANTIBOT_TECHNOLOGY"
+    } ],
+    "page" : {
+      "title" : "Access denied",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p11-block-page.html"
+    },
+    "protectionStatus" : "OBSERVED",
+    "protections" : [ {
+      "category" : "ACCESS_BLOCK",
+      "challengeState" : "ACCESS_BLOCKED",
+      "confidence" : "MEDIUM",
+      "documentId" : "doc:f0",
+      "product" : "BLOCK_PAGE",
+      "provider" : "CLOUDFLARE"
+    } ],
+    "recommendations" : [ {
+      "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+      "relatedObstacles" : [ "ACCESS_BLOCKED" ],
+      "type" : "HUMAN_INTERVENTION"
+    }, {
+      "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+      "relatedObstacles" : [ ],
+      "type" : "ENVIRONMENT_CONFIGURATION"
+    }, {
+      "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+      "relatedObstacles" : [ "ACCESS_BLOCKED", "ANTIBOT_TECHNOLOGY" ],
+      "type" : "AUTHORIZED_API"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_HUMAN_INTERVENTION"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.01,
+    "protectionMs" : 0.37,
+    "readinessMs" : 0.06,
+    "totalMs" : 0.45
+  }
+}

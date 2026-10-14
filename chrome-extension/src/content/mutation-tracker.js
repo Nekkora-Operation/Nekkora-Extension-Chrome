@@ -48,7 +48,11 @@
   let keepLast = false;         // instrumento de homologação (DEV): guarda o último delta enviado
   let lastDelta = null;
   const stats = { geometryRefreshes: 0, geometryChanged: 0, deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
-    shadowRootsDiscovered: 0, resyncs: 0, swept: 0, lastError: null, lastDeltaAt: 0 };
+    shadowRootsDiscovered: 0, resyncs: 0, swept: 0, lastError: null, lastDeltaAt: 0, frameDocumentsReplaced: 0 };
+  // CHROME-003 §22: documento atual de cada iframe de mesma origem. Navegação interna, carregamento tardio
+  // (about:blank inicial → documento real) e recarga trocam o documento SEM mutação no pai: a troca é detectada
+  // aqui e somente aquele iframe é recapturado (nunca a página inteira).
+  let frameDocs = new WeakMap();
 
   function insideOverlay(node) {
     for (let n = node; n; n = n.parentNode || (n instanceof ShadowRoot ? n.host : null)) {
@@ -141,6 +145,49 @@
     return false;
   }
 
+  function frameDocument(f) {
+    try {
+      return f.contentDocument || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** Marca para recaptura os iframes cujo documento mudou desde a última verificação. */
+  function checkFrameDocuments() {
+    let changed = 0;
+    for (const r of NS.capture.observableRoots()) {
+      for (const f of r.querySelectorAll('iframe, frame')) {
+        const doc = frameDocument(f);
+        if (!frameDocs.has(f)) {
+          frameDocs.set(f, doc);
+          continue;
+        }
+        if (frameDocs.get(f) !== doc) {
+          frameDocs.set(f, doc);
+          mark(f, true);
+          changed++;
+        }
+      }
+    }
+    if (changed) {
+      stats.frameDocumentsReplaced += changed;
+      if (!firstAt) {
+        firstAt = performance.now();
+      }
+      observeRoots();
+      schedule();
+    }
+    return changed;
+  }
+
+  function onFrameLoad(e) {
+    const t = e.target;
+    if (t && (t.tagName === 'IFRAME' || t.tagName === 'FRAME') && (mode === 'ACTIVE' || mode === 'BUFFER')) {
+      checkFrameDocuments();
+    }
+  }
+
   function observeRoots() {
     const wanted = NS.capture.observableRoots();
     for (const r of wanted) {
@@ -148,12 +195,15 @@
         const o = new MutationObserver(onRecords);
         o.observe(r, { subtree: true, childList: true, attributes: true, characterData: true });
         observers.set(r, o);
+        // 'load' de iframe não propaga, mas é visto na fase de captura do documento/shadow root que o contém.
+        r.addEventListener('load', onFrameLoad, true);
       }
     }
     for (const [r, o] of observers) {
       const alive = r === document || (r instanceof ShadowRoot ? r.host && r.host.isConnected : r.defaultView);
       if (!alive) {
         o.disconnect();
+        r.removeEventListener('load', onFrameLoad, true);
         observers.delete(r);
       }
     }
@@ -163,6 +213,7 @@
     if (mode !== 'ACTIVE' && mode !== 'BUFFER') {
       return;
     }
+    checkFrameDocuments();
     const hosts = NS.capture.discoverShadowHosts();
     if (hosts.length) {
       stats.shadowRootsDiscovered += hosts.length;
@@ -273,6 +324,7 @@
       frames: NS.capture.frameList(),
       shadowRoots: NS.capture.shadowRootList(),
       requests: newRequests,
+      resources: NS.capture.resourceList(),
       rawMutationCount: rawCount,
       batchCount,
       stats: { elementsVisited: part.nodes.length, nodesEmitted: part.nodes.length, durationMs, truncated: false, maxNodes: MAX_DELTA_NODES },
@@ -313,8 +365,9 @@
   }
 
   function disconnectAll() {
-    for (const o of observers.values()) {
+    for (const [r, o] of observers) {
       o.disconnect();
+      r.removeEventListener('load', onFrameLoad, true);
     }
     observers = new Map();
     if (timer) {
@@ -349,7 +402,9 @@
       pendingNavigation = null;
       mode = 'BUFFER';
       requestsSeen = NS.capture.observedRequests().length;
+      frameDocs = new WeakMap();
       observeRoots();
+      checkFrameDocuments(); // linha de base: documentos presentes na captura-base
       reconcileTimer = setInterval(reconcileScopes, RECONCILE_MS);
       root.addEventListener('scroll', onLayoutEvent, { capture: true, passive: true });
       root.addEventListener('resize', onLayoutEvent, { passive: true });

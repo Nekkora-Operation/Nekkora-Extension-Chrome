@@ -57,6 +57,10 @@ public final class InspectionCommands implements CommandRouter.CommandGroup {
             if (OptionSetAnalyzer.isChoiceControl(c.kind())) {
                 out.put("optionSet", s.options.analyze(nodeId, a.graph(), tab.optionHistory()));
             }
+            // CHROME-003: documento, frame e trajetória completa até o elemento.
+            var path = FrameCommands.pathOrNull(s, tab, a, nodeId);
+            out.put("accessPath", path);
+            out.put("documentId", "doc:" + a.model().node(nodeId).frameId());
             out.put("timings", Map.of("familyMs", round((t2 - t1) / 1e6), "locatorMs", round((t3 - t2) / 1e6),
                     "hostTotalMs", EngineServices.ms(t0)));
             List<String> statements = new ArrayList<>();

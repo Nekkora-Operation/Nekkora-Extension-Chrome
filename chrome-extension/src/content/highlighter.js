@@ -34,6 +34,7 @@
              border: ${T.highlightWidthPx}px solid ${T.primary}; border-radius: 2px; }
       .box.hover { border-style: dashed; }
       .box.selection { box-shadow: 0 0 0 1px rgba(255,255,255,.85); }
+      .box.frame { border-style: dotted; background: rgba(194,70,109,.06); } /* região do iframe imediato (DEV) */
       .label { position: fixed; display: none; pointer-events: none; font: 600 11px/1.4 ${T.fontFamily};
                color: #fff; background: ${T.primary}; padding: 1px 6px; border-radius: 4px; white-space: nowrap;
                max-width: 60vw; overflow: hidden; text-overflow: ellipsis; }

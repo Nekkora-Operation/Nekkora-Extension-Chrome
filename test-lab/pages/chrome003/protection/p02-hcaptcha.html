@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>LAB-P02 — hCaptcha (simulado)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <script type="application/x-nekkora-inert" src="https://js.hcaptcha.com/1/api.js"></script>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <p class="sim-banner">Fixture SIMULADA — hCaptcha sem serviço real; o "desafio" é um iframe local com URL simulada.</p>
+  <h1>Cadastro</h1>
+  <form id="cadastro" onsubmit="event.preventDefault()">
+    <label for="nome">Nome</label> <input id="nome" name="nome">
+    <div class="h-captcha" data-sitekey="LAB-FICTICIA-0002">
+      <iframe title="Widget contendo caixa de seleção do hCaptcha" width="303" height="78" src="/lab/chrome003/protection/simulated-widget.html"
+              data-nekkora-simulated-src="https://newassets.hcaptcha.com/captcha/v1/lab/static/hcaptcha.html#frame=checkbox"></iframe>
+      <textarea name="h-captcha-response" style="display:none"></textarea>
+    </div>
+    <button type="submit">Cadastrar</button>
+  </form>
+  <button type="button" id="abrir-desafio">Simular desafio aberto</button>
+  <div id="desafio"></div>
+  <script src="/lab/lab.js"></script>
+  <script>
+    document.getElementById('abrir-desafio').onclick = () => {
+      document.getElementById('desafio').innerHTML =
+        '<iframe title="Conteúdo principal do desafio hCaptcha" width="400" height="200" src="/lab/chrome003/protection/simulated-widget.html?desafio=1"' +
+        ' data-nekkora-simulated-src="https://newassets.hcaptcha.com/captcha/v1/lab/static/hcaptcha.html#frame=challenge"></iframe>';
+    };
+  </script>
+</body>
+</html>

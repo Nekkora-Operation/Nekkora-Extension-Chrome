@@ -51,7 +51,17 @@ public record ElementDescriptor(
         ElementFamily family,
         LocatorSet locators,
         List<String> evidence,
-        List<String> uncertainties) {
+        List<String> uncertainties,
+        String documentId) {
+
+    /** Construtor CHROME-001/002 (documento derivado do frame). */
+    public ElementDescriptor(String nodeId, String tag, String scopeId, String frameId, String parentNodeId, String kind,
+                             String category, String role, boolean nativeSemantics, String confidence, ElementText text,
+                             Map<String, String> attributes, Set<ElementCondition> conditions, boolean sensitive, Rect rect,
+                             ElementFamily family, LocatorSet locators, List<String> evidence, List<String> uncertainties) {
+        this(nodeId, tag, scopeId, frameId, parentNodeId, kind, category, role, nativeSemantics, confidence, text, attributes,
+                conditions, sensitive, rect, family, locators, evidence, uncertainties, frameId == null ? null : "doc:" + frameId);
+    }
 
     /**
      * Textos de um elemento, sem duplicar indiscriminadamente o texto dos descendentes.

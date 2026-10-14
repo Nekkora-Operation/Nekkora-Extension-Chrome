@@ -44,6 +44,31 @@
     <li><a href="/lab/chrome002/accessible-names.html">Nomes acessíveis</a> — AccName 1.2 / HTML-AAM</li>
   </ul>
 
+  <h2>CHROME-003 — Frame Intelligence</h2>
+  <ul>
+    <li><a href="/lab/chrome003/frames.html">Hierarquias</a> — A: iframe; B: dois níveis; C: dois níveis + Shadow DOM; D: Shadow DOM → iframe; E: irmãos idênticos; F: mesmo name/URL</li>
+    <li><a href="/lab/chrome003/frames-dynamic.html">Ciclo de vida</a> — G: removido; H: substituído (SPA); I: about:blank; srcdoc; lento; navegação interna; inserção</li>
+    <li><a href="/lab/chrome003/frames-origins.html">Origens e permissões</a> — outra origem permitida aninhada; J: sem permissão; sandbox</li>
+    <li>Gerados: <a href="/generated/frames?count=1&amp;depth=1">1</a> · <a href="/generated/frames?count=5&amp;depth=1">5</a> ·
+      <a href="/generated/frames?count=10&amp;depth=1">10</a> · <a href="/generated/frames?count=25&amp;depth=1">25</a> iframes ·
+      <a href="/generated/frames?count=3&amp;depth=4">3 × profundidade 4</a></li>
+  </ul>
+
+  <h2>CHROME-003 — diagnóstico de proteções (fixtures SIMULADAS, referências inertes)</h2>
+  <ul>
+    <li><a href="/lab/chrome003/protection/p01-recaptcha.html">LAB-P01 reCAPTCHA v2</a> ·
+      <a href="/lab/chrome003/protection/p02-hcaptcha.html">LAB-P02 hCaptcha</a> ·
+      <a href="/lab/chrome003/protection/p03-turnstile.html">LAB-P03 Turnstile</a> ·
+      <a href="/lab/chrome003/protection/p04-challenge-page.html">LAB-P04 página de desafio</a></li>
+    <li><a href="/lab/chrome003/protection/p05-unknown.html">LAB-P05 não identificável</a> ·
+      <a href="/lab/chrome003/protection/p06-false-positive.html">LAB-P06 falso positivo</a> ·
+      <a href="/lab/chrome003/protection/p07-multiple.html">LAB-P07 múltiplas</a> ·
+      <a href="/lab/chrome003/protection/p08-in-iframe.html">LAB-P08 dentro de iframe</a></li>
+    <li><a href="/lab/chrome003/protection/p09-dynamic.html">LAB-P09 dinâmica</a> ·
+      <a href="/lab/chrome003/protection/p10-insufficient.html">LAB-P10 metadados insuficientes</a> ·
+      <a href="/lab/chrome003/protection/p11-block-page.html">LAB-P11 página de bloqueio</a></li>
+  </ul>
+
   <h2>Pesquisa e resultados</h2>
   <ul>
     <li><a href="/clientes?nome=ana&amp;status=ativo">/clientes?nome=ana&amp;status=ativo</a> — pesquisa, filtros, paginação, modal de edição, ações por linha</li>

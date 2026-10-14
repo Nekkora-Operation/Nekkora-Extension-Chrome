@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Pagamentos</title>
+  <style>body{font:14px system-ui;margin:8px}</style>
+</head>
+<body>
+  <h3>Pagamentos <span id="etapa"></span></h3>
+  <nk-pagamento id="form-pagamento"></nk-pagamento>
+  <button type="button" id="proxima">Próxima etapa</button>
+  <script>
+    document.getElementById('etapa').textContent = new URLSearchParams(location.search).get('etapa') || '1';
+    class Pagamento extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        this.attachShadow({ mode: 'open' }).innerHTML =
+          '<form aria-label="Pagamento" onsubmit="event.preventDefault()">' +
+          '<label for="valor-pg">Valor</label> <input id="valor-pg" name="valor">' +
+          '<button type="submit">Confirmar pagamento</button></form>';
+      }
+    }
+    customElements.define('nk-pagamento', Pagamento);
+    // Navegação interna do frame (mesmo iframe, novo documento).
+    document.getElementById('proxima').onclick = () => { location.href = '/lab/chrome003/pagamentos.html?etapa=2'; };
+  </script>
+</body>
+</html>

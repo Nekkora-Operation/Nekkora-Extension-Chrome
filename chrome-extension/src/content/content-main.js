@@ -22,8 +22,11 @@
 
   root.addEventListener('message', (e) => {
     const t = e.data && typeof e.data === 'object' ? e.data.__nekkoraFrame : null;
-    if (typeof t !== 'string' || !t.startsWith('nkf-') || announced.size > 50) {
+    if (typeof t !== 'string' || !t.startsWith('nkf-')) {
       return;
+    }
+    if (announced.size > 50) {
+      announced.clear(); // anúncios não consultados (outro ancestral era o dono da captura)
     }
     // Aceita somente o anúncio vindo de um iframe deste documento (e.source = contentWindow do hospedeiro).
     const host = allIframes().find((f) => f.contentWindow === e.source);
@@ -93,6 +96,9 @@
       }
       if (a.kind === 'selection') {
         selected = { nodeId: a.nodeId, targetId: a.targetId || (selected && selected.targetId) || null, label: a.label || '' };
+      }
+      if (a.kind === 'frame') {
+        el.scrollIntoView({ block: 'nearest', inline: 'nearest' }); // "Destacar iframe": a região precisa ficar visível
       }
       NS.highlighter.show(a.kind || 'selection', el, a.label || '', a.nodeId);
       return { ok: true };
@@ -182,7 +188,11 @@
       if (root.top === root) {
         return { ok: false, error: 'NOT_A_FRAME' };
       }
-      root.parent.postMessage({ __nekkoraFrame: a.token }, '*'); // token aleatório; nenhum dado da página
+      // Token aleatório (nenhum dado da página) a TODOS os ancestrais: em cadeias de mesma origem o iframe
+      // hospedeiro é capturado pelo content script de um ancestral (dono da captura), não pelo pai imediato.
+      for (let w = root.parent, guard = 0; w && guard < 20; w = w === w.parent ? null : w.parent, guard++) {
+        w.postMessage({ __nekkoraFrame: a.token }, '*');
+      }
       return { ok: true };
     },
     'cs.frame.lookup': async (a) => {

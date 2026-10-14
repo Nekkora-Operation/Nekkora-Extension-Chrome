@@ -1,0 +1,195 @@
+{
+  "browserMs" : 4.2,
+  "captureId" : "cap-ps-mv84e7ps-9i09vt-1",
+  "counts" : {
+    "documents" : 1,
+    "frames" : 0,
+    "inaccessible" : 0,
+    "inspected" : 1,
+    "loading" : 0,
+    "shadowRootsClosed" : 0,
+    "shadowRootsOpen" : 0
+  },
+  "frames" : [ {
+    "depth" : 0,
+    "frameId" : "f0",
+    "label" : "http://127.0.0.1:18765/lab/chrome003/protection/p03-turnstile.html",
+    "parentFrameId" : null,
+    "status" : "INSPECTED"
+  } ],
+  "maxDepth" : 0,
+  "protection" : {
+    "assessments" : [ {
+      "assessmentId" : "protection:cloudflare.turnstile@doc:f0",
+      "basis" : "OFFICIAL_DOCUMENTATION",
+      "category" : "HUMAN_VERIFICATION",
+      "challengeState" : "CHALLENGE_PRESENT",
+      "confidence" : "HIGH",
+      "confidenceReasons" : [ "2 evidências fortes de canais independentes (DOM, RESOURCE)" ],
+      "evidence" : [ {
+        "detail" : "script do Cloudflare Turnstile: https://challenges.cloudflare.com/turnstile/v0/api.js [simulado no laboratório]",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "turnstile.script",
+        "nodeId" : null,
+        "signal" : "TECHNOLOGY",
+        "simulated" : true,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "SCRIPT_RESOURCE",
+        "visible" : null
+      }, {
+        "detail" : "contêiner implícito do Turnstile (classe cf-turnstile) (div.cf-turnstile)",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "turnstile.widget",
+        "nodeId" : "n10",
+        "signal" : "WIDGET",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "STRONG",
+        "type" : "WIDGET",
+        "visible" : true
+      }, {
+        "detail" : "campo cf-turnstile-response (valor nunca coletado) (input) — campo vazio",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "turnstile.response",
+        "nodeId" : "n11",
+        "signal" : "TECHNOLOGY",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "MEDIUM",
+        "type" : "RESPONSE_FIELD",
+        "visible" : false
+      } ],
+      "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+      "location" : {
+        "accessPath" : {
+          "accessible" : true,
+          "blockingRestriction" : null,
+          "documentsTraversed" : 1,
+          "explanation" : "O elemento text foi encontrado no formulário «entrar», diretamente no documento principal. A identidade é sustentada por: formulário associado.",
+          "frameDepth" : 0,
+          "shadowDepth" : 0,
+          "stability" : "HEURISTIC_STABLE",
+          "steps" : [ {
+            "browserDocumentId" : "FE86DC8517A5B1E8440B978FC197FF6B",
+            "documentId" : null,
+            "enteredDocumentId" : "doc:f0",
+            "expectedCondition" : "DOCUMENT_ACTIVE",
+            "frameIdentity" : null,
+            "label" : "LAB-P03 — Cloudflare Turnstile (simulado)",
+            "locator" : null,
+            "locatorStrategy" : null,
+            "matchCount" : 0,
+            "nodeId" : null,
+            "restriction" : null,
+            "stability" : null,
+            "type" : "MAIN_DOCUMENT",
+            "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p03-turnstile.html"
+          }, {
+            "browserDocumentId" : null,
+            "documentId" : "doc:f0",
+            "enteredDocumentId" : null,
+            "expectedCondition" : "ELEMENT_PRESENT",
+            "frameIdentity" : null,
+            "label" : "div",
+            "locator" : "form {id=entrar} >> div {text=\"Turnstile simulado\"}",
+            "locatorStrategy" : "CONTEXTUAL",
+            "matchCount" : 1,
+            "nodeId" : "n10",
+            "restriction" : null,
+            "stability" : "HEURISTIC_STABLE",
+            "type" : "ELEMENT",
+            "url" : null
+          } ],
+          "target" : {
+            "kind" : "TEXT",
+            "name" : "div"
+          },
+          "targetNodeId" : "n10"
+        },
+        "documentId" : "doc:f0",
+        "frameChain" : [ ],
+        "frameId" : "f0",
+        "insideFrame" : false,
+        "inspectable" : true,
+        "widgetNodeId" : "n10"
+      },
+      "product" : "TURNSTILE",
+      "provider" : "CLOUDFLARE",
+      "signatureId" : "cloudflare.turnstile",
+      "signatureVersion" : "1",
+      "status" : "DETECTED"
+    } ],
+    "catalogVersion" : "2026.10.1",
+    "genericIndicators" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "status" : "OBSERVED"
+  },
+  "readiness" : {
+    "basis" : [ "obstáculo(s) de severidade alta: [HUMAN_VERIFICATION]", "todas as regiões observáveis foram inspecionadas" ],
+    "confidence" : "HIGH",
+    "documents" : {
+      "count" : 1,
+      "inaccessible" : 0,
+      "loading" : 0,
+      "maximumFrameDepth" : 0
+    },
+    "elements" : {
+      "interactive" : 3,
+      "observed" : 12
+    },
+    "interactionDependencies" : [ ],
+    "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+    "obstacles" : [ {
+      "count" : 1,
+      "description" : "Mecanismo de verificação humana presente (desafio não necessariamente ativo)",
+      "evidence" : [ "CLOUDFLARE TURNSTILE (HIGH, CHALLENGE_PRESENT)" ],
+      "frameIds" : [ ],
+      "heuristic" : false,
+      "nodeIds" : [ ],
+      "severity" : "HIGH",
+      "type" : "HUMAN_VERIFICATION"
+    } ],
+    "page" : {
+      "title" : "LAB-P03 — Cloudflare Turnstile (simulado)",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p03-turnstile.html"
+    },
+    "protectionStatus" : "OBSERVED",
+    "protections" : [ {
+      "category" : "HUMAN_VERIFICATION",
+      "challengeState" : "CHALLENGE_PRESENT",
+      "confidence" : "HIGH",
+      "documentId" : "doc:f0",
+      "product" : "TURNSTILE",
+      "provider" : "CLOUDFLARE"
+    } ],
+    "recommendations" : [ {
+      "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "HUMAN_INTERVENTION"
+    }, {
+      "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "ENVIRONMENT_CONFIGURATION"
+    }, {
+      "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+      "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+      "type" : "AUTHORIZED_API"
+    } ],
+    "shadowRoots" : {
+      "closed" : 0,
+      "open" : 0
+    },
+    "status" : "REQUIRES_SPECIAL_HANDLING"
+  },
+  "syncState" : "SYNCHRONIZED",
+  "timings" : {
+    "graphMs" : 0.02,
+    "protectionMs" : 0.43,
+    "readinessMs" : 0.13,
+    "totalMs" : 0.59
+  }
+}

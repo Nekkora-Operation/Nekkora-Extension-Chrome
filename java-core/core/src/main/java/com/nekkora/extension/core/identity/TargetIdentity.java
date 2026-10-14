@@ -23,6 +23,8 @@ import java.util.Set;
  * @param lastCaptureId     captura da última resolução
  * @param attributeHistory  valores observados de atributos voláteis em cada resolução (id, name)
  * @param warnings          alertas do registro (ex.: alvo indistinguível)
+ * @param frameChain        identidades lógicas dos frames a atravessar (CHROME-003; vazia no documento principal,
+ *                          {@code null} em registros anteriores)
  */
 public record TargetIdentity(
         String targetId,
@@ -37,7 +39,17 @@ public record TargetIdentity(
         String lastPageSessionId,
         String lastCaptureId,
         Map<String, List<String>> attributeHistory,
-        List<String> warnings) {
+        List<String> warnings,
+        List<com.nekkora.extension.core.frames.FrameIdentity> frameChain) {
+
+    /** Construtor CHROME-001/002 (sem cadeia de frames). */
+    public TargetIdentity(String targetId, String schemaVersion, String registeredAt, String origin, IdentitySignature signature,
+                          Set<IdentityFeature> discriminators, int lookalikeCount, LocatorSet locators, String lastNodeId,
+                          String lastPageSessionId, String lastCaptureId, Map<String, List<String>> attributeHistory,
+                          List<String> warnings) {
+        this(targetId, schemaVersion, registeredAt, origin, signature, discriminators, lookalikeCount, locators, lastNodeId,
+                lastPageSessionId, lastCaptureId, attributeHistory, warnings, null);
+    }
 
     public static final String SCHEMA_VERSION = "0.1.0";
 
@@ -45,6 +57,7 @@ public record TargetIdentity(
         discriminators = Set.copyOf(discriminators);
         attributeHistory = Map.copyOf(attributeHistory);
         warnings = List.copyOf(warnings);
+        frameChain = frameChain == null ? null : List.copyOf(frameChain);
     }
 
     public boolean indistinguishableAtRegistration() {

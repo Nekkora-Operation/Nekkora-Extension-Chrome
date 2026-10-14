@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nekkora.dev/contracts/page-map/0.1.0",
+  "$id": "https://nekkora.dev/contracts/page-map/0.2.0",
   "title": "Nekkora PageMap",
-  "description": "Representação estruturada de uma página observada pela Nekkora Extension Chrome. Versão 0.1.0. Identificadores de nó (nodeId) são TEMPORÁRIOS e valem apenas na sessão de página (pageSessionId); identidades lógicas estão em targets[].targetId.",
+  "description": "Representação estruturada de uma página observada pela Nekkora Extension Chrome. Versão 0.1.0. Identificadores de nó (nodeId) são TEMPORÁRIOS e valem apenas na sessão de página (pageSessionId); identidades lógicas estão em targets[].targetId. 0.2.0 (CHROME-003): seções opcionais frameGraph, accessPaths, protection e readiness; documentId nos elementos; frameChain nas identidades; diagnostics nas resoluções. Documentos 0.1.0 continuam válidos.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -27,7 +27,10 @@
       "const": "nekkora.pagemap"
     },
     "version": {
-      "const": "0.1.0"
+      "enum": [
+        "0.1.0",
+        "0.2.0"
+      ]
     },
     "generatedAt": {
       "type": "string"
@@ -94,6 +97,49 @@
       "additionalProperties": {
         "type": "number"
       }
+    },
+    "frameGraph": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/FrameGraph"
+        }
+      ]
+    },
+    "accessPaths": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ElementAccessPath"
+          }
+        }
+      ]
+    },
+    "protection": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/ProtectionReport"
+        }
+      ]
+    },
+    "readiness": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/AutomationReadinessAssessment"
+        }
+      ]
     }
   },
   "$defs": {
@@ -380,6 +426,12 @@
           "type": "boolean"
         },
         "reason": {
+          "$ref": "#/$defs/str"
+        },
+        "title": {
+          "$ref": "#/$defs/str"
+        },
+        "readyState": {
           "$ref": "#/$defs/str"
         }
       }
@@ -1484,6 +1536,13 @@
         },
         "uncertainties": {
           "$ref": "#/$defs/strings"
+        },
+        "documentId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^doc:"
         }
       }
     },
@@ -1761,6 +1820,19 @@
         },
         "warnings": {
           "$ref": "#/$defs/strings"
+        },
+        "frameChain": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FrameIdentity"
+              }
+            }
+          ]
         }
       }
     },
@@ -1901,6 +1973,23 @@
         },
         "updatedIdentity": {
           "$ref": "#/$defs/TargetIdentity"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "FRAME_NOT_FOUND",
+              "FRAME_AMBIGUOUS",
+              "FRAME_DOCUMENT_CHANGED",
+              "FRAME_PERMISSION_DENIED",
+              "FRAME_SANDBOX_RESTRICTED",
+              "FRAME_LOADING",
+              "SHADOW_ROOT_CLOSED",
+              "SHADOW_HOST_NOT_FOUND",
+              "TARGET_NOT_MATERIALIZED",
+              "TARGET_AMBIGUOUS"
+            ]
+          }
         }
       }
     },
@@ -2037,6 +2126,1033 @@
         },
         "recordedAt": {
           "$ref": "#/$defs/str"
+        }
+      }
+    },
+    "FrameIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "depth",
+        "insideShadowRoot",
+        "stableAttributes"
+      ],
+      "properties": {
+        "idAttr": {
+          "$ref": "#/$defs/str"
+        },
+        "name": {
+          "$ref": "#/$defs/str"
+        },
+        "title": {
+          "$ref": "#/$defs/str"
+        },
+        "stableAttributes": {
+          "$ref": "#/$defs/stringMap"
+        },
+        "container": {
+          "$ref": "#/$defs/str"
+        },
+        "urlPath": {
+          "$ref": "#/$defs/str"
+        },
+        "origin": {
+          "$ref": "#/$defs/str"
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parentKey": {
+          "$ref": "#/$defs/str"
+        },
+        "insideShadowRoot": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BrowserFrameMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "browserFrameId": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "browserDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "parentBrowserFrameId": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "parentDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "url": {
+          "$ref": "#/$defs/str"
+        },
+        "frameType": {
+          "$ref": "#/$defs/str"
+        },
+        "documentLifecycle": {
+          "$ref": "#/$defs/str"
+        },
+        "hostNodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "mapping": {
+          "enum": [
+            "TOP",
+            "HANDSHAKE",
+            "URL_MATCH",
+            "UNMAPPED",
+            null
+          ]
+        },
+        "inspection": {
+          "enum": [
+            "TOP",
+            "ATTACHED",
+            "CAPTURED_BY_PARENT",
+            "PENDING",
+            "NOT_ATTACHED",
+            "FAILED",
+            "NO_PERMISSION",
+            "NO_CONTENT_SCRIPT",
+            null
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/str"
+        },
+        "reason": {
+          "$ref": "#/$defs/str"
+        }
+      }
+    },
+    "FrameDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frameId",
+        "documentId",
+        "depth",
+        "documentKind",
+        "status",
+        "childFrameIds",
+        "elementCount"
+      ],
+      "properties": {
+        "frameId": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string",
+          "pattern": "^doc:"
+        },
+        "parentFrameId": {
+          "$ref": "#/$defs/str"
+        },
+        "parentDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "hostNodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "declaredSrc": {
+          "$ref": "#/$defs/str"
+        },
+        "srcdoc": {
+          "type": "boolean"
+        },
+        "effectiveUrl": {
+          "$ref": "#/$defs/str"
+        },
+        "origin": {
+          "$ref": "#/$defs/str"
+        },
+        "name": {
+          "$ref": "#/$defs/str"
+        },
+        "title": {
+          "$ref": "#/$defs/str"
+        },
+        "documentTitle": {
+          "$ref": "#/$defs/str"
+        },
+        "sandbox": {
+          "$ref": "#/$defs/str"
+        },
+        "documentKind": {
+          "enum": [
+            "MAIN",
+            "NETWORK",
+            "ABOUT_BLANK",
+            "INITIAL_ABOUT_BLANK",
+            "SRCDOC",
+            "UNKNOWN"
+          ]
+        },
+        "status": {
+          "enum": [
+            "INSPECTED",
+            "LOADING",
+            "ATTACHING",
+            "PERMISSION_DENIED",
+            "SANDBOX_RESTRICTED",
+            "INACCESSIBLE"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/str"
+        },
+        "inspectedBy": {
+          "$ref": "#/$defs/str"
+        },
+        "insideShadowRoot": {
+          "type": "boolean"
+        },
+        "identity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/FrameIdentity"
+            }
+          ]
+        },
+        "identityAmbiguous": {
+          "type": "boolean"
+        },
+        "locator": {
+          "$ref": "#/$defs/str"
+        },
+        "locatorStability": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/stability"
+            }
+          ]
+        },
+        "childFrameIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "elementCount": {
+          "type": "integer"
+        },
+        "interactiveCount": {
+          "type": "integer"
+        },
+        "shadowRoots": {
+          "type": "integer"
+        },
+        "browser": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/BrowserFrameMetadata"
+            }
+          ]
+        }
+      }
+    },
+    "DocumentDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentId",
+        "frameId",
+        "kind",
+        "lifecycle",
+        "accessible"
+      ],
+      "properties": {
+        "documentId": {
+          "type": "string",
+          "pattern": "^doc:"
+        },
+        "frameId": {
+          "type": "string"
+        },
+        "browserDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "url": {
+          "$ref": "#/$defs/str"
+        },
+        "queryKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "origin": {
+          "$ref": "#/$defs/str"
+        },
+        "title": {
+          "$ref": "#/$defs/str"
+        },
+        "readyState": {
+          "$ref": "#/$defs/str"
+        },
+        "kind": {
+          "enum": [
+            "MAIN",
+            "NETWORK",
+            "ABOUT_BLANK",
+            "INITIAL_ABOUT_BLANK",
+            "SRCDOC",
+            "UNKNOWN"
+          ]
+        },
+        "lifecycle": {
+          "enum": [
+            "ACTIVE",
+            "LOADING",
+            "INACCESSIBLE",
+            "TEMPORARY"
+          ]
+        },
+        "accessible": {
+          "type": "boolean"
+        },
+        "pageSessionId": {
+          "$ref": "#/$defs/str"
+        },
+        "elementCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "FrameGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mainDocumentId",
+        "documents",
+        "frames",
+        "relations",
+        "maxDepth",
+        "counts",
+        "limitations"
+      ],
+      "properties": {
+        "mainDocumentId": {
+          "const": "doc:f0"
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DocumentDescriptor"
+          }
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FrameDescriptor"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "DOCUMENT_CONTAINS_FRAME",
+                  "FRAME_HAS_DOCUMENT",
+                  "FRAME_PARENT_OF",
+                  "FRAME_CHILD_OF",
+                  "FRAME_HOSTED_BY_ELEMENT",
+                  "ELEMENT_BELONGS_TO_DOCUMENT",
+                  "ELEMENT_BELONGS_TO_FRAME",
+                  "SHADOW_ROOT_BELONGS_TO_DOCUMENT"
+                ]
+              },
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "maxDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AccessStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "expectedCondition"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "MAIN_DOCUMENT",
+            "IFRAME",
+            "SHADOW_ROOT",
+            "ELEMENT"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/str"
+        },
+        "documentId": {
+          "$ref": "#/$defs/str"
+        },
+        "enteredDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "browserDocumentId": {
+          "$ref": "#/$defs/str"
+        },
+        "nodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "locator": {
+          "$ref": "#/$defs/str"
+        },
+        "locatorStrategy": {
+          "$ref": "#/$defs/str"
+        },
+        "matchCount": {
+          "type": "integer"
+        },
+        "stability": {
+          "$ref": "#/$defs/str"
+        },
+        "frameIdentity": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/FrameIdentity"
+            }
+          ]
+        },
+        "url": {
+          "$ref": "#/$defs/str"
+        },
+        "expectedCondition": {
+          "type": "string"
+        },
+        "restriction": {
+          "enum": [
+            null,
+            "FRAME_SOURCE_CONTEXT",
+            "PERMISSION_DENIED",
+            "SANDBOX_RESTRICTED",
+            "FRAME_LOADING",
+            "SHADOW_ROOT_CLOSED",
+            "INACCESSIBLE"
+          ]
+        }
+      }
+    },
+    "ElementAccessPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetNodeId",
+        "target",
+        "steps",
+        "documentsTraversed",
+        "frameDepth",
+        "shadowDepth",
+        "accessible",
+        "explanation"
+      ],
+      "properties": {
+        "targetNodeId": {
+          "type": "string"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "$ref": "#/$defs/str"
+            }
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/AccessStep"
+          }
+        },
+        "documentsTraversed": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "frameDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shadowDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "accessible": {
+          "type": "boolean"
+        },
+        "blockingRestriction": {
+          "$ref": "#/$defs/str"
+        },
+        "stability": {
+          "$ref": "#/$defs/str"
+        },
+        "explanation": {
+          "type": "string"
+        }
+      }
+    },
+    "ProtectionEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "indicatorId",
+        "detail",
+        "source",
+        "strength",
+        "signal",
+        "simulated"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "SCRIPT_RESOURCE",
+            "FRAME_RESOURCE",
+            "NETWORK_RESOURCE",
+            "WIDGET",
+            "DOM_ELEMENT",
+            "ATTRIBUTE",
+            "RESPONSE_FIELD",
+            "DOCUMENT_TITLE",
+            "TEXT"
+          ]
+        },
+        "indicatorId": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "DOM",
+            "RESOURCE_TIMING",
+            "FRAME_METADATA",
+            "BROWSER_METADATA"
+          ]
+        },
+        "strength": {
+          "enum": [
+            "STRONG",
+            "MEDIUM",
+            "WEAK"
+          ]
+        },
+        "signal": {
+          "enum": [
+            "TECHNOLOGY",
+            "WIDGET",
+            "CHALLENGE_ACTIVE",
+            "CHALLENGE_PAGE",
+            "BLOCKED",
+            "COMPLETED_FIELD",
+            "MENTION"
+          ]
+        },
+        "nodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "documentId": {
+          "$ref": "#/$defs/str"
+        },
+        "frameId": {
+          "$ref": "#/$defs/str"
+        },
+        "visible": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "simulated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ProtectionAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assessmentId",
+        "status",
+        "provider",
+        "product",
+        "category",
+        "confidence",
+        "challengeState",
+        "basis",
+        "evidence",
+        "location",
+        "confidenceReasons",
+        "limitations"
+      ],
+      "properties": {
+        "assessmentId": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "DETECTED",
+            "POSSIBLE",
+            "INSUFFICIENT_EVIDENCE"
+          ]
+        },
+        "provider": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "CAPTCHA",
+            "HUMAN_VERIFICATION",
+            "RISK_ASSESSMENT",
+            "CHALLENGE",
+            "CHALLENGE_PAGE",
+            "BOT_MANAGEMENT",
+            "WAF",
+            "ACCESS_BLOCK"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "UNKNOWN"
+          ]
+        },
+        "challengeState": {
+          "enum": [
+            "NOT_OBSERVED",
+            "TECHNOLOGY_DETECTED",
+            "CHALLENGE_PRESENT",
+            "CHALLENGE_ACTIVE",
+            "CHALLENGE_COMPLETED",
+            "ACCESS_BLOCKED",
+            "UNKNOWN"
+          ]
+        },
+        "signatureId": {
+          "$ref": "#/$defs/str"
+        },
+        "signatureVersion": {
+          "$ref": "#/$defs/str"
+        },
+        "basis": {
+          "enum": [
+            "OFFICIAL_DOCUMENTATION",
+            "THIRD_PARTY_OBSERVATION",
+            "GENERIC"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProtectionEvidence"
+          }
+        },
+        "location": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "documentId": {
+              "$ref": "#/$defs/str"
+            },
+            "frameId": {
+              "$ref": "#/$defs/str"
+            },
+            "insideFrame": {
+              "type": "boolean"
+            },
+            "frameChain": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "inspectable": {
+              "type": "boolean"
+            },
+            "widgetNodeId": {
+              "$ref": "#/$defs/str"
+            },
+            "accessPath": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/ElementAccessPath"
+                }
+              ]
+            }
+          }
+        },
+        "confidenceReasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ProtectionReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalogVersion",
+        "status",
+        "assessments",
+        "genericIndicators",
+        "limitations"
+      ],
+      "properties": {
+        "catalogVersion": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "OBSERVED",
+            "INSUFFICIENT_EVIDENCE",
+            "NOT_OBSERVED"
+          ]
+        },
+        "assessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProtectionAssessment"
+          }
+        },
+        "genericIndicators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProtectionEvidence"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AutomationObstacle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "severity",
+        "description",
+        "evidence",
+        "nodeIds",
+        "frameIds",
+        "count",
+        "heuristic"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "NESTED_IFRAME",
+            "FRAME_CONTEXT",
+            "CROSS_ORIGIN_FRAME",
+            "INACCESSIBLE_FRAME",
+            "SANDBOXED_FRAME",
+            "FRAME_LOADING",
+            "SHADOW_DOM",
+            "CLOSED_SHADOW_ROOT",
+            "VIRTUALIZED_COMPONENT",
+            "DYNAMIC_IDS",
+            "AMBIGUOUS_ELEMENTS",
+            "ASYNC_LOADING",
+            "TRANSIENT_ELEMENTS",
+            "MODAL",
+            "PORTAL",
+            "SPA_NAVIGATION",
+            "INTERACTION_DEPENDENCY",
+            "INACCESSIBLE_ELEMENTS",
+            "HUMAN_VERIFICATION",
+            "ANTIBOT_TECHNOLOGY",
+            "ACCESS_BLOCKED",
+            "UNKNOWN_PROTECTION"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frameIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "count": {
+          "type": "integer"
+        },
+        "heuristic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AutomationReadinessAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "page",
+        "documents",
+        "shadowRoots",
+        "elements",
+        "obstacles",
+        "interactionDependencies",
+        "protections",
+        "protectionStatus",
+        "recommendations",
+        "status",
+        "confidence",
+        "basis",
+        "limitations"
+      ],
+      "properties": {
+        "page": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "documents": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "shadowRoots": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "elements": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "obstacles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AutomationObstacle"
+          }
+        },
+        "interactionDependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "regionNodeId",
+              "interactiveInside",
+              "basis"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "OPEN_MODAL",
+                  "OPEN_DROPDOWN",
+                  "SELECT_TAB",
+                  "EXPAND_SECTION",
+                  "LOAD_MORE",
+                  "NAVIGATE"
+                ]
+              },
+              "regionNodeId": {
+                "type": "string"
+              },
+              "controllerNodeId": {
+                "$ref": "#/$defs/str"
+              },
+              "interactiveInside": {
+                "type": "integer"
+              },
+              "basis": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "protections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "protectionStatus": {
+          "enum": [
+            "OBSERVED",
+            "INSUFFICIENT_EVIDENCE",
+            "NOT_OBSERVED"
+          ]
+        },
+        "recommendations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "reason",
+              "relatedObstacles"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "HUMAN_INTERVENTION",
+                  "AUTHORIZED_API",
+                  "ENVIRONMENT_CONFIGURATION",
+                  "MANUAL_VALIDATION",
+                  "UNKNOWN_PROTECTION",
+                  "NO_ACTION_REQUIRED"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "relatedObstacles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "status": {
+          "enum": [
+            "NO_KNOWN_OBSTACLES",
+            "MANAGEABLE",
+            "REQUIRES_SPECIAL_HANDLING",
+            "REQUIRES_HUMAN_INTERVENTION"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        },
+        "basis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     }

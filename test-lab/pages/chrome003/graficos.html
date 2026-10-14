@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Gráficos</title>
+  <style>body{font:14px system-ui;margin:8px}</style>
+</head>
+<body>
+  <nk-grafico></nk-grafico>
+  <script>
+    class Grafico extends HTMLElement {
+      connectedCallback() {
+        if (this.shadowRoot) return;
+        this.attachShadow({ mode: 'open' }).innerHTML = '<figure><figcaption>Vendas por mês</figcaption><button type="button">Exportar gráfico</button></figure>';
+      }
+    }
+    customElements.define('nk-grafico', Grafico);
+  </script>
+</body>
+</html>

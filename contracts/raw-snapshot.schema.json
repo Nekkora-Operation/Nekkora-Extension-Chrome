@@ -123,6 +123,18 @@
               "SANDBOXED",
               "NOT_LOADED"
             ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "readyState": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }
@@ -244,6 +256,66 @@
             "INSTANT",
             "BASE_PLUS_DELTA"
           ]
+        }
+      }
+    },
+    "resources": {
+      "description": "CHROME-003: recursos observáveis (URLs SANITIZADAS: sem query/fragmento; somente nomes de parâmetros).",
+      "type": "array",
+      "maxItems": 400,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "url",
+          "observedBy"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "SCRIPT",
+              "STYLESHEET",
+              "IFRAME",
+              "OTHER"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^[^?#]*$",
+            "maxLength": 300
+          },
+          "observedBy": {
+            "enum": [
+              "DOM",
+              "RESOURCE_TIMING"
+            ]
+          },
+          "frameId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nodeId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "queryKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20
+          }
         }
       }
     }

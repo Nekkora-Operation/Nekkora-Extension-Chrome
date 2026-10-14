@@ -1,0 +1,160 @@
+{
+  "catalog": "nekkora.protection-signatures",
+  "catalogVersion": "2026.10.1",
+  "reviewedAt": "2026-10-14",
+  "notes": [
+    "Catálogo DETERMINÍSTICO e explicável de evidências OBSERVÁVEIS no navegador. Não executa desafios, não gera tráfego e não contorna proteções.",
+    "basis=OFFICIAL_DOCUMENTATION: indicadores conferidos na documentação pública do fornecedor na data de revisão. basis=THIRD_PARTY_OBSERVATION: indicadores de fontes secundárias, não confirmados pelo fornecedor; a confiança máxima é limitada.",
+    "A ausência de assinaturas nunca significa ausência de proteção: proteções aplicadas no servidor ou na borda podem não deixar evidência no documento."
+  ],
+  "genericIndicators": [
+    { "id": "generic.text.captcha", "kind": "TEXT", "token": "\\bcaptcha\\b", "strength": "WEAK", "signal": "MENTION", "description": "menção textual a CAPTCHA (não identifica fornecedor nem mecanismo)" },
+    { "id": "generic.text.human-pt", "kind": "TEXT", "token": "(verifique|confirme|prove) (que )?(você )?(é|e) humano|não sou um robô|nao sou um robo", "strength": "WEAK", "signal": "MENTION", "description": "pedido genérico de verificação humana (português)" },
+    { "id": "generic.text.human-en", "kind": "TEXT", "token": "verify (that )?you are (a )?human|i'?m not a robot|checking (if the site connection is secure|your browser)", "strength": "WEAK", "signal": "MENTION", "description": "pedido genérico de verificação humana (inglês)" },
+    { "id": "generic.attr.sitekey", "kind": "DOM_ATTRIBUTE", "token": "data-sitekey", "strength": "WEAK", "signal": "WIDGET", "description": "atributo data-sitekey (comum a vários fornecedores de CAPTCHA)" }
+  ],
+  "signatures": [
+    {
+      "id": "google.recaptcha.v2",
+      "provider": "GOOGLE", "product": "RECAPTCHA_V2", "category": "CAPTCHA",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://developers.google.com/recaptcha/docs/display"],
+      "maxConfidence": "HIGH",
+      "indicators": [
+        { "id": "recaptcha.script", "kind": "SCRIPT_URL", "host": "^(www\\.)?(google\\.com|recaptcha\\.net)$", "path": "^/recaptcha/(api|enterprise)\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script de integração do reCAPTCHA" },
+        { "id": "recaptcha.widget", "kind": "DOM_CLASS", "token": "g-recaptcha", "strength": "STRONG", "signal": "WIDGET", "description": "contêiner do widget reCAPTCHA (classe g-recaptcha)" },
+        { "id": "recaptcha.anchor-frame", "kind": "FRAME_URL", "host": "^(www\\.)?(google\\.com|recaptcha\\.net)$", "path": "^/recaptcha/(api2|enterprise)/anchor", "strength": "STRONG", "signal": "WIDGET", "description": "iframe da caixa de verificação do reCAPTCHA" },
+        { "id": "recaptcha.challenge-frame", "kind": "FRAME_URL", "host": "^(www\\.)?(google\\.com|recaptcha\\.net)$", "path": "^/recaptcha/(api2|enterprise)/bframe", "strength": "STRONG", "signal": "CHALLENGE_ACTIVE", "description": "iframe do desafio do reCAPTCHA (ativo quando visível)" },
+        { "id": "recaptcha.response", "kind": "FORM_FIELD", "token": "^g-recaptcha-response$", "strength": "MEDIUM", "signal": "COMPLETED_FIELD", "description": "campo de resposta g-recaptcha-response (valor nunca coletado; somente se está preenchido)" }
+      ]
+    },
+    {
+      "id": "google.recaptcha.v3",
+      "provider": "GOOGLE", "product": "RECAPTCHA_V3", "category": "RISK_ASSESSMENT",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://developers.google.com/recaptcha/docs/v3"],
+      "maxConfidence": "MEDIUM",
+      "indicators": [
+        { "id": "recaptcha3.script-render", "kind": "SCRIPT_URL", "host": "^(www\\.)?(google\\.com|recaptcha\\.net)$", "path": "^/recaptcha/(api|enterprise)\\.js$", "requiresQueryKey": "render", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script do reCAPTCHA carregado com parâmetro render (padrão do v3)" },
+        { "id": "recaptcha3.badge", "kind": "DOM_CLASS", "token": "grecaptcha-badge", "strength": "MEDIUM", "signal": "TECHNOLOGY", "description": "selo do reCAPTCHA invisível/v3" }
+      ]
+    },
+    {
+      "id": "hcaptcha",
+      "provider": "HCAPTCHA", "product": "HCAPTCHA", "category": "CAPTCHA",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://docs.hcaptcha.com/"],
+      "maxConfidence": "HIGH",
+      "indicators": [
+        { "id": "hcaptcha.script", "kind": "SCRIPT_URL", "host": "^js\\.hcaptcha\\.com$", "path": "^/1/api\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script de integração do hCaptcha" },
+        { "id": "hcaptcha.widget", "kind": "DOM_CLASS", "token": "h-captcha", "strength": "STRONG", "signal": "WIDGET", "description": "contêiner do widget hCaptcha (classe h-captcha)" },
+        { "id": "hcaptcha.frame", "kind": "FRAME_URL", "host": "(^|\\.)hcaptcha\\.com$", "path": "/captcha/", "strength": "STRONG", "signal": "WIDGET", "description": "iframe servido por *.hcaptcha.com" },
+        { "id": "hcaptcha.challenge-frame", "kind": "FRAME_URL", "host": "(^|\\.)hcaptcha\\.com$", "path": "/captcha/", "requiresFragment": "frame=challenge", "strength": "STRONG", "signal": "CHALLENGE_ACTIVE", "description": "iframe de desafio do hCaptcha" },
+        { "id": "hcaptcha.response", "kind": "FORM_FIELD", "token": "^h-captcha-response$", "strength": "MEDIUM", "signal": "COMPLETED_FIELD", "description": "campo de resposta h-captcha-response (valor nunca coletado)" }
+      ]
+    },
+    {
+      "id": "cloudflare.turnstile",
+      "provider": "CLOUDFLARE", "product": "TURNSTILE", "category": "HUMAN_VERIFICATION",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/"],
+      "maxConfidence": "HIGH",
+      "indicators": [
+        { "id": "turnstile.script", "kind": "SCRIPT_URL", "host": "^challenges\\.cloudflare\\.com$", "path": "^/turnstile/v0/api\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script do Cloudflare Turnstile" },
+        { "id": "turnstile.widget", "kind": "DOM_CLASS", "token": "cf-turnstile", "strength": "STRONG", "signal": "WIDGET", "description": "contêiner implícito do Turnstile (classe cf-turnstile)" },
+        { "id": "turnstile.frame", "kind": "FRAME_URL", "host": "^challenges\\.cloudflare\\.com$", "path": "^/cdn-cgi/challenge-platform/", "strength": "STRONG", "signal": "WIDGET", "description": "iframe do widget servido por challenges.cloudflare.com" },
+        { "id": "turnstile.response", "kind": "FORM_FIELD", "token": "^cf-turnstile-response$", "strength": "MEDIUM", "signal": "COMPLETED_FIELD", "description": "campo cf-turnstile-response (valor nunca coletado)" }
+      ]
+    },
+    {
+      "id": "cloudflare.challenge-page",
+      "provider": "CLOUDFLARE", "product": "CHALLENGE_PAGE", "category": "CHALLENGE_PAGE",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/", "observação pública da estrutura da página intersticial (não especificada pelo fornecedor)"],
+      "maxConfidence": "MEDIUM",
+      "indicators": [
+        { "id": "cfchl.platform-script", "kind": "SCRIPT_URL", "host": ".*", "path": "^/cdn-cgi/challenge-platform/h/", "strength": "STRONG", "signal": "CHALLENGE_PAGE", "description": "script da plataforma de desafios servido no próprio domínio (/cdn-cgi/challenge-platform/h/)" },
+        { "id": "cfchl.form", "kind": "DOM_ID", "token": "^(challenge-form|challenge-running|challenge-stage)$", "strength": "MEDIUM", "signal": "CHALLENGE_PAGE", "description": "elementos da página de desafio" },
+        { "id": "cfchl.title", "kind": "TITLE", "token": "^(just a moment|um momento)", "strength": "WEAK", "signal": "CHALLENGE_PAGE", "description": "título típico da página intersticial" }
+      ]
+    },
+    {
+      "id": "cloudflare.bot-management",
+      "provider": "CLOUDFLARE", "product": "BOT_MANAGEMENT", "category": "BOT_MANAGEMENT",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["fontes secundárias citam /cdn-cgi/challenge-platform/scripts/jsd/main.js (JavaScript detections); não confirmado pelo fornecedor"],
+      "maxConfidence": "MEDIUM",
+      "indicators": [
+        { "id": "cfbm.jsd", "kind": "SCRIPT_URL", "host": ".*", "path": "^/cdn-cgi/challenge-platform/scripts/jsd/", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script de JavaScript detections no próprio domínio" }
+      ]
+    },
+    {
+      "id": "cloudflare.block-page",
+      "provider": "CLOUDFLARE", "product": "BLOCK_PAGE", "category": "ACCESS_BLOCK",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["observação pública das páginas de erro/bloqueio"],
+      "maxConfidence": "MEDIUM",
+      "indicators": [
+        { "id": "cfblock.details", "kind": "DOM_ID", "token": "^cf-error-details$", "strength": "STRONG", "signal": "BLOCKED", "description": "bloco de detalhes da página de bloqueio" },
+        { "id": "cfblock.wrapper", "kind": "DOM_ID", "token": "^cf-wrapper$", "strength": "MEDIUM", "signal": "BLOCKED", "description": "contêiner da página de bloqueio" }
+      ]
+    },
+    {
+      "id": "aws.waf.captcha",
+      "provider": "AWS", "product": "WAF_CAPTCHA", "category": "CHALLENGE",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://docs.aws.amazon.com/waf/latest/developerguide/waf-js-captcha-api-specification.html", "https://docs.aws.amazon.com/waf/latest/developerguide/waf-javascript-api.html"],
+      "maxConfidence": "HIGH",
+      "indicators": [
+        { "id": "awswaf.captcha-script", "kind": "SCRIPT_URL", "host": "\\.captcha\\.awswaf\\.com$", "path": "/jsapi\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script da API JavaScript de CAPTCHA do AWS WAF" },
+        { "id": "awswaf.token-script", "kind": "SCRIPT_URL", "host": "\\.token\\.awswaf\\.com$", "path": "/(challenge|jsapi)\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "script de integração (tokens) do AWS WAF" },
+        { "id": "awswaf.container", "kind": "DOM_ID", "token": "^(captcha-container|aws-waf-captcha)$", "strength": "WEAK", "signal": "WIDGET", "description": "contêiner convencional do CAPTCHA (convenção da documentação; não obrigatório)" }
+      ]
+    },
+    {
+      "id": "akamai.bot-manager",
+      "provider": "AKAMAI", "product": "BOT_MANAGER", "category": "BOT_MANAGEMENT",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["observações públicas de terceiros (caminhos /akam/ e página de desafio sec-if-cpt); não confirmadas pelo fornecedor"],
+      "maxConfidence": "LOW",
+      "indicators": [
+        { "id": "akamai.akam-path", "kind": "SCRIPT_URL", "host": ".*", "path": "^/akam/\\d+/", "strength": "MEDIUM", "signal": "TECHNOLOGY", "description": "script em caminho /akam/<n>/ no próprio domínio" },
+        { "id": "akamai.challenge", "kind": "DOM_ID", "token": "^sec-if-cpt-container$|^sec-cpt-if$", "strength": "MEDIUM", "signal": "CHALLENGE_PAGE", "description": "contêiner de desafio associado ao Akamai" }
+      ]
+    },
+    {
+      "id": "datadome",
+      "provider": "DATADOME", "product": "DATADOME", "category": "BOT_MANAGEMENT",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "OFFICIAL_DOCUMENTATION",
+      "sources": ["https://docs.datadome.co/docs/javascript-tag"],
+      "maxConfidence": "HIGH",
+      "indicators": [
+        { "id": "datadome.tag", "kind": "SCRIPT_URL", "host": "^js\\.datadome\\.co$", "path": "^/tags\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "JavaScript Tag do DataDome" },
+        { "id": "datadome.api", "kind": "RESOURCE_URL", "host": "^api-js\\.datadome\\.co$", "path": "^/js/", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "envio de sinais ao endpoint padrão (somente se observado pelo Resource Timing)" },
+        { "id": "datadome.captcha-frame", "kind": "FRAME_URL", "host": "(^|\\.)captcha-delivery\\.com$", "path": "^/(captcha|interstitial)/", "strength": "MEDIUM", "signal": "CHALLENGE_ACTIVE", "description": "iframe de desafio (domínio citado por fontes secundárias)" }
+      ]
+    },
+    {
+      "id": "human.perimeterx",
+      "provider": "HUMAN", "product": "PERIMETERX_BOT_DEFENDER", "category": "BOT_MANAGEMENT",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["https://docs.humansecurity.com/applications/nextjs/configuration (caminhos de primeira parte init.js/captcha)", "domínios client.perimeterx.net e #px-captcha: fontes secundárias"],
+      "maxConfidence": "MEDIUM",
+      "indicators": [
+        { "id": "px.client", "kind": "SCRIPT_URL", "host": "^client\\.perimeterx\\.net$", "path": "^/PX[A-Za-z0-9]+/main\\.min\\.js$", "strength": "STRONG", "signal": "TECHNOLOGY", "description": "sensor JavaScript servido por client.perimeterx.net" },
+        { "id": "px.captcha", "kind": "DOM_ID", "token": "^px-captcha$", "strength": "MEDIUM", "signal": "CHALLENGE_PAGE", "description": "contêiner de desafio #px-captcha" }
+      ]
+    },
+    {
+      "id": "imperva.incapsula",
+      "provider": "IMPERVA", "product": "INCAPSULA", "category": "WAF",
+      "signatureVersion": "1", "reviewedAt": "2026-10-14", "basis": "THIRD_PARTY_OBSERVATION",
+      "sources": ["observações públicas de terceiros (recurso /_Incapsula_Resource); não confirmadas pelo fornecedor"],
+      "maxConfidence": "LOW",
+      "indicators": [
+        { "id": "imperva.resource-script", "kind": "SCRIPT_URL", "host": ".*", "path": "^/_Incapsula_Resource", "strength": "MEDIUM", "signal": "TECHNOLOGY", "description": "recurso /_Incapsula_Resource no próprio domínio" },
+        { "id": "imperva.resource-frame", "kind": "FRAME_URL", "host": ".*", "path": "^/_Incapsula_Resource", "strength": "MEDIUM", "signal": "CHALLENGE_ACTIVE", "description": "iframe /_Incapsula_Resource (desafio/bloqueio)" }
+      ]
+    }
+  ]
+}

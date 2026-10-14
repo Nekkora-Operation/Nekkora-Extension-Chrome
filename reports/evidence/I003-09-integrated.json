@@ -1,0 +1,773 @@
+{
+  "captura" : {
+    "deltas" : 0,
+    "fullCaptures" : 1,
+    "nodes" : 8
+  },
+  "hierarquia" : {
+    "counts" : {
+      "documents" : 1,
+      "frames" : 0,
+      "inaccessible" : 0,
+      "inspected" : 1,
+      "loading" : 0,
+      "shadowRootsClosed" : 0,
+      "shadowRootsOpen" : 0
+    },
+    "frames" : [ "f0:null:INSPECTED" ],
+    "maxDepth" : 0
+  },
+  "identificacao" : {
+    "frameChain" : [ ],
+    "name" : "Verify you are human",
+    "kind" : "CHECKBOX",
+    "targetId" : "tgt-dedbf8bb-6f7c-4b96-8f7e-4da75ee7ec4d"
+  },
+  "familia" : {
+    "form" : {
+      "idAttr" : "challenge-form",
+      "keyAttributes" : { },
+      "kind" : "FORM",
+      "name" : "",
+      "nodeId" : "n6",
+      "tag" : "form"
+    },
+    "region" : null,
+    "scope" : [ ]
+  },
+  "localizadores" : {
+    "verification" : {
+      "agreement" : [ {
+        "agrees" : true,
+        "css" : "input#caixa",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "input {id=caixa}",
+        "snapshotCount" : 1,
+        "strategy" : "ID",
+        "xpath" : "//input[@id=\"caixa\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "form#challenge-form input#caixa",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "form {id=challenge-form} >> input {id=caixa}",
+        "snapshotCount" : 1,
+        "strategy" : "CONTEXTUAL",
+        "xpath" : "//form[@id=\"challenge-form\"]//input[@id=\"caixa\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "input[aria-label=\"Verify you are human\"]",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "input {aria-label=Verify you are human}",
+        "snapshotCount" : 1,
+        "strategy" : "ATTRIBUTE",
+        "xpath" : "//input[@aria-label=\"Verify you are human\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "input[type=\"checkbox\"]",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "input {type=checkbox}",
+        "snapshotCount" : 1,
+        "strategy" : "ATTRIBUTE",
+        "xpath" : "//input[@type=\"checkbox\"]",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "div#challenge-stage > input",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "div {id=challenge-stage} >> input",
+        "snapshotCount" : 1,
+        "strategy" : "XPATH_RELATIVE",
+        "xpath" : "//div[@id=\"challenge-stage\"]/input",
+        "xpathCount" : 1
+      }, {
+        "agrees" : true,
+        "css" : "html > body > form:nth-of-type(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "cssCount" : 1,
+        "error" : null,
+        "semantic" : "html >> body >> form {nth-of-type 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "snapshotCount" : 1,
+        "strategy" : "POSITIONAL",
+        "xpath" : "//html/body/form[1]/div[1]/input[1]",
+        "xpathCount" : 1
+      } ],
+      "allAgree" : true,
+      "compared" : 6,
+      "locators" : {
+        "fallbacks" : [ {
+          "css" : "form#challenge-form input#caixa",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "challenge-form"
+              } ],
+              "tag" : "form"
+            }, {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "caixa"
+              } ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.76,
+          "semantic" : "form {id=challenge-form} >> input {id=caixa}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "id=\"challenge-form\": sem indícios de geração dinâmica (inferência)", "id=\"caixa\": sem indícios de geração dinâmica (inferência)" ],
+          "strategy" : "CONTEXTUAL",
+          "warnings" : [ "escopo: FORM" ],
+          "xpath" : "//form[@id=\"challenge-form\"]//input[@id=\"caixa\"]"
+        }, {
+          "css" : null,
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : null,
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "role" : "checkbox",
+                "type" : "ROLE_IS"
+              }, {
+                "name" : "Verify you are human",
+                "type" : "NAME_EQUALS"
+              } ],
+              "tag" : null
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.712,
+          "semantic" : "* {role=checkbox} {name=\"Verify you are human\"}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ROLE_NAME",
+          "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+          "xpath" : null
+        }, {
+          "css" : "input[aria-label=\"Verify you are human\"]",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "aria-label",
+                "type" : "ATTR_EQUALS",
+                "value" : "Verify you are human"
+              } ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.65,
+          "semantic" : "input {aria-label=Verify you are human}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ATTRIBUTE",
+          "warnings" : [ ],
+          "xpath" : "//input[@aria-label=\"Verify you are human\"]"
+        }, {
+          "css" : "input[type=\"checkbox\"]",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "type",
+                "type" : "ATTR_EQUALS",
+                "value" : "checkbox"
+              } ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.65,
+          "semantic" : "input {type=checkbox}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ ],
+          "strategy" : "ATTRIBUTE",
+          "warnings" : [ ],
+          "xpath" : "//input[@type=\"checkbox\"]"
+        }, {
+          "css" : "div#challenge-stage > input",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "challenge-stage"
+              } ],
+              "tag" : "div"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.45,
+          "semantic" : "div {id=challenge-stage} >> input",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "id=\"challenge-stage\": sem indícios de geração dinâmica (inferência)" ],
+          "strategy" : "XPATH_RELATIVE",
+          "warnings" : [ "relativo à âncora #challenge-stage" ],
+          "xpath" : "//div[@id=\"challenge-stage\"]/input"
+        }, {
+          "css" : "html > body > form:nth-of-type(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ ],
+              "tag" : "html"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ ],
+              "tag" : "body"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "form"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "div"
+            }, {
+              "axis" : "CHILD",
+              "predicates" : [ {
+                "position" : 1,
+                "type" : "NTH_OF_TYPE"
+              } ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.09,
+          "semantic" : "html >> body >> form {nth-of-type 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+          "stability" : "HEURISTIC_UNSTABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+          "strategy" : "POSITIONAL",
+          "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+          "xpath" : "//html/body/form[1]/div[1]/input[1]"
+        } ],
+        "nodeId" : "n8",
+        "primary" : {
+          "css" : "input#caixa",
+          "expected" : {
+            "dialog" : null,
+            "form" : "#challenge-form",
+            "heading" : "127.0.0.1",
+            "kind" : "CHECKBOX",
+            "name" : "Verify you are human",
+            "role" : "checkbox",
+            "rowKey" : { },
+            "table" : null
+          },
+          "live" : {
+            "cssCount" : 1,
+            "cssMatchesTarget" : true,
+            "error" : null,
+            "xpathCount" : 1,
+            "xpathMatchesTarget" : true
+          },
+          "matchCount" : 1,
+          "matchedNodeIds" : [ "n8" ],
+          "matchesTarget" : true,
+          "query" : {
+            "steps" : [ {
+              "axis" : "DESCENDANT",
+              "predicates" : [ {
+                "name" : "id",
+                "type" : "ATTR_EQUALS",
+                "value" : "caixa"
+              } ],
+              "tag" : "input"
+            } ]
+          },
+          "scope" : {
+            "chain" : [ ],
+            "frameId" : "f0",
+            "scopeId" : "doc:f0",
+            "type" : "MAIN_DOCUMENT"
+          },
+          "score" : 0.9,
+          "semantic" : "input {id=caixa}",
+          "stability" : "HEURISTIC_STABLE",
+          "stabilityBasis" : "HEURISTIC",
+          "stabilityReasons" : [ "id=\"caixa\": sem indícios de geração dinâmica (inferência)" ],
+          "strategy" : "ID",
+          "warnings" : [ ],
+          "xpath" : "//input[@id=\"caixa\"]"
+        },
+        "warnings" : [ ]
+      }
+    },
+    "primary" : {
+      "css" : "input#caixa",
+      "expected" : {
+        "dialog" : null,
+        "form" : "#challenge-form",
+        "heading" : "127.0.0.1",
+        "kind" : "CHECKBOX",
+        "name" : "Verify you are human",
+        "role" : "checkbox",
+        "rowKey" : { },
+        "table" : null
+      },
+      "live" : null,
+      "matchCount" : 1,
+      "matchedNodeIds" : [ "n8" ],
+      "matchesTarget" : true,
+      "query" : {
+        "steps" : [ {
+          "axis" : "DESCENDANT",
+          "predicates" : [ {
+            "name" : "id",
+            "type" : "ATTR_EQUALS",
+            "value" : "caixa"
+          } ],
+          "tag" : "input"
+        } ]
+      },
+      "scope" : {
+        "chain" : [ ],
+        "frameId" : "f0",
+        "scopeId" : "doc:f0",
+        "type" : "MAIN_DOCUMENT"
+      },
+      "score" : 0.9,
+      "semantic" : "input {id=caixa}",
+      "stability" : "HEURISTIC_STABLE",
+      "stabilityBasis" : "HEURISTIC",
+      "stabilityReasons" : [ "id=\"caixa\": sem indícios de geração dinâmica (inferência)" ],
+      "strategy" : "ID",
+      "warnings" : [ ],
+      "xpath" : "//input[@id=\"caixa\"]"
+    }
+  },
+  "trajetoria" : {
+    "accessible" : true,
+    "blockingRestriction" : null,
+    "documentsTraversed" : 1,
+    "explanation" : "O elemento checkbox «Verify you are human» foi encontrado no formulário «challenge-form», diretamente no documento principal. A identidade é sustentada por: nome acessível, formulário associado.",
+    "frameDepth" : 0,
+    "shadowDepth" : 0,
+    "stability" : "HEURISTIC_STABLE",
+    "steps" : [ {
+      "browserDocumentId" : "DE1AE1B732A913FA8692BAA4FFF081E7",
+      "documentId" : null,
+      "enteredDocumentId" : "doc:f0",
+      "expectedCondition" : "DOCUMENT_ACTIVE",
+      "frameIdentity" : null,
+      "label" : "Just a moment...",
+      "locator" : null,
+      "locatorStrategy" : null,
+      "matchCount" : 0,
+      "nodeId" : null,
+      "restriction" : null,
+      "stability" : null,
+      "type" : "MAIN_DOCUMENT",
+      "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+    }, {
+      "browserDocumentId" : null,
+      "documentId" : "doc:f0",
+      "enteredDocumentId" : null,
+      "expectedCondition" : "ELEMENT_PRESENT",
+      "frameIdentity" : null,
+      "label" : "Verify you are human",
+      "locator" : "input#caixa",
+      "locatorStrategy" : "ID",
+      "matchCount" : 1,
+      "nodeId" : "n8",
+      "restriction" : null,
+      "stability" : "HEURISTIC_STABLE",
+      "type" : "ELEMENT",
+      "url" : null
+    } ],
+    "target" : {
+      "kind" : "CHECKBOX",
+      "name" : "Verify you are human"
+    },
+    "targetNodeId" : "n8"
+  },
+  "reencontro" : {
+    "status" : "RESOLVED",
+    "score" : 1,
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+  },
+  "diagnostico" : {
+    "protection" : {
+      "assessments" : [ {
+        "assessmentId" : "protection:cloudflare.challenge-page@doc:f0",
+        "basis" : "THIRD_PARTY_OBSERVATION",
+        "category" : "CHALLENGE_PAGE",
+        "challengeState" : "CHALLENGE_ACTIVE",
+        "confidence" : "MEDIUM",
+        "confidenceReasons" : [ "1 evidência(s) forte(s) de um único canal (RESOURCE)" ],
+        "evidence" : [ {
+          "detail" : "script da plataforma de desafios servido no próprio domínio (/cdn-cgi/challenge-platform/h/): http://127.0.0.1:18765/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1 [simulado no laboratório]",
+          "documentId" : "doc:f0",
+          "frameId" : "f0",
+          "indicatorId" : "cfchl.platform-script",
+          "nodeId" : null,
+          "signal" : "CHALLENGE_PAGE",
+          "simulated" : true,
+          "source" : "DOM",
+          "strength" : "STRONG",
+          "type" : "SCRIPT_RESOURCE",
+          "visible" : null
+        }, {
+          "detail" : "elementos da página de desafio (form#challenge-form)",
+          "documentId" : "doc:f0",
+          "frameId" : "f0",
+          "indicatorId" : "cfchl.form",
+          "nodeId" : "n6",
+          "signal" : "CHALLENGE_PAGE",
+          "simulated" : false,
+          "source" : "DOM",
+          "strength" : "MEDIUM",
+          "type" : "DOM_ELEMENT",
+          "visible" : true
+        }, {
+          "detail" : "elementos da página de desafio (div#challenge-stage)",
+          "documentId" : "doc:f0",
+          "frameId" : "f0",
+          "indicatorId" : "cfchl.form",
+          "nodeId" : "n7",
+          "signal" : "CHALLENGE_PAGE",
+          "simulated" : false,
+          "source" : "DOM",
+          "strength" : "MEDIUM",
+          "type" : "DOM_ELEMENT",
+          "visible" : true
+        }, {
+          "detail" : "título típico da página intersticial: «Just a moment...»",
+          "documentId" : "doc:f0",
+          "frameId" : "f0",
+          "indicatorId" : "cfchl.title",
+          "nodeId" : null,
+          "signal" : "CHALLENGE_PAGE",
+          "simulated" : false,
+          "source" : "DOM",
+          "strength" : "WEAK",
+          "type" : "DOCUMENT_TITLE",
+          "visible" : true
+        } ],
+        "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+        "location" : {
+          "accessPath" : {
+            "accessible" : true,
+            "blockingRestriction" : null,
+            "documentsTraversed" : 1,
+            "explanation" : "O elemento form foi encontrado, diretamente no documento principal.",
+            "frameDepth" : 0,
+            "shadowDepth" : 0,
+            "stability" : "HEURISTIC_STABLE",
+            "steps" : [ {
+              "browserDocumentId" : "DE1AE1B732A913FA8692BAA4FFF081E7",
+              "documentId" : null,
+              "enteredDocumentId" : "doc:f0",
+              "expectedCondition" : "DOCUMENT_ACTIVE",
+              "frameIdentity" : null,
+              "label" : "Just a moment...",
+              "locator" : null,
+              "locatorStrategy" : null,
+              "matchCount" : 0,
+              "nodeId" : null,
+              "restriction" : null,
+              "stability" : null,
+              "type" : "MAIN_DOCUMENT",
+              "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+            }, {
+              "browserDocumentId" : null,
+              "documentId" : "doc:f0",
+              "enteredDocumentId" : null,
+              "expectedCondition" : "ELEMENT_PRESENT",
+              "frameIdentity" : null,
+              "label" : "form#challenge-form",
+              "locator" : "form#challenge-form",
+              "locatorStrategy" : "ID",
+              "matchCount" : 1,
+              "nodeId" : "n6",
+              "restriction" : null,
+              "stability" : "HEURISTIC_STABLE",
+              "type" : "ELEMENT",
+              "url" : null
+            } ],
+            "target" : {
+              "kind" : "FORM",
+              "name" : "form#challenge-form"
+            },
+            "targetNodeId" : "n6"
+          },
+          "documentId" : "doc:f0",
+          "frameChain" : [ ],
+          "frameId" : "f0",
+          "insideFrame" : false,
+          "inspectable" : true,
+          "widgetNodeId" : "n6"
+        },
+        "product" : "CHALLENGE_PAGE",
+        "provider" : "CLOUDFLARE",
+        "signatureId" : "cloudflare.challenge-page",
+        "signatureVersion" : "1",
+        "status" : "DETECTED"
+      } ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ {
+        "detail" : "pedido genérico de verificação humana (inglês): «Checking if the site connection is secure»",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "generic.text.human-en",
+        "nodeId" : "n5",
+        "signal" : "MENTION",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "TEXT",
+        "visible" : true
+      }, {
+        "detail" : "pedido genérico de verificação humana (inglês): «Verify you are human»",
+        "documentId" : "doc:f0",
+        "frameId" : "f0",
+        "indicatorId" : "generic.text.human-en",
+        "nodeId" : "n7",
+        "signal" : "MENTION",
+        "simulated" : false,
+        "source" : "DOM",
+        "strength" : "WEAK",
+        "type" : "TEXT",
+        "visible" : true
+      } ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+      "status" : "OBSERVED"
+    },
+    "readiness" : {
+      "basis" : [ "desafio de verificação humana ativo", "todas as regiões observáveis foram inspecionadas" ],
+      "confidence" : "HIGH",
+      "documents" : {
+        "count" : 1,
+        "inaccessible" : 0,
+        "loading" : 0,
+        "maximumFrameDepth" : 0
+      },
+      "elements" : {
+        "interactive" : 1,
+        "observed" : 8
+      },
+      "interactionDependencies" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ],
+      "obstacles" : [ {
+        "count" : 1,
+        "description" : "Desafio de verificação humana ATIVO",
+        "evidence" : [ "CLOUDFLARE CHALLENGE_PAGE (MEDIUM, CHALLENGE_ACTIVE)" ],
+        "frameIds" : [ ],
+        "heuristic" : false,
+        "nodeIds" : [ ],
+        "severity" : "HIGH",
+        "type" : "HUMAN_VERIFICATION"
+      } ],
+      "page" : {
+        "title" : "Just a moment...",
+        "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p04-challenge-page.html"
+      },
+      "protectionStatus" : "OBSERVED",
+      "protections" : [ {
+        "category" : "CHALLENGE_PAGE",
+        "challengeState" : "CHALLENGE_ACTIVE",
+        "confidence" : "MEDIUM",
+        "documentId" : "doc:f0",
+        "product" : "CHALLENGE_PAGE",
+        "provider" : "CLOUDFLARE"
+      } ],
+      "recommendations" : [ {
+        "reason" : "O fluxo poderá exigir intervenção humana (verificação/desafio)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "HUMAN_INTERVENTION"
+      }, {
+        "reason" : "Verificar com o proprietário da aplicação opções legítimas (ex.: chaves de teste, ambiente de homologação)",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "ENVIRONMENT_CONFIGURATION"
+      }, {
+        "reason" : "Avaliar a existência de API oficial ou integração autorizada pelo proprietário",
+        "relatedObstacles" : [ "HUMAN_VERIFICATION" ],
+        "type" : "AUTHORIZED_API"
+      } ],
+      "shadowRoots" : {
+        "closed" : 0,
+        "open" : 0
+      },
+      "status" : "REQUIRES_HUMAN_INTERVENTION"
+    },
+    "timings" : {
+      "graphMs" : 0.06,
+      "protectionMs" : 3.12,
+      "readinessMs" : 0.15,
+      "totalMs" : 3.35
+    }
+  },
+  "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção.", "Nenhum recurso de Resource Timing disponível: avaliação baseada em referências do DOM" ]
+}

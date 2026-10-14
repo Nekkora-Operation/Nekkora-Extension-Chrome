@@ -43,3 +43,10 @@ tr.primary-row td:first-child { border-left: 3px solid var(--nekkora-primary); }
 .dev-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--nekkora-text-secondary); }
 .badge.mode { background: var(--nekkora-primary); color: #fff; }
 .status { opacity: 1; }
+/* CHROME-003: trajetória e diagnóstico. */
+.steps { margin: 4px 0; padding-left: 18px; font-size: 12px; }
+.steps li { margin: 1px 0; }
+.steps li[data-restricted] { color: var(--nekkora-danger); }
+.steps .step-type { font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--nekkora-text-secondary); margin-right: 4px; }
+.explanation { margin: 4px 0; font-size: 12px; color: var(--nekkora-text-secondary); }
+#diag-info dd[data-level="HIGH"], #diag-info dd[data-level="REQUIRES_HUMAN_INTERVENTION"] { color: var(--nekkora-danger); font-weight: 600; }

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Frame Intelligence — origens e permissões</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe { width: 46%; height: 260px; border: 1px solid #999; margin: 4px; vertical-align: top; }</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Frame Intelligence — origens e permissões</h1>
+  <p class="muted">Outra origem local permitida (porta +1) com iframe aninhado e Shadow DOM, origem SEM permissão
+    (127.0.0.2, cenário J) e sandbox. A permissão da página principal não é estendida às origens dos frames.</p>
+  <button type="button" id="salvar">Salvar</button>
+  <iframe id="f-relatorios" title="Relatórios"></iframe>
+  <iframe id="f-externo" title="Parceiro externo"></iframe>
+  <iframe id="f-sandbox" title="Conteúdo isolado" sandbox="allow-scripts" src="/lab/chrome003/widget.html?sandbox=1"></iframe>
+  <iframe id="f-sandbox-so" title="Isolado com mesma origem" sandbox="allow-scripts allow-same-origin" src="/lab/chrome003/widget.html?sandbox=2"></iframe>
+  <script src="/lab/lab.js"></script>
+  <script>
+    const port = Number(location.port);
+    const other = location.protocol + '//' + (location.hostname === '127.0.0.1' ? 'localhost' : '127.0.0.1') + ':' + (port + 1);
+    window.labOrigins = { other, noPermission: 'http://127.0.0.2:' + port };
+    document.getElementById('f-relatorios').src = other + '/lab/chrome003/relatorios.html';
+    document.getElementById('f-externo').src = 'http://127.0.0.2:' + port + '/lab/chrome003/contas.html?externo=1';
+  </script>
+</body>
+</html>

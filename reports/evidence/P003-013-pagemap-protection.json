@@ -1,0 +1,122 @@
+{
+  "assessments" : [ {
+    "assessmentId" : "protection:google.recaptcha.v2@doc:f0",
+    "basis" : "OFFICIAL_DOCUMENTATION",
+    "category" : "CAPTCHA",
+    "challengeState" : "CHALLENGE_PRESENT",
+    "confidence" : "HIGH",
+    "confidenceReasons" : [ "3 evidências fortes de canais independentes (DOM, RESOURCE)" ],
+    "evidence" : [ {
+      "detail" : "script de integração do reCAPTCHA: https://www.google.com/recaptcha/api.js [simulado no laboratório]",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "recaptcha.script",
+      "nodeId" : null,
+      "signal" : "TECHNOLOGY",
+      "simulated" : true,
+      "source" : "DOM",
+      "strength" : "STRONG",
+      "type" : "SCRIPT_RESOURCE",
+      "visible" : null
+    }, {
+      "detail" : "contêiner do widget reCAPTCHA (classe g-recaptcha) (div.g-recaptcha)",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "recaptcha.widget",
+      "nodeId" : "n11",
+      "signal" : "WIDGET",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "STRONG",
+      "type" : "WIDGET",
+      "visible" : true
+    }, {
+      "detail" : "iframe da caixa de verificação do reCAPTCHA: https://www.google.com/recaptcha/api2/anchor [simulado no laboratório]",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "recaptcha.anchor-frame",
+      "nodeId" : "n13",
+      "signal" : "WIDGET",
+      "simulated" : true,
+      "source" : "DOM",
+      "strength" : "STRONG",
+      "type" : "FRAME_RESOURCE",
+      "visible" : true
+    }, {
+      "detail" : "campo de resposta g-recaptcha-response (valor nunca coletado; somente se está preenchido) (textarea#g-recaptcha-response) — campo vazio",
+      "documentId" : "doc:f0",
+      "frameId" : "f0",
+      "indicatorId" : "recaptcha.response",
+      "nodeId" : "n14",
+      "signal" : "TECHNOLOGY",
+      "simulated" : false,
+      "source" : "DOM",
+      "strength" : "MEDIUM",
+      "type" : "RESPONSE_FIELD",
+      "visible" : false
+    } ],
+    "limitations" : [ "Evidência(s) produzida(s) por metadados de simulação do laboratório (referência inerte, sem tráfego real)" ],
+    "location" : {
+      "accessPath" : {
+        "accessible" : true,
+        "blockingRestriction" : null,
+        "documentsTraversed" : 1,
+        "explanation" : "O elemento generic container foi encontrado no formulário «contato», diretamente no documento principal. A identidade é sustentada por: formulário associado.",
+        "frameDepth" : 0,
+        "shadowDepth" : 0,
+        "stability" : "HEURISTIC_STABLE",
+        "steps" : [ {
+          "browserDocumentId" : "1E1FBD61E30B4AAC104E5EB88A34C54B",
+          "documentId" : null,
+          "enteredDocumentId" : "doc:f0",
+          "expectedCondition" : "DOCUMENT_ACTIVE",
+          "frameIdentity" : null,
+          "label" : "LAB-P01 — reCAPTCHA v2 (simulado)",
+          "locator" : null,
+          "locatorStrategy" : null,
+          "matchCount" : 0,
+          "nodeId" : null,
+          "restriction" : null,
+          "stability" : null,
+          "type" : "MAIN_DOCUMENT",
+          "url" : "http://127.0.0.1:18765/lab/chrome003/protection/p01-recaptcha.html"
+        }, {
+          "browserDocumentId" : null,
+          "documentId" : "doc:f0",
+          "enteredDocumentId" : null,
+          "expectedCondition" : "ELEMENT_PRESENT",
+          "frameIdentity" : null,
+          "label" : "div",
+          "locator" : "form#contato div",
+          "locatorStrategy" : "CONTEXTUAL",
+          "matchCount" : 1,
+          "nodeId" : "n11",
+          "restriction" : null,
+          "stability" : "HEURISTIC_STABLE",
+          "type" : "ELEMENT",
+          "url" : null
+        } ],
+        "target" : {
+          "kind" : "GENERIC_CONTAINER",
+          "name" : "div"
+        },
+        "targetNodeId" : "n11"
+      },
+      "documentId" : "doc:f0",
+      "frameChain" : [ ],
+      "frameId" : "f0",
+      "insideFrame" : true,
+      "inspectable" : true,
+      "widgetNodeId" : "n11"
+    },
+    "product" : "RECAPTCHA_V2",
+    "provider" : "GOOGLE",
+    "signatureId" : "google.recaptcha.v2",
+    "signatureVersion" : "1",
+    "status" : "DETECTED"
+  } ],
+  "catalogVersion" : "2026.10.1",
+  "genericIndicators" : [ ],
+  "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+  "status" : "OBSERVED"
+}

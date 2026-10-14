@@ -117,16 +117,49 @@
     return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, MAX_TEXT_LEN) : '';
   }
 
+  const URL_ATTRIBUTE_HOSTS = new Set(['IFRAME', 'FRAME', 'SCRIPT']);
+  const KEPT_FRAGMENT_KEYS = new Set(['frame']); // tipo de frame de widgets (ex.: hCaptcha #frame=challenge)
+
+  /**
+   * URL de recurso com os VALORES de parâmetros redigidos (chaves de site, tokens e identificadores nunca são
+   * coletados); nomes dos parâmetros e o caminho são mantidos para a análise determinística.
+   */
+  function redactUrlValues(raw, base) {
+    let u;
+    try {
+      u = new URL(raw, base);
+    } catch (e) {
+      return raw;
+    }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return raw;
+    }
+    const redact = (params, kept) => [...params.keys()].map((k) => k + '=' + (kept && kept.has(k) ? params.get(k) : 'REDACTED')).join('&');
+    let out = u.origin + u.pathname;
+    if (u.search) {
+      out += '?' + redact(u.searchParams);
+    }
+    if (u.hash) {
+      const h = u.hash.slice(1);
+      out += '#' + (h.includes('=') ? redact(new URLSearchParams(h), KEPT_FRAGMENT_KEYS) : h.slice(0, 40));
+    }
+    return out;
+  }
+
   function attributes(el) {
     const out = {};
     for (const a of el.attributes) {
       const name = a.name;
-      if (name === 'style' || name.startsWith('data-nekkora')) {
-        continue;
+      if (name === 'style' || (name.startsWith('data-nekkora') && name !== 'data-nekkora-simulated-src')) {
+        continue; // data-nekkora-simulated-src: metadado de SIMULAÇÃO do laboratório, sempre rotulado como tal
       }
       let v = a.value;
       if (name.startsWith('on')) {
         v = '[manipulador declarado]';
+      } else if (name === 'data-sitekey') {
+        v = '[redacted]'; // chave pública de CAPTCHA: presença registrada, valor não
+      } else if ((name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName)) || name === 'data-nekkora-simulated-src') {
+        v = redactUrlValues(v, el.ownerDocument.baseURI);
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
       }
@@ -359,7 +392,8 @@
       if (doc && doc.documentElement) {
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
-        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: doc.location.href, accessible: true, reason: null };
+        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: doc.location.href, accessible: true, reason: null,
+          title: (doc.title || '').slice(0, 200) || null, readyState: doc.readyState };
         out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
       } else {
         fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
@@ -464,7 +498,89 @@
   }
 
   function rootFrameInfo() {
-    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: location.href, accessible: true, reason: null };
+    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: location.href, accessible: true, reason: null,
+      title: (document.title || '').slice(0, 200) || null, readyState: document.readyState };
+  }
+
+  /** URL sanitizada: esquema, host, porta e caminho (sem query, fragmento ou credenciais) + NOMES dos parâmetros. */
+  function sanitizeUrl(raw, base) {
+    try {
+      const u = new URL(raw, base || document.baseURI);
+      if (u.protocol === 'about:') {
+        return { url: 'about:' + u.pathname, queryKeys: [] };
+      }
+      const keys = [];
+      for (const k of u.searchParams.keys()) {
+        if (!keys.includes(k) && keys.length < 20) {
+          keys.push(k);
+        }
+      }
+      return { url: (u.origin + u.pathname).slice(0, 300), queryKeys: keys };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const MAX_RESOURCES = 400;
+  const RESOURCE_KINDS = { script: 'SCRIPT', iframe: 'IFRAME', link: 'STYLESHEET', css: 'STYLESHEET' };
+
+  /**
+   * Recursos observáveis (CHROME-003): scripts/folhas referenciados no DOM (documento, frames acessíveis e shadow
+   * roots abertos) e recursos efetivamente carregados (Resource Timing). Nenhum corpo, cabeçalho ou cookie.
+   */
+  function resourceList() {
+    const out = [];
+    const seen = new Set();
+    const push = (r) => {
+      const key = r.kind + '|' + r.url + '|' + r.observedBy + '|' + r.frameId;
+      if (out.length < MAX_RESOURCES && !seen.has(key)) {
+        seen.add(key);
+        out.push(r);
+      }
+    };
+    const docFrame = (doc) => (doc === document ? src.rootFrame : (frameIds.get(doc) || src.rootFrame));
+    for (const root of NS.capture.observableRoots()) {
+      const doc = root.nodeType === 9 ? root : root.ownerDocument;
+      for (const s of root.querySelectorAll('script[src]')) {
+        const u = sanitizeUrl(s.getAttribute('src'), doc.baseURI);
+        if (u) {
+          push({ kind: 'SCRIPT', url: u.url, observedBy: 'DOM', frameId: docFrame(doc), type: s.getAttribute('type'), nodeId: null, queryKeys: u.queryKeys });
+        }
+      }
+      for (const l of root.querySelectorAll('link[rel~="stylesheet"][href]')) {
+        const u = sanitizeUrl(l.getAttribute('href'), doc.baseURI);
+        if (u) {
+          push({ kind: 'STYLESHEET', url: u.url, observedBy: 'DOM', frameId: docFrame(doc), type: null, nodeId: null, queryKeys: u.queryKeys });
+        }
+      }
+    }
+    const perf = [[window, document]];
+    for (const w of NS.capture.frameWindows()) {
+      try {
+        perf.push([w, w.document]);
+      } catch (e) {
+        // inacessível
+      }
+    }
+    for (const [w, doc] of perf) {
+      let entries = [];
+      try {
+        entries = w.performance.getEntriesByType('resource');
+      } catch (e) {
+        entries = [];
+      }
+      for (const e of entries.slice(-300)) {
+        const kind = RESOURCE_KINDS[e.initiatorType];
+        if (!kind) {
+          continue; // fetch/xhr continuam em "requests"
+        }
+        const u = sanitizeUrl(e.name, doc.baseURI);
+        if (u) {
+          push({ kind, url: u.url, observedBy: 'RESOURCE_TIMING', frameId: docFrame(doc), type: null, nodeId: null, queryKeys: u.queryKeys });
+        }
+      }
+    }
+    return out;
   }
 
   function observedRequests() {
@@ -512,6 +628,7 @@
         shadowRoots: info.shadowRoots,
         nodes: r.nodes,
         requests: observedRequests(),
+        resources: resourceList(),
         stats: { elementsVisited: r.visited, nodesEmitted: r.nodes.length, durationMs, truncated: r.truncated, maxNodes, mode: 'SYNC', slices: 1, maxSliceMs: durationMs, consistency: 'INSTANT' },
       };
     },
@@ -559,6 +676,7 @@
         frames: info.frames,
         shadowRoots: info.shadowRoots,
         requests: observedRequests(),
+        resources: resourceList(),
         parts,
         stats: { elementsVisited: t.visited, nodesEmitted: t.emitted, durationMs, truncated: t.truncated, maxNodes,
           mode: 'COOPERATIVE', slices, maxSliceMs: Math.round(maxSlice * 100) / 100, consistency: 'BASE_PLUS_DELTA' },
@@ -666,6 +784,8 @@
 
     nextCaptureId,
     documentInfo,
+    resourceList,
+    sanitizeUrl,
     observedRequests,
     frameWindows() {
       return Array.from(frameWindows.values()).filter((w) => {

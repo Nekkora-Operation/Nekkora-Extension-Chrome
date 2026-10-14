@@ -64,7 +64,7 @@ public final class Sources {
             FrameInfo old = previous.get(f.frameId());
             // A raiz de uma fonte de iframe não conhece o próprio hospedeiro: preserva a anexação já feita.
             if (!TOP.equals(source) && f.parentFrameId() == null && old != null && old.parentFrameId() != null) {
-                f = new FrameInfo(f.frameId(), old.parentFrameId(), old.hostNodeId(), f.url(), f.accessible(), f.reason());
+                f = f.withParent(old.parentFrameId(), old.hostNodeId());
             }
             out.add(f);
         }
@@ -120,6 +120,33 @@ public final class Sources {
         for (ShadowRootInfo s : roots) {
             if (s.hostNodeId() == null || liveNodeIds.contains(s.hostNodeId())) {
                 out.add(s);
+            }
+        }
+        return out;
+    }
+
+    /** Recursos observados: substitui os da fonte do delta; preserva os das demais fontes. */
+    public static List<com.nekkora.extension.core.snapshot.ResourceRef> mergeResources(
+            List<com.nekkora.extension.core.snapshot.ResourceRef> base, List<com.nekkora.extension.core.snapshot.ResourceRef> fromSource, String source) {
+        List<com.nekkora.extension.core.snapshot.ResourceRef> out = new ArrayList<>();
+        for (var r : base) {
+            if (!frameOwner(r.frameId()).equals(source)) {
+                out.add(r);
+            }
+        }
+        out.addAll(fromSource);
+        return out;
+    }
+
+    /** Recursos cujo frame deixou de existir são descartados. */
+    public static List<com.nekkora.extension.core.snapshot.ResourceRef> pruneDetachedResources(
+            List<com.nekkora.extension.core.snapshot.ResourceRef> resources, List<FrameInfo> liveFrames) {
+        Set<String> live = new HashSet<>();
+        liveFrames.forEach(f -> live.add(f.frameId()));
+        List<com.nekkora.extension.core.snapshot.ResourceRef> out = new ArrayList<>();
+        for (var r : resources) {
+            if (r.frameId() == null || live.contains(r.frameId()) || "f0".equals(r.frameId())) {
+                out.add(r);
             }
         }
         return out;

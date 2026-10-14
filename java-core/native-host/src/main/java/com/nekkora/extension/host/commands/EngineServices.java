@@ -28,6 +28,11 @@ public final class EngineServices {
     final PageMapAssembler assembler = new PageMapAssembler();
     final InteractionAnalyzer interactions = new InteractionAnalyzer();
     final OptionSetAnalyzer options = new OptionSetAnalyzer();
+    final com.nekkora.extension.core.frames.FrameGraphBuilder frameGraphs = new com.nekkora.extension.core.frames.FrameGraphBuilder();
+    final com.nekkora.extension.core.frames.AccessPathBuilder accessPaths = new com.nekkora.extension.core.frames.AccessPathBuilder();
+    final com.nekkora.extension.core.protection.ProtectionDetector protections = new com.nekkora.extension.core.protection.ProtectionDetector();
+    final com.nekkora.extension.core.diagnostics.AutomationDiagnostics diagnostics = new com.nekkora.extension.core.diagnostics.AutomationDiagnostics();
+    final com.nekkora.extension.core.protection.SignatureCatalog catalog = com.nekkora.extension.host.json.CatalogLoader.load();
 
     public EngineServices(HostSession session, JsonCodec json) {
         this.session = session;
@@ -38,6 +43,26 @@ public final class EngineServices {
         return tab.capture(captureId).orElseThrow(() -> new CommandException("UNKNOWN_CAPTURE",
                 captureId == null ? "Nenhuma captura registrada para a aba " + tab.tabKey()
                         : "Captura " + captureId + " não está disponível (capturas mantidas: " + tab.captureIds() + ")"));
+    }
+
+    /** Grafo documental da captura com os metadados de frames do navegador conhecidos para a aba. */
+    com.nekkora.extension.core.frames.FrameGraph frameGraph(TabState tab, PageAnalysis a) {
+        return frameGraphs.build(a, tab.browserFrames());
+    }
+
+    /** Entradas do diagnóstico para exportação (metadados de frames + catálogo). */
+    public com.nekkora.extension.core.pagemap.PageMapAssembler.DiagnosticsInput diagnosticsInput(TabState tab) {
+        return new com.nekkora.extension.core.pagemap.PageMapAssembler.DiagnosticsInput(tab.browserFrames(), catalog);
+    }
+
+    com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness(TabState tab, PageAnalysis a,
+                                                                                    com.nekkora.extension.core.frames.FrameGraph g,
+                                                                                    com.nekkora.extension.core.protection.ProtectionReport pr) {
+        return diagnostics.assess(a, g, pr, options.analyzeAll(a.graph(), tab.optionHistory()), tab.mutations());
+    }
+
+    static double msBetween(long a, long b) {
+        return Math.round((b - a) / 10_000.0) / 100.0;
     }
 
     static InspectionEvidence evidence(String subject, String kind, String source, List<String> statements) {

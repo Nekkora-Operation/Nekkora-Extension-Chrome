@@ -61,12 +61,15 @@ public final class FrameMerger {
         for (FrameInfo f : child.frames()) {
             boolean childRoot = f.parentFrameId() == null;
             frames.add(childRoot
-                    ? new FrameInfo(f.frameId(), hostFrame, hostNodeId, f.url(), true, null)
+                    ? new FrameInfo(f.frameId(), hostFrame, hostNodeId, f.url(), true, null,
+                    f.title() != null ? f.title() : (child.document() == null ? null : child.document().title()),
+                    f.readyState() != null ? f.readyState() : (child.document() == null ? null : child.document().readyState()))
                     : f);
         }
         List<com.nekkora.extension.core.snapshot.ShadowRootInfo> shadows =
                 Sources.mergeShadowRoots(base.shadowRoots(), child.shadowRoots(), childSource);
         return new RawSnapshot(captureId, child.capturedAt(), base.document(), Sources.dropPlaceholdersOfAttached(frames),
-                shadows, new ArrayList<>(nodes.values()), base.requests(), base.stats());
+                shadows, new ArrayList<>(nodes.values()), base.requests(), base.stats(),
+                Sources.mergeResources(base.resources(), child.resources(), childSource));
     }
 }
