@@ -1,10 +1,11 @@
 {
   "captura" : {
     "deltas" : 0,
-    "fullCaptures" : 1,
-    "nodes" : 92
+    "nodes" : 92,
+    "fullCaptures" : 1
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
     "counts" : {
       "documents" : 10,
       "frames" : 9,
@@ -14,7 +15,6 @@
       "shadowRootsClosed" : 1,
       "shadowRootsOpen" : 2
     },
-    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
     "maxDepth" : 2
   },
   "identificacao" : {
@@ -30,12 +30,11 @@
       "title" : "Widget de suporte",
       "urlPath" : "/lab/chrome003/widget.html"
     } ],
-    "name" : "Enviar mensagem",
+    "targetId" : "tgt-18128a3e-8e69-42bd-a21a-aaf75ca5b545",
     "kind" : "BUTTON",
-    "targetId" : "tgt-104e4eb5-d2d3-4e51-b8e3-f531cd2ef62b"
+    "name" : "Enviar mensagem"
   },
   "familia" : {
-    "form" : null,
     "region" : {
       "idAttr" : "sec-d",
       "keyAttributes" : { },
@@ -44,6 +43,7 @@
       "nodeId" : "n10",
       "tag" : "section"
     },
+    "form" : null,
     "scope" : [ {
       "idAttr" : "suporte",
       "keyAttributes" : { },
@@ -514,7 +514,7 @@
     "shadowDepth" : 1,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "BA69FAF230E73C87C4F9AA0BBD531441",
+      "browserDocumentId" : "496451B2DDC59574DD9F3D4A9D49D0F4",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -544,7 +544,7 @@
       "type" : "SHADOW_ROOT",
       "url" : null
     }, {
-      "browserDocumentId" : "2105ECA139FC2774DD73F7E48D5F2C81",
+      "browserDocumentId" : "826021E66C4E0A436FCCFE3AF78653CA",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f5",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/widget.html)",
@@ -592,17 +592,16 @@
     "targetNodeId" : "n62"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.53,
+      "protectionMs" : 0.69,
+      "readinessMs" : 0.27,
+      "totalMs" : 1.5
     },
     "readiness" : {
       "basis" : [ "obstáculo(s) de severidade média: [NESTED_IFRAME, CLOSED_SHADOW_ROOT]", "1 região(ões) não observável(is)" ],
@@ -664,11 +663,12 @@
       },
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
-    "timings" : {
-      "graphMs" : 0.52,
-      "protectionMs" : 0.73,
-      "readinessMs" : 0.27,
-      "totalMs" : 1.54
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

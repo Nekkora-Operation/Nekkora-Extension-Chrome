@@ -37,6 +37,18 @@ public abstract class LabIT {
         return p;
     }
 
+    protected BrowserLab.Page openUrl(String url) {
+        BrowserLab.Page p = lab.openUrl(url);
+        opened.add(p);
+        return p;
+    }
+
+    protected BrowserLab.Page openWithoutContent(String url) {
+        BrowserLab.Page p = lab.openWithoutContent(url);
+        opened.add(p);
+        return p;
+    }
+
     /** Seleciona por CSS (exige exatamente 1 elemento) e devolve {captureId, inspection, identity, verification, liveChecks}. */
     protected JsonNode select(BrowserLab.Page p, String css) {
         return lab.call("page.select", p, "css", css);

@@ -1,10 +1,11 @@
 {
   "captura" : {
     "deltas" : 0,
-    "fullCaptures" : 1,
-    "nodes" : 175
+    "nodes" : 175,
+    "fullCaptures" : 1
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Frame 1 nível 1:INSPECTED", "f2:Frame 1 nível 2:INSPECTED", "f3:Frame 1 nível 3:INSPECTED", "f4:Frame 2 nível 1:INSPECTED", "f5:Frame 2 nível 2:INSPECTED", "f6:Frame 2 nível 3:INSPECTED", "f7:Frame 3 nível 1:INSPECTED", "f8:Frame 3 nível 2:INSPECTED", "f9:Frame 3 nível 3:INSPECTED", "f10:Frame 4 nível 1:INSPECTED", "f11:Frame 4 nível 2:INSPECTED", "f12:Frame 4 nível 3:INSPECTED", "f13:Frame 5 nível 1:INSPECTED", "f14:Frame 5 nível 2:INSPECTED", "f15:Frame 5 nível 3:INSPECTED", "f16:Frame 6 nível 1:INSPECTED", "f17:Frame 6 nível 2:INSPECTED", "f18:Frame 6 nível 3:INSPECTED", "f19:Frame 7 nível 1:INSPECTED", "f20:Frame 7 nível 2:INSPECTED", "f21:Frame 7 nível 3:INSPECTED", "f22:Frame 8 nível 1:INSPECTED", "f23:Frame 8 nível 2:INSPECTED", "f24:Frame 8 nível 3:INSPECTED", "f25:Frame 9 nível 1:INSPECTED", "f26:Frame 9 nível 2:INSPECTED", "f27:Frame 9 nível 3:INSPECTED", "f28:Frame 10 nível 1:INSPECTED", "f29:Frame 10 nível 2:INSPECTED", "f30:Frame 10 nível 3:INSPECTED" ],
     "counts" : {
       "documents" : 31,
       "frames" : 30,
@@ -14,7 +15,6 @@
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 0
     },
-    "frames" : [ "f0:null:INSPECTED", "f1:Frame 1 nível 1:INSPECTED", "f2:Frame 1 nível 2:INSPECTED", "f3:Frame 1 nível 3:INSPECTED", "f4:Frame 2 nível 1:INSPECTED", "f5:Frame 2 nível 2:INSPECTED", "f6:Frame 2 nível 3:INSPECTED", "f7:Frame 3 nível 1:INSPECTED", "f8:Frame 3 nível 2:INSPECTED", "f9:Frame 3 nível 3:INSPECTED", "f10:Frame 4 nível 1:INSPECTED", "f11:Frame 4 nível 2:INSPECTED", "f12:Frame 4 nível 3:INSPECTED", "f13:Frame 5 nível 1:INSPECTED", "f14:Frame 5 nível 2:INSPECTED", "f15:Frame 5 nível 3:INSPECTED", "f16:Frame 6 nível 1:INSPECTED", "f17:Frame 6 nível 2:INSPECTED", "f18:Frame 6 nível 3:INSPECTED", "f19:Frame 7 nível 1:INSPECTED", "f20:Frame 7 nível 2:INSPECTED", "f21:Frame 7 nível 3:INSPECTED", "f22:Frame 8 nível 1:INSPECTED", "f23:Frame 8 nível 2:INSPECTED", "f24:Frame 8 nível 3:INSPECTED", "f25:Frame 9 nível 1:INSPECTED", "f26:Frame 9 nível 2:INSPECTED", "f27:Frame 9 nível 3:INSPECTED", "f28:Frame 10 nível 1:INSPECTED", "f29:Frame 10 nível 2:INSPECTED", "f30:Frame 10 nível 3:INSPECTED" ],
     "maxDepth" : 3
   },
   "identificacao" : {
@@ -52,21 +52,11 @@
       "title" : "Frame 7 nível 3",
       "urlPath" : "/generated/frame"
     } ],
-    "name" : "Confirmar 7",
+    "targetId" : "tgt-d9642eb3-9579-4af7-82c8-85935f9a509e",
     "kind" : "BUTTON",
-    "targetId" : "tgt-609d141b-ff12-467d-bd73-3c126df9ca52"
+    "name" : "Confirmar 7"
   },
   "familia" : {
-    "form" : {
-      "idAttr" : null,
-      "keyAttributes" : {
-        "aria-label" : "Formulário 7"
-      },
-      "kind" : "FORM",
-      "name" : "Formulário 7",
-      "nodeId" : "n124",
-      "tag" : "form"
-    },
     "region" : {
       "idAttr" : null,
       "keyAttributes" : {
@@ -76,6 +66,16 @@
       "name" : "Bloco 7",
       "nodeId" : "n12",
       "tag" : "section"
+    },
+    "form" : {
+      "idAttr" : null,
+      "keyAttributes" : {
+        "aria-label" : "Formulário 7"
+      },
+      "kind" : "FORM",
+      "name" : "Formulário 7",
+      "nodeId" : "n124",
+      "tag" : "form"
     },
     "scope" : [ {
       "idAttr" : null,
@@ -695,7 +695,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "EEF96F771BA243C7E5BDA9437039FCAE",
+      "browserDocumentId" : "F091086F0F5090FF456B20FAB45D99B9",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -710,7 +710,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/generated/frames"
     }, {
-      "browserDocumentId" : "61C0FBDAEA7083B106DC2B3991AFBFC1",
+      "browserDocumentId" : "52B1BF9E3ED7005C7C2A4A40909EFE5C",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f19",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -736,7 +736,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "02554769104B45E1D951074153887146",
+      "browserDocumentId" : "68F0039DF33CF584581CB5AA42780AAE",
       "documentId" : "doc:f19",
       "enteredDocumentId" : "doc:f20",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -762,7 +762,7 @@
       "type" : "IFRAME",
       "url" : "http://127.0.0.1:18765/generated/frame"
     }, {
-      "browserDocumentId" : "3306642F190D2E65179B537D687BFEBA",
+      "browserDocumentId" : "B306BD9F0863D7EB5402A36DDC728AC5",
       "documentId" : "doc:f20",
       "enteredDocumentId" : "doc:f21",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/generated/frame)",
@@ -810,17 +810,16 @@
     "targetNodeId" : "n127"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 1.8,
+      "protectionMs" : 1.27,
+      "readinessMs" : 0.27,
+      "totalMs" : 3.34
     },
     "readiness" : {
       "basis" : [ "obstáculo(s) de severidade média: [NESTED_IFRAME]", "todas as regiões observáveis foram inspecionadas" ],
@@ -864,11 +863,12 @@
       },
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
-    "timings" : {
-      "graphMs" : 1.09,
-      "protectionMs" : 1.25,
-      "readinessMs" : 0.28,
-      "totalMs" : 2.64
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

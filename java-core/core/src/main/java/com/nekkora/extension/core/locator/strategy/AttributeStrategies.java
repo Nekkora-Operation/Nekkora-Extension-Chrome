@@ -93,7 +93,7 @@ public final class AttributeStrategies {
             for (String labelId : t.classification().name().sourceNodeIds()) {
                 t.graph().model().find(labelId).ifPresent(label -> {
                     String text = t.graph().model().textContent(label);
-                    if (!text.isEmpty() && text.length() <= 120) {
+                    if (StepFactory.nonBlank(text) && text.length() <= 120) {
                         out.add(LocatorCandidate.of(LocatorStrategyKind.LABEL, LocatorQuery.of(LocatorStep.descendant(
                                 t.node().tag(), new Predicate.LabelTextEquals(text, src == NameSource.WRAPPING_LABEL)))));
                     }

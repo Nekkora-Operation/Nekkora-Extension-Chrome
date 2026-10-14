@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- NEKKORA-REAL-001: página de parceiro (outra origem) SIMULADA. Dados fictícios. -->
+  <title>Parceiro</title>
+</head>
+<body>
+  <h2>Assine a newsletter do parceiro</h2>
+  <form id="newsletter" aria-label="Newsletter" onsubmit="return false">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" name="email">
+    <button id="assinar" type="submit">Assinar</button>
+  </form>
+  <oferta-box id="oferta"></oferta-box>
+  <script>
+    customElements.define('oferta-box', class extends HTMLElement {
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' }).innerHTML = '<p>Oferta do parceiro</p><button id="aceitar" type="button">Aceitar oferta</button>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+{
+  "session" : {
+    "baseCaptureId" : "cap-ps-mv8flc31-j5ooyc-1",
+    "consumers" : [ "inspection" ],
+    "deltasApplied" : 1,
+    "deltasRejected" : 0,
+    "deltasStale" : 0,
+    "documentId" : "ps-mv8flc31-j5ooyc",
+    "endedAt" : null,
+    "epoch" : 1,
+    "error" : null,
+    "frames" : [ {
+      "documentId" : "ps-mv8flc2v-ocss07",
+      "epoch" : 1,
+      "frameId" : 1420,
+      "hostNodeId" : "n52",
+      "nodes" : 10,
+      "parentFrameId" : 0,
+      "reason" : null,
+      "source" : "x1420",
+      "status" : "ATTACHED",
+      "url" : "http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED"
+    } ],
+    "fullCaptures" : 1,
+    "hostState" : "OK",
+    "initialCapture" : {
+      "at" : "2026-10-14T18:16:21.730Z",
+      "browserMs" : 14.6,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8flc31-j5ooyc-1",
+      "captureMs" : 8.2,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 4,
+          "INTERACTIVE" : 11,
+          "OTHER" : 3,
+          "STRUCTURAL" : 15,
+          "TEXT" : 20
+        },
+        "byKind" : {
+          "BUTTON" : 6,
+          "GENERIC_CONTAINER" : 4,
+          "GROUP" : 1,
+          "HEADING" : 5,
+          "IFRAME" : 2,
+          "IMAGE" : 1,
+          "LABEL" : 1,
+          "LANDMARK" : 8,
+          "LINK" : 4,
+          "PARAGRAPH" : 2,
+          "SEARCH_INPUT" : 1,
+          "STATUS" : 1,
+          "TABLE" : 1,
+          "TABLE_BODY" : 1,
+          "TABLE_CELL" : 6,
+          "TABLE_HEAD" : 1,
+          "TABLE_HEADER_CELL" : 3,
+          "TABLE_ROW" : 3,
+          "TEXT" : 2
+        },
+        "captureDurationMs" : 8.2,
+        "elementCount" : 53,
+        "frames" : [ {
+          "elements" : 0,
+          "hostNodeId" : "n52",
+          "id" : "xn52",
+          "inspected" : false,
+          "kind" : "FRAME",
+          "reason" : "CROSS_ORIGIN",
+          "url" : "http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED"
+        }, {
+          "elements" : 0,
+          "hostNodeId" : "n53",
+          "id" : "xn53",
+          "inspected" : false,
+          "kind" : "FRAME",
+          "reason" : "CROSS_ORIGIN",
+          "url" : "http://site-x.nekkora.test:18765/lab/real001/partner.html"
+        } ],
+        "hidden" : 0,
+        "limitations" : [ "Iframe n52 não inspecionável: CROSS_ORIGIN (http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED)", "Iframe n53 não inspecionável: CROSS_ORIGIN (http://site-x.nekkora.test:18765/lab/real001/partner.html)" ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ {
+          "elements" : 3,
+          "hostNodeId" : "n46",
+          "id" : "shadow:n46",
+          "inspected" : true,
+          "kind" : "SHADOW_ROOT_OPEN",
+          "reason" : null,
+          "url" : null
+        } ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 53
+      },
+      "hostMs" : 4.6,
+      "interactive" : 11,
+      "maxSliceMs" : 6.2,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho", "filtros: parâmetros de query que não são de paginação/ordenação" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : {
+            "aba" : "inicio",
+            "session" : "REDACTED",
+            "token" : "REDACTED"
+          },
+          "pagination" : { },
+          "screen" : "site",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : "access_token=REDACTED",
+          "host" : "site-a.nekkora.test:18765",
+          "hostname" : "site-a.nekkora.test",
+          "href" : "http://site-a.nekkora.test:18765/lab/real001/site.html?session=REDACTED&token=REDACTED&aba=inicio#access_token=REDACTED",
+          "origin" : "http://site-a.nekkora.test:18765",
+          "pathname" : "/lab/real001/site.html",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : {
+            "aba" : [ "inicio" ],
+            "session" : [ "REDACTED" ],
+            "token" : [ "REDACTED" ]
+          },
+          "search" : "?session=REDACTED&token=REDACTED&aba=inicio",
+          "title" : "Portal Externo — [email]"
+        }
+      },
+      "nodes" : 53,
+      "reason" : "SESSION_START",
+      "slices" : 1,
+      "text" : 20,
+      "timings" : {
+        "classificationMs" : 0.28,
+        "hostTotalMs" : 1.8,
+        "indexMs" : 0.04
+      },
+      "totalMs" : 20.1
+    },
+    "lastCapture" : {
+      "at" : "2026-10-14T18:16:21.730Z",
+      "browserMs" : 14.6,
+      "buffered" : 0,
+      "captureId" : "cap-ps-mv8flc31-j5ooyc-1",
+      "captureMs" : 8.2,
+      "consistency" : "BASE_PLUS_DELTA",
+      "coverage" : {
+        "byCategory" : {
+          "CONTAINER" : 4,
+          "INTERACTIVE" : 11,
+          "OTHER" : 3,
+          "STRUCTURAL" : 15,
+          "TEXT" : 20
+        },
+        "byKind" : {
+          "BUTTON" : 6,
+          "GENERIC_CONTAINER" : 4,
+          "GROUP" : 1,
+          "HEADING" : 5,
+          "IFRAME" : 2,
+          "IMAGE" : 1,
+          "LABEL" : 1,
+          "LANDMARK" : 8,
+          "LINK" : 4,
+          "PARAGRAPH" : 2,
+          "SEARCH_INPUT" : 1,
+          "STATUS" : 1,
+          "TABLE" : 1,
+          "TABLE_BODY" : 1,
+          "TABLE_CELL" : 6,
+          "TABLE_HEAD" : 1,
+          "TABLE_HEADER_CELL" : 3,
+          "TABLE_ROW" : 3,
+          "TEXT" : 2
+        },
+        "captureDurationMs" : 8.2,
+        "elementCount" : 53,
+        "frames" : [ {
+          "elements" : 0,
+          "hostNodeId" : "n52",
+          "id" : "xn52",
+          "inspected" : false,
+          "kind" : "FRAME",
+          "reason" : "CROSS_ORIGIN",
+          "url" : "http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED"
+        }, {
+          "elements" : 0,
+          "hostNodeId" : "n53",
+          "id" : "xn53",
+          "inspected" : false,
+          "kind" : "FRAME",
+          "reason" : "CROSS_ORIGIN",
+          "url" : "http://site-x.nekkora.test:18765/lab/real001/partner.html"
+        } ],
+        "hidden" : 0,
+        "limitations" : [ "Iframe n52 não inspecionável: CROSS_ORIGIN (http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED)", "Iframe n53 não inspecionável: CROSS_ORIGIN (http://site-x.nekkora.test:18765/lab/real001/partner.html)" ],
+        "lowConfidence" : 0,
+        "maxNodes" : 20000,
+        "shadowRoots" : [ {
+          "elements" : 3,
+          "hostNodeId" : "n46",
+          "id" : "shadow:n46",
+          "inspected" : true,
+          "kind" : "SHADOW_ROOT_OPEN",
+          "reason" : null,
+          "url" : null
+        } ],
+        "truncated" : false,
+        "unclassified" : 0,
+        "unknownState" : 0,
+        "visible" : 53
+      },
+      "hostMs" : 4.6,
+      "interactive" : 11,
+      "maxSliceMs" : 6.2,
+      "mode" : "COOPERATIVE",
+      "navigation" : {
+        "inferred" : {
+          "basis" : [ "tela: último segmento não numérico do caminho", "filtros: parâmetros de query que não são de paginação/ordenação" ],
+          "caveat" : "Parâmetros de URL são observados no endereço; não comprovam que uma consulta ao backend ocorreu.",
+          "filters" : {
+            "aba" : "inicio",
+            "session" : "REDACTED",
+            "token" : "REDACTED"
+          },
+          "pagination" : { },
+          "screen" : "site",
+          "sort" : { }
+        },
+        "observed" : {
+          "fragment" : "access_token=REDACTED",
+          "host" : "site-a.nekkora.test:18765",
+          "hostname" : "site-a.nekkora.test",
+          "href" : "http://site-a.nekkora.test:18765/lab/real001/site.html?session=REDACTED&token=REDACTED&aba=inicio#access_token=REDACTED",
+          "origin" : "http://site-a.nekkora.test:18765",
+          "pathname" : "/lab/real001/site.html",
+          "port" : "18765",
+          "protocol" : "http",
+          "query" : {
+            "aba" : [ "inicio" ],
+            "session" : [ "REDACTED" ],
+            "token" : [ "REDACTED" ]
+          },
+          "search" : "?session=REDACTED&token=REDACTED&aba=inicio",
+          "title" : "Portal Externo — [email]"
+        }
+      },
+      "nodes" : 53,
+      "reason" : "SESSION_START",
+      "slices" : 1,
+      "text" : 20,
+      "timings" : {
+        "classificationMs" : 0.28,
+        "hostTotalMs" : 1.8,
+        "indexMs" : 0.04
+      },
+      "totalMs" : 20.1
+    },
+    "lastDeltaAt" : "2026-10-14T18:16:21.851Z",
+    "lastExport" : null,
+    "lastUpdateAt" : "2026-10-14T18:16:21.851Z",
+    "latestCaptureId" : "cap-ps-mv8flc31-j5ooyc-2",
+    "nodes" : 68,
+    "reason" : "SESSION_START",
+    "resyncs" : 0,
+    "sessionId" : "cs-870372976-mv8flc5q-bu6q",
+    "startedAt" : "2026-10-14T18:16:21.710Z",
+    "status" : "ACTIVE",
+    "tabId" : 870372976,
+    "url" : "http://site-a.nekkora.test:18765/lab/real001/site.html?session=REDACTED&token=REDACTED&aba=inicio#access_token=REDACTED"
+  },
+  "navigation" : {
+    "at" : 1792001781809,
+    "kind" : "SPA_ROUTE",
+    "tabId" : 870372976,
+    "transitionType" : "link",
+    "url" : "http://site-a.nekkora.test:18765/lab/real001/site.html?aba=pedidos&ref=REDACTED"
+  }
+}

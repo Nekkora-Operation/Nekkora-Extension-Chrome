@@ -1,10 +1,11 @@
 {
   "captura" : {
     "deltas" : 0,
-    "fullCaptures" : 1,
-    "nodes" : 92
+    "nodes" : 92,
+    "fullCaptures" : 1
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
     "counts" : {
       "documents" : 10,
       "frames" : 9,
@@ -14,7 +15,6 @@
       "shadowRootsClosed" : 1,
       "shadowRootsOpen" : 2
     },
-    "frames" : [ "f0:null:INSPECTED", "f1:Contas:INSPECTED", "f2:Financeiro:INSPECTED", "f3:Contas a pagar:INSPECTED", "f4:Pagamentos:INSPECTED", "f5:Widget de suporte:INSPECTED", "f6:Filial Norte:INSPECTED", "f7:Filial Sul:INSPECTED", "f8:null:INSPECTED", "f9:null:INSPECTED" ],
     "maxDepth" : 2
   },
   "identificacao" : {
@@ -30,12 +30,11 @@
       "title" : "Filial Sul",
       "urlPath" : "/lab/chrome003/filial.html"
     } ],
-    "name" : "Aprovar",
+    "targetId" : "tgt-4cff4876-408b-4b0d-900b-944e21b5cdfe",
     "kind" : "BUTTON",
-    "targetId" : "tgt-9a1669a5-6fab-4349-aee1-81faf4144f12"
+    "name" : "Aprovar"
   },
   "familia" : {
-    "form" : null,
     "region" : {
       "idAttr" : "sec-e",
       "keyAttributes" : { },
@@ -44,6 +43,7 @@
       "nodeId" : "n11",
       "tag" : "section"
     },
+    "form" : null,
     "scope" : [ {
       "idAttr" : null,
       "keyAttributes" : { },
@@ -382,7 +382,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "B2406D66898CEFA3BF37E411A90E8F09",
+      "browserDocumentId" : "F261683FC2637E477D4681C4B93CAFC6",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -397,7 +397,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames.html"
     }, {
-      "browserDocumentId" : "2E2F754F0656BF0D21E9B8B17155B1B1",
+      "browserDocumentId" : "E60485B08F37F7AB0D790552EB0124D5",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f7",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/filial.html)",
@@ -445,17 +445,16 @@
     "targetNodeId" : "n77"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.59,
+      "protectionMs" : 1.01,
+      "readinessMs" : 0.31,
+      "totalMs" : 1.93
     },
     "readiness" : {
       "basis" : [ "obstáculo(s) de severidade média: [NESTED_IFRAME, CLOSED_SHADOW_ROOT]", "1 região(ões) não observável(is)" ],
@@ -517,11 +516,12 @@
       },
       "status" : "REQUIRES_SPECIAL_HANDLING"
     },
-    "timings" : {
-      "graphMs" : 0.53,
-      "protectionMs" : 0.65,
-      "readinessMs" : 0.22,
-      "totalMs" : 1.41
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

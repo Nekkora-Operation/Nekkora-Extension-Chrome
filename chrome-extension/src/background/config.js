@@ -2,7 +2,8 @@
  * Modo de operação DEV/PRD (controlado pelo projeto, nunca pela página).
  *   DEV: recursos de diagnóstico (forçar captura completa, comparar, testar reencontro, exportação manual).
  *   PRD: somente o fluxo de produto; exportação ocorre na finalização da gravação (evento da plataforma).
- * PRD NÃO autoriza inspeção de sites reais: a política de origem é a mesma nos dois modos.
+ * O modo não altera a política de origem (access-policy.js): nos dois modos só o laboratório local e as origens
+ * autorizadas explicitamente pelo usuário podem ser inspecionados.
  */
 import { BUILD_MODE } from '../shared/build-mode.js';
 import { HostError } from './runtime.js';

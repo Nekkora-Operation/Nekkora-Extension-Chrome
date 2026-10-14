@@ -1,0 +1,381 @@
+{
+  "policy": "nekkora-privacy/1",
+  "note": "Vetores compartilhados pelos testes da extensão (Node) e do motor (Java): as duas implementações da política devem produzir exatamente estes resultados.",
+  "urls": [
+    {
+      "in": "/clientes?nome=ana&status=ativo",
+      "out": "/clientes?nome=ana&status=ativo"
+    },
+    {
+      "in": "https://en.wikipedia.org/wiki/Albert_Einstein",
+      "out": "https://en.wikipedia.org/wiki/Albert_Einstein"
+    },
+    {
+      "in": "/lab/spa/pedidos?status=aberto",
+      "out": "/lab/spa/pedidos?status=aberto"
+    },
+    {
+      "in": "#Early_life",
+      "out": "#Early_life"
+    },
+    {
+      "in": "pagina2.html",
+      "out": "pagina2.html"
+    },
+    {
+      "in": "/generated/large?n=10000",
+      "out": "/generated/large?n=10000"
+    },
+    {
+      "in": "https://en.wikipedia.org/w/index.php?title=Special:Search&go=Go",
+      "out": "https://en.wikipedia.org/w/index.php?title=Special:Search&go=Go"
+    },
+    {
+      "in": "about:blank",
+      "out": "about:blank"
+    },
+    {
+      "in": "about:srcdoc",
+      "out": "about:srcdoc"
+    },
+    {
+      "in": "javascript:void(0)",
+      "out": "javascript:void(0)"
+    },
+    {
+      "in": "https://app.example/cb?code=abc123&state=xyz&lang=pt",
+      "out": "https://app.example/cb?code=REDACTED&state=REDACTED&lang=pt"
+    },
+    {
+      "in": "/api?access_token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcdefgh&page=2",
+      "out": "/api?access_token=REDACTED&page=2"
+    },
+    {
+      "in": "/r?email=ana%40x.com&q=sapato",
+      "out": "/r?email=REDACTED&q=sapato"
+    },
+    {
+      "in": "/r?q=ana@x.com",
+      "out": "/r?q=REDACTED"
+    },
+    {
+      "in": "/w/index.php?title=X&oldid=1234567890",
+      "out": "/w/index.php?title=X&oldid=REDACTED"
+    },
+    {
+      "in": "/p?sessionId=abc&sitekey=LAB",
+      "out": "/p?sessionId=REDACTED&sitekey=REDACTED"
+    },
+    {
+      "in": "https://x.test/reset/550e8400-e29b-41d4-a716-446655440000/confirm",
+      "out": "https://x.test/reset/:redacted/confirm"
+    },
+    {
+      "in": "/u/ana@x.com/perfil",
+      "out": "/u/:redacted/perfil"
+    },
+    {
+      "in": "/pedidos/12345678",
+      "out": "/pedidos/:redacted"
+    },
+    {
+      "in": "/s/aB3dE5fG7hJ9kL1mN3pQ5rS7tU9",
+      "out": "/s/:redacted"
+    },
+    {
+      "in": "/app;jsessionid=ABCDEF0123/home",
+      "out": "/app;jsessionid=REDACTED/home"
+    },
+    {
+      "in": "https://user:secret@host.test/a",
+      "out": "https://host.test/a"
+    },
+    {
+      "in": "https://x.test/#access_token=abc&token_type=bearer",
+      "out": "https://x.test/#access_token=REDACTED&token_type=REDACTED"
+    },
+    {
+      "in": "/spa#/conta/98765432?aba=dados",
+      "out": "/spa#/conta/:redacted?aba=dados"
+    },
+    {
+      "in": "https://w.test/#frame=challenge&id=0x1",
+      "out": "https://w.test/#frame=challenge&id=0x1"
+    },
+    {
+      "in": "mailto:ana@x.com",
+      "out": "mailto:[redacted]"
+    },
+    {
+      "in": "tel:+5511999999999",
+      "out": "tel:[redacted]"
+    },
+    {
+      "in": "data:image/png;base64,AAAA",
+      "out": "data:image/png,[omitido]"
+    },
+    {
+      "in": "blob:https://x.test/550e8400",
+      "out": "blob:[omitido]"
+    },
+    {
+      "in": "javascript:alert(document.cookie)",
+      "out": "javascript:[omitido]"
+    },
+    {
+      "in": "https://www.google.com/recaptcha/api.js?render=REDACTED",
+      "out": "https://www.google.com/recaptcha/api.js?render=REDACTED"
+    },
+    {
+      "in": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/X.jpg/220px-X.jpg",
+      "out": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/X.jpg/220px-X.jpg"
+    },
+    {
+      "in": "/static/app.3f9a8b7c6d5e4f3a2b1c.js",
+      "out": "/static/:redacted"
+    },
+    {
+      "in": "https://h.test/a?x-amz-signature=abc&X-Amz-Credential=AKIA",
+      "out": "https://h.test/a?x-amz-signature=REDACTED&X-Amz-Credential=REDACTED"
+    },
+    {
+      "in": "https://h.test/?redirect_uri=https%3A%2F%2Fa.test%2Fcb%3Fcode%3D1",
+      "out": "https://h.test/?redirect_uri=REDACTED"
+    },
+    {
+      "in": "?q=sapato+azul&page=2",
+      "out": "?q=sapato+azul&page=2"
+    },
+    {
+      "in": "",
+      "out": ""
+    },
+    {
+      "in": "https://h.test/a?&&b",
+      "out": "https://h.test/a?&&b"
+    }
+  ],
+  "texts": [
+    {
+      "in": "Contato: ana@x.com",
+      "out": "Contato: [email]"
+    },
+    {
+      "in": "CPF 123.456.789-09 / CNPJ 12.345.678/0001-95",
+      "out": "CPF [cpf] / CNPJ [cnpj]"
+    },
+    {
+      "in": "cartão 4111 1111 1111 1111",
+      "out": "cartão [cartão]"
+    },
+    {
+      "in": "pedido 1234 5678 9012 3456",
+      "out": "pedido 1234 5678 9012 3456"
+    },
+    {
+      "in": "Ligue (11) 98765-4321 ou +55 11 98765-4321",
+      "out": "Ligue [telefone] ou [telefone]"
+    },
+    {
+      "in": "Authorization: Bearer abcdefghijklmnopqrstuvwxyz012345",
+      "out": "Authorization: Bearer [token]"
+    },
+    {
+      "in": "Total: 1.234,56 em 2024-10-14",
+      "out": "Total: 1.234,56 em 2024-10-14"
+    },
+    {
+      "in": "token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N",
+      "out": "token [token]"
+    },
+    {
+      "in": "Ano de 1879, população 214 milhões",
+      "out": "Ano de 1879, população 214 milhões"
+    },
+    {
+      "in": "(11) 99999-9999",
+      "out": "[telefone]"
+    },
+    {
+      "in": "Sem dados",
+      "out": "Sem dados"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "data-password",
+      "in": "hunter2",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-reset-url",
+      "in": "https://example.test/reset?token=abc123",
+      "out": "https://example.test/reset?token=REDACTED"
+    },
+    {
+      "name": "data-api-key",
+      "in": "k1",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-config",
+      "in": "{\"endpoint\":\"https://api.test/v1?apiKey=XYZ\",\"password\":\"hunter2\",\"pin\":1234,\"theme\":\"dark\"}",
+      "out": "{\"endpoint\":\"https://api.test/v1?apiKey=REDACTED\",\"password\":\"REDACTED\",\"pin\":REDACTED,\"theme\":\"dark\"}"
+    },
+    {
+      "name": "data-next",
+      "in": "/conta?session=abc&aba=1",
+      "out": "/conta?session=REDACTED&aba=1"
+    },
+    {
+      "name": "data-info",
+      "in": "ver https://x.test/a?sid=S1 agora",
+      "out": "ver https://x.test/a?sid=REDACTED agora"
+    },
+    {
+      "name": "data-q",
+      "in": "token=abc&page=2",
+      "out": "token=REDACTED&page=2"
+    },
+    {
+      "name": "data-state",
+      "in": "open",
+      "out": "open"
+    },
+    {
+      "name": "data-contact",
+      "in": "principal",
+      "out": "principal"
+    },
+    {
+      "name": "data-client",
+      "in": "101",
+      "out": "101"
+    },
+    {
+      "name": "data-route",
+      "in": "pedidos",
+      "out": "pedidos"
+    },
+    {
+      "name": "data-k",
+      "in": "1",
+      "out": "1"
+    },
+    {
+      "name": "data-testid",
+      "in": "titulo",
+      "out": "titulo"
+    },
+    {
+      "name": "data-id",
+      "in": "42",
+      "out": "42"
+    },
+    {
+      "name": "data-user-token",
+      "in": "DTK-0a1b2c3d4e5f6a7b8c9d0e1f",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-owner",
+      "in": "ana@x.com",
+      "out": "[email]"
+    },
+    {
+      "name": "data-sitekey",
+      "in": "LAB-FICTICIA-0001",
+      "out": "[redacted]"
+    },
+    {
+      "name": "placeholder",
+      "in": "(11) 99999-9999",
+      "out": "(11) 99999-9999"
+    },
+    {
+      "name": "aria-labelledby",
+      "in": "h-conta",
+      "out": "h-conta"
+    },
+    {
+      "name": "aria-label",
+      "in": "Enviar para ana@x.com",
+      "out": "Enviar para [email]"
+    },
+    {
+      "name": "href",
+      "in": "/clientes?nome=ana&status=ativo",
+      "out": "/clientes?nome=ana&status=ativo"
+    },
+    {
+      "name": "id",
+      "in": "salvar",
+      "out": "salvar"
+    },
+    {
+      "name": "class",
+      "in": "btn primary",
+      "out": "btn primary"
+    },
+    {
+      "name": "x-session-token",
+      "in": "abc",
+      "out": "[redacted]"
+    },
+    {
+      "name": "ng-init",
+      "in": "user='ana@x.com'",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-url",
+      "in": "Special:Search",
+      "out": "Special:Search"
+    },
+    {
+      "name": "data-time",
+      "in": "12:30",
+      "out": "12:30"
+    },
+    {
+      "name": "srcset",
+      "in": "a.png?sig=1 1x, b.png 2x",
+      "out": "a.png?sig=REDACTED 1x, b.png 2x"
+    },
+    {
+      "name": "data-json",
+      "in": "{'secret': 'x1'}",
+      "out": "{'secret': 'REDACTED'}"
+    },
+    {
+      "name": "data-hash",
+      "in": "abc",
+      "out": "abc"
+    },
+    {
+      "name": "data-code",
+      "in": "BR",
+      "out": "BR"
+    },
+    {
+      "name": "data-sid",
+      "in": "xyz",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-email",
+      "in": "a",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-phone",
+      "in": "1",
+      "out": "[redacted]"
+    },
+    {
+      "name": "data-token",
+      "in": "",
+      "out": ""
+    }
+  ]
+}

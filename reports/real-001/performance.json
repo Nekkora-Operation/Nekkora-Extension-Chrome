@@ -1,0 +1,170 @@
+{
+  "runs" : 7,
+  "warmSelectionsPerRun" : 10,
+  "procedure" : "Por execução: página nova /generated/large?n=N; sessão de captura cooperativa (session.acquire); 1ª seleção = FRIA; 10 seleções seguintes (5 linhas alternadas) = AQUECIDAS; tempo de ponta a ponta medido no teste.",
+  "sizes" : [ {
+    "requestedElements" : 5000,
+    "sessionStart" : {
+      "n" : 7,
+      "median" : 241.6,
+      "p95" : 265.3,
+      "mean" : 242.7,
+      "stdev" : 11.4,
+      "cvPercent" : 4.7,
+      "min" : 227.0,
+      "max" : 265.3
+    },
+    "coldSelection" : {
+      "n" : 7,
+      "median" : 61.0,
+      "p95" : 64.9,
+      "mean" : 60.8,
+      "stdev" : 2.7,
+      "cvPercent" : 4.5,
+      "min" : 57.2,
+      "max" : 64.9
+    },
+    "warmSelection" : {
+      "n" : 70,
+      "median" : 46.4,
+      "p95" : 88.7,
+      "mean" : 50.1,
+      "stdev" : 13.8,
+      "cvPercent" : 27.5,
+      "min" : 38.0,
+      "max" : 99.9
+    },
+    "runs" : [ {
+      "run" : 1,
+      "sessionStartMs" : 265.3,
+      "coldSelectMs" : 63.0,
+      "warmMedianMs" : 45.3,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 2,
+      "sessionStartMs" : 239.7,
+      "coldSelectMs" : 58.2,
+      "warmMedianMs" : 45.2,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 3,
+      "sessionStartMs" : 243.1,
+      "coldSelectMs" : 61.0,
+      "warmMedianMs" : 42.0,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 4,
+      "sessionStartMs" : 241.7,
+      "coldSelectMs" : 64.9,
+      "warmMedianMs" : 41.5,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 5,
+      "sessionStartMs" : 240.3,
+      "coldSelectMs" : 59.3,
+      "warmMedianMs" : 47.6,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 6,
+      "sessionStartMs" : 241.6,
+      "coldSelectMs" : 61.7,
+      "warmMedianMs" : 47.7,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    }, {
+      "run" : 7,
+      "sessionStartMs" : 227.0,
+      "coldSelectMs" : 57.2,
+      "warmMedianMs" : 50.1,
+      "nodes" : 4666,
+      "fullCaptures" : 1
+    } ]
+  }, {
+    "requestedElements" : 10000,
+    "sessionStart" : {
+      "n" : 7,
+      "median" : 540.3,
+      "p95" : 596.2,
+      "mean" : 547.8,
+      "stdev" : 28.3,
+      "cvPercent" : 5.2,
+      "min" : 519.6,
+      "max" : 596.2
+    },
+    "coldSelection" : {
+      "n" : 7,
+      "median" : 92.5,
+      "p95" : 94.3,
+      "mean" : 91.9,
+      "stdev" : 2.9,
+      "cvPercent" : 3.2,
+      "min" : 85.6,
+      "max" : 94.3
+    },
+    "warmSelection" : {
+      "n" : 70,
+      "median" : 65.2,
+      "p95" : 143.2,
+      "mean" : 79.6,
+      "stdev" : 30.2,
+      "cvPercent" : 38.0,
+      "min" : 55.3,
+      "max" : 165.8
+    },
+    "runs" : [ {
+      "run" : 1,
+      "sessionStartMs" : 540.3,
+      "coldSelectMs" : 93.6,
+      "warmMedianMs" : 60.1,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 2,
+      "sessionStartMs" : 548.0,
+      "coldSelectMs" : 94.3,
+      "warmMedianMs" : 70.4,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 3,
+      "sessionStartMs" : 575.2,
+      "coldSelectMs" : 92.4,
+      "warmMedianMs" : 61.6,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 4,
+      "sessionStartMs" : 519.6,
+      "coldSelectMs" : 85.6,
+      "warmMedianMs" : 62.4,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 5,
+      "sessionStartMs" : 532.9,
+      "coldSelectMs" : 92.5,
+      "warmMedianMs" : 69.1,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 6,
+      "sessionStartMs" : 596.2,
+      "coldSelectMs" : 91.4,
+      "warmMedianMs" : 69.0,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    }, {
+      "run" : 7,
+      "sessionStartMs" : 522.5,
+      "coldSelectMs" : 93.5,
+      "warmMedianMs" : 68.0,
+      "nodes" : 9332,
+      "fullCaptures" : 1
+    } ]
+  } ]
+}

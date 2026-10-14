@@ -43,6 +43,13 @@ tr.primary-row td:first-child { border-left: 3px solid var(--nekkora-primary); }
 .dev-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--nekkora-text-secondary); }
 .badge.mode { background: var(--nekkora-primary); color: #fff; }
 .status { opacity: 1; }
+/* NEKKORA-REAL-001: acesso ao site. */
+.access { border-bottom: 1px solid #ead5df; }
+.access-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.access .confirm { margin-top: 6px; padding: 8px; border: 1px solid var(--nekkora-primary); border-radius: var(--nekkora-radius); background: #fff; }
+.access .confirm p { margin: 0 0 6px; font-size: 12px; }
+#acc-state[data-kind="AUTHORIZED"]::before, #acc-state[data-kind="LAB"]::before { content: "● "; color: var(--nekkora-success); }
+#acc-state[data-kind="DENIED"]::before { content: "● "; color: var(--nekkora-danger); }
 /* CHROME-003: trajetória e diagnóstico. */
 .steps { margin: 4px 0; padding-left: 18px; font-size: 12px; }
 .steps li { margin: 1px 0; }

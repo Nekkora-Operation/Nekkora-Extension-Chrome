@@ -36,6 +36,23 @@ import java.util.stream.Stream;
 public final class BrowserLab {
 
     public static final int PORT = Integer.getInteger("nekkora.lab.port", 18765);
+    /**
+     * Hosts "externos" de teste (NEKKORA-REAL-001), resolvidos para 127.0.0.1 pelo próprio Chrome
+     * ({@code --host-resolver-rules}): nenhum tráfego sai da máquina. {@code site-a}/{@code site-b} são AUTORIZADOS na
+     * construção de teste; {@code site-x} nunca é autorizado.
+     */
+    public static final String SITE_A = "site-a.nekkora.test";
+    public static final String SITE_B = "site-b.nekkora.test";
+    public static final String SITE_X = "site-x.nekkora.test";
+    /** Página real (Wikipedia) autorizada na construção de teste — usada somente pela suíte opcional real-web. */
+    public static final String REAL_ORIGIN = "https://en.wikipedia.org";
+    /**
+     * Origens autorizadas na construção de teste. Na extensão publicada elas são OPCIONAIS (concedidas pelo usuário no
+     * diálogo do Chrome); aqui a concessão é feita na instalação, e a revogação/reconcessão usam o controle
+     * "Acesso ao site" do próprio Chrome (chrome://extensions), sem automatizar diálogos de permissão.
+     */
+    public static final java.util.List<String> TEST_GRANTED_ORIGINS = java.util.List.of(
+            "http://" + SITE_A + "/*", "http://" + SITE_B + "/*", REAL_ORIGIN + "/*");
     private static BrowserLab instance;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +109,7 @@ public final class BrowserLab {
         server = new LabServer(PORT, repo.resolve("test-lab").resolve("pages"));
         server.start();
         chrome = ChromeForTesting.ensure(repo.resolve(".tools").resolve("chrome-for-testing"));
-        Path ext = repo.resolve("chrome-extension");
+        Path ext = testExtension(repo.resolve("chrome-extension"), repo.resolve("integration-tests").resolve("target").resolve("test-extension"));
         extensionId = ExtensionId.fromManifest(ext.resolve("manifest.json"));
         Path profile = Files.createTempDirectory("nekkora-cft-profile");
 
@@ -106,6 +123,7 @@ public final class BrowserLab {
         o.addArguments("--load-extension=" + ext, "--disable-extensions-except=" + ext, "--window-size=1366,900",
                 "--no-first-run", "--no-default-browser-check", "--disable-search-engine-choice-screen",
                 "--user-data-dir=" + profile, "--lang=pt-BR",
+                "--host-resolver-rules=MAP " + SITE_A + " 127.0.0.1, MAP " + SITE_B + " 127.0.0.1, MAP " + SITE_X + " 127.0.0.1",
                 // Harness e página ficam em JANELAS separadas: sem estas opções o Chrome trataria a janela
                 // coberta como oculta (sem requestAnimationFrame e com timers estrangulados).
                 "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",
@@ -119,6 +137,34 @@ public final class BrowserLab {
         harness = driver.getWindowHandle();
         new WebDriverWait(driver, Duration.ofSeconds(20)).until(d -> ((JavascriptExecutor) d)
                 .executeScript("return !!(window.nekkora && window.nekkora.call)"));
+    }
+
+    /**
+     * Cópia da extensão para a homologação: idêntica à publicada, exceto pelas origens de teste autorizadas na
+     * instalação (host_permissions). Os content scripts dessas origens continuam vindo do registro DINÂMICO da
+     * extensão (o mesmo caminho das origens autorizadas pelo usuário).
+     */
+    private Path testExtension(Path source, Path target) throws IOException {
+        deleteRecursively(target);
+        try (Stream<Path> s = Files.walk(source)) {
+            for (Path p : (Iterable<Path>) s::iterator) {
+                Path rel = source.relativize(p);
+                if (rel.startsWith("node_modules") || rel.startsWith("test")) {
+                    continue;
+                }
+                Path out = target.resolve(rel.toString());
+                if (Files.isDirectory(p)) {
+                    Files.createDirectories(out);
+                } else {
+                    Files.copy(p, out);
+                }
+            }
+        }
+        com.fasterxml.jackson.databind.node.ObjectNode m = (com.fasterxml.jackson.databind.node.ObjectNode) mapper.readTree(target.resolve("manifest.json").toFile());
+        com.fasterxml.jackson.databind.node.ArrayNode hosts = (com.fasterxml.jackson.databind.node.ArrayNode) m.get("host_permissions");
+        TEST_GRANTED_ORIGINS.forEach(hosts::add);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(target.resolve("manifest.json").toFile(), m);
+        return target;
     }
 
     public void stop() {
@@ -158,6 +204,11 @@ public final class BrowserLab {
 
     public String url(String path) {
         return "http://127.0.0.1:" + PORT + path;
+    }
+
+    /** URL do laboratório servida sob um host "externo" de teste (ex.: {@code http://site-a.nekkora.test:18765/lab/…}). */
+    public String externalUrl(String host, String path) {
+        return "http://" + host + ":" + PORT + path;
     }
 
     // ------------------------------------------------------------------ comandos da extensão
@@ -221,6 +272,60 @@ public final class BrowserLab {
             return d.path("ok").asBoolean(false);
         }, "content script pronto em " + current);
         return p;
+    }
+
+    /** Abre uma URL absoluta e aguarda o content script (origem permitida). */
+    public Page openUrl(String url) {
+        Page p = openWithoutContent(url);
+        waitUntil(Duration.ofSeconds(20), () -> {
+            JsonNode d = callRaw("page.diagnostics", Map.of("tabId", p.tabId()));
+            return d.path("ok").asBoolean(false);
+        }, "content script pronto em " + url);
+        return p;
+    }
+
+    /**
+     * Abre uma URL absoluta SEM esperar content script (origem sem permissão, página interna). A aba é identificada
+     * pela mais recente, pois a extensão não enxerga a URL de origens sem acesso.
+     */
+    public Page openWithoutContent(String url) {
+        driver.switchTo().newWindow(WindowType.WINDOW);
+        driver.get(url);
+        String handle = driver.getWindowHandle();
+        String current = driver.getCurrentUrl();
+        new WebDriverWait(driver, Duration.ofSeconds(30)).until(d -> "complete".equals(((JavascriptExecutor) d).executeScript("return document.readyState")));
+        driver.switchTo().window(harness);
+        Object tab = ((JavascriptExecutor) driver).executeAsyncScript(
+                "const done = arguments[arguments.length - 1]; window.nekkora.tabIdFor(arguments[0]).then(t => t != null ? done(t) : window.nekkora.newestTabId().then(done));",
+                current);
+        if (tab == null) {
+            throw new IllegalStateException("Aba não encontrada para " + current);
+        }
+        return new Page(handle, ((Number) tab).intValue(), current);
+    }
+
+    /**
+     * Retira ({@code granted=false}) ou devolve o acesso da extensão a um site pelo controle "Acesso ao site" do Chrome
+     * (a mesma API usada pela página chrome://extensions quando o USUÁRIO muda o acesso). Nenhum diálogo é automatizado.
+     */
+    public void siteAccess(String pattern, boolean granted) {
+        driver.switchTo().newWindow(WindowType.WINDOW);
+        try {
+            driver.get("chrome://extensions/?id=" + extensionId);
+            new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> Boolean.TRUE.equals(((JavascriptExecutor) d)
+                    .executeScript("return !!(window.chrome && chrome.developerPrivate)")));
+            Object r = ((JavascriptExecutor) driver).executeAsyncScript(
+                    "const done = arguments[arguments.length - 1];"
+                            + "const fn = arguments[2] ? chrome.developerPrivate.addHostPermission : chrome.developerPrivate.removeHostPermission;"
+                            + "fn(arguments[0], arguments[1]).then(() => done('ok'), e => done('ERR ' + e));",
+                    extensionId, pattern, granted);
+            if (!"ok".equals(r)) {
+                throw new IllegalStateException("Acesso ao site não alterado: " + r);
+            }
+        } finally {
+            driver.close();
+            driver.switchTo().window(harness);
+        }
     }
 
     /** Abre uma página interna da extensão (ex.: painel) em nova janela e devolve o handle. */

@@ -49,6 +49,11 @@ public record NodeState(
     public static final NodeState UNKNOWN = new NodeState(
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
+    public NodeState withGeometry(Boolean newInViewport, Boolean newZeroSize) {
+        return new NodeState(visible, hiddenReason, newInViewport, newZeroSize, disabled, readOnly, required, checked, selected, editable,
+                focusable, cursorPointer, boxed, hasValue, valueLength, open, modal, inert);
+    }
+
     public static boolean isTrue(Boolean b) {
         return Boolean.TRUE.equals(b);
     }

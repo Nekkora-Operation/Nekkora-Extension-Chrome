@@ -1,0 +1,60 @@
+{
+  "accessible" : true,
+  "blockingRestriction" : null,
+  "documentsTraversed" : 1,
+  "explanation" : "O elemento button «Mudar plano» foi encontrado, dentro de 1 shadow root. O documento principal contém o shadow root de «perfil-card#card». A identidade é sustentada por: nome acessível, host do shadow root.",
+  "frameDepth" : 0,
+  "shadowDepth" : 1,
+  "stability" : "HEURISTIC_STABLE",
+  "steps" : [ {
+    "browserDocumentId" : "2D2CAEB884597AD7F0BBD83B020E9594",
+    "documentId" : null,
+    "enteredDocumentId" : "doc:f0",
+    "expectedCondition" : "DOCUMENT_ACTIVE",
+    "frameIdentity" : null,
+    "label" : "Portal Externo — [email]",
+    "locator" : null,
+    "locatorStrategy" : null,
+    "matchCount" : 0,
+    "nodeId" : null,
+    "restriction" : null,
+    "stability" : null,
+    "type" : "MAIN_DOCUMENT",
+    "url" : "http://site-a.nekkora.test:18765/lab/real001/site.html"
+  }, {
+    "browserDocumentId" : null,
+    "documentId" : "doc:f0",
+    "enteredDocumentId" : null,
+    "expectedCondition" : "SHADOW_ROOT_OPEN",
+    "frameIdentity" : null,
+    "label" : "perfil-card#card",
+    "locator" : "perfil-card#card",
+    "locatorStrategy" : "ID",
+    "matchCount" : 1,
+    "nodeId" : "n46",
+    "restriction" : null,
+    "stability" : "HEURISTIC_STABLE",
+    "type" : "SHADOW_ROOT",
+    "url" : null
+  }, {
+    "browserDocumentId" : null,
+    "documentId" : "doc:f0",
+    "enteredDocumentId" : null,
+    "expectedCondition" : "ELEMENT_PRESENT",
+    "frameIdentity" : null,
+    "label" : "Mudar plano",
+    "locator" : "button#upgrade",
+    "locatorStrategy" : "ID",
+    "matchCount" : 1,
+    "nodeId" : "n49",
+    "restriction" : null,
+    "stability" : "HEURISTIC_STABLE",
+    "type" : "ELEMENT",
+    "url" : null
+  } ],
+  "target" : {
+    "kind" : "BUTTON",
+    "name" : "Mudar plano"
+  },
+  "targetNodeId" : "n49"
+}

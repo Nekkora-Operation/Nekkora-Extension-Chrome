@@ -10,8 +10,8 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 
 | | |
 |---|---|
-| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · **NEKKORA-CHROME-003** (Frame Intelligence, diagnóstico de proteções e consolidação) |
-| Estado | CHROME-003 homologada localmente: ver [relatório da CHROME-003](reports/chrome-003-final-report.md) · CHROME-002: [relatório](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
+| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · NEKKORA-CHROME-003 (Frame Intelligence, diagnóstico de proteções e consolidação) · **NEKKORA-REAL-001** (piloto em sites http/https autorizados) |
+| Estado | REAL-001: [relatório](reports/real-web-pilot-final-report.md) — autoriza testes exploratórios controlados, **não** é homologação para produção · CHROME-003: [relatório](reports/chrome-003-final-report.md) · CHROME-002: [relatório](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
 | Linguagem principal | Java 21 (motor de análise, host Native Messaging, servidor do laboratório, testes) |
 | Navegador | Google Chrome 155 (convencional, homologado) / Chrome for Testing 155 (suíte automatizada) — MV3 |
 | Contrato | Nekkora PageMap **0.2.0** ([JSON Schema](contracts/page-map.schema.json); 0.1.0 arquivado em [`contracts/v0.1.0`](contracts/v0.1.0/page-map.schema.json)) |
@@ -202,6 +202,22 @@ PageMap 0.2.0 (seções novas; o restante do contrato 0.1.0 é preservado):
 Fluxogramas de [frames](docs/chrome-003/frame-intelligence.md#fluxo-de-construção-do-grafo),
 [reencontro entre frames](docs/chrome-003/document-identity.md#identidade-de-frame-7) e
 [proteções](docs/chrome-003/protection-diagnostics.md#estados-13-18).
+
+## Sites externos autorizados (NEKKORA-REAL-001)
+
+A extensão interpreta páginas http/https **autorizadas por você**, além do laboratório local:
+
+1. Abra o site e o painel; a seção **Acesso ao site** mostra o estado (laboratório, autorizado, não autorizado,
+   página interna).
+2. **Autorizar este site** abre o diálogo do Chrome para `esquema://host/*`. **Autorizar todos os sites…** pede uma
+   segunda confirmação no painel e depois o diálogo do Chrome.
+3. Navegar **não** inicia captura: clique em **Ativar inspeção**.
+4. **Revogar acesso** (no painel ou em `chrome://extensions` › Acesso ao site) encerra a inspeção e a sessão na hora.
+
+Privacidade: URLs, textos e atributos passam pela política `nekkora-privacy/1` antes de sair da página e de novo no
+motor; nada de sites externos é gravado em disco sem exportação explícita. Detalhes:
+[acesso a sites](docs/real-001/site-access.md) · [privacidade](docs/real-001/privacy.md) ·
+[limitações](docs/real-001/known-limitations.md).
 
 ## Fluxo de inspeção
 
@@ -429,20 +445,25 @@ alterar estilo ou layout da página ([evidência](reports/evidence/T034-highligh
 
 | Permissão | Motivo |
 |---|---|
-| `host_permissions: http://127.0.0.1/*, http://localhost/*` | atuar **somente** em páginas locais (sem `<all_urls>`) |
+| `host_permissions: http://127.0.0.1/*, http://localhost/*` | laboratório local |
+| `optional_host_permissions: https://*/*, http://*/*` | teto do que **você** pode autorizar (por site ou amplo) no painel; nada é concedido na instalação (NEKKORA-REAL-001) |
 | `nativeMessaging` | falar com o host Java local |
 | `sidePanel` | painel lateral |
 | `storage` | estado mínimo das sessões e da inspeção por aba (`storage.session`, sobrevive ao reinício do service worker); modo DEV/PRD simulado (`storage.local`, somente em construção DEV) |
-| `scripting` | ler hooks de teste **declarados** pelas páginas do laboratório (lista fechada, somente leitura) |
+| `scripting` | ler hooks de teste **declarados** pelas páginas do laboratório (lista fechada, somente leitura); registrar/injetar os content scripts nas origens autorizadas |
 | `webNavigation` | detectar navegação SPA (`pushState`/hash) em páginas locais e listar frames da aba (CHROME-003: `frameId`, `documentId`, `parentDocumentId` e ciclo de vida de cada frame — nenhuma permissão nova) |
 | `alarms` | reconexão ao motor Java como salvaguarda enquanto houver sessão degradada |
 
-`content_scripts.all_frames: true` (CHROME-002) injeta o content script **somente** em frames de
-origens já permitidas (127.0.0.1/localhost, qualquer porta); nenhuma permissão foi ampliada.
+`content_scripts.all_frames: true` (CHROME-002) injeta o content script em frames do laboratório; nas origens
+autorizadas pelo usuário o registro dinâmico faz o mesmo. A autorização da página **não** se estende às origens dos
+seus iframes. Nenhuma permissão de cookies, histórico, credenciais ou interceptação de tráfego é usada.
 
 - Valores de campos **nunca** saem da página, exceto campos de pesquisa reconhecidos (`type=search` ou
   `name` de pesquisa); senhas/cartões/documentos são marcados como sensíveis e nunca exportados (T033).
-- O content script recusa origens não locais mesmo que o manifesto mude (defesa em profundidade).
+- O service worker revalida a origem de toda mensagem de content script com a política central; o content script
+  só roda em documentos http/https (defesa em profundidade).
+- Política de privacidade `nekkora-privacy/1` (navegador + motor): tokens, sessões, credenciais e dados pessoais
+  reconhecíveis em URLs, textos e atributos são redigidos/mascarados (`docs/real-001/privacy.md`).
 - Funções da página só são lidas se a página declarar `window.nekkoraTestHooks.__nekkoraLab === true`
   e apenas os nomes da lista permitida; funções fora da lista nunca são chamadas (T038).
 - `stdout` do host é exclusivo do protocolo; logs vão para `%LOCALAPPDATA%\Nekkora\ExtensionChrome\logs`.
@@ -464,7 +485,7 @@ origens já permitidas (127.0.0.1/localhost, qualquer porta); nenhuma permissão
 | Chrome convencional não carrega a extensão por linha de comando | Chrome ≥ 137 ignora `--load-extension` | carregue em `chrome://extensions` (sem compactação); a automação usa CDP `Extensions.loadUnpacked` (`BrandedChromeIT`) |
 | `Access to the specified native messaging host is forbidden` | id da extensão diferente do `allowed_origins` | o id em `chrome://extensions` deve ser `dceigcmhbihcigneokmpmbocdclkhcaj`; se carregou outra cópia, rode `install-host.ps1 -ExtensionId <id>` |
 | `HOST_DISCONNECTED: Native host has exited` | o processo Java terminou (ex.: Java errado no `nekkora-host.cmd`) | veja `%LOCALAPPDATA%\Nekkora\ExtensionChrome\logs\native-host-0.log`; reinstale o host |
-| `ORIGIN_NOT_ALLOWED` | página fora de 127.0.0.1/localhost | a extensão atua só no laboratório local (por projeto) |
+| `ORIGIN_NOT_ALLOWED` | site não autorizado, página interna do navegador ou esquema não suportado | veja o motivo no painel (Acesso ao site); autorize o site ou use uma página http/https |
 | Testes: falha ao baixar o Chrome for Testing | sem acesso a `googlechromelabs.github.io` / `storage.googleapis.com` | baixe manualmente e use `-Dnekkora.cft.version=<versão>` com os arquivos em `.tools/chrome-for-testing/<versão>/` |
 | Testes: *session not created* (ChromeDriver incompatível) | `.tools` com versões misturadas | apague `.tools/chrome-for-testing` e rode novamente |
 | Testes: *content script pronto* não atingido / laboratório não iniciado | porta 8765 ocupada | libere a porta ou use `-Dnekkora.lab.port=<porta>` |

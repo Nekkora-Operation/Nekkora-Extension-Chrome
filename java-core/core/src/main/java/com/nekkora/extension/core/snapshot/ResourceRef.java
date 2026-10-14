@@ -18,6 +18,7 @@ public record ResourceRef(String kind, String url, String observedBy, String fra
                           java.util.List<String> queryKeys) {
 
     public ResourceRef {
+        url = com.nekkora.extension.core.privacy.Privacy.sanitizeUrl(url); // segunda barreira (NEKKORA-REAL-001)
         queryKeys = queryKeys == null ? java.util.List.of() : java.util.List.copyOf(queryKeys);
     }
 }

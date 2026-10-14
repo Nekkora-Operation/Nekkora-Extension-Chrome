@@ -48,7 +48,7 @@ public final class StepFactory {
         }
         Classification c = graph.semantics().get(node.id());
         String text = graph.model().textContent(node);
-        if (TEXT_LOCATABLE.contains(c.kind().name()) && !text.isEmpty() && text.length() <= MAX_TEXT) {
+        if (TEXT_LOCATABLE.contains(c.kind().name()) && nonBlank(text) && text.length() <= MAX_TEXT) {
             out.add(LocatorStep.descendant(tag, new Predicate.TextEquals(text)));
         }
         for (String attr : List.of("aria-label", "placeholder", "title", "alt")) {
@@ -128,7 +128,11 @@ public final class StepFactory {
         return tag.equals("input") || tag.equals("select") || tag.equals("textarea") || tag.equals("button");
     }
 
+    /**
+     * Valor utilizável em localizador: não vazio e não produzido pela política de privacidade (um valor redigido
+     * ou mascarado não corresponde à página real).
+     */
     static boolean nonBlank(String s) {
-        return s != null && !s.isBlank();
+        return s != null && !s.isBlank() && !com.nekkora.extension.core.privacy.Privacy.isMasked(s);
     }
 }

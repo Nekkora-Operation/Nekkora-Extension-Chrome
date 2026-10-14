@@ -1,0 +1,19 @@
+{
+  "allowed" : false,
+  "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+  "broad" : false,
+  "kind" : null,
+  "message" : "Este site não está autorizado. Autorize-o no painel (\"Autorizar este site\") para inspecioná-lo.",
+  "origin" : "https://pt.wikipedia.org",
+  "pattern" : "https://pt.wikipedia.org/*",
+  "reason" : "PERMISSION_REQUIRED",
+  "registration" : {
+    "allFrames" : true,
+    "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
+    "id" : "nekkora-authorized-origins",
+    "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/content/ns.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/content/content-main.js" ],
+    "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+    "runAt" : "document_idle"
+  },
+  "tabId" : 1403983220
+}

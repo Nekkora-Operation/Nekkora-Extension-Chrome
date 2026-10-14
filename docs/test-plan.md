@@ -175,6 +175,31 @@ Baseline: `reports/chrome-003/baseline/` (CHROME-002 na `main`: 117/117 no naveg
 continuam na suíte; nenhum foi removido ou afrouxado (as asserções de versão `0.1.0` → `0.2.0` acompanham a mudança
 intencional de contrato — D-037).
 
+## NEKKORA-REAL-001
+
+| Caso | Classe | Cenário da missão (§8) |
+|---|---|---|
+| R001-01 | `Real001PilotIT` | 1 — página externa autorizada; navegar não captura |
+| R001-02 | `Real001PilotIT` | 2 — sem autorização, página interna, `file:` |
+| R001-03 | `Real001PilotIT` | 3 — iframe de outra origem sem permissão (`PERMISSION_DENIED`) |
+| R001-04 | `Real001PilotIT` | 4 — iframe de outra origem autorizada |
+| R001-05 | `Real001PilotIT` | 5 — SPA e atualização dinâmica |
+| R001-06 | `Real001PilotIT` | 6 — Shadow DOM aberto |
+| R001-07 | `Real001PilotIT` | 7 — tecnologia de proteção observável (fixture em origem externa) |
+| R001-08 | `Real001PilotIT` | 8 — desativação e reativação |
+| R001-09 | `Real001PilotIT` | 9 — revogação durante a sessão (página e frame) |
+| R001-10 | `Real001PilotIT` | 10 — exportação sem informações sensíveis |
+| R001-11 | `Real001PilotIT` | página grande: rolagem + classe no `body` sem recaptura |
+| R001-12 | `Real001PermissionDialogManualIT` (assistido, `-Test`) | diálogo nativo no Chrome convencional: autorizar site, revogar, autorização ampla, revogar |
+| RW-01..05 | `Real001LiveWebIT` (`-Suite real`) | Wikipedia: 1, 2, 5, 7, 8, 9, 10 em página real |
+| RP-01 | `Real001PerformanceIT` | §7 — variabilidade da seleção, frio × aquecido |
+
+Unitários: `PrivacyTest`, `GeometryUpdateTest` (Java); `privacy.test.js`, `access-policy.test.js` (Node).
+
+```powershell
+.\scripts\run-tests.ps1 -Suite real      # página real (Wikipedia; exige internet)
+```
+
 ## Como executar
 
 ```powershell

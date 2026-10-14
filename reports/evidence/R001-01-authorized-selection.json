@@ -1,0 +1,493 @@
+{
+  "selection" : {
+    "accessPath" : {
+      "accessible" : true,
+      "blockingRestriction" : null,
+      "documentsTraversed" : 1,
+      "explanation" : "O elemento button «Salvar preferências» foi encontrado, diretamente no documento principal. A identidade é sustentada por: nome acessível.",
+      "frameDepth" : 0,
+      "shadowDepth" : 0,
+      "stability" : "HEURISTIC_STABLE",
+      "steps" : [ {
+        "browserDocumentId" : "1A619172319E223D6B5874BC54EBAB81",
+        "documentId" : null,
+        "enteredDocumentId" : "doc:f0",
+        "expectedCondition" : "DOCUMENT_ACTIVE",
+        "frameIdentity" : null,
+        "label" : "Portal Externo — [email]",
+        "locator" : null,
+        "locatorStrategy" : null,
+        "matchCount" : 0,
+        "nodeId" : null,
+        "restriction" : null,
+        "stability" : null,
+        "type" : "MAIN_DOCUMENT",
+        "url" : "http://site-a.nekkora.test:18765/lab/real001/site.html"
+      }, {
+        "browserDocumentId" : null,
+        "documentId" : "doc:f0",
+        "enteredDocumentId" : null,
+        "expectedCondition" : "ELEMENT_PRESENT",
+        "frameIdentity" : null,
+        "label" : "Salvar preferências",
+        "locator" : "button#salvar",
+        "locatorStrategy" : "ID",
+        "matchCount" : 1,
+        "nodeId" : "n20",
+        "restriction" : null,
+        "stability" : "HEURISTIC_STABLE",
+        "type" : "ELEMENT",
+        "url" : null
+      } ],
+      "target" : {
+        "kind" : "BUTTON",
+        "name" : "Salvar preferências"
+      },
+      "targetNodeId" : "n20"
+    },
+    "captureId" : "cap-ps-mv8fl9k8-ad08c5-1+x1384",
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "VISIBLE", "PRESENT", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<button>" ],
+      "kind" : "BUTTON",
+      "name" : {
+        "confidence" : "MEDIUM",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "Salvar preferências",
+        "source" : "CONTENT",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n20",
+      "role" : "button",
+      "sensitive" : false,
+      "uncertainties" : [ ]
+    },
+    "documentId" : "doc:f0",
+    "family" : {
+      "ancestors" : [ {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "Minha conta",
+        "nodeId" : "n10",
+        "tag" : "section"
+      }, {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "",
+        "nodeId" : "n4",
+        "tag" : "main"
+      } ],
+      "children" : [ ],
+      "column" : null,
+      "containerHeading" : "Minha conta",
+      "contextualTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]", "Configurações" ],
+      "description" : null,
+      "dialog" : null,
+      "fieldGroup" : null,
+      "form" : null,
+      "labels" : [ ],
+      "listItem" : null,
+      "logicalContainer" : {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "Minha conta",
+        "nodeId" : "n10",
+        "tag" : "section"
+      },
+      "nodeId" : "n20",
+      "parent" : {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "Minha conta",
+        "nodeId" : "n10",
+        "tag" : "section"
+      },
+      "region" : {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "Minha conta",
+        "nodeId" : "n10",
+        "tag" : "section"
+      },
+      "relations" : [ {
+        "basis" : "DOM_STRUCTURE",
+        "detail" : "section",
+        "fromNodeId" : "n20",
+        "toNodeId" : "n10",
+        "type" : "IN_REGION"
+      }, {
+        "basis" : "HEURISTIC",
+        "detail" : "contêiner lógico mais próximo",
+        "fromNodeId" : "n20",
+        "toNodeId" : "n10",
+        "type" : "IN_CONTAINER"
+      }, {
+        "basis" : "HEURISTIC",
+        "detail" : "título precedente mais próximo",
+        "fromNodeId" : "n20",
+        "toNodeId" : "n14",
+        "type" : "HEADED_BY"
+      } ],
+      "row" : null,
+      "scopeChain" : [ ],
+      "siblings" : [ {
+        "idAttr" : "h-conta",
+        "keyAttributes" : { },
+        "kind" : "HEADING",
+        "name" : "Minha conta",
+        "nodeId" : "n14",
+        "tag" : "h2"
+      }, {
+        "idAttr" : "contato",
+        "keyAttributes" : { },
+        "kind" : "PARAGRAPH",
+        "name" : "Contato: [email] · CPF [cpf] · Telefone [telefone]",
+        "nodeId" : "n15",
+        "tag" : "p"
+      }, {
+        "idAttr" : "cartao",
+        "keyAttributes" : { },
+        "kind" : "PARAGRAPH",
+        "name" : "Cartão cadastrado: [cartão]",
+        "nodeId" : "n16",
+        "tag" : "p"
+      }, {
+        "idAttr" : "reset",
+        "keyAttributes" : { },
+        "kind" : "LINK",
+        "name" : "Redefinir senha",
+        "nodeId" : "n17",
+        "tag" : "a"
+      }, {
+        "idAttr" : "mail",
+        "keyAttributes" : { },
+        "kind" : "LINK",
+        "name" : "Enviar e-mail",
+        "nodeId" : "n18",
+        "tag" : "a"
+      }, {
+        "idAttr" : "config",
+        "keyAttributes" : {
+          "data-config" : "{\"endpoint\":\"https://api.example.test/v1?apiKey=REDACTED\",\"pin\":\"REDACTED\",\"theme\":\"escuro\"}",
+          "data-password" : "[redacted]",
+          "data-reset-url" : "https://example.test/reset?token=REDACTED",
+          "data-tema" : "escuro"
+        },
+        "kind" : "TEXT",
+        "name" : "Configurações",
+        "nodeId" : "n21",
+        "tag" : "div"
+      } ],
+      "table" : null,
+      "visualContainer" : {
+        "idAttr" : null,
+        "keyAttributes" : { },
+        "kind" : "LANDMARK",
+        "name" : "Minha conta",
+        "nodeId" : "n10",
+        "tag" : "section"
+      }
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : "Minha conta",
+          "kind" : "BUTTON",
+          "name" : "Salvar preferências",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n20" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "h2",
+              "text" : "Minha conta",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : "section"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "name" : "id",
+              "type" : "ATTR_EQUALS",
+              "value" : "salvar"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.745,
+        "semantic" : "section {has child <h2> \"Minha conta\"} >> button {id=salvar}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Minha conta\"", "id=\"salvar\": sem indícios de geração dinâmica (inferência)" ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: LANDMARK \"Minha conta\"" ],
+        "xpath" : "//section[h2[normalize-space(.)=\"Minha conta\"]]//button[@id=\"salvar\"]"
+      }, {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : "Minha conta",
+          "kind" : "BUTTON",
+          "name" : "Salvar preferências",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n20" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "role" : "button",
+              "type" : "ROLE_IS"
+            }, {
+              "name" : "Salvar preferências",
+              "type" : "NAME_EQUALS"
+            } ],
+            "tag" : null
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.712,
+        "semantic" : "* {role=button} {name=\"Salvar preferências\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "ROLE_NAME",
+        "warnings" : [ "avaliado pelo motor (papel/nome calculados), sem equivalente CSS/XPath", "ENGINE_ONLY: sem equivalente CSS/XPath; verificável apenas pelo motor" ],
+        "xpath" : null
+      }, {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : "Minha conta",
+          "kind" : "BUTTON",
+          "name" : "Salvar preferências",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n20" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "text" : "Salvar preferências",
+              "type" : "TEXT_EQUALS"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.608,
+        "semantic" : "button {text=\"Salvar preferências\"}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "TEXT",
+        "warnings" : [ ],
+        "xpath" : "//button[normalize-space(.)=\"Salvar preferências\"]"
+      }, {
+        "css" : "html > body > main:nth-of-type(1) > section:nth-of-type(1) > button:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : "Minha conta",
+          "kind" : "BUTTON",
+          "name" : "Salvar preferências",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n20" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "main"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "section"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> main {nth-of-type 1} >> section {nth-of-type 1} >> button {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/main[1]/section[1]/button[1]"
+      } ],
+      "nodeId" : "n20",
+      "primary" : {
+        "css" : "button#salvar",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : "Minha conta",
+          "kind" : "BUTTON",
+          "name" : "Salvar preferências",
+          "role" : "button",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n20" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "name" : "id",
+              "type" : "ATTR_EQUALS",
+              "value" : "salvar"
+            } ],
+            "tag" : "button"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.9,
+        "semantic" : "button {id=salvar}",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "id=\"salvar\": sem indícios de geração dinâmica (inferência)" ],
+        "strategy" : "ID",
+        "warnings" : [ ],
+        "xpath" : "//button[@id=\"salvar\"]"
+      },
+      "warnings" : [ ]
+    },
+    "lookalikes" : [ ],
+    "nodeId" : "n20",
+    "signature" : {
+      "column" : null,
+      "compatibility" : "button",
+      "containerHeading" : "Minha conta",
+      "contextTexts" : [ "Minha conta", "Contato: [email] · CPF [cpf] · Telefone [telefone]", "Cartão cadastrado: [cartão]", "Configurações" ],
+      "dialog" : null,
+      "fieldGroup" : null,
+      "form" : null,
+      "idAttribute" : "salvar",
+      "kind" : "BUTTON",
+      "label" : null,
+      "name" : "Salvar preferências",
+      "nameAttribute" : null,
+      "region" : "name:Minha conta",
+      "role" : "button",
+      "rowKey" : { },
+      "rowKeySource" : null,
+      "rowTexts" : [ ],
+      "scopePath" : [ ],
+      "table" : null,
+      "tag" : "button",
+      "testAttribute" : null,
+      "text" : "Salvar preferências",
+      "typeAttribute" : "button"
+    },
+    "tag" : "button",
+    "timings" : {
+      "familyMs" : 0.16,
+      "hostTotalMs" : 1.48,
+      "locatorMs" : 0.41
+    }
+  },
+  "access" : {
+    "allowed" : true,
+    "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+    "broad" : false,
+    "kind" : "AUTHORIZED",
+    "message" : null,
+    "origin" : "http://site-a.nekkora.test:18765",
+    "pattern" : "http://site-a.nekkora.test/*",
+    "reason" : null,
+    "registration" : {
+      "allFrames" : true,
+      "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
+      "id" : "nekkora-authorized-origins",
+      "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/content/ns.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/content/content-main.js" ],
+      "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*" ],
+      "runAt" : "document_idle"
+    },
+    "tabId" : 870372955
+  }
+}

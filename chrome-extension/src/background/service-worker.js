@@ -3,12 +3,17 @@
  * Não executa regras de análise: classificação, família, localizadores, resolução e consistência dos deltas
  * são do Java. Módulos:
  *   capture-session  ciclo de captura automática/contínua por aba (consumidores, deltas, recuperação)
- *   frames           iframes de outra origem local permitida (handshake + anexação)
+ *   access-policy    política central de acesso (laboratório + origens autorizadas pelo usuário)
+ *   injection        content scripts nas origens autorizadas (registro dinâmico + abas já abertas)
+ *   frames           iframes de outra origem permitida (handshake + anexação)
  *   inspection       botão único, estados da inspeção, seleção e reencontro
  *   recording        contrato de eventos de gravação (exportação na finalização)
  *   config           modo DEV/PRD (controlado pelo projeto)
  */
+import '../shared/privacy.js';
 import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, assertAllowed, errorInfo, HostError } from './runtime.js';
+import * as policy from './access-policy.js';
+import * as injection from './injection.js';
 import * as config from './config.js';
 import * as capture from './capture-session.js';
 import * as frames from './frames.js';
@@ -20,6 +25,8 @@ import * as recording from './recording.js';
 const ALLOWED_TEST_HOOKS = ['getCurrentFilters', 'getVisibleResultCount', 'getLastApiQuery', 'getRenderCount', 'getActionLog'];
 
 const ready = (async () => {
+  await policy.load();
+  await injection.syncRegistration().catch(() => {});
   await config.loadConfig();
   await capture.restore();
   await inspection.restore();
@@ -81,6 +88,21 @@ const commands = {
   'host.status': async () => client.status(),
   'host.memory': async (a) => host('host.memory', { gc: !!a.gc }),
   'host.reconnect': async () => capture.tryReconnect(),
+
+  // Acesso a sites (NEKKORA-REAL-001). A CONCESSÃO é feita pelo painel (gesto do usuário + diálogo do Chrome);
+  // aqui só há consulta e revogação.
+  'access.describe': async (a) => ({ ...(await policy.describeTab(a.tabId)), registration: await injection.registration(),
+    authorized: policy.authorizedPatterns() }),
+  'access.revoke': async (a) => {
+    const d = a.pattern ? { pattern: a.pattern } : await policy.describeTab(a.tabId);
+    if (!d.pattern || policy.LAB_PATTERNS.includes(d.pattern)) {
+      throw new HostError('BAD_REQUEST', 'nenhuma autorização de site a revogar');
+    }
+    // Autorização ampla é concedida como par (https + http): revogá-la remove os dois padrões.
+    const origins = policy.BROAD_PATTERNS.includes(d.pattern) ? policy.BROAD_PATTERNS.slice() : [d.pattern];
+    const removed = await chrome.permissions.remove({ origins });
+    return { removed, pattern: d.pattern, origins };
+  },
 
   // Configuração
   'config.get': async () => config.describe(),
@@ -336,17 +358,74 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return false;
 });
 
-// Navegação SPA (history.pushState / hash) em páginas locais.
+// Navegação SPA (history.pushState / hash) em páginas permitidas.
+const HTTP_FILTER = { url: [{ schemes: ['http', 'https'] }] };
 for (const evt of ['onHistoryStateUpdated', 'onReferenceFragmentUpdated']) {
   chrome.webNavigation[evt].addListener((d) => {
     if (d.frameId !== 0 || !isAllowedUrl(d.url)) {
       return;
     }
     const kind = evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT';
-    broadcast('navigation', { tabId: d.tabId, kind, url: d.url, at: Date.now(), transitionType: d.transitionType });
+    broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraPrivacy.sanitizeUrl(d.url), at: Date.now(), transitionType: d.transitionType });
     ready.then(() => capture.onNavigation(d.tabId, kind)).catch(() => {});
-  }, { url: [{ hostEquals: '127.0.0.1' }, { hostEquals: 'localhost' }] });
+  }, HTTP_FILTER);
 }
+
+/**
+ * Documento principal trocou de origem: se a nova URL não é permitida, a sessão termina (nenhum content script
+ * existirá ali para avisar). O painel é avisado para reavaliar o acesso da aba (sem a URL).
+ */
+chrome.webNavigation.onCommitted.addListener((d) => {
+  if (d.frameId !== 0) {
+    return;
+  }
+  broadcast('tab-navigated', { tabId: d.tabId });
+  if (!isAllowedUrl(d.url)) {
+    ready.then(async () => {
+      if (capture.isActive(d.tabId)) {
+        await inspection.revoke(d.tabId, 'ORIGIN_NOT_ALLOWED');
+        await capture.end(d.tabId, 'ORIGIN_NOT_ALLOWED');
+      }
+    }).catch(() => {});
+  }
+});
+
+/** Revogação: encerra sessões em origens que deixaram de ser permitidas e desanexa frames revogados. */
+async function onPermissionsRemoved(p) {
+  await injection.syncRegistration().catch(() => {});
+  broadcast('access-changed', { removed: (p && p.origins) || [], authorized: policy.authorizedPatterns() });
+  for (const rec of capture.list()) {
+    if (!rec || !capture.isActive(rec.tabId)) {
+      continue;
+    }
+    const url = await policy.tabUrl(rec.tabId).catch(() => null);
+    if (!isAllowedUrl(url)) {
+      await inspection.revoke(rec.tabId, 'PERMISSION_REVOKED');
+      await capture.end(rec.tabId, 'PERMISSION_REVOKED');
+      await toContent(rec.tabId, 'cs.disable').catch(() => {});
+      broadcast('access-revoked', { tabId: rec.tabId, reason: 'PERMISSION_REVOKED' });
+      continue;
+    }
+    const all = await chrome.webNavigation.getAllFrames({ tabId: rec.tabId }).catch(() => []);
+    const revoked = (rec.frames || []).filter((f) => f.status === 'ATTACHED' && !isAllowedUrl((all.find((x) => x.frameId === f.frameId) || {}).url));
+    if (revoked.length) {
+      for (const f of revoked) {
+        await toContent(rec.tabId, 'cs.session.stop', {}, f.frameId).catch(() => {});
+      }
+      const live = capture.get(rec.tabId);
+      if (live) {
+        await capture.scheduleResync(live, 'PERMISSION_REVOKED', { exempt: true });
+      }
+      broadcast('access-revoked', { tabId: rec.tabId, reason: 'FRAME_PERMISSION_REVOKED', frames: revoked.map((f) => f.frameId) });
+    }
+  }
+}
+
+policy.onAdded(async (p) => {
+  await injection.syncRegistration().catch(() => {});
+  broadcast('access-changed', { added: (p && p.origins) || [], authorized: policy.authorizedPatterns() });
+});
+policy.onRemoved((p) => ready.then(() => onPermissionsRemoved(p)));
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   ready.then(async () => {

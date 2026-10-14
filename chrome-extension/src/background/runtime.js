@@ -1,6 +1,6 @@
 /*
  * Infraestrutura compartilhada do service worker: cliente do motor Java, mensagens para content scripts
- * (por frame), difusão de eventos para as páginas da extensão e política de origem.
+ * (por frame) e difusão de eventos para as páginas da extensão (política de origem: access-policy.js).
  */
 import { NativeClient, HostError } from './native-client.js';
 
@@ -42,28 +42,8 @@ export function tabKey(tabId) {
   return 'tab-' + tabId;
 }
 
-/** Origens de laboratório: http(s) em 127.0.0.1 ou localhost (qualquer porta). */
-export function isAllowedUrl(url) {
-  try {
-    const u = new URL(url);
-    return (u.protocol === 'http:' || u.protocol === 'https:') && (u.hostname === '127.0.0.1' || u.hostname === 'localhost');
-  } catch (e) {
-    return false;
-  }
-}
-
-export async function assertAllowed(tabId) {
-  let tab;
-  try {
-    tab = await chrome.tabs.get(tabId);
-  } catch (e) {
-    throw new HostError('TAB_NOT_FOUND', 'Aba inexistente: ' + tabId);
-  }
-  if (!tab || !tab.url || !isAllowedUrl(tab.url)) {
-    throw new HostError('ORIGIN_NOT_ALLOWED', 'A extensão atua somente em páginas locais (127.0.0.1/localhost)');
-  }
-  return tab;
-}
+/** Política de origem: única, centralizada em access-policy.js (laboratório + origens autorizadas pelo usuário). */
+export { isAllowedUrl, assertAllowed } from './access-policy.js';
 
 /** Comando para o content script de um frame (0 = documento principal). */
 export async function toContent(tabId, cmd, args, frameId = 0) {
@@ -108,5 +88,9 @@ export function withLock(key, fn) {
 }
 
 export function errorInfo(e) {
-  return { code: (e && e.code) || 'ERROR', message: String(e && e.message || e) };
+  const info = { code: (e && e.code) || 'ERROR', message: String(e && e.message || e) };
+  if (e && e.reason) {
+    info.reason = e.reason; // ex.: ORIGIN_NOT_ALLOWED → PERMISSION_REQUIRED, BROWSER_INTERNAL, PERMISSION_REVOKED
+  }
+  return info;
 }

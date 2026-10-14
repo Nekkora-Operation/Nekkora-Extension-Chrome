@@ -231,7 +231,7 @@
     "score" : 0.846,
     "verdict" : "CONFIRMED"
   } ],
-  "captureId" : "cap-ps-mv84d97r-eft5m9-3",
+  "captureId" : "cap-ps-mv8fie19-55ofn4-3",
   "diagnostics" : [ "FRAME_AMBIGUOUS", "TARGET_AMBIGUOUS" ],
   "evidence" : [ "2 candidato(s) avaliado(s): 2 confirmado(s), 0 plausível(is) sem comprovação", "Candidatos n86 e n92 são igualmente plausíveis (0.846 vs 0.846)" ],
   "locatorChecks" : [ {
@@ -256,7 +256,7 @@
   "scope" : "AVAILABLE (frames ambíguos): [doc:f8, doc:f9]",
   "score" : 0.846,
   "status" : "AMBIGUOUS",
-  "targetId" : "tgt-d6146d72-1bdf-4ac7-bdab-01a8a1f013a7",
+  "targetId" : "tgt-30f92150-6b9e-42ac-8b7a-17f11fe17cee",
   "updatedIdentity" : null,
   "updatedLocators" : null
 }

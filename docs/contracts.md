@@ -137,3 +137,16 @@ Detalhes: [Frame Intelligence](chrome-003/frame-intelligence.md) · [identidade]
 Mudanças incompatíveis exigem nova versão do schema e de `PageMap.VERSION` (a CHROME-003 introduziu a `0.2.0`). Campos novos
 opcionais exigem atualizar o schema (os objetos principais usam `additionalProperties: false` para
 detectar divergência entre código e contrato).
+
+## NEKKORA-REAL-001 (aditivo; PageMap continua 0.2.0)
+
+- **Semântica de privacidade** (`nekkora-privacy/1`, [docs/real-001/privacy.md](real-001/privacy.md)): URLs do
+  documento, de frames (`document.frames[].url`, antes completa), requisições, recursos e atributos de URL trazem
+  valores sensíveis como `REDACTED` / `:redacted`; textos e atributos de texto livre trazem `[email]`, `[cpf]`,
+  `[cnpj]`, `[cartão]`, `[telefone]`, `[token]`. A estrutura do PageMap não muda.
+- **Delta sequenciado**: campo opcional `geometry` (`[{id, x, y, width, height, inViewport}]`) — atualizações
+  compactas de nós já conhecidos ([capture-session.schema.json](../contracts/capture-session.schema.json)).
+- **`pagemap.export`**: acima de 48 MiB (JSON compacto), `pageMap` nulo com `pageMapOmitted: "TOO_LARGE_FOR_MESSAGE"` e
+  `inlineLimitBytes`; o arquivo em `path` é sempre completo.
+- **Comandos novos do service worker**: `access.describe` (acesso da aba: `allowed`, `kind`, `reason`, `origin`,
+  `pattern`, registro dinâmico) e `access.revoke`. Erro `ORIGIN_NOT_ALLOWED` ganhou `reason`.

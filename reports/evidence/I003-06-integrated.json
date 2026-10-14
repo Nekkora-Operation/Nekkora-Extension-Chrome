@@ -1,10 +1,11 @@
 {
   "captura" : {
     "deltas" : 0,
-    "fullCaptures" : 1,
-    "nodes" : 59
+    "nodes" : 59,
+    "fullCaptures" : 1
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -14,7 +15,6 @@
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
     },
-    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f2:Cadastro:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED" ],
     "maxDepth" : 1
   },
   "identificacao" : {
@@ -30,13 +30,13 @@
       "title" : "Rascunho",
       "urlPath" : "about:blank"
     } ],
-    "name" : "Guardar nota",
+    "targetId" : "tgt-110246c1-3ebb-41a6-abd9-95076b1b30cb",
     "kind" : "BUTTON",
-    "targetId" : "tgt-66806c03-26db-4f00-8b4c-e8cc81ff98a9"
+    "name" : "Guardar nota"
   },
   "familia" : {
-    "form" : null,
     "region" : null,
+    "form" : null,
     "scope" : [ {
       "idAttr" : "f-branco",
       "keyAttributes" : { },
@@ -343,7 +343,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "1669ED412508095C07566E05D07125CB",
+      "browserDocumentId" : "EF21C7AEB54FC401A032C9D8913865BF",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -358,7 +358,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "F1D4E0C3A1A208060281B2DF69C5ED9C",
+      "browserDocumentId" : "299BE8283E3B1CE08C80E31606ACD904",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f4",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (about:blank)",
@@ -406,17 +406,16 @@
     "targetNodeId" : "n55"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.29,
+      "protectionMs" : 0.42,
+      "readinessMs" : 0.2,
+      "totalMs" : 0.92
     },
     "readiness" : {
       "basis" : [ "somente obstáculos de severidade baixa", "todas as regiões observáveis foram inspecionadas" ],
@@ -469,11 +468,12 @@
       },
       "status" : "MANAGEABLE"
     },
-    "timings" : {
-      "graphMs" : 0.38,
-      "protectionMs" : 0.43,
-      "readinessMs" : 0.2,
-      "totalMs" : 1.02
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

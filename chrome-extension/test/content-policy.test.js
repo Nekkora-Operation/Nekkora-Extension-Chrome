@@ -43,12 +43,16 @@ test('only search fields expose values; value attributes of text inputs are drop
   assert.equal(p.valueAttributeAllowed(el('option')), true);
 });
 
-test('only loopback origins are allowed', () => {
+test('content script only runs on http/https documents (origin authorization is decided by access-policy)', () => {
+  // NEKKORA-REAL-001: a restrição exclusiva a loopback foi removida por requisito. A decisão de ORIGEM passou a ser
+  // da política central (test/access-policy.test.js: example.com continua recusado sem autorização do usuário).
   const { NekkoraCS } = load('content/ns.js');
   assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'http:', hostname: '127.0.0.1' }), true);
   assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'http:', hostname: 'localhost' }), true);
-  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'https:', hostname: 'example.com' }), false);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'https:', hostname: 'example.com' }), true);
   assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'file:', hostname: '' }), false);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'chrome:', hostname: 'settings' }), false);
+  assert.equal(NekkoraCS.isAllowedLocation({ protocol: 'data:', hostname: '' }), false);
 });
 
 test('official Nekkora pink token', () => {

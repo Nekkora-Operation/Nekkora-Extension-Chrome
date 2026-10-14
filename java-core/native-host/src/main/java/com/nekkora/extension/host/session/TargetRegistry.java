@@ -134,7 +134,19 @@ public final class TargetRegistry {
             return;
         }
         try {
-            store.write("targets", "registry", new Persisted(TargetIdentity.SCHEMA_VERSION, new ArrayList<>(targets.values()), new LinkedHashMap<>(owners)));
+            // NEKKORA-REAL-001: alvos de sites externos (autorizados pelo usuário) ficam SOMENTE em memória — nada de
+            // páginas reais é gravado em disco sem uma exportação explícita. Laboratório: persistência como antes.
+            List<TargetIdentity> lab = new ArrayList<>();
+            Map<String, Owner> labOwners = new LinkedHashMap<>();
+            for (TargetIdentity t : targets.values()) {
+                if (com.nekkora.extension.core.privacy.Privacy.isLabOrigin(t.origin())) {
+                    lab.add(t);
+                    if (owners.containsKey(t.targetId())) {
+                        labOwners.put(t.targetId(), owners.get(t.targetId()));
+                    }
+                }
+            }
+            store.write("targets", "registry", new Persisted(TargetIdentity.SCHEMA_VERSION, lab, labOwners));
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Falha ao persistir registro de alvos", e);
         }

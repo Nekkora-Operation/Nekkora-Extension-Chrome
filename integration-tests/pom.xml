@@ -15,6 +15,8 @@
   <description>Homologação no Chrome real (Chrome for Testing): extensão + página de laboratório + host Java.</description>
 
   <properties>
+    <!-- Matriz gerada pela execução: integration (padrão) ou real-web (-Suite real). -->
+    <nekkora.matrix.phase>integration</nekkora.matrix.phase>
     <maven.deploy.skip>true</maven.deploy.skip>
     <nekkora.headless>false</nekkora.headless>
   </properties>
@@ -84,11 +86,18 @@
               <includes>
                 <include>**/*IT.java</include>
               </includes>
+              <!-- NEKKORA-REAL-001: a homologação em página REAL (internet) só roda quando pedida explicitamente
+                   (scripts/run-tests.ps1 -Suite real, que seleciona a classe por -Dit.test). -->
+              <excludes>
+                <exclude>**/*LiveWebIT.java</exclude>
+                <!-- Verificação ASSISTIDA (aprovação humana no diálogo do Chrome): somente por -Dit.test. -->
+                <exclude>**/*ManualIT.java</exclude>
+              </excludes>
               <runOrder>alphabetical</runOrder>
               <systemPropertyVariables>
                 <nekkora.repo>${project.basedir}/..</nekkora.repo>
                 <nekkora.headless>${nekkora.headless}</nekkora.headless>
-                <nekkora.phase>integration</nekkora.phase>
+                <nekkora.phase>${nekkora.matrix.phase}</nekkora.phase>
               </systemPropertyVariables>
               <trimStackTrace>false</trimStackTrace>
             </configuration>

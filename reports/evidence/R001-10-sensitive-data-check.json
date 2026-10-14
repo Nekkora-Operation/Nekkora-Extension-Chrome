@@ -1,0 +1,60 @@
+{
+  "leaks" : {
+    "pageMap" : [ ],
+    "session" : [ ],
+    "events" : [ ],
+    "frameGraph" : [ ],
+    "rawSnapshot" : [ ],
+    "hostDataDir" : [ ]
+  },
+  "marks" : {
+    "documentUrl" : "http://site-a.nekkora.test:18765/lab/real001/site.html?session=REDACTED&token=REDACTED&aba=inicio#access_token=REDACTED",
+    "frames" : [ {
+      "accessible" : true,
+      "frameId" : "c1469",
+      "hostNodeId" : "n52",
+      "parentFrameId" : "f0",
+      "readyState" : "complete",
+      "reason" : null,
+      "title" : "Parceiro",
+      "url" : "http://site-b.nekkora.test:18765/lab/real001/partner.html?sid=REDACTED"
+    }, {
+      "accessible" : true,
+      "frameId" : "f0",
+      "hostNodeId" : null,
+      "parentFrameId" : null,
+      "readyState" : "complete",
+      "reason" : null,
+      "title" : "Portal Externo — [email]",
+      "url" : "http://site-a.nekkora.test:18765/lab/real001/site.html?session=REDACTED&token=REDACTED&aba=inicio#access_token=REDACTED"
+    }, {
+      "accessible" : false,
+      "frameId" : "xn53",
+      "hostNodeId" : "n53",
+      "parentFrameId" : "f0",
+      "readyState" : null,
+      "reason" : "CROSS_ORIGIN",
+      "title" : null,
+      "url" : "http://site-x.nekkora.test:18765/lab/real001/partner.html"
+    } ],
+    "requests" : {
+      "captureId" : "cap-ps-mv8flfim-4g1nhr-2",
+      "capturedAt" : "2026-10-14T18:16:26.276Z",
+      "mode" : "FULL",
+      "pageSessionId" : "ps-mv8flfim-4g1nhr",
+      "stats" : {
+        "consistency" : null,
+        "durationMs" : 0.3,
+        "elementsVisited" : 1,
+        "maxNodes" : 5000,
+        "maxSliceMs" : null,
+        "mode" : null,
+        "nodesEmitted" : 1,
+        "slices" : null,
+        "truncated" : false
+      }
+    }
+  },
+  "planted" : [ "SESS-7f3a9c2e1b44", "TKN-SECRETO-123", "AT-SECRETO-456", "CODE-SECRETO-789", "SIG-SECRETA-0a1b2c", "DTK-0a1b2c3d4e5f6a7b8c9d0e1f", "KEY-SECRETA-321", "SID-SECRETO-654", "REF-SECRETO-111", "ana.silva", "exemplo.com", "123.456.789-09", "98765-4321", "4111 1111 1111 1111", "550e8400-e29b-41d4-a716-446655440000", "hunter2", "RST-SECRETO-222", "CFG-SECRETA-333", "PIN-SECRETO-444", "XST-SECRETO-555" ],
+  "exportPath" : "C:\\Users\\nicol\\nekkora\\Nekkora-Extension-Chrome\\integration-tests\\target\\host-data\\pagemaps\\cap-ps-mv8flfim-4g1nhr-2.json"
+}

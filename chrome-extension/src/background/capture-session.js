@@ -14,6 +14,7 @@
  */
 import { client, host, toContent, tabKey, broadcast, broadcastThrottled, withLock, isAllowedUrl, errorInfo, HostError } from './runtime.js';
 import * as store from './session-store.js';
+import * as injection from './injection.js';
 
 const RESYNC_WINDOW_MS = 30000;
 const RESYNC_LIMIT = 5;
@@ -235,6 +236,8 @@ export function acquire(tabId, consumer, options = {}) {
       return rec;
     }
     if (!rec || rec.status === 'COMPLETED') {
+      // Origem autorizada aberta antes da autorização: injeta o content script (somente onde falta) antes da base.
+      await injection.ensureInjected(tabId);
       rec = newRecord(tabId, newSessionId(tabId));
       sessions.set(tabId, rec);
     }
@@ -482,8 +485,8 @@ export async function onContentReady(tabId, frameId, data) {
     await end(tabId, 'ORIGIN_NOT_ALLOWED');
     return;
   }
-  if (rec.documentId === data.pageSessionId) {
-    return;
+  if (rec.documentId === data.pageSessionId || (!rec.documentId && rec.status === 'STARTING')) {
+    return; // mesmo documento, ou content script recém-injetado durante o início (a base ainda vai capturá-lo)
   }
   await runHooks('onDocumentReplaced', rec, data);
   await scheduleResync(rec, 'DOCUMENT_REPLACED', { exempt: true, navigationKind: 'RELOAD' });

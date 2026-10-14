@@ -1,10 +1,11 @@
 {
   "captura" : {
     "deltas" : 1,
-    "fullCaptures" : 1,
-    "nodes" : 59
+    "nodes" : 59,
+    "fullCaptures" : 1
   },
   "hierarquia" : {
+    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Cadastro:INSPECTED" ],
     "counts" : {
       "documents" : 6,
       "frames" : 5,
@@ -14,7 +15,6 @@
       "shadowRootsClosed" : 0,
       "shadowRootsOpen" : 1
     },
-    "frames" : [ "f0:null:INSPECTED", "f1:Pedidos:INSPECTED", "f3:Pagamentos:INSPECTED", "f4:Rascunho:INSPECTED", "f5:Resumo:INSPECTED", "f6:Cadastro:INSPECTED" ],
     "maxDepth" : 1
   },
   "identificacao" : {
@@ -30,21 +30,11 @@
       "title" : "Cadastro",
       "urlPath" : "/lab/chrome003/contas.html"
     } ],
-    "name" : "Salvar",
+    "targetId" : "tgt-25f1182d-d3e2-47d8-a8ee-3813b256c016",
     "kind" : "BUTTON",
-    "targetId" : "tgt-eb3797ed-b435-4471-a2f7-fc0fec594dd9"
+    "name" : "Salvar"
   },
   "familia" : {
-    "form" : {
-      "idAttr" : "form-conta",
-      "keyAttributes" : {
-        "aria-label" : "Nova conta"
-      },
-      "kind" : "FORM",
-      "name" : "Nova conta",
-      "nodeId" : "n65",
-      "tag" : "form"
-    },
     "region" : {
       "idAttr" : null,
       "keyAttributes" : {
@@ -54,6 +44,16 @@
       "name" : "Cadastro",
       "nodeId" : "n60",
       "tag" : "section"
+    },
+    "form" : {
+      "idAttr" : "form-conta",
+      "keyAttributes" : {
+        "aria-label" : "Nova conta"
+      },
+      "kind" : "FORM",
+      "name" : "Nova conta",
+      "nodeId" : "n65",
+      "tag" : "form"
     },
     "scope" : [ {
       "idAttr" : null,
@@ -580,7 +580,7 @@
     "shadowDepth" : 0,
     "stability" : "HEURISTIC_STABLE",
     "steps" : [ {
-      "browserDocumentId" : "F5A44511B7FDB193945A4B09A7CC5953",
+      "browserDocumentId" : "81E7F5ABA3DD34CFF33A4BF437F8EF8A",
       "documentId" : null,
       "enteredDocumentId" : "doc:f0",
       "expectedCondition" : "DOCUMENT_ACTIVE",
@@ -595,7 +595,7 @@
       "type" : "MAIN_DOCUMENT",
       "url" : "http://127.0.0.1:18765/lab/chrome003/frames-dynamic.html"
     }, {
-      "browserDocumentId" : "0CB0EF696725624276BAE1BE83B655F9",
+      "browserDocumentId" : "AC414DED6C65BE148AC19BAD2426D4E5",
       "documentId" : "doc:f0",
       "enteredDocumentId" : "doc:f6",
       "expectedCondition" : "FRAME_DOCUMENT_LOADED (/lab/chrome003/contas.html)",
@@ -643,17 +643,16 @@
     "targetNodeId" : "n70"
   },
   "reencontro" : {
-    "status" : "RESOLVED",
+    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ],
     "score" : 1,
-    "evidence" : [ "1 candidato(s) avaliado(s): 1 confirmado(s), 0 plausível(is) sem comprovação" ]
+    "status" : "RESOLVED"
   },
   "diagnostico" : {
-    "protection" : {
-      "assessments" : [ ],
-      "catalogVersion" : "2026.10.1",
-      "genericIndicators" : [ ],
-      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
-      "status" : "NOT_OBSERVED"
+    "timings" : {
+      "graphMs" : 0.47,
+      "protectionMs" : 0.48,
+      "readinessMs" : 0.33,
+      "totalMs" : 1.29
     },
     "readiness" : {
       "basis" : [ "somente obstáculos de severidade baixa", "todas as regiões observáveis foram inspecionadas" ],
@@ -715,11 +714,12 @@
       },
       "status" : "MANAGEABLE"
     },
-    "timings" : {
-      "graphMs" : 0.41,
-      "protectionMs" : 0.5,
-      "readinessMs" : 0.35,
-      "totalMs" : 1.28
+    "protection" : {
+      "assessments" : [ ],
+      "catalogVersion" : "2026.10.1",
+      "genericIndicators" : [ ],
+      "limitations" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ],
+      "status" : "NOT_OBSERVED"
     }
   },
   "limitacoes" : [ "Proteções aplicadas no servidor ou na borda (WAF, gerenciamento de bots) podem não deixar evidência no documento: a ausência de assinaturas não comprova ausência de proteção." ]

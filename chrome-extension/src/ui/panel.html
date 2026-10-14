@@ -29,6 +29,27 @@
     </dl>
   </section>
 
+  <section id="site-access" class="access" aria-labelledby="h-access">
+    <h2 id="h-access">Acesso ao site</h2>
+    <dl class="kv status-kv">
+      <dt>Site</dt><dd id="acc-origin">—</dd>
+      <dt>Acesso</dt><dd id="acc-state" data-kind="">verificando…</dd>
+    </dl>
+    <p id="acc-hint" class="explanation"></p>
+    <div class="access-actions">
+      <button id="btn-authorize" type="button" hidden>Autorizar este site</button>
+      <button id="btn-authorize-all" type="button" hidden>Autorizar todos os sites…</button>
+      <button id="btn-revoke" type="button" hidden>Revogar acesso a este site</button>
+    </div>
+    <div id="acc-confirm-all" class="confirm" role="alertdialog" aria-labelledby="acc-confirm-text" hidden>
+      <p id="acc-confirm-text">A autorização ampla permite que a extensão leia a estrutura de QUALQUER site http/https quando
+        você ativar a inspeção. Nada é capturado sem ativação, nenhuma interação é executada e os dados ficam neste
+        computador. O Chrome pedirá a sua confirmação.</p>
+      <button id="btn-confirm-all" type="button" class="primary">Confirmar autorização ampla</button>
+      <button id="btn-cancel-all" type="button">Cancelar</button>
+    </div>
+  </section>
+
   <p id="message" class="message" role="alert" hidden></p>
 
   <section id="dev-tools" class="toolbar dev" aria-label="Ferramentas de desenvolvimento" hidden>

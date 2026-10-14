@@ -1,8 +1,8 @@
 {
   "contexts" : [ {
-    "contextId" : "ff37632f-9790-4927-9d2b-b62c0b041b1a",
+    "contextId" : "aa13cc6a-8e82-4db3-9553-56e44fc3511d",
     "contextType" : "SIDE_PANEL",
-    "documentId" : "DAE879E64F44151C7A0780E58726198C",
+    "documentId" : "DD1A2080320B60E7CA0D02AE8C5DECBB",
     "documentOrigin" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj",
     "documentUrl" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "frameId" : 0,
@@ -11,6 +11,15 @@
     "windowId" : -1
   } ],
   "active" : {
+    "access" : {
+      "authorize" : false,
+      "authorizeAll" : false,
+      "hint" : "",
+      "kind" : "LAB",
+      "origin" : "http://127.0.0.1:18765",
+      "revoke" : false,
+      "state" : "Laboratório local"
+    },
     "button" : "Desativar inspeção",
     "capture" : "Automática ativa",
     "deltas" : "0",
@@ -22,13 +31,14 @@
     "frames" : "—",
     "height" : 757,
     "host" : "Conectado · Java 21.0.12",
+    "message" : "",
     "mode" : "DEV",
     "nodes" : "43",
     "path" : "",
     "pathSteps" : [ ],
     "pressed" : "true",
     "shadowRoots" : "—",
-    "tabId" : 971825797,
+    "tabId" : 870372469,
     "updated" : "agora",
     "url" : "chrome-extension://dceigcmhbihcigneokmpmbocdclkhcaj/src/ui/panel.html",
     "width" : 360

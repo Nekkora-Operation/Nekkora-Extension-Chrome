@@ -192,3 +192,21 @@ flowchart TB
 Responsabilidade única: o grafo não conhece proteções; o detector não conhece o painel; a prontidão só combina
 resultados. As regras ficam no Java; o JavaScript coleta o que só o navegador sabe (DOM vivo, `webNavigation`,
 Resource Timing) — nenhuma regra é duplicada (§33).
+
+## NEKKORA-REAL-001 — sites externos autorizados
+
+```mermaid
+flowchart LR
+    P[Painel: Acesso ao site] -->|gesto + diálogo do Chrome| PERM[(permissões opcionais)]
+    PERM -->|onAdded / onRemoved| AP[access-policy.js — política central]
+    AP --> INJ[injection.js — registro dinâmico + injeção nos frames que faltam]
+    AP --> SW[service worker: inspeção, sessão, frames, diagnóstico, eventos]
+    INJ --> CS[content scripts]
+    CS -->|privacy.js — 1ª barreira| SW
+    SW -->|nekkora-nm/1| J[Java: registros do snapshot — 2ª barreira — motor]
+```
+
+- `background/access-policy.js`: única decisão de origem (laboratório, autorizada, recusada com motivo).
+- `background/injection.js`: content scripts nas origens autorizadas, sem duplicidade.
+- `shared/privacy.js` e `core/privacy`: política de privacidade espelhada (vetores em `contracts/privacy/`).
+- Tracker: atualizações compactas de geometria e varredura de visibilidade para subárvores grandes.
