@@ -72,6 +72,21 @@ public final class HtmlSnapshot {
         return this;
     }
 
+    /** Frame com URL efetiva explícita (ex.: {@code about:blank}, {@code about:srcdoc}, outra origem). */
+    public HtmlSnapshot frame(String name, String html, boolean accessible, String reason, String url) {
+        frames.put(name, new FrameSpec(Jsoup.parse(html), accessible, reason, url));
+        return this;
+    }
+
+    /** Id temporário de um elemento do documento de um frame registrado. */
+    public String idInFrame(String frameName, String cssQuery) {
+        Element e = frames.get(frameName).doc().selectFirst(cssQuery);
+        if (e == null) {
+            throw new IllegalArgumentException("Sem elemento para " + cssQuery + " no frame " + frameName);
+        }
+        return ids.get(e);
+    }
+
     /** Documento jsoup para mutações entre capturas (simula a página mudando). */
     public Document dom() {
         return doc;
@@ -84,18 +99,30 @@ public final class HtmlSnapshot {
         return this;
     }
 
+    private List<com.nekkora.extension.core.snapshot.ResourceRef> resources = new ArrayList<>();
+    private final Map<String, String> frameTitles = new LinkedHashMap<>();
+
     public RawSnapshot capture() {
         captures++;
+        resources = new ArrayList<>();
         List<RawNode> nodes = new ArrayList<>();
         List<FrameInfo> frameInfos = new ArrayList<>();
         List<ShadowRootInfo> shadows = new ArrayList<>();
         frameInfos.add(new FrameInfo("f0", null, null, url, true, null));
         Element html = doc.selectFirst("html");
         int[] frameCounter = {0};
+        frameTitles.clear();
         emit(html, null, "f0", "doc:f0", false, nodes, frameInfos, shadows, frameCounter);
+        for (int i = 0; i < frameInfos.size(); i++) {
+            FrameInfo f = frameInfos.get(i);
+            if (frameTitles.containsKey(f.frameId())) {
+                frameInfos.set(i, new FrameInfo(f.frameId(), f.parentFrameId(), f.hostNodeId(), f.url(), f.accessible(), f.reason(),
+                        frameTitles.get(f.frameId()), "complete"));
+            }
+        }
         DocumentInfo info = new DocumentInfo(url, doc.title(), "complete", new Viewport(1280, 800, 0, 0, 1), "MANUAL", pageSession);
         return new RawSnapshot("cap-" + captures + "-" + pageSession, "2026-10-13T00:00:0" + (captures % 10) + "Z", info,
-                frameInfos, shadows, nodes, List.of(), new CaptureStats(nodes.size(), nodes.size(), 1.0, false, 20000));
+                frameInfos, shadows, nodes, List.of(), new CaptureStats(nodes.size(), nodes.size(), 1.0, false, 20000), resources);
     }
 
     public String idOf(String cssQuery) {
@@ -139,6 +166,25 @@ public final class HtmlSnapshot {
                 continue;
             }
             if (SKIP.contains(ct)) {
+                if (ct.equals("head")) {
+                    for (Element sc : child.select("script[src]")) {
+                        resources.add(new com.nekkora.extension.core.snapshot.ResourceRef("SCRIPT",
+                                com.nekkora.extension.core.frames.UrlSanitizer.sanitize(sc.attr("src")), "DOM", frameId,
+                                sc.hasAttr("type") ? sc.attr("type") : null, null,
+                                com.nekkora.extension.core.frames.UrlSanitizer.queryKeys(sc.attr("src"))));
+                    }
+                    if (child.selectFirst("title") != null && !frameId.equals("f0")) {
+                        frameTitles.put(frameId, child.selectFirst("title").text());
+                    }
+                }
+                if (ct.equals("script") && child.hasAttr("src")) {
+                    // Espelho do content script: referência de script com URL sanitizada (sem query) e nomes dos parâmetros.
+                    String src = child.attr("src");
+                    resources.add(new com.nekkora.extension.core.snapshot.ResourceRef("SCRIPT",
+                            com.nekkora.extension.core.frames.UrlSanitizer.sanitize(src), "DOM", frameId,
+                            child.hasAttr("type") ? child.attr("type") : null, null,
+                            com.nekkora.extension.core.frames.UrlSanitizer.queryKeys(src)));
+                }
                 continue;
             }
             children.add(emit(child, id, frameId, scopeId, hidden, out, frameInfos, shadows, frameCounter));

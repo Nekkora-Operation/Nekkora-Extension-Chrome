@@ -22,12 +22,20 @@ public record RawSnapshot(
         List<ShadowRootInfo> shadowRoots,
         List<RawNode> nodes,
         List<ObservedRequest> requests,
-        CaptureStats stats) {
+        CaptureStats stats,
+        List<ResourceRef> resources) {
+
+    /** Construtor CHROME-001/002 (sem recursos observados). */
+    public RawSnapshot(String captureId, String capturedAt, DocumentInfo document, List<FrameInfo> frames,
+                       List<ShadowRootInfo> shadowRoots, List<RawNode> nodes, List<ObservedRequest> requests, CaptureStats stats) {
+        this(captureId, capturedAt, document, frames, shadowRoots, nodes, requests, stats, null);
+    }
 
     public RawSnapshot {
         frames = frames == null ? List.of() : List.copyOf(frames);
         shadowRoots = shadowRoots == null ? List.of() : List.copyOf(shadowRoots);
         nodes = nodes == null ? List.of() : List.copyOf(nodes);
         requests = requests == null ? List.of() : List.copyOf(requests);
+        resources = resources == null ? List.of() : List.copyOf(resources);
     }
 }

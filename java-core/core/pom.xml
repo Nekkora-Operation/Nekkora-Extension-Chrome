@@ -27,6 +27,12 @@
       <artifactId>jsoup</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Somente testes: lê o catálogo versionado contracts/protection-signatures.json (o motor recebe o catálogo pronto). -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

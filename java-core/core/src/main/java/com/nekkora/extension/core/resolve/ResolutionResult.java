@@ -23,6 +23,10 @@ import java.util.Map;
  * @param evidence          explicação legível da decisão
  * @param updatedLocators   localizadores reavaliados para o nó resolvido
  * @param updatedIdentity   identidade com referência e histórico atualizados (somente quando {@code RESOLVED})
+ * @param diagnostics       detalhes de diagnóstico compatíveis com o status (CHROME-003): {@code FRAME_NOT_FOUND},
+ *                          {@code FRAME_AMBIGUOUS}, {@code FRAME_DOCUMENT_CHANGED}, {@code FRAME_PERMISSION_DENIED},
+ *                          {@code FRAME_SANDBOX_RESTRICTED}, {@code FRAME_LOADING}, {@code SHADOW_ROOT_CLOSED},
+ *                          {@code SHADOW_HOST_NOT_FOUND}, {@code TARGET_NOT_MATERIALIZED}, {@code TARGET_AMBIGUOUS}
  */
 public record ResolutionResult(
         String schemaVersion,
@@ -38,12 +42,23 @@ public record ResolutionResult(
         Map<String, List<String>> attributeChanges,
         List<String> evidence,
         LocatorSet updatedLocators,
-        TargetIdentity updatedIdentity) {
+        TargetIdentity updatedIdentity,
+        List<String> diagnostics) {
+
+    /** Construtor CHROME-001/002 (sem diagnósticos detalhados). */
+    public ResolutionResult(String schemaVersion, String targetId, String captureId, ResolutionStatus status, String resolvedNodeId,
+                            double score, boolean nodeReplaced, String scope, List<LocatorCheck> locatorChecks,
+                            List<CandidateEvaluation> candidates, Map<String, List<String>> attributeChanges, List<String> evidence,
+                            LocatorSet updatedLocators, TargetIdentity updatedIdentity) {
+        this(schemaVersion, targetId, captureId, status, resolvedNodeId, score, nodeReplaced, scope, locatorChecks, candidates,
+                attributeChanges, evidence, updatedLocators, updatedIdentity, List.of());
+    }
 
     public ResolutionResult {
         locatorChecks = List.copyOf(locatorChecks);
         candidates = List.copyOf(candidates);
         attributeChanges = Map.copyOf(attributeChanges);
         evidence = List.copyOf(evidence);
+        diagnostics = diagnostics == null ? List.of() : List.copyOf(diagnostics);
     }
 }

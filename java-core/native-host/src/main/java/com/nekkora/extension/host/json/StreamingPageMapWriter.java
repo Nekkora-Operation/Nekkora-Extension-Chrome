@@ -43,6 +43,14 @@ public final class StreamingPageMapWriter {
     public Outcome write(OutputStream out, PageAnalysis a, PageMapOptions opts, OptionHistory history,
                          List<TargetIdentity> targets, List<ResolutionResult> resolutions, List<MutationRecord> mutations,
                          List<InspectionEvidence> evidence, String generatedAt, String mode, int parallelism) throws IOException {
+        return write(out, a, opts, history, targets, resolutions, mutations, evidence, generatedAt, mode, parallelism,
+                PageMapAssembler.DiagnosticsInput.none());
+    }
+
+    public Outcome write(OutputStream out, PageAnalysis a, PageMapOptions opts, OptionHistory history,
+                         List<TargetIdentity> targets, List<ResolutionResult> resolutions, List<MutationRecord> mutations,
+                         List<InspectionEvidence> evidence, String generatedAt, String mode, int parallelism,
+                         PageMapAssembler.DiagnosticsInput input) throws IOException {
         List<String> errors = new ArrayList<>();
         int[] validated = {0};
         PageMapAssembler.Prefix p = assembler.prefix(a, generatedAt, mode);
@@ -72,7 +80,7 @@ public final class StreamingPageMapWriter {
                 throw new IOException("Falha ao gerar elementos: " + e.getMessage(), e);
             }
             g.writeEndArray();
-            PageMapAssembler.Suffix s = assembler.suffix(a, history, targets, resolutions, mutations, evidence, st);
+            PageMapAssembler.Suffix s = assembler.suffix(a, history, targets, resolutions, mutations, evidence, st, input);
             g.writeObjectField("relations", s.relations());
             g.writeObjectField("optionSets", s.optionSets());
             g.writeObjectField("targets", s.targets());
@@ -80,11 +88,15 @@ public final class StreamingPageMapWriter {
             g.writeObjectField("mutations", s.mutations());
             g.writeObjectField("evidence", s.evidence());
             g.writeObjectField("metrics", s.metrics());
+            g.writeObjectField("frameGraph", s.frameGraph());
+            g.writeObjectField("accessPaths", s.accessPaths());
+            g.writeObjectField("protection", s.protection());
+            g.writeObjectField("readiness", s.readiness());
             g.writeEndObject();
             if (schema != null) {
                 PageMap envelope = new PageMap(p.schema(), p.version(), p.generatedAt(), p.generator(), p.snapshot(),
                         p.document(), p.coverage(), List.of(), s.relations(), s.optionSets(), s.targets(), s.resolutions(),
-                        s.mutations(), s.evidence(), s.metrics());
+                        s.mutations(), s.evidence(), s.metrics(), s.frameGraph(), s.accessPaths(), s.protection(), s.readiness());
                 ObjectNode tree = mapper.valueToTree(envelope);
                 errors.addAll(schema.validateEnvelope(tree));
             }

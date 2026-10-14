@@ -40,6 +40,7 @@ public final class TabState {
     private String latestPageSessionId;
     /** Captura de REFERÊNCIA fixada (fora do limite LRU): base de comparação com sessões incrementais. */
     private PageAnalysis reference;
+    private List<com.nekkora.extension.core.frames.BrowserFrameMetadata> browserFrames = List.of();
 
     public TabState(String tabKey) {
         this.tabKey = tabKey;
@@ -144,12 +145,22 @@ public final class TabState {
     public synchronized void release() {
         captures.clear();
         reference = null;
+        browserFrames = List.of();
         latestCaptureId = null;
         latestPageSessionId = null;
         optionHistory = new OptionHistory();
         mutations.clear();
         evidence.clear();
         resolutions.clear();
+    }
+
+    /** Metadados de frames do navegador (frameId/documentId do Chrome) informados pela extensão. */
+    public synchronized void browserFrames(List<com.nekkora.extension.core.frames.BrowserFrameMetadata> frames) {
+        this.browserFrames = frames == null ? List.of() : List.copyOf(frames);
+    }
+
+    public synchronized List<com.nekkora.extension.core.frames.BrowserFrameMetadata> browserFrames() {
+        return browserFrames;
     }
 
     public synchronized int retainedCaptures() {

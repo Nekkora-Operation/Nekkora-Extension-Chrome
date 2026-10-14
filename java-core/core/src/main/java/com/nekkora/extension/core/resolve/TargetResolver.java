@@ -47,6 +47,8 @@ public final class TargetResolver {
     public static final double CONFIRM_THRESHOLD = 0.55;
     /** Vantagem mínima do melhor candidato sobre o segundo para desempate. */
     public static final double TIE_MARGIN = 0.15;
+    /** Compatibilidade mínima entre a identidade registrada de um frame e um iframe candidato. */
+    public static final double FRAME_IDENTITY_THRESHOLD = 0.6;
     private static final int MAX_BROAD_CANDIDATES = 400;
     private static final Set<LocatorStrategyKind> STRONG = EnumSet.of(
             LocatorStrategyKind.ID, LocatorStrategyKind.TEST_ATTRIBUTE, LocatorStrategyKind.NAME);
@@ -61,10 +63,12 @@ public final class TargetResolver {
 
         // 1) Escopo
         ScopeResolution scope = resolveScopes(identity, graph, session);
+        List<String> diagnostics = new ArrayList<>(scope.diagnostics());
         if (scope.scopes().isEmpty()) {
             ResolutionStatus st = scope.unavailable() ? ResolutionStatus.SCOPE_UNAVAILABLE : ResolutionStatus.NOT_FOUND;
             evidence.add(scope.description());
-            return result(identity, captureId, st, null, 0, false, scope.description(), List.of(), List.of(), Map.of(), evidence, null, null);
+            return result(identity, captureId, st, null, 0, false, scope.description(), List.of(), List.of(), Map.of(), evidence, null, null,
+                    diagnostics);
         }
 
         // 2) Localizadores registrados
@@ -218,7 +222,11 @@ public final class TargetResolver {
 
         if (chosen == null) {
             double best = evaluations.isEmpty() ? 0 : evaluations.get(0).score();
-            return result(identity, captureId, status, null, best, false, scope.description(), checks, evaluations, Map.of(), evidence, null, null);
+            if (status == ResolutionStatus.AMBIGUOUS) {
+                diagnostics.add("TARGET_AMBIGUOUS");
+            }
+            return result(identity, captureId, status, null, best, false, scope.description(), checks, evaluations, Map.of(), evidence, null, null,
+                    diagnostics);
         }
 
         RawNode node = graph.model().node(chosen.nodeId());
@@ -246,9 +254,10 @@ public final class TargetResolver {
         TargetIdentity updatedIdentity = new TargetIdentity(identity.targetId(), identity.schemaVersion(),
                 identity.registeredAt(), identity.origin(), identity.signature(), identity.discriminators(),
                 identity.lookalikeCount(), updated, node.id(), doc == null ? null : doc.pageSessionId(), captureId,
-                history, identity.warnings());
+                history, identity.warnings(),
+                identity.frameChain() == null ? null : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
         return result(identity, captureId, status, node.id(), chosen.score(), replaced, scope.description(), checks,
-                evaluations, changes, evidence, updated, updatedIdentity);
+                evaluations, changes, evidence, updated, updatedIdentity, diagnostics);
     }
 
     private static String verdict(TargetIdentity identity, List<FeatureResult> features, double score, List<String> reasons) {
@@ -316,7 +325,10 @@ public final class TargetResolver {
 
     // ----------------------------------------------------------------------------------- escopo
 
-    private record ScopeResolution(List<String> scopes, boolean unavailable, String description) {
+    private record ScopeResolution(List<String> scopes, boolean unavailable, String description, List<String> diagnostics) {
+        ScopeResolution(List<String> scopes, boolean unavailable, String description) {
+            this(scopes, unavailable, description, List.of());
+        }
     }
 
     private ScopeResolution resolveScopes(TargetIdentity identity, ContextGraph graph, LocatorEngine.Session session) {
@@ -325,53 +337,129 @@ public final class TargetResolver {
             return new ScopeResolution(List.of("doc:f0"), false, "AVAILABLE: documento principal");
         }
         List<String> current = List.of("doc:f0");
+        List<String> diagnostics = new ArrayList<>();
+        List<com.nekkora.extension.core.frames.FrameIdentity> expectedChain = identity.frameChain();
+        int frameIndex = 0;
         for (LocatorScope.Hop hop : primary.scope().chain()) {
             if (hop.query() == null) {
-                return new ScopeResolution(List.of(), true, "UNAVAILABLE: host de escopo sem localizador");
+                return new ScopeResolution(List.of(), true, "UNAVAILABLE: host de escopo sem localizador", diagnostics);
+            }
+            boolean frameHop = hop.kind().equals("FRAME");
+            List<RawNode> hosts = new ArrayList<>();
+            for (String s : current) {
+                hosts.addAll(session.evaluate(hop.query(), s));
+            }
+            // Salto de frame com identidade registrada: considera TODOS os iframes dos escopos atuais e não só os que o
+            // localizador do host seleciona (que pode ser posicional). A identidade do frame decide; empate = ambíguo.
+            if (frameHop && expectedChain != null && frameIndex < expectedChain.size()) {
+                com.nekkora.extension.core.frames.FrameIdentity expectedFrame = expectedChain.get(frameIndex);
+                List<RawNode> byIdentity = new ArrayList<>();
+                for (String s : current) {
+                    for (RawNode n : graph.model().inScope(s)) {
+                        if ((n.tag().equals("iframe") || n.tag().equals("frame"))
+                                && expectedFrame.score(com.nekkora.extension.core.frames.FrameIdentities.forHost(graph, n)) >= FRAME_IDENTITY_THRESHOLD) {
+                            byIdentity.add(n);
+                        }
+                    }
+                }
+                if (!byIdentity.isEmpty()) {
+                    for (RawNode n : hosts) {
+                        if (!byIdentity.contains(n)
+                                && expectedFrame.score(com.nekkora.extension.core.frames.FrameIdentities.forHost(graph, n)) >= FRAME_IDENTITY_THRESHOLD) {
+                            byIdentity.add(n);
+                        }
+                    }
+                    hosts = byIdentity;
+                }
+            }
+            if (hosts.isEmpty()) {
+                diagnostics.add(frameHop ? "FRAME_NOT_FOUND" : "SHADOW_HOST_NOT_FOUND");
+                return new ScopeResolution(List.of(), false, "HOST_NOT_FOUND: host do escopo (" + hop.css() + ") não encontrado", diagnostics);
+            }
+            // Identidade do frame: entre iframes que o localizador do host seleciona, mantém os compatíveis com a
+            // identidade registrada; empate entre frames equivalentes = ambiguidade (nunca o primeiro índice).
+            if (frameHop && expectedChain != null && frameIndex < expectedChain.size() && hosts.size() > 1) {
+                com.nekkora.extension.core.frames.FrameIdentity expectedFrame = expectedChain.get(frameIndex);
+                double best = -1;
+                List<RawNode> bestHosts = new ArrayList<>();
+                for (RawNode h : hosts) {
+                    double sc = expectedFrame.score(com.nekkora.extension.core.frames.FrameIdentities.forHost(graph, h));
+                    if (sc > best + 1e-9) {
+                        best = sc;
+                        bestHosts.clear();
+                        bestHosts.add(h);
+                    } else if (Math.abs(sc - best) <= 1e-9) {
+                        bestHosts.add(h);
+                    }
+                }
+                if (bestHosts.size() > 1 && !diagnostics.contains("FRAME_AMBIGUOUS")) {
+                    diagnostics.add("FRAME_AMBIGUOUS");
+                }
+                hosts = bestHosts;
+            }
+            if (frameHop && expectedChain != null && frameIndex < expectedChain.size() && hosts.size() == 1) {
+                com.nekkora.extension.core.frames.FrameIdentity now = com.nekkora.extension.core.frames.FrameIdentities.forHost(graph, hosts.get(0));
+                String was = expectedChain.get(frameIndex).urlPath();
+                if (was != null && now.urlPath() != null && !was.equals(now.urlPath()) && !diagnostics.contains("FRAME_DOCUMENT_CHANGED")) {
+                    diagnostics.add("FRAME_DOCUMENT_CHANGED");
+                }
             }
             List<String> next = new ArrayList<>();
             List<String> unavailableReasons = new ArrayList<>();
-            int hosts = 0;
-            for (String s : current) {
-                for (RawNode host : session.evaluate(hop.query(), s)) {
-                    hosts++;
-                    if (hop.kind().equals("FRAME")) {
-                        FrameInfo fi = graph.model().snapshot().frames().stream()
-                                .filter(f -> host.id().equals(f.hostNodeId())).findFirst().orElse(null);
-                        if (fi != null && fi.accessible()) {
-                            next.add("doc:" + fi.frameId());
-                        } else {
-                            unavailableReasons.add("iframe " + host.id() + ": " + (fi == null ? "não inventariado" : fi.reason()));
-                        }
+            for (RawNode host : hosts) {
+                if (frameHop) {
+                    FrameInfo fi = graph.model().snapshot().frames().stream()
+                            .filter(f -> host.id().equals(f.hostNodeId())).findFirst().orElse(null);
+                    String kind = fi == null ? null : com.nekkora.extension.core.frames.FrameGraphBuilder.documentKind(false,
+                            com.nekkora.extension.core.frames.UrlSanitizer.sanitize(fi.url()),
+                            host.attr("src"), host.hasAttr("srcdoc"));
+                    if (fi != null && fi.accessible() && !"INITIAL_ABOUT_BLANK".equals(kind) && !"loading".equals(fi.readyState())) {
+                        next.add("doc:" + fi.frameId());
                     } else {
-                        ShadowRootInfo si = graph.model().snapshot().shadowRoots().stream()
-                                .filter(r -> host.id().equals(r.hostNodeId())).findFirst().orElse(null);
-                        if (si != null && si.inspected()) {
-                            next.add("shadow:" + host.id());
-                        } else {
-                            unavailableReasons.add("shadow root de " + host.id() + ": "
-                                    + (si == null ? "não detectado" : si.mode() + (si.reason() == null ? "" : " — " + si.reason())));
+                        String why = fi == null ? "não inventariado" : fi.accessible() ? "carregando" : fi.reason();
+                        unavailableReasons.add("iframe " + host.id() + ": " + why);
+                        String code = fi == null ? "FRAME_NOT_FOUND"
+                                : fi.accessible() || (why != null && why.contains("NOT_LOADED")) ? "FRAME_LOADING"
+                                : why != null && why.contains("SANDBOX") ? "FRAME_SANDBOX_RESTRICTED" : "FRAME_PERMISSION_DENIED";
+                        if (!diagnostics.contains(code)) {
+                            diagnostics.add(code);
+                        }
+                    }
+                } else {
+                    ShadowRootInfo si = graph.model().snapshot().shadowRoots().stream()
+                            .filter(r -> host.id().equals(r.hostNodeId())).findFirst().orElse(null);
+                    if (si != null && si.inspected()) {
+                        next.add("shadow:" + host.id());
+                    } else {
+                        unavailableReasons.add("shadow root de " + host.id() + ": "
+                                + (si == null ? "não detectado" : si.mode() + (si.reason() == null ? "" : " — " + si.reason())));
+                        if (!diagnostics.contains("SHADOW_ROOT_CLOSED")) {
+                            diagnostics.add("SHADOW_ROOT_CLOSED");
                         }
                     }
                 }
             }
-            if (hosts == 0) {
-                return new ScopeResolution(List.of(), false, "HOST_NOT_FOUND: host do escopo (" + hop.css() + ") não encontrado");
-            }
             if (next.isEmpty()) {
-                return new ScopeResolution(List.of(), true, "UNAVAILABLE: " + String.join("; ", unavailableReasons));
+                return new ScopeResolution(List.of(), true, "UNAVAILABLE: " + String.join("; ", unavailableReasons), diagnostics);
             }
             current = next;
+            if (frameHop) {
+                frameIndex++;
+            }
         }
-        return new ScopeResolution(current, false, "AVAILABLE: " + current);
+        if (current.size() > 1 && diagnostics.contains("FRAME_AMBIGUOUS")) {
+            return new ScopeResolution(current, false, "AVAILABLE (frames ambíguos): " + current, diagnostics);
+        }
+        return new ScopeResolution(current, false, "AVAILABLE: " + current, diagnostics);
     }
 
     private static ResolutionResult result(TargetIdentity identity, String captureId, ResolutionStatus status, String nodeId,
                                            double score, boolean replaced, String scope, List<LocatorCheck> checks,
                                            List<CandidateEvaluation> candidates, Map<String, List<String>> changes,
-                                           List<String> evidence, LocatorSet updated, TargetIdentity updatedIdentity) {
+                                           List<String> evidence, LocatorSet updated, TargetIdentity updatedIdentity,
+                                           List<String> diagnostics) {
         return new ResolutionResult(TargetIdentity.SCHEMA_VERSION, identity.targetId(), captureId, status, nodeId, score,
-                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity);
+                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity, diagnostics);
     }
 
     private static double round(double v) {

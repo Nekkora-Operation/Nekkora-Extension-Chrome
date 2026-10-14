@@ -46,7 +46,17 @@ public record SnapshotDelta(
         String sessionId,
         String source,
         int epoch,
-        long seq) {
+        long seq,
+        List<com.nekkora.extension.core.snapshot.ResourceRef> resources) {
+
+    /** Delta sequenciado CHROME-002 (sem recursos observados: {@code resources == null} = inalterados). */
+    public SnapshotDelta(String baseCaptureId, String captureId, String capturedAt, DocumentInfo document,
+                         List<RawNode> upserts, List<String> removed, List<FrameInfo> frames,
+                         List<ShadowRootInfo> shadowRoots, List<ObservedRequest> requests, int rawMutationCount,
+                         int batchCount, CaptureStats stats, String sessionId, String source, int epoch, long seq) {
+        this(baseCaptureId, captureId, capturedAt, document, upserts, removed, frames, shadowRoots, requests,
+                rawMutationCount, batchCount, stats, sessionId, source, epoch, seq, null);
+    }
 
     /** Delta legado (CHROME-001): encadeado somente pela captura-base. */
     public SnapshotDelta(String baseCaptureId, String captureId, String capturedAt, DocumentInfo document,
@@ -54,7 +64,7 @@ public record SnapshotDelta(
                          List<ShadowRootInfo> shadowRoots, List<ObservedRequest> requests, int rawMutationCount,
                          int batchCount, CaptureStats stats) {
         this(baseCaptureId, captureId, capturedAt, document, upserts, removed, frames, shadowRoots, requests,
-                rawMutationCount, batchCount, stats, null, null, 0, 0);
+                rawMutationCount, batchCount, stats, null, null, 0, 0, null);
     }
 
     public boolean sequenced() {

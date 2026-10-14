@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nekkora.dev/contracts/protection-signatures/1",
+  "title": "Catálogo versionado de assinaturas de proteção (CHROME-003)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalog",
+    "catalogVersion",
+    "reviewedAt",
+    "genericIndicators",
+    "signatures"
+  ],
+  "$defs": {
+    "Indicator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "strength",
+        "signal",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "SCRIPT_URL",
+            "FRAME_URL",
+            "RESOURCE_URL",
+            "DOM_CLASS",
+            "DOM_ID",
+            "DOM_ATTRIBUTE",
+            "FORM_FIELD",
+            "TITLE",
+            "TEXT"
+          ]
+        },
+        "host": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "requiresQueryKey": {
+          "type": "string"
+        },
+        "requiresFragment": {
+          "type": "string"
+        },
+        "strength": {
+          "enum": [
+            "STRONG",
+            "MEDIUM",
+            "WEAK"
+          ]
+        },
+        "signal": {
+          "enum": [
+            "TECHNOLOGY",
+            "WIDGET",
+            "CHALLENGE_ACTIVE",
+            "CHALLENGE_PAGE",
+            "BLOCKED",
+            "COMPLETED_FIELD",
+            "MENTION"
+          ]
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "catalog": {
+      "const": "nekkora.protection-signatures"
+    },
+    "catalogVersion": {
+      "type": "string"
+    },
+    "reviewedAt": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "genericIndicators": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Indicator"
+      }
+    },
+    "signatures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "provider",
+          "product",
+          "category",
+          "signatureVersion",
+          "reviewedAt",
+          "basis",
+          "sources",
+          "maxConfidence",
+          "indicators"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "CAPTCHA",
+              "HUMAN_VERIFICATION",
+              "RISK_ASSESSMENT",
+              "CHALLENGE",
+              "CHALLENGE_PAGE",
+              "BOT_MANAGEMENT",
+              "WAF",
+              "ACCESS_BLOCK"
+            ]
+          },
+          "signatureVersion": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string"
+          },
+          "basis": {
+            "enum": [
+              "OFFICIAL_DOCUMENTATION",
+              "THIRD_PARTY_OBSERVATION"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxConfidence": {
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "indicators": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/Indicator"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -58,7 +58,13 @@
             "capture.session.stop",
             "capture.pin",
             "export.session",
-            "host.memory"
+            "host.memory",
+            "capture.frames.metadata",
+            "frames.graph",
+            "element.accessPath",
+            "protection.assess",
+            "diagnostics.readiness",
+            "page.diagnose"
           ]
         },
         "payload": {
