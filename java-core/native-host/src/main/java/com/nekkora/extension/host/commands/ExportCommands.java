@@ -40,7 +40,7 @@ public final class ExportCommands implements CommandRouter.CommandGroup {
                     Payloads.flag(p, "includeContainers", false), p.path("maxElements").asInt(20_000));
             String url = a.model().snapshot().document() == null ? null : a.model().snapshot().document().url();
             List<TargetIdentity> targets = new ArrayList<>();
-            for (TargetIdentity t : s.session.targets().all()) {
+            for (TargetIdentity t : s.session.targets().ownedByTab(tab.tabKey())) { // isolamento por aba
                 if (url != null && t.origin() != null && url.startsWith(t.origin())) {
                     targets.add(t);
                 }

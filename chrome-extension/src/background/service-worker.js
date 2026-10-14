@@ -22,6 +22,7 @@ const ready = (async () => {
   await config.loadConfig();
   await capture.restore();
   await inspection.restore();
+  await recording.restore();
 })();
 ready.then(() => capture.reconcile()).catch(() => {});
 
@@ -109,7 +110,7 @@ const commands = {
   'session.release': async (a) => capture.release(a.tabId, a.consumer || 'manual', a.reason || 'RELEASED'),
   'session.end': async (a) => capture.end(a.tabId, a.reason || 'ENDED'),
   /** Instrumentos de homologação (DEV): simulação de perda de delta. */
-  'session.debug': async (a) => toContent(a.tabId, 'cs.session.debug', { action: a.action }, a.frameId || 0),
+  'session.debug': async (a) => toContent(a.tabId, 'cs.session.debug', { action: a.action, count: a.count }, a.frameId || 0),
   'frames.list': async (a) => ({ chrome: await chrome.webNavigation.getAllFrames({ tabId: a.tabId }), session: (capture.get(a.tabId) || { frames: {} }).frames }),
   'sw.diagnostics': async () => ({ ...capture.diagnostics(), mode: config.describe(), client: client.status() }),
 

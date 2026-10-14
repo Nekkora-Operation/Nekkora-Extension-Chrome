@@ -252,7 +252,7 @@ O antigo "Acompanhar mutações" deixou de existir: o rastreamento é automátic
 
 | Suíte | Comando | Navegador |
 |---|---|---|
-| Unitários Java (core 129, host 20, laboratório 3) + contrato (2) | `.\mvnw.cmd test` | não |
+| Unitários Java (core 129, host 22, laboratório 3) + contrato (2) | `.\mvnw.cmd test` | não |
 | Unitários da extensão (12) | `cd chrome-extension; npm test` | não |
 | Homologação no Chrome real (58 casos CHROME-001 + matriz C002-001..050 + Chrome convencional) | `.\scripts\run-tests.ps1 -Suite integration` | sim (Chrome for Testing; `BrandedChromeIT` usa o Chrome instalado) |
 | Sessão prolongada de 15/30 min | `mvnw -pl integration-tests -Pintegration verify "-Dit.test=Chrome002PerformanceIT#longSession" -Dnekkora.long.minutes=30` | sim |

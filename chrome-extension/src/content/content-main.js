@@ -163,6 +163,9 @@
       if (a.action === 'skipSeq') {
         return { seq: NS.tracker.debugSkipSeq() };
       }
+      if (a.action === 'failFlushes') {
+        return { failFlushes: NS.tracker.debugFailFlushes(a.count == null ? 1 : a.count) };
+      }
       if (a.action === 'keepLastDelta') {
         NS.tracker.debugKeepLast(true);
         return { ok: true };

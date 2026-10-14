@@ -142,10 +142,11 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
             String reason = Payloads.optional(p, "reason") == null ? "MANUAL" : Payloads.optional(p, "reason");
             String sync = Payloads.optional(p, "syncState") == null ? "UNKNOWN" : Payloads.optional(p, "syncState");
             int parallelism = p.path("parallelism").asInt(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
-            ExportResult r = exports.export(session, operationId, reason, sync, parallelism);
+            boolean diagnostic = "DIAGNOSTIC".equals(Payloads.optional(p, "mode"));
+            ExportResult r = exports.export(session, operationId, reason, sync, parallelism, diagnostic);
             Map<String, Object> out = new LinkedHashMap<>();
             out.put("export", r);
-            if (Payloads.flag(p, "returnPageMap", false) && "EXPORTED".equals(r.status())) {
+            if (Payloads.flag(p, "returnPageMap", false) && r.path() != null) {
                 out.put("pageMap", s.json.mapper().readTree(java.nio.file.Path.of(r.path()).toFile()));
             }
             return out;

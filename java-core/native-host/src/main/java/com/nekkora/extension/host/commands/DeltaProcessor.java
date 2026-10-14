@@ -52,7 +52,7 @@ final class DeltaProcessor {
         List<String> affected = new ArrayList<>();
         List<ResolutionResult> auto = new ArrayList<>();
         if (autoResolve) {
-            for (TargetIdentity t : s.session.targets().all()) {
+            for (TargetIdentity t : s.session.targets().ownedByTab(tab.tabKey())) { // somente alvos desta aba
                 if (!Objects.equals(t.lastPageSessionId(), pageSession) || t.lastNodeId() == null) {
                     continue;
                 }

@@ -15,10 +15,11 @@ Nekkora Studio **não** foi iniciado (somente contratos de eventos/ciclo de vida
 
 | Indicador | Resultado |
 |---|---|
-| Homologação no navegador (execução final, suíte completa) | **109/109** — 58 da CHROME-001 + 51 da CHROME-002 ([matriz](test-matrix-integration.md)) |
+| Homologação no navegador (execução final, suíte completa, após a revisão do PR #1) | **115/115** — 58 da CHROME-001 + 51 da CHROME-002 + 6 regressões da revisão ([matriz](test-matrix-integration.md)) |
 | Matriz C002-001..050 | **50/50** casos cobertos e aprovados (+ C002-RAP alterações rápidas, + §30 Chrome convencional) |
 | Sessões prolongadas (C002-041) | 5, 15 e 30 min aprovadas |
-| Testes sem navegador | **166/166** (core 129, host 20, laboratório 3, contrato 2, extensão 12) |
+| Testes sem navegador | **168/168** (core 129, host 22, laboratório 3, contrato 2, extensão 12) |
+| Revisão do PR #1 | 4 P1 + 2 pontos adicionais corrigidos, cada um com teste de regressão que falha no código anterior (seção 13) |
 | Testes da CHROME-001 removidos ou afrouxados | **nenhum** (`PanelUiIT` adaptado ao botão único, mesmas verificações) |
 | Limites de desempenho da CHROME-001 | mantidos e atendidos (`PerformanceIT`) |
 
@@ -81,10 +82,12 @@ sobrescreviam o mesmo arquivo exportado** (corrigido: um arquivo por sessão + o
 
 | 10.000 elementos | CHROME-001 | CHROME-002 |
 |---|---|---|
-| Maior bloqueio contínuo da página na captura | 358,9 ms | **21,5 ms** (maior fatia 8,3 ms) |
-| Seleção | 350 ms (captura completa por clique) | **79,2 ms** (snapshot reutilizado) |
-| Exportação do PageMap | 2.410,5 ms | **1.070,1 ms** |
-| 20.000: bloqueio / exportação | 1.105,6 ms / 13.344 ms | **26,1 ms / 2.243,7 ms** |
+| Maior bloqueio contínuo da página na captura | 356,4 ms | **27,5 ms** (maior fatia 8,2 ms) |
+| Seleção | 350 ms (captura completa por clique) | **85,0 ms** (snapshot reutilizado) |
+| Exportação do PageMap | 2.702,0 ms | **1.096,8 ms** |
+| 20.000: bloqueio / exportação | 1.073,4 ms / 12.167 ms | **26,3 ms / 2.447,1 ms** |
+
+(Execução final após a revisão; a rodada anterior mediu 358,9→21,5 ms, 79,2 ms e 2.410,5→1.070,1 ms — mesma ordem de grandeza.)
 
 Alterações a 10/50/100 mutações/s: 9–10 deltas em 5 s, 0 ressincronizações, máx. 6,6 ms no host.
 Detalhes e critérios (definidos antes): [docs/chrome-002/performance.md](../docs/chrome-002/performance.md).
@@ -133,3 +136,20 @@ licença pendente.
 3. Avaliar a pausa temporária do inspector (ex.: tecla) para interagir com a página durante a inspeção.
 4. Validar instalação do host em Linux/macOS se houver demanda.
 5. Considerar `ResizeObserver` seletivo para elementos selecionados/registrados se a geometria em tempo real se tornar requisito.
+
+## 13. Rodada de correções da revisão do PR #1
+
+| Ponto | Correção | Regressão (falha no código anterior, passa no atual) |
+|---|---|---|
+| P1 — sincronização concluída após erro | `synchronize()` exige confirmação de **todas** as fontes obrigatórias (documento + frames anexados); erro de flush, rastreador desligado ou envio recusado ⇒ `INCOMPLETE` com `unconfirmed`; frame removido (verificado por `webNavigation.getFrame`) deixa de ser obrigatório | C002-R01 |
+| P1 — exportação incompleta memorizada | finalização exige `SYNCHRONIZED` no navegador (`SYNC_INCOMPLETE`) **e** no motor (`SYNC_NOT_CONFIRMED`); somente `EXPORTED` completo é memorizado; truncado/diagnóstico ⇒ `PARTIAL` em arquivo `…-partial.json`, nunca memorizado (`mode: DIAGNOSTIC`) | C002-R02; `SessionCommandsTest.finalExportRequiresConfirmedSynchronizationAndPartialIsNeverMemorized` |
+| P1 — gravação perdida no reinício do service worker | registro das gravações persistido em `chrome.storage.session` e restaurado antes de qualquer mensagem; finalização interrompida volta a `RECORDING` | C002-R03 |
+| P1 — mistura de alvos entre abas | cada alvo tem dono (aba + sessão de captura) no registro do motor; exportação da sessão, exportação manual e reencontro automático filtram pelo dono | C002-R04; `SessionCommandsTest.targetsAreIsolatedBetweenTabsWithTheSameUrl` |
+| Finalização × cancelamento | eventos de uma gravação serializados por exclusão mútua: um único desfecho; cancelar após exportar não desfaz | C002-R05 (6 rodadas, ordens alternadas) |
+| Limite de 50 registros | a retenção descarta somente registros encerrados; gravações ativas nunca saem | C002-R06 (55 gravações simultâneas) |
+
+Validação de que os testes são regressões reais: com o código Java anterior os dois testes unitários
+novos falham; com os módulos anteriores do service worker, C002-R01, R02, R03, R05 e R06 falham (R04
+depende do motor e é coberto pelo teste unitário). Contrato `capture-session.schema.json` atualizado
+(`PARTIAL`, `INCOMPLETE`, `EXPORTED` ⇒ `complete=true` e `SYNCHRONIZED`); decisões D-032..D-035.
+Limitação nova declarada: alvos registrados antes desta versão, sem dono, não entram em exportações de sessão.

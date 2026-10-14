@@ -44,6 +44,7 @@
   let pendingNavigation = null;
   let overflow = false;
   let geometryTimer = null;
+  let failFlushes = 0;          // instrumento de homologação (DEV): próximas barreiras falham
   let keepLast = false;         // instrumento de homologação (DEV): guarda o último delta enviado
   let lastDelta = null;
   const stats = { geometryRefreshes: 0, geometryChanged: 0, deltasSent: 0, rawMutations: 0, batches: 0, ignored: 0, failures: 0, lastDeltaMs: 0, maxDeltaMs: 0,
@@ -405,6 +406,10 @@
     },
     /** Barreira: envia o pendente e aguarda a confirmação. */
     async flushNow(options) {
+      if (failFlushes > 0) {
+        failFlushes--;
+        throw new Error('DEBUG_FLUSH_FAILURE: barreira recusada pelo instrumento de homologação');
+      }
       if (options && options.geometry) {
         refreshGeometry(); // barreira de exportação: geometria atual incluída no estado consolidado
       }
@@ -421,6 +426,10 @@
     debugSkipSeq() {
       seq++;
       return seq;
+    },
+    debugFailFlushes(n) {
+      failFlushes = Math.max(0, n | 0);
+      return failFlushes;
     },
     debugKeepLast(on) {
       keepLast = !!on;

@@ -52,7 +52,9 @@ marcados no fim).
     fechados não são localizáveis pelo handshake.
 16. **Gravação**: somente o **contrato** de eventos foi implementado (simulado pelo harness); não há
     gravador, Studio nem integração com a Platform nesta missão.
-17. **Licença** pendente de decisão da Nekkora (ver `LICENSE`, D-010).
+17. **Alvos registrados antes da CHROME-002** (sem dono no registro persistido) continuam resolvíveis por
+    `targetId`, mas não entram em exportações de sessão nem no reencontro automático (isolamento, D-035).
+18. **Licença** pendente de decisão da Nekkora (ver `LICENSE`, D-010).
 
 ## Resolvidas na CHROME-002
 

@@ -126,6 +126,12 @@ reais são seleções; as ações do cenário são acionadas pelo manipulador do
 | C002-048 | Recursos DEV não expostos em PRD | `Chrome002ExportIT.prdHidesDevFeatures` |
 | C002-049 | Fim da inspeção sem gravação não exporta | `Chrome002ExportIT.inspectionEndWithoutRecordingDoesNotExport` |
 | C002-050 | Conteúdo sensível em mutações não exportado | `Chrome002ExportIT.sensitiveMutationsNotExported` |
+| C002-R01 | Revisão: erro de flush nunca resulta em SYNCHRONIZED (documento e frame) | `Chrome002ReviewIT.synchronizationPropagatesFlushErrors` |
+| C002-R02 | Revisão: finalização sem sincronização confirmada falha sem memorizar | `Chrome002ReviewIT.finishRequiresConfirmedSynchronization` |
+| C002-R03 | Revisão: gravação sobrevive ao reinício do service worker | `Chrome002ReviewIT.recordingSurvivesServiceWorkerRestart` |
+| C002-R04 | Revisão: alvos isolados entre abas na mesma página | `Chrome002ReviewIT.targetsIsolatedBetweenTabs` |
+| C002-R05 | Revisão: finalização × cancelamento simultâneos | `Chrome002ReviewIT.finishAndCancelConcurrently` |
+| C002-R06 | Revisão: retenção nunca descarta gravações ativas | `Chrome002ReviewIT.retentionNeverDropsActiveRecordings` |
 | §30 | Chrome convencional (§30) | `BrandedChromeIT.brandedChromeHomologation` |
 
 Páginas novas (`test-lab/pages/chrome002/`): `continuous.html`, `rapid.html` (10/50/100 mutações/s),

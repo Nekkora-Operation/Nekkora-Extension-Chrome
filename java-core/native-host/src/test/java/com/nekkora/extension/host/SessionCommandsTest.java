@@ -162,7 +162,7 @@ class SessionCommandsTest {
     @Test
     void streamedExportMatchesLegacyExport() throws Exception {
         call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
-        JsonNode streamed = m.readTree(Path.of(call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"x\"}").at("/payload/export/path").asText()).toFile());
+        JsonNode streamed = m.readTree(Path.of(call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"x\",\"syncState\":\"SYNCHRONIZED\"}").at("/payload/export/path").asText()).toFile());
         JsonNode legacy = call("pagemap.export", "{\"tabKey\":\"t1\",\"persist\":false}").at("/payload/pageMap");
         for (String field : List.of("schema", "version", "snapshot", "document", "coverage", "elements", "relations", "optionSets", "targets")) {
             assertEquals(legacy.get(field), streamed.get(field), "campo " + field + " idêntico");
@@ -172,14 +172,58 @@ class SessionCommandsTest {
     @Test
     void differentOperationsInTheSameSessionNeverOverwriteEachOther() throws Exception {
         call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
-        JsonNode a = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-a\"}").at("/payload/export");
+        JsonNode a = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-a\",\"syncState\":\"SYNCHRONIZED\"}").at("/payload/export");
         call("capture.session.delta", "{\"sessionId\":\"s1\",\"delta\":" + delta(1, 1, "ps-fixture-1", "Ana Lima") + "}");
-        JsonNode b = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-b\"}").at("/payload/export");
+        JsonNode b = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-b\",\"syncState\":\"SYNCHRONIZED\"}").at("/payload/export");
         assertFalse(a.get("path").asText().equals(b.get("path").asText()), "um arquivo por operação");
         byte[] first = Files.readAllBytes(Path.of(a.get("path").asText()));
         assertEquals(a.get("sha256").asText(), HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(first)),
                 "o arquivo da primeira gravação continua íntegro após a segunda");
         assertFalse(a.get("sha256").asText().equals(b.get("sha256").asText()), "a segunda reflete o estado posterior");
+    }
+
+    @Test
+    void finalExportRequiresConfirmedSynchronizationAndPartialIsNeverMemorized() throws Exception {
+        call("capture.session.start", "{\"sessionId\":\"s1\",\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
+        for (String state : List.of("PENDING", "INCOMPLETE", "DEGRADED", "UNKNOWN")) {
+            JsonNode r = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-1\",\"syncState\":\"" + state + "\"}").at("/payload/export");
+            assertEquals("FAILED", r.get("status").asText(), state);
+            assertEquals("SYNC_NOT_CONFIRMED", r.at("/error/code").asText(), state);
+            assertTrue(r.get("path").isNull(), "nenhum arquivo para finalização sem sincronização confirmada");
+        }
+        // Diagnóstico: arquivo PARIAL distinto, incompleto e NUNCA memorizado (cada chamada reexporta).
+        JsonNode d1 = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-1\",\"syncState\":\"PENDING\",\"mode\":\"DIAGNOSTIC\"}").at("/payload/export");
+        assertEquals("PARTIAL", d1.get("status").asText());
+        assertFalse(d1.get("complete").asBoolean());
+        assertTrue(d1.get("path").asText().endsWith("-partial.json"));
+        JsonNode d2 = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-1\",\"syncState\":\"PENDING\",\"mode\":\"DIAGNOSTIC\"}").at("/payload/export");
+        assertFalse(d2.get("duplicate").asBoolean(), "parcial não é memorizado");
+        // A finalização confirmada depois disso exporta normalmente (não devolve o parcial).
+        JsonNode ok = call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-1\",\"syncState\":\"SYNCHRONIZED\"}").at("/payload/export");
+        assertEquals("EXPORTED", ok.get("status").asText());
+        assertTrue(ok.get("complete").asBoolean());
+        assertFalse(ok.get("duplicate").asBoolean());
+        assertFalse(ok.get("path").asText().endsWith("-partial.json"));
+        assertTrue(call("export.session", "{\"sessionId\":\"s1\",\"operationId\":\"rec-1\",\"syncState\":\"SYNCHRONIZED\"}").at("/payload/export/duplicate").asBoolean());
+    }
+
+    @Test
+    void targetsAreIsolatedBetweenTabsWithTheSameUrl() throws Exception {
+        // Duas abas na MESMA URL (mesmo snapshot de origem), cada uma com sua sessão e seu alvo.
+        call("capture.session.start", "{\"sessionId\":\"sA\",\"tabKey\":\"tA\",\"snapshot\":" + snapshot + "}");
+        call("capture.session.start", "{\"sessionId\":\"sB\",\"tabKey\":\"tB\",\"snapshot\":" + snapshot + "}");
+        String a = call("target.register", "{\"tabKey\":\"tA\",\"nodeId\":\"n16\"}").at("/payload/targetId").asText();
+        String b = call("target.register", "{\"tabKey\":\"tB\",\"nodeId\":\"n16\"}").at("/payload/targetId").asText();
+        JsonNode exA = call("export.session", "{\"sessionId\":\"sA\",\"operationId\":\"rA\",\"syncState\":\"SYNCHRONIZED\",\"returnPageMap\":true}").at("/payload/pageMap/targets");
+        JsonNode exB = call("export.session", "{\"sessionId\":\"sB\",\"operationId\":\"rB\",\"syncState\":\"SYNCHRONIZED\",\"returnPageMap\":true}").at("/payload/pageMap/targets");
+        assertEquals(1, exA.size());
+        assertEquals(a, exA.get(0).get("targetId").asText(), "aba A exporta somente o próprio alvo");
+        assertEquals(1, exB.size());
+        assertEquals(b, exB.get(0).get("targetId").asText(), "aba B exporta somente o próprio alvo");
+        // Exportação manual (sem sessão) também isola por aba.
+        JsonNode legacyA = call("pagemap.export", "{\"tabKey\":\"tA\",\"persist\":false}").at("/payload/pageMap/targets");
+        assertEquals(1, legacyA.size());
+        assertEquals(a, legacyA.get(0).get("targetId").asText());
     }
 
     @Test
@@ -203,7 +247,7 @@ class SessionCommandsTest {
                 new String[]{"capture.pin", "{\"tabKey\":\"t1\"}"},
                 new String[]{"capture.session.status", "{\"sessionId\":\"s1\"}"},
                 new String[]{"capture.session.list", "{}"},
-                new String[]{"export.session", "{\"sessionId\":\"s1\",\"operationId\":\"p\"}"},
+                new String[]{"export.session", "{\"sessionId\":\"s1\",\"operationId\":\"p\",\"syncState\":\"SYNCHRONIZED\"}"},
                 new String[]{"host.memory", "{}"},
                 new String[]{"capture.session.stop", "{\"sessionId\":\"s1\"}"});
         for (String[] c : calls) {

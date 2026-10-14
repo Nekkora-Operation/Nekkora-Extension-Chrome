@@ -61,19 +61,33 @@ public final class ExportService {
         this.writer = new StreamingPageMapWriter(json.mapper(), schema);
     }
 
+    /** Exportação FINAL (finalização normal). */
     public ExportResult export(HostCaptureSession s, String operationId, String reason, String syncState, int parallelism) {
+        return export(s, operationId, reason, syncState, parallelism, false);
+    }
+
+    /**
+     * @param diagnostic {@code false} (FINAL): exige estado {@code SYNCHRONIZED}; somente um resultado
+     *                   {@code EXPORTED} completo é memorizado para a operação. {@code true} (DIAGNOSTIC): aceita
+     *                   estado não confirmado e produz um arquivo {@code PARTIAL} distinto, nunca memorizado.
+     */
+    public ExportResult export(HostCaptureSession s, String operationId, String reason, String syncState, int parallelism, boolean diagnostic) {
         synchronized (s) {
             ExportResult previous = s.export(operationId);
             if (previous != null) {
                 return previous.asDuplicate();
             }
+            if (!diagnostic && !"SYNCHRONIZED".equals(syncState)) {
+                return failed(s, operationId, reason, syncState, "SYNC_NOT_CONFIRMED",
+                        "Finalização exige sincronização confirmada de todas as fontes (estado: " + syncState + ")", System.nanoTime());
+            }
             HostCaptureSession.Status before = s.status();
             s.status(HostCaptureSession.Status.FINALIZING);
             long t0 = System.nanoTime();
             try {
-                ExportResult r = doExport(s, operationId, reason, syncState, parallelism, t0);
-                if ("EXPORTED".equals(r.status())) {
-                    s.exported(operationId, r);
+                ExportResult r = doExport(s, operationId, reason, syncState, parallelism, t0, diagnostic);
+                if ("EXPORTED".equals(r.status()) && r.complete()) {
+                    s.exported(operationId, r); // somente o resultado final completo é memorizado
                 }
                 return r;
             } finally {
@@ -82,7 +96,8 @@ public final class ExportService {
         }
     }
 
-    private ExportResult doExport(HostCaptureSession s, String operationId, String reason, String syncState, int parallelism, long t0) {
+    private ExportResult doExport(HostCaptureSession s, String operationId, String reason, String syncState, int parallelism, long t0,
+                                  boolean diagnostic) {
         TabState tab = session.tab(s.tabKey());
         PageAnalysis a = tab.capture(s.latestCaptureId()).orElse(null);
         if (a == null) {
@@ -98,7 +113,7 @@ public final class ExportService {
             // Um arquivo por (sessão, operação): exportações de gravações diferentes na mesma sessão nunca se
             // sobrescrevem (o caminho e o SHA-256 devolvidos continuam válidos).
             target = folder.resolve("session-" + SAFE.matcher(s.sessionId()).replaceAll("_") + "-"
-                    + SAFE.matcher(operationId).replaceAll("_") + ".json");
+                    + SAFE.matcher(operationId).replaceAll("_") + (diagnostic ? "-partial" : "") + ".json");
             tmp = folder.resolve(target.getFileName() + ".tmp");
         } catch (IOException e) {
             return failed(s, operationId, reason, syncState, "EXPORT_WRITE_FAILED", "Diretório de PageMaps indisponível: " + e.getMessage(), t0);
@@ -106,7 +121,7 @@ public final class ExportService {
         try {
             String url = a.model().snapshot().document() == null ? null : a.model().snapshot().document().url();
             List<TargetIdentity> targets = new ArrayList<>();
-            for (TargetIdentity t : session.targets().all()) {
+            for (TargetIdentity t : session.targets().ownedBySession(s.sessionId())) { // isolamento por sessão
                 if (url != null && t.origin() != null && url.startsWith(t.origin())) {
                     targets.add(t);
                 }
@@ -131,8 +146,9 @@ public final class ExportService {
             } catch (AtomicMoveNotSupportedException e) {
                 Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
             }
-            boolean complete = !o.truncated() && "SYNCHRONIZED".equals(syncState);
-            return new ExportResult(s.sessionId(), operationId, "EXPORTED", reason, PageMap.VERSION, o.captureId(), o.elements(),
+            boolean complete = !o.truncated() && "SYNCHRONIZED".equals(syncState) && !diagnostic;
+            // Incompleto (truncado ou diagnóstico): PARTIAL — arquivo distinto, nunca memorizado como concluído.
+            return new ExportResult(s.sessionId(), operationId, complete ? "EXPORTED" : "PARTIAL", reason, PageMap.VERSION, o.captureId(), o.elements(),
                     target.toString(), bytes, HexFormat.of().formatHex(sha.digest()), complete, syncState,
                     o.coverageLimitations(), validation, false, null, ms(t0), Instant.now().toString());
         } catch (IOException | RuntimeException | NoSuchAlgorithmException e) {

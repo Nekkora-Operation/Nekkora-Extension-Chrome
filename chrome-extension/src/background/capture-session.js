@@ -390,48 +390,83 @@ export function rebase(tabId, reason, options = {}) {
 }
 
 /**
- * Barreira de sincronização: envia as mutações pendentes de todos os frames e aguarda o motor aplicá-las.
- * @returns estado de sincronização (SYNCHRONIZED | DEGRADED | PENDING | NO_SESSION | ERROR)
+ * Barreira de sincronização: envia as mutações pendentes de TODAS as fontes obrigatórias (documento principal +
+ * frames anexados) e aguarda o motor aplicá-las. Só devolve {@code SYNCHRONIZED} quando cada fonte obrigatória
+ * confirmou o próprio estado; erro de comunicação, rastreador desligado ou falha de envio tornam o resultado
+ * {@code INCOMPLETE} (com a lista de fontes não confirmadas) — nunca uma sincronização "presumida".
+ * @returns {{syncState: 'SYNCHRONIZED'|'INCOMPLETE'|'PENDING'|'DEGRADED'|'NO_SESSION'|'ERROR', unconfirmed: object[]}}
  */
 export async function synchronize(tabId, options = {}) {
   let rec = sessions.get(tabId);
   if (!rec) {
-    return { syncState: 'NO_SESSION' };
+    return { syncState: 'NO_SESSION', unconfirmed: [] };
   }
   await withLock('tab:' + tabId, async () => {}); // aguarda início/recuperação em andamento
   rec = sessions.get(tabId);
   if (!rec) {
-    return { syncState: 'NO_SESSION' };
+    return { syncState: 'NO_SESSION', unconfirmed: [] };
   }
   const t0 = performance.now();
   let pending = 0;
   let paused = false;
-  for (let round2 = 0; round2 < 2; round2++) {
+  let unconfirmed = [];
+  for (let attempt = 0; attempt < 2; attempt++) {
     pending = 0;
     paused = false;
-    const frames = [0, ...Object.values(rec.frames).map((x) => x.frameId)];
-    const results = await Promise.all(frames.map((f) => toContent(tabId, 'cs.session.flush', { geometry: !!options.geometry }, f).catch((e) => ({ error: e.code }))));
-    results.forEach((r, i) => {
-      if (frames[i] !== 0 && r.error === 'CONTENT_UNAVAILABLE') {
-        // Frame removido da página (o delta do pai já descartou os nós): deixa de ser sincronizado.
-        for (const [src, entry] of Object.entries(rec.frames)) {
-          if (entry.frameId === frames[i]) {
-            delete rec.frames[src];
-          }
+    unconfirmed = [];
+    const required = [{ frameId: 0, source: 'top' }, ...Object.values(rec.frames)
+      .filter((x) => x.status === 'ATTACHED').map((x) => ({ frameId: x.frameId, source: x.source }))];
+    const results = await Promise.all(required.map((src) => toContent(tabId, 'cs.session.flush', { geometry: !!options.geometry }, src.frameId)
+      .then((r) => ({ ok: true, r }), (e) => ({ ok: false, error: e.code || 'FLUSH_FAILED', message: String(e && e.message || e) }))));
+    for (let i = 0; i < required.length; i++) {
+      const src = required[i];
+      const res = results[i];
+      if (!res.ok) {
+        if (src.frameId !== 0 && res.error === 'CONTENT_UNAVAILABLE' && !(await frameExists(tabId, src.frameId))) {
+          // Frame removido da página: o delta do pai já descartou os nós; deixa de ser fonte obrigatória.
+          delete rec.frames[src.source];
+          continue;
         }
+        unconfirmed.push({ ...src, error: res.error, message: res.message });
+        continue;
       }
-    });
-    for (const r of results) {
+      const r = res.r || {};
+      if (r.mode === 'OFF') {
+        unconfirmed.push({ ...src, error: 'TRACKER_NOT_RUNNING' }); // fonte sem rastreamento: estado desconhecido
+        continue;
+      }
+      if (r.error) {
+        paused = true; // envio recusado: a recuperação foi agendada
+      }
       pending += r.pending || 0;
       paused = paused || r.mode === 'PAUSED';
     }
-    if (!paused && !rec.resyncPending) {
+    if (!paused && !rec.resyncPending && !unconfirmed.length) {
       break;
     }
-    await withLock('tab:' + tabId, async () => {}); // recuperação agendada pela falha
+    await withLock('tab:' + tabId, async () => {}); // recuperação agendada pela falha, depois nova tentativa
   }
-  const syncState = rec.status === 'ERROR' ? 'ERROR' : rec.hostState !== 'OK' ? 'DEGRADED' : (paused || pending) ? 'PENDING' : 'SYNCHRONIZED';
-  return { syncState, sessionId: rec.sessionId, epoch: rec.epoch, latestCaptureId: rec.latestCaptureId, nodes: rec.nodes, pending, ms: round(performance.now() - t0) };
+  let syncState;
+  if (rec.status === 'ERROR') {
+    syncState = 'ERROR';
+  } else if (rec.hostState !== 'OK') {
+    syncState = 'DEGRADED';
+  } else if (unconfirmed.length) {
+    syncState = 'INCOMPLETE';
+  } else if (paused || pending) {
+    syncState = 'PENDING';
+  } else {
+    syncState = 'SYNCHRONIZED';
+  }
+  return { syncState, unconfirmed, sessionId: rec.sessionId, epoch: rec.epoch, latestCaptureId: rec.latestCaptureId, nodes: rec.nodes, pending, ms: round(performance.now() - t0) };
+}
+
+async function frameExists(tabId, frameId) {
+  try {
+    return !!(await chrome.webNavigation.getFrame({ tabId, frameId }));
+  } catch (e) {
+    return false;
+  }
 }
 
 // -------------------------------------------------------------------------------- documento / SPA

@@ -19,7 +19,7 @@ Resultado de `finished` (contrato `RecordingExportResult`):
 | Campo | Significado |
 |---|---|
 | `recordingId`, `sessionId`, `tabId` | gravação, sessão de captura e aba |
-| `status` | `EXPORTED` ou `FAILED` |
+| `status` | `EXPORTED` (completo, memorizado), `PARTIAL` (incompleto, não memorizado) ou `FAILED` |
 | `schemaVersion` | `0.1.0` |
 | `captureId`, `elementCount` | captura consolidada e elementos no arquivo (iguais ao conteúdo, verificado) |
 | `path` | arquivo final em `<dados>/pagemaps/` (`null` em falha) |
@@ -67,6 +67,12 @@ sequenceDiagram
 
 | Situação | Comportamento | Teste |
 |---|---|---|
+| Sincronização não confirmada (alguma fonte sem confirmação) | `FAILED` + `SYNC_INCOMPLETE` com as fontes não confirmadas; nada é exportado nem memorizado; a gravação continua e pode ser finalizada de novo. O motor também recusa a finalização FINAL sem `SYNCHRONIZED` (`SYNC_NOT_CONFIRMED`) | C002-R02, `SessionCommandsTest` |
+| Exportação incompleta (truncada) ou de diagnóstico (`mode: DIAGNOSTIC`) | `PARTIAL`, arquivo distinto `…-partial.json`, `complete=false`, **nunca** memorizada como concluída | `SessionCommandsTest` |
+| Reinício do service worker com gravação em andamento | registro da gravação persistido em `storage.session` e restaurado; a finalização funciona normalmente | C002-R03 |
+| Finalização × cancelamento simultâneos | eventos da mesma gravação serializados: um único desfecho (exportada **ou** cancelada); cancelar depois de exportar não desfaz a exportação | C002-R05 |
+| Muitas gravações | a retenção (50) descarta somente registros encerrados; gravações ativas nunca são descartadas | C002-R06 |
+| Alvos de outras abas na mesma URL | cada alvo tem dono (aba + sessão de captura); a exportação inclui somente os alvos da própria sessão | C002-R04, `SessionCommandsTest` |
 | Finalização repetida | mesmo resultado, `duplicate=true`, nenhum arquivo novo | C002-023 |
 | Finalizações simultâneas | uma exportação; a outra recebe o mesmo resultado | C002-023, `SessionCommandsTest` |
 | Delta pendente / alteração imediatamente antes | incluída pela barreira | C002-024 |

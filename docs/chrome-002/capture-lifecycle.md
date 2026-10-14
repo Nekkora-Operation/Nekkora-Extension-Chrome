@@ -84,8 +84,12 @@ alterar o estado confirmado.
 
 ## Barreira de sincronização
 
-`synchronize(tab)` envia o pendente de **todos os frames anexados** (`cs.session.flush`) e aguarda a
-confirmação do motor. Resultado: `SYNCHRONIZED`, `PENDING`, `DEGRADED`, `NO_SESSION` ou `ERROR`.
+`synchronize(tab)` envia o pendente de **todas as fontes obrigatórias** — documento principal e frames
+anexados (`cs.session.flush`) — e aguarda a confirmação do motor. Resultado: `SYNCHRONIZED`,
+`INCOMPLETE`, `PENDING`, `DEGRADED`, `NO_SESSION` ou `ERROR`. Só é `SYNCHRONIZED` quando **cada** fonte
+obrigatória confirmou: erro de comunicação, rastreador desligado ou falha de envio tornam o resultado
+`INCOMPLETE`, com a lista `unconfirmed` (fonte, frame, erro). Um frame que deixou de existir
+(`webNavigation.getFrame` nulo) deixa de ser obrigatório (revisão do PR #1, C002-R01).
 É usada antes de **selecionar** (sem captura completa: C002-010/011), comparar, exportar e finalizar.
 
 ## Recuperação

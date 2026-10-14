@@ -30,7 +30,9 @@ public final class TargetCommands implements CommandRouter.CommandGroup {
                 throw new CommandException("UNKNOWN_NODE", "Nó " + nodeId + " não existe na captura " + a.model().snapshot().captureId());
             }
             TargetIdentity identity = s.identities.register(nodeId, a.graph(), a.locators(), a.model().snapshot().captureId());
-            s.session.targets().put(identity);
+            String tabKey = tab.tabKey();
+            String ownerSession = s.session.captureSessions().forTab(tabKey).map(x -> x.sessionId()).orElse(null);
+            s.session.targets().put(identity, new com.nekkora.extension.host.session.TargetRegistry.Owner(tabKey, ownerSession));
             List<String> statements = new ArrayList<>();
             statements.add("Alvo lógico " + identity.targetId() + " registrado a partir do nó temporário " + nodeId);
             statements.add(identity.lookalikeCount() + " elemento(s) parecido(s); discriminadores: " + identity.discriminators());

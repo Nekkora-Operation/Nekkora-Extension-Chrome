@@ -35,6 +35,16 @@ public final class CaptureSessionRegistry {
         return Optional.ofNullable(sessionId == null ? null : sessions.get(sessionId));
     }
 
+    /** Sessão de captura ativa da aba, se houver. */
+    public Optional<HostCaptureSession> forTab(String tabKey) {
+        for (HostCaptureSession s : sessions.values()) {
+            if (s.tabKey().equals(tabKey) && s.status() != HostCaptureSession.Status.STOPPED) {
+                return Optional.of(s);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<HostCaptureSession> remove(String sessionId) {
         return Optional.ofNullable(sessions.remove(sessionId));
     }
