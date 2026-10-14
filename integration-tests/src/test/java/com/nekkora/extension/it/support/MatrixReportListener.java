@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public final class MatrixReportListener implements TestExecutionListener {
 
-    private static final Pattern ID = Pattern.compile("^((?:T\\d{3})|(?:N-[A-E])|(?:C-\\d+)|(?:C002-(?:\\d{3}|[A-Z0-9]{3})(?: / C002-\\d{3})?)|(?:[FPD]003-\\d{3})|(?:N003-[A-J])|(?:I003-\\d{2}))\\s+—\\s+(.*)$");
+    private static final Pattern ID = Pattern.compile("^((?:T\\d{3})|(?:N-[A-E])|(?:C-\\d+)|(?:C002-(?:\\d{3}|[A-Z0-9]{3})(?: / C002-\\d{3})?)|(?:[FPD]003-\\d{3})|(?:N003-[A-J])|(?:I003-\\d{2})|(?:R001-\\d{2})|(?:RW-\\d{2})|(?:RP-\\d{2}))\\s+—\\s+(.*)$");
     private final Map<String, Long> started = new ConcurrentHashMap<>();
     private final List<String[]> rows = java.util.Collections.synchronizedList(new ArrayList<>());
 

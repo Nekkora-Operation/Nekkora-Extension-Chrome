@@ -5,13 +5,14 @@
   -Suite unit         testes unitários Java + contrato (sem navegador) + extensão (Node)
   -Suite integration  homologação no Chrome for Testing (instala o host, baixa o CfT em .tools/)
   -Suite all          ambos (padrão)
+  -Suite real         homologação em página REAL autorizada (Wikipedia; exige internet) — NEKKORA-REAL-001
   Relatórios: reports/test-matrix-integration.md|json, reports/performance.md|json, reports/evidence/*.png
 .PARAMETER Headless  Executa o Chrome sem janela (por padrão a janela é visível).
 .PARAMETER Test      Filtro de classes de integração (ex.: "NegativeCasesIT,ResolutionIT").
 #>
 [CmdletBinding()]
 param(
-  [ValidateSet('unit', 'integration', 'all')][string]$Suite = 'all',
+  [ValidateSet('unit', 'integration', 'all', 'real')][string]$Suite = 'all',
   [switch]$Headless,
   [string]$Test
 )
@@ -25,10 +26,15 @@ try {
   } else {
     & .\mvnw.cmd -q install -DskipTests
   }
-  if ($Suite -in 'integration', 'all') {
+  if ($Suite -eq 'real') {
+    # Página real: somente as classes *LiveWebIT (excluídas da suíte padrão por dependerem de internet).
+    if (-not $Test) { $Test = 'Real001LiveWebIT' }
+  }
+  if ($Suite -in 'integration', 'all', 'real') {
     # PowerShell 5.1 divide argumentos '-Dchave.com.ponto=valor' ao chamar .cmd: usa cmd /c com a linha completa.
     $line = "`"$Repo\mvnw.cmd`" -f `"$Repo\pom.xml`" -pl integration-tests -Pintegration verify -Dnekkora.headless=$(([bool]$Headless).ToString().ToLower())"
     if ($Test) { $line += " -Dit.test=$Test" }
+    if ($Suite -eq 'real') { $line += ' -Dnekkora.matrix.phase=real-web' }
     Write-Host "> $line"
     & cmd.exe /c "`"$line`""
     $code = $LASTEXITCODE

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <!-- NEKKORA-REAL-001: "site externo" SIMULADO, servido sob hosts de teste (site-a/site-b/site-x.nekkora.test → 127.0.0.1).
+       Todos os dados pessoais e segredos abaixo são FICTÍCIOS e plantados para verificar que nada sensível é persistido. -->
+  <title>Portal Externo — ana.silva@exemplo.com</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    iframe { width: 46%; height: 190px; border: 1px solid #999; margin: 4px 1%; vertical-align: top; }
+    section { border-top: 1px dashed #ccc; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portal Externo (simulado)</h1>
+    <nav aria-label="Principal">
+      <a href="/lab/real001/site.html?aba=inicio" data-route="inicio">Início</a>
+      <a href="/lab/real001/site.html?aba=pedidos" data-route="pedidos">Pedidos</a>
+    </nav>
+    <p id="rota" aria-live="polite">Rota: início</p>
+  </header>
+  <main>
+    <section aria-labelledby="h-conta">
+      <h2 id="h-conta">Minha conta</h2>
+      <p id="contato">Contato: ana.silva@exemplo.com · CPF 123.456.789-09 · Telefone (11) 98765-4321</p>
+      <p id="cartao">Cartão cadastrado: 4111 1111 1111 1111</p>
+      <a id="reset" href="/lab/real001/reset/550e8400-e29b-41d4-a716-446655440000?code=CODE-SECRETO-789&amp;email=ana.silva%40exemplo.com">Redefinir senha</a>
+      <a id="mail" href="mailto:ana.silva@exemplo.com">Enviar e-mail</a>
+      <img id="avatar" alt="Foto de ana.silva@exemplo.com" width="32" height="32"
+           src="/lab/real001/avatar.svg?X-Amz-Signature=SIG-SECRETA-0a1b2c&amp;X-Amz-Expires=300">
+      <button id="salvar" type="button" data-user-token="DTK-0a1b2c3d4e5f6a7b8c9d0e1f">Salvar preferências</button>
+    </section>
+
+    <section aria-labelledby="h-pedidos">
+      <h2 id="h-pedidos">Pedidos</h2>
+      <form role="search" onsubmit="return false">
+        <label for="q">Pesquisar pedidos</label>
+        <input id="q" type="search" name="q">
+        <button type="submit">Buscar</button>
+      </form>
+      <table id="pedidos">
+        <thead><tr><th>Pedido</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          <tr><td>A-100</td><td>Aberto</td><td><button type="button">Ver A-100</button></td></tr>
+          <tr><td>A-101</td><td>Enviado</td><td><button type="button">Ver A-101</button></td></tr>
+        </tbody>
+      </table>
+      <button id="adicionar" type="button">Adicionar pedido</button>
+    </section>
+
+    <section aria-labelledby="h-componente">
+      <h2 id="h-componente">Componente</h2>
+      <perfil-card id="card"></perfil-card>
+    </section>
+
+    <section aria-labelledby="h-parceiros">
+      <h2 id="h-parceiros">Parceiros</h2>
+      <div id="frames"></div>
+    </section>
+  </main>
+  <script>
+    // Shadow DOM aberto
+    customElements.define('perfil-card', class extends HTMLElement {
+      connectedCallback() {
+        const r = this.attachShadow({ mode: 'open' });
+        r.innerHTML = '<div role="group" aria-label="Perfil"><strong>Plano Ouro</strong> <button id="upgrade" type="button">Mudar plano</button></div>';
+      }
+    });
+    // Iframes de outra origem: site-b (autorizado na homologação) e site-x (nunca autorizado). A porta é a da página.
+    const port = location.port;
+    const frames = [
+      ['parceiro', 'Parceiro autorizado', 'site-b.nekkora.test', '/lab/real001/partner.html?sid=SID-SECRETO-654'],
+      ['anuncio', 'Parceiro sem autorização', 'site-x.nekkora.test', '/lab/real001/partner.html'],
+    ];
+    for (const [id, title, host, path] of frames) {
+      const f = document.createElement('iframe');
+      f.id = id;
+      f.title = title;
+      f.src = 'http://' + host + ':' + port + path;
+      document.getElementById('frames').append(f);
+    }
+    // Navegação SPA: rota por pushState, sem recarga. (Com a inspeção ativa, cliques viram SELEÇÃO — a extensão não
+    // executa ações da página —, então a homologação aciona as mesmas funções diretamente.)
+    window.irPara = (rota) => {
+      const a = document.querySelector('[data-route="' + rota + '"]');
+      history.pushState({}, '', a.getAttribute('href') + '&ref=REF-SECRETO-111');
+      document.getElementById('rota').textContent = 'Rota: ' + rota;
+    };
+    for (const a of document.querySelectorAll('[data-route]')) {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.irPara(a.dataset.route);
+      });
+    }
+    // Atualização dinâmica
+    let n = 102;
+    window.adicionarPedido = () => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>A-' + n + '</td><td>Novo</td><td><button type="button">Ver A-' + n + '</button></td>';
+      document.querySelector('#pedidos tbody').append(tr);
+      n++;
+    };
+    document.getElementById('adicionar').addEventListener('click', window.adicionarPedido);
+    // Requisição com segredo na URL (observada pelo Resource Timing)
+    fetch('/lab/real001/api-perfil.json?apiKey=KEY-SECRETA-321&page=1').catch(() => {});
+  </script>
+</body>
+</html>
