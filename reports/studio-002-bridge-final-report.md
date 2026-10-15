@@ -76,7 +76,7 @@ Service worker reiniciado → estado mínimo restaurado e o host reconecta. Aba 
 | Java: Native Host | 27 | **43** (+16: `StudioLinkTest` 11, `HostConcurrencyTest` 2, `BridgeContractTest` 3) | 0 |
 | Java: laboratório | 4 | 4 | 0 |
 | Java: contrato (integration-tests, unidade) | 2 | 2 | 0 |
-| Node | 26 | **42** (+16: `studio-recording` 12, `native-client-studio` 4) | 0 |
+| Node | 26 | **44** (+18: `studio-recording` 14, `native-client-studio` 4; 42 antes da revisão) | 0 |
 | Navegador (`run-tests.ps1 -Suite all`) | 186 | **197** (+11: `Studio002BridgeIT`) | 0 |
 
 Medições:
@@ -86,7 +86,7 @@ Medições:
 | S002-021: 3 respostas grandes + mensagens de controle concorrentes | 153 fragmentos, 361 mensagens de controle, **0 intercalações** |
 | S002-022 (unidade): motor ocupado 6 s | `bridge.status` 3 ms; ida e volta da pausa 4 ms; ping do motor depois do hold (ordem preservada) |
 | S002-022 (Chrome): motor ocupado 8 s | `bridge.status` 1 ms; **pausa confirmada em 3 ms**; renovação 1 ms |
-| S002-018 (Chrome): concessão de 5 s, Studio derrubado | expirou em **5.093 ms**; a inspeção continuou consumidora |
+| S002-018 (Chrome): concessão de 5 s, Studio derrubado | expirou em **5.053 ms** (execução depois das correções da revisão); a inspeção continuou consumidora |
 
 ## 11. Evidências
 
@@ -126,3 +126,50 @@ Medições:
 - O consumidor `studio-recorder:<id>` já garante a CaptureSession sincronizada durante a gravação, ou seja, a base para
   correlacionar cada interação a um elemento do PageMap.
 - Eventos novos (ex.: `studio.recording.step`) entram como acréscimo ao `nekkora-bridge/1`, com fixtures.
+
+## Correções da revisão técnica (P1)
+
+A revisão dos PRs #3 e #4 apontou dois problemas de concorrência que bloqueavam o merge. Os dois foram corrigidos nas
+branches atuais.
+
+### P1 — renovação não reativa concessão vencida (este repositório)
+
+**Antes:** `renew()` só verificava se o estado não era terminal. Um heartbeat atrasado, chegando depois do prazo e
+antes de o temporizador de expiração rodar, renovava a concessão. O mesmo acontecia com a expiração em andamento,
+porque o estado ainda era `RECORDING` enquanto o consumidor era liberado.
+
+**Depois** (`studio-recording.js`):
+
+- O prazo é **absoluto**. Com `now() >= leaseExpiresAt`, a renovação é recusada com `RECORDING_ENDED` e motivo
+  `LEASE_EXPIRED`, e o prazo não é prolongado. O contrato não muda: o código já existia.
+- A rotina de expiração marca `expiring` dentro da fila, antes de liberar o consumidor. Uma renovação concorrente vê a
+  marca e também é recusada.
+- A renovação recusada aciona a mesma rotina de expiração. O consumidor é liberado uma única vez, e um único
+  `studio.recording.expired` é emitido.
+- A renovação continua fora da fila e responde na hora, sem esperar exportações nem o motor.
+
+Regressões determinísticas, com relógio controlado (`test/studio-recording.test.js`):
+
+| Teste | Antes da correção | Depois |
+|---|---|---|
+| Renovação 10.001 ms depois da última, sem o temporizador ter rodado | **renovada** (`ok: true`) | recusada (`RECORDING_ENDED`/`LEASE_EXPIRED`); prazo intacto; `EXPIRED` pela rotina; consumidor liberado uma vez; 1 evento |
+| Renovação concorrente com a expiração em andamento (liberação do consumidor presa) | **renovada** | recusada na hora (< 50 ms); prazo intacto; um único desfecho `EXPIRED` |
+
+O Studio, ao receber a recusa, consulta o estado real (`RecorderControllerTest`, no PR do Studio).
+
+### P1 — handshakes concorrentes (repositório Nekkora-Studio)
+
+A correção está no `BridgeServer` do Studio: reserva atômica, mensagens só da conexão ativa e pendentes vinculados à
+conexão. O lado do Native Host não mudou. Ver `reports/studio-002-final-report.md` no Studio.
+
+### Resultados depois das correções (`scripts/run-tests.ps1 -Suite all`)
+
+| Suíte | Resultado |
+|---|---|
+| Java (core 175, host 43, laboratório 4, IT unidade 2) | **224**, 0 falhas |
+| Node | **44**, 0 falhas |
+| Navegador (Chrome for Testing real, inclui `Studio002BridgeIT` 11) | **197**, 0 falhas |
+| Studio com esta branch ao lado (Windows e Linux, testes cruzados com o host real) | **218**, 0 falhas, 0 ignorados |
+
+As evidências `reports/evidence/S002-*.json` são desta execução. Os relatórios das missões anteriores que a suíte
+regenera foram restaurados. A homologação real (42/0) foi preservada.
