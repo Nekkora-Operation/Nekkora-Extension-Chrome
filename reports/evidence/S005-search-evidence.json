@@ -1,0 +1,447 @@
+{
+  "evidence" : [ {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:13.937Z",
+    "type" : "LOADING_INDICATOR",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "indicador de carregamento Carregando resultados",
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_PROGRESSBAR" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:13.937Z",
+    "type" : "LOADING_INDICATOR",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "indicador de carregamento",
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_BUSY" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:15.152Z",
+    "type" : "LOADING_FINISHED",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "indicador de carregamento Carregando resultados",
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_PROGRESSBAR" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:15.152Z",
+    "type" : "LOADING_FINISHED",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "indicador de carregamento",
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_BUSY" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:15.152Z",
+    "type" : "CONTENT_CHANGED",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "região",
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_BUSY" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:15.152Z",
+    "type" : "VISIBLE_STATUS_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "STATUS_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : "status",
+      "message" : {
+        "availability" : "AVAILABLE",
+        "text" : "3 resultados encontrados."
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_STATUS" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T17:05:16.836Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "evidenceId" : "evd-8-4a38-a646-b22dd5688e09-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:05:16.946Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 6
+    },
+    "limitations" : [ ]
+  } ],
+  "steps" : [ {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-1",
+    "sequence" : 1,
+    "routeRef" : "route-688e09",
+    "observedAt" : "2026-10-15T17:05:13.830Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "SEARCH_INPUT",
+      "role" : "searchbox",
+      "name" : "Termo",
+      "tag" : "input",
+      "htmlId" : "termo",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=termo}",
+        "css" : "input#termo",
+        "xpath" : "//input[@id=\"termo\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"Termo\"}",
+        "css" : null,
+        "xpath" : "//input[@id=//label[normalize-space(.)=\"Termo\"]/@for]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=searchbox} {name=\"Termo\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "ATTRIBUTE",
+        "description" : "input {type=search}",
+        "css" : "input[type=\"search\"]",
+        "xpath" : "//input[@type=\"search\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "POSITIONAL",
+        "description" : "html >> body >> p {nth-of-type 2} >> input {nth-of-type 1}",
+        "css" : "html > body > p:nth-of-type(2) > input:nth-of-type(1)",
+        "xpath" : "//html/body/p[2]/input[1]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Pesquisa com carregamento (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Termo",
+        "locator" : "input#termo",
+        "restriction" : null
+      } ],
+      "context" : [ ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-49a62e71-54f6-4d07-92c8-c79a61a6b6e6",
+        "nodeId" : "n12",
+        "captureId" : "cap-ps-mv9shp6e-h5t4b1-1",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html",
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FOCUS_CLICK_ABSORBED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 10
+  }, {
+    "recordingId" : "rec-66030d1f-d5c8-4a38-a646-b22dd5688e09",
+    "eventId" : "ev-8-4a38-a646-b22dd5688e09-2",
+    "sequence" : 2,
+    "routeRef" : "route-688e09",
+    "observedAt" : "2026-10-15T17:05:13.832Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Pesquisar",
+      "tag" : "button",
+      "htmlId" : "pesquisar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=pesquisar}",
+        "css" : "button#pesquisar",
+        "xpath" : "//button[@id=\"pesquisar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Pesquisar\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Pesquisar\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Pesquisar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "POSITIONAL",
+        "description" : "html >> body >> p {nth-of-type 2} >> button {nth-of-type 1}",
+        "css" : "html > body > p:nth-of-type(2) > button:nth-of-type(1)",
+        "xpath" : "//html/body/p[2]/button[1]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Pesquisa com carregamento (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Pesquisar",
+        "locator" : "button#pesquisar",
+        "restriction" : null
+      } ],
+      "context" : [ ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-fc9f7a34-6a76-41c4-a7c3-e916246f6738",
+        "nodeId" : "n13",
+        "captureId" : "cap-ps-mv9shp6e-h5t4b1-2",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html",
+      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  } ]
+}

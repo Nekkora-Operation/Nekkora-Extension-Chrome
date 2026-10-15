@@ -1,0 +1,515 @@
+{
+  "evidence" : [ {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T17:04:46.945Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T17:04:49.436Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T17:04:49.841Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T17:04:49.842Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T17:04:51.138Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T17:04:54.037Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T17:04:54.820Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T17:04:57.716Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-9",
+    "evidenceSequence" : 9,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-6",
+    "stepSequence" : 6,
+    "observedAt" : "2026-10-15T17:04:58.531Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-10",
+    "evidenceSequence" : 10,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-6",
+    "stepSequence" : 6,
+    "observedAt" : "2026-10-15T17:05:01.431Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-11",
+    "evidenceSequence" : 11,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-7",
+    "stepSequence" : 7,
+    "observedAt" : "2026-10-15T17:05:02.223Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-12",
+    "evidenceSequence" : 12,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-7",
+    "stepSequence" : 7,
+    "observedAt" : "2026-10-15T17:05:05.121Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-13",
+    "evidenceSequence" : 13,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-8",
+    "stepSequence" : 8,
+    "observedAt" : "2026-10-15T17:05:05.917Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-14",
+    "evidenceSequence" : 14,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-8",
+    "stepSequence" : 8,
+    "observedAt" : "2026-10-15T17:05:08.821Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-15",
+    "evidenceSequence" : 15,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-9",
+    "stepSequence" : 9,
+    "observedAt" : "2026-10-15T17:05:09.598Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "AVAILABLE",
+        "text" : "Senha incorreta."
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-6ba51efb-c933-4105-9091-d16ac3de7c99",
+    "evidenceId" : "evd-3-4105-9091-d16ac3de7c99-16",
+    "evidenceSequence" : 16,
+    "eventId" : "ev-3-4105-9091-d16ac3de7c99-9",
+    "stepSequence" : 9,
+    "observedAt" : "2026-10-15T17:05:12.497Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Mensagens sensíveis (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  } ]
+}

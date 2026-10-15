@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Mensagem tardia (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Mensagem tardia (STUDIO-005)</h1>
+  <p class="muted">Cenário 2: a confirmação aparece 1 s depois do clique (dentro da janela de observação). O botão lento
+    responde em 4,5 s (fora da janela: não é atribuído).</p>
+  <p>
+    <button id="enviar" type="button">Enviar pedido</button>
+    <button id="enviar-lento" type="button">Enviar (lento)</button>
+  </p>
+  <p id="status" role="status"></p>
+  <script>
+    const status = document.getElementById('status');
+    document.getElementById('enviar').addEventListener('click', () => {
+      setTimeout(() => { status.textContent = 'Pedido registrado com sucesso.'; }, 1000);
+    });
+    document.getElementById('enviar-lento').addEventListener('click', () => {
+      setTimeout(() => { status.textContent = 'Pedido lento registrado.'; }, 4500);
+    });
+  </script>
+</body>
+</html>

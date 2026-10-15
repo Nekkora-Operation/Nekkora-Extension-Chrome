@@ -44,7 +44,8 @@ export const DISCARD_KEYS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROG
   'NOT_RECORDING'];
 
 /**
- * @param deps { client, broadcast, capture, toContent, host, tabKey, frameOfNode, now, sleep, privacy, emitEvent, onBacklogFull }
+ * @param deps { client, broadcast, capture, toContent, host, tabKey, frameOfNode, now, sleep, privacy, emitEvent, onBacklogFull, evidence }
+ *   evidence: pipeline de evidências (STUDIO-005, studio-evidence.js), opcional — vínculos, janelas e emissão após a etapa.
  */
 export function createStepPipeline(deps) {
   const { capture, toContent, host, tabKey, frameOfNode } = deps;
@@ -53,6 +54,11 @@ export function createStepPipeline(deps) {
   const privacy = () => deps.privacy || globalThis.NekkoraPrivacy;
   const chains = new Map(); // recordingId -> Promise (fila de correlação; não persistida)
   const pendingEvidence = new Map(); // `${epoch}|${frameId}|${localSeq}` -> entrada ainda não emitida
+  const ev = deps.evidence || null;
+
+  function wantsEvidence(r) {
+    return !!(ev && ev.enabled(r));
+  }
 
   // --------------------------------------------------------------------------------- estado
 
@@ -159,7 +165,7 @@ export function createStepPipeline(deps) {
     }
     let main = false;
     for (const f of sensorFrames(r.tabId)) {
-      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode }, f).catch(() => null);
+      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode, evidence: wantsEvidence(r) }, f).catch(() => null);
       if (f === 0) {
         main = confirms(st, epoch, r.mode);
       } else if (!confirms(st, epoch, r.mode)) {
@@ -174,7 +180,7 @@ export function createStepPipeline(deps) {
   async function startFrame(r, frameId) {
     if (enabled(r) && r.steps.epoch && r.state === 'RECORDING') {
       const epoch = r.steps.epoch;
-      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode }, frameId).catch(() => null);
+      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode, evidence: wantsEvidence(r) }, frameId).catch(() => null);
       if (frameId !== 0 && !confirms(st, epoch, r.mode)) {
         r.steps.sensorGaps++;
       }
@@ -193,7 +199,7 @@ export function createStepPipeline(deps) {
     for (const f of sensorFrames(r.tabId)) {
       const st = await toContent(r.tabId, 'cs.recorder.flush', { reason }, f).catch(() => null);
       if (st && st.active && st.epoch) {
-        marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0 });
+        marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0, lastFeedback: st.lastFeedback || 0 });
         noteSensorStats(r, st.epoch + '|' + f, st.stats && st.stats.discarded);
       }
     }
@@ -202,13 +208,17 @@ export function createStepPipeline(deps) {
 
   async function waitArrivals(r, marks) {
     const deadline = now() + FLUSH_WAIT_MS;
-    while (marks.some((m) => (r.steps.frames[m.key] || 0) < m.lastSeq) && now() < deadline) {
+    // interações consolidadas e, com evidence/1, as mensagens do observador (cortes de janela enviados na fronteira)
+    while (marks.some((m) => (r.steps.frames[m.key] || 0) < m.lastSeq || (ev && !ev.arrived(r, m.key, m.lastFeedback))) && now() < deadline) {
       await sleep(15);
     }
   }
 
-  /** Desliga os sensores (cancelamento: discard=true descarta o que estava aberto). Depois disso a época é encerrada. */
-  async function stopSensors(r, discardOpen) {
+  /**
+   * Desliga os sensores (cancelamento: discard=true descarta o que estava aberto). Depois disso a época é encerrada.
+   * cutReason: limitação das janelas de observação que a página não concluiu (STUDIO-005; padrão WINDOW_CUT_BY_STOP).
+   */
+  async function stopSensors(r, discardOpen, cutReason) {
     if (!enabled(r)) {
       return;
     }
@@ -219,10 +229,13 @@ export function createStepPipeline(deps) {
         noteSensorStats(r, st.epoch + '|' + f, st.stats && st.stats.discarded);
       }
       if (st && st.epoch && !discardOpen) {
-        marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0 });
+        marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0, lastFeedback: st.lastFeedback || 0 });
       }
     }
     await waitArrivals(r, marks);
+    if (wantsEvidence(r) && !discardOpen) {
+      ev.cut(r, cutReason || 'WINDOW_CUT_BY_STOP'); // janela sem conclusão da página: INCOMPLETA declarada (exatamente uma vez)
+    }
     r.steps.epoch = null;
     r.steps.epochs = []; // eventos atrasados de épocas encerradas passam a ser descartados (STALE_EPOCH)
     r.steps.open = {};
@@ -302,7 +315,11 @@ export function createStepPipeline(deps) {
       evidence: new Set((i.evidence || []).filter((e) => EVIDENCE.has(e))),
       multiFrame: Object.keys(s.frames).some((k) => !k.endsWith('|' + frameId)),
     };
-    pendingEvidence.set(data.epoch + '|' + frameId + '|' + i.localSeq, entry);
+    entry.key = data.epoch + '|' + frameId + '|' + i.localSeq;
+    pendingEvidence.set(entry.key, entry);
+    if (ev) {
+      ev.onEntry(r, entry.key, entry);
+    }
     if (pendingEvidence.size > 200) {
       pendingEvidence.delete(pendingEvidence.keys().next().value);
     }
@@ -327,9 +344,14 @@ export function createStepPipeline(deps) {
 
   /** Evidência posterior (ex.: FORM_SUBMITTED) de uma interação ainda não emitida. */
   function evidence(r, frameId, data) {
-    const e = data && pendingEvidence.get(data.epoch + '|' + frameId + '|' + data.localSeq);
+    const key = data && data.epoch + '|' + frameId + '|' + data.localSeq;
+    const e = data && pendingEvidence.get(key);
     if (e && EVIDENCE.has(data.evidence)) {
       e.evidence.add(data.evidence);
+      return { ok: true };
+    }
+    if (data && data.evidence === 'FORM_SUBMITTED' && wantsEvidence(r)) {
+      ev.lateForm(r, key); // etapa já emitida: o envio tardio vira evidência estruturada (a etapa não é recriada)
       return { ok: true };
     }
     return { ok: false };
@@ -390,6 +412,9 @@ export function createStepPipeline(deps) {
     r.steps.outbox.push({ sequence: entry.sequence, event });
     deps.persist(r);
     deps.emitEvent(r, event);
+    if (ev) {
+      ev.onStepEmitted(r, entry, entry.key); // evidências que esperavam esta etapa saem depois dela
+    }
   }
 
   async function correlate(r, entry) {

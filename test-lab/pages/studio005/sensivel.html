@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Mensagens sensíveis (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Mensagens com dados sensíveis (STUDIO-005)</h1>
+  <p class="muted">Cenário 8: mensagens que contêm CPF, e-mail, token, valor digitado, texto longo ou marcação HTML.
+    Todos os dados são fictícios. O texto dessas mensagens não pode sair da página.</p>
+  <p><label for="nome">Nome</label> <input id="nome" type="text"></p>
+  <p><label for="codigo">Código de acesso</label> <input id="codigo" type="password"></p>
+  <p>
+    <button id="cpf" type="button">Verificar CPF</button>
+    <button id="email" type="button">Reenviar código</button>
+    <button id="token" type="button">Sessão</button>
+    <button id="eco" type="button">Saudar</button>
+    <button id="senha" type="button">Validar código</button>
+    <button id="longo" type="button">Termos</button>
+    <button id="marcacao" type="button">Marcação</button>
+  </p>
+  <div id="alerta" role="alert" class="alerta-erro"></div>
+  <script>
+    const alerta = document.getElementById('alerta');
+    const mostra = (t) => { alerta.textContent = t; };
+    document.getElementById('cpf').addEventListener('click', () => mostra('CPF 123.456.789-09 já cadastrado.'));
+    document.getElementById('email').addEventListener('click', () => mostra('Enviamos o código para ana.souza@exemplo.com.'));
+    document.getElementById('token').addEventListener('click', () => mostra('Sessão eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U expirada.'));
+    document.getElementById('eco').addEventListener('click', () => mostra('Olá, ' + document.getElementById('nome').value + '!'));
+    document.getElementById('senha').addEventListener('click', () => mostra('O código ' + document.getElementById('codigo').value + ' expirou.'));
+    document.getElementById('longo').addEventListener('click', () => mostra('Ao continuar você concorda com os termos de uso, a política de privacidade e o tratamento de dados descritos no contrato de prestação de serviços vigente nesta data.'));
+    document.getElementById('marcacao').addEventListener('click', () => { alerta.innerHTML = 'Senha <b>incorreta</b>.'; });
+  </script>
+</body>
+</html>

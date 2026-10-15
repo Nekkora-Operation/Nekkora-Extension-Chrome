@@ -256,6 +256,27 @@
     const el = NS.registry.elementFor(i.targetKey);
     send('interaction', { epoch: state.epoch, mode: state.mode, interaction: i, element: el ? descriptor(el) : null, url: NS.privacyUrl(),
       title: maskText(document.title, 120) || null, discarded: state.normalizer.stats().discarded });
+    if (state.evidence && NS.feedbackObserver) {
+      NS.feedbackObserver.open(i, el); // STUDIO-005: janela de observação das consequências desta interação
+    }
+  }
+
+  function feedbackSeq() {
+    return state && state.evidence && NS.feedbackObserver ? NS.feedbackObserver.lastSeq() : 0;
+  }
+
+  /** Motivo do corte das janelas de observação abertas, pelo motivo da consolidação. */
+  function cutReason(reason) {
+    if (reason === 'PAUSE') {
+      return 'WINDOW_CUT_BY_PAUSE';
+    }
+    if (reason === 'FINISH' || reason === 'STOP') {
+      return 'WINDOW_CUT_BY_STOP';
+    }
+    if (reason === 'NAVIGATION') {
+      return 'WINDOW_CUT_BY_NAVIGATION';
+    }
+    return null; // troca de rota/flush técnico: as janelas continuam
   }
 
   function syncOpen() {
@@ -402,11 +423,18 @@
     if (state) {
       state.normalizer.flush('NAVIGATION');
       syncOpen();
+      if (state.evidence && NS.feedbackObserver) {
+        NS.feedbackObserver.cut('WINDOW_CUT_BY_NAVIGATION');
+      }
     }
   }
 
-  function create(epoch, mode) {
-    const s = { epoch, mode, attached: [], roots: new WeakSet(), open: false, normalizer: null, lastSeq: 0 };
+  function startFeedback(s) {
+    s.evidence = !!(s.wantsEvidence && NS.feedbackObserver && NS.feedbackObserver.start({ epoch: s.epoch, mode: s.mode, send }));
+  }
+
+  function create(epoch, mode, wantsEvidence) {
+    const s = { epoch, mode, attached: [], roots: new WeakSet(), open: false, normalizer: null, lastSeq: 0, wantsEvidence: !!wantsEvidence, evidence: false };
     s.normalizer = NS.normalizer.createNormalizer({
       mode,
       onInteraction: (i) => deliver(i),
@@ -422,11 +450,12 @@
         return this.status();
       }
       if (state) {
-        this.stop({ discard: false });
+        this.stop({ discard: false, cut: 'PARTIAL_COVERAGE' }); // nova época (rota, documento): janelas abertas terminam declaradas
       }
-      state = create(a.epoch, a.mode);
+      state = create(a.epoch, a.mode, a.evidence);
       NS.inspector.suspend('RECORDER');
       attach();
+      startFeedback(state);
       return this.status();
     },
     /** Troca de modo: consolida, troca os ouvintes e muda as regras (sem sensores antigos ativos). */
@@ -439,8 +468,12 @@
       }
       state.normalizer.setMode(a.mode);
       detach();
+      if (state.evidence) {
+        NS.feedbackObserver.stop('PARTIAL_COVERAGE'); // troca de modo: as janelas abertas terminam declaradas
+      }
       state.mode = a.mode; // mesma época: a sequência local continua (fronteira = lastSeq devolvido)
       attach();
+      startFeedback(state); // só volta a observar em CAPTURE_AND_INTERACT
       syncOpen();
       return this.status();
     },
@@ -448,6 +481,10 @@
       if (state) {
         state.normalizer.flush((a && a.reason) || 'FLUSH');
         syncOpen();
+        const cut = cutReason(a && a.reason);
+        if (cut && state.evidence) {
+          NS.feedbackObserver.cut(cut);
+        }
       }
       return this.status();
     },
@@ -459,11 +496,13 @@
       const stats = state.normalizer.stats();
       const lastSeq = state.lastSeq;
       const epoch = state.epoch;
+      // cancelamento (discard): nada é enviado; senão as janelas abertas terminam INCOMPLETAS com o motivo
+      const lastFeedback = state.evidence ? NS.feedbackObserver.stop(a && a.discard ? null : (a && a.cut) || 'WINDOW_CUT_BY_STOP') : 0;
       syncOpen();
       detach();
       state = null;
       NS.inspector.resume('RECORDER');
-      return { active: false, epoch, lastSeq, stats };
+      return { active: false, epoch, lastSeq, stats, lastFeedback };
     },
     navigation() {
       if (state) {
@@ -474,7 +513,8 @@
     },
     status() {
       return state ? { active: true, epoch: state.epoch, mode: state.mode, lastSeq: state.lastSeq, listeners: state.attached.length, open: !!state.normalizer.openInteraction(),
-        stats: state.normalizer.stats() } : { active: false, listeners: 0 };
+        stats: state.normalizer.stats(), evidence: state.evidence, lastFeedback: feedbackSeq(),
+        feedback: state.evidence ? NS.feedbackObserver.status() : null } : { active: false, listeners: 0 };
     },
   };
 })(globalThis);

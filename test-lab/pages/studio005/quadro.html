@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Rascunho (iframe)</title>
+</head>
+<body>
+  <form id="rascunho" autocomplete="off">
+    <p><label for="assunto">Assunto</label> <input id="assunto" type="text"></p>
+    <p><button id="salvar" type="submit">Salvar rascunho</button></p>
+    <div id="alerta-quadro" role="alert" class="falha" hidden></div>
+  </form>
+  <script>
+    document.getElementById('rascunho').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const a = document.getElementById('alerta-quadro');
+      a.textContent = 'Erro ao salvar o rascunho.';
+      a.hidden = false;
+    });
+  </script>
+</body>
+</html>

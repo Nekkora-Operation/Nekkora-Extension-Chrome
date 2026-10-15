@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Pesquisa com carregamento (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Pesquisa com carregamento (STUDIO-005)</h1>
+  <p class="muted">Cenário 5: a pesquisa mostra um indicador de carregamento (role=progressbar, aria-busy) por 1,2 s e
+    depois os resultados. Carregamento terminado NÃO significa sucesso.</p>
+  <p><label for="termo">Termo</label> <input id="termo" type="search"> <button id="pesquisar" type="button">Pesquisar</button></p>
+  <div id="spinner" role="progressbar" aria-label="Carregando resultados" hidden>Carregando…</div>
+  <ul id="resultados" aria-live="polite" aria-busy="false"></ul>
+  <p id="contagem" role="status"></p>
+  <script>
+    document.getElementById('pesquisar').addEventListener('click', () => {
+      const lista = document.getElementById('resultados');
+      const spin = document.getElementById('spinner');
+      lista.setAttribute('aria-busy', 'true');
+      spin.hidden = false;
+      document.getElementById('contagem').textContent = '';
+      setTimeout(() => {
+        lista.innerHTML = '<li>Contrato Alfa</li><li>Contrato Beta</li><li>Contrato Gama</li>';
+        lista.setAttribute('aria-busy', 'false');
+        spin.hidden = true;
+        document.getElementById('contagem').textContent = '3 resultados encontrados.';
+      }, 1200);
+    });
+  </script>
+</body>
+</html>

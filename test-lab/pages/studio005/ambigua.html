@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Mensagem ambígua (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Mensagem ambígua (STUDIO-005)</h1>
+  <p class="muted">Cenário 3: dois cliques seguidos; um único aviso aparece 800 ms depois do primeiro. Não há como saber
+    qual ação o provocou: a evidência é AMBÍGUA (nenhuma etapa é escolhida).</p>
+  <p>
+    <button id="atualizar" type="button">Atualizar</button>
+    <button id="sincronizar" type="button">Sincronizar</button>
+  </p>
+  <p id="aviso" role="status"></p>
+  <script>
+    let agendado = false;
+    function agenda() {
+      if (!agendado) {
+        agendado = true;
+        setTimeout(() => { document.getElementById('aviso').textContent = 'Atualização concluída.'; agendado = false; }, 800);
+      }
+    }
+    document.getElementById('atualizar').addEventListener('click', agenda);
+    document.getElementById('sincronizar').addEventListener('click', agenda);
+  </script>
+</body>
+</html>

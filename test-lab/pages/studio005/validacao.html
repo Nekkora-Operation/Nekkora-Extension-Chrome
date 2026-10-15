@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Validação (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Validação de formulário (STUDIO-005)</h1>
+  <p class="muted">Cenário 4: validação nativa (campo obrigatório) e validação da aplicação (aria-invalid +
+    aria-errormessage ao sair do campo CEP).</p>
+  <form id="cadastro" aria-label="cadastro" autocomplete="off">
+    <p><label for="email">E-mail</label> <input id="email" name="email" type="email" required></p>
+    <p><label for="cep">CEP</label> <input id="cep" name="cep" type="text" aria-errormessage="cep-erro">
+      <span id="cep-erro" hidden>CEP inválido.</span></p>
+    <p><button id="enviar" type="submit">Cadastrar</button></p>
+    <p id="resultado" role="status"></p>
+  </form>
+  <script>
+    const cep = document.getElementById('cep');
+    cep.addEventListener('blur', () => {
+      const ok = /^\d{5}-?\d{3}$/.test(cep.value);
+      cep.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      document.getElementById('cep-erro').hidden = ok;
+    });
+    document.getElementById('cadastro').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('resultado').textContent = 'Cadastro enviado.';
+    });
+  </script>
+</body>
+</html>
