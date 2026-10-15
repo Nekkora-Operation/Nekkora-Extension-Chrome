@@ -1,11 +1,11 @@
 {
   "steps" : [ "1:FILL:TEXT_INPUT:Usuário", "2:FILL:PASSWORD_INPUT:Senha", "3:CLICK:BUTTON:Entrar" ],
   "click" : {
-    "recordingId" : "rec-e8facb28-613a-4545-a5e4-2608cf3ef39c",
-    "eventId" : "ev-a-4545-a5e4-2608cf3ef39c-3",
+    "recordingId" : "rec-b9fc3f73-0938-4c61-aedb-d13202fdbb5d",
+    "eventId" : "ev-8-4c61-aedb-d13202fdbb5d-3",
     "sequence" : 3,
     "routeRef" : "route-login",
-    "observedAt" : "2026-10-15T12:07:48.223Z",
+    "observedAt" : "2026-10-15T13:12:39.079Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -83,9 +83,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-8fe9c418-6fb5-4bcf-94f7-6ae998f820c6",
+        "targetId" : "tgt-9eb5b386-eace-4c82-bb9c-cb988efb0133",
         "nodeId" : "n20",
-        "captureId" : "cap-ps-mv9hv7bb-7tmjg9-1",
+        "captureId" : "cap-ps-mv9k6lij-3r1y6o-1",
         "documentId" : "doc:f0"
       }
     },
@@ -109,7 +109,7 @@
   },
   "summary" : {
     "state" : "COMPLETED",
-    "durationMs" : 1155,
+    "durationMs" : 1150,
     "counters" : {
       "segments" : 1,
       "technicalCaptures" : 2,
@@ -143,5 +143,5 @@
       }
     }
   },
-  "elapsedMs" : 1297
+  "elapsedMs" : 2242
 }

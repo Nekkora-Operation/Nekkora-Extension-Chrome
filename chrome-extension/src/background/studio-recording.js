@@ -102,6 +102,11 @@ export function createStudioRecorder(deps) {
     return e;
   }
 
+  /** Sensor do documento principal sem confirmação de {active, epoch, mode}: nada é dado como feito. */
+  function sensorNotConfirmed(message) {
+    return fail('CAPTURE_FAILED', message, { reason: 'SENSOR_NOT_CONFIRMED' });
+  }
+
   function now() {
     return deps.now ? deps.now() : Date.now();
   }
@@ -317,6 +322,9 @@ export function createStudioRecorder(deps) {
       if (r.backlogFull) {
         limitations.push('STEP_BACKLOG_FULL');
       }
+      if (r.steps.sensorGaps > 0 && !limitations.includes('PARTIAL_COVERAGE')) {
+        limitations.push('PARTIAL_COVERAGE'); // sensor de iframe sem confirmação: interações desse documento não observadas
+      }
       // RECOVERIES_OCCURRED é fato da captura técnica (ex.: nova base depois de navegar), não perda de ações.
       actionCapture = limitations.some((l) => ACTION_LIMITS.has(l)) ? 'PARTIAL' : 'AVAILABLE';
     }
@@ -479,7 +487,12 @@ export function createStudioRecorder(deps) {
     r.lastCoverage = await coverage(r);
     if (Array.isArray(p.capabilities) && p.capabilities.includes('steps/1')) {
       steps.enable(r, p.routeRef);
-      await steps.startSensors(r); // sensores só depois da captura confirmada
+      // sensores só depois da captura confirmada; sem a confirmação do sensor principal o início não é confirmado
+      if (!(await steps.startSensors(r))) {
+        await steps.stopSensors(r, true).catch(() => {});
+        await detach(r, 'STUDIO_RECORDER_CANCELLED');
+        throw sensorNotConfirmed('Os sensores de interação não confirmaram o início na página. Recarregue a página e tente novamente.');
+      }
     }
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'start', result);
@@ -574,7 +587,11 @@ export function createStudioRecorder(deps) {
     await attach(r);
     r.state = 'RECORDING';
     r.backlogFull = false;
-    await steps.startSensors(r); // nova época: nada da pausa é aceito e a última etapa não se repete
+    // nova época: nada da pausa é aceito e a última etapa não se repete
+    if (!(await steps.startSensors(r))) {
+      await degradeNow(r, 'SENSOR_NOT_CONFIRMED');
+      throw sensorNotConfirmed('Os sensores de interação não confirmaram a retomada na página. A captura de ações continua interrompida.');
+    }
     r.reason = wasDegraded ? 'RECOVERED' : 'USER_RESUMED';
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'resume', result);
@@ -600,7 +617,16 @@ export function createStudioRecorder(deps) {
     if (r.mode === p.mode) {
       return { recording: await view(r), duplicate: true };
     }
-    await steps.setMode(r, p.mode); // consolida no modo anterior e troca os sensores (nenhum sensor antigo fica ativo)
+    // consolida no modo anterior e só troca com a confirmação do sensor principal (nunca um modo apresentado sem estar ativo)
+    const changed = await steps.setMode(r, p.mode);
+    if (!changed.ok) {
+      if (!changed.restored) {
+        await degradeNow(r, 'SENSOR_NOT_CONFIRMED');
+      }
+      throw sensorNotConfirmed(changed.restored
+        ? 'A página não confirmou a troca de modo. A gravação continua no modo anterior.'
+        : 'A página não confirmou a troca de modo nem o modo anterior. A captura de ações foi interrompida.');
+    }
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'mode', result);
     emit(r, 'studio.recording.modeChanged', p.operationId);
@@ -762,7 +788,16 @@ export function createStudioRecorder(deps) {
     if (r.steps.routeRef === p.routeRef) {
       return { recording: await view(r), boundarySequence: r.steps.nextSeq, duplicate: true };
     }
-    const boundarySequence = await steps.route(r, p.routeRef);
+    const routed = await steps.route(r, p.routeRef);
+    if (!routed.ok) {
+      if (!routed.restored) {
+        await degradeNow(r, 'SENSOR_NOT_CONFIRMED');
+      }
+      throw sensorNotConfirmed(routed.restored
+        ? 'A página não confirmou a troca de sessão. As etapas continuam na sessão anterior.'
+        : 'A página não confirmou a troca de sessão. A captura de ações foi interrompida.');
+    }
+    const boundarySequence = routed.boundary;
     const result = { recording: await view(r), boundarySequence, duplicate: false };
     await remember(r, p.operationId, 'route', result);
     return result;
@@ -816,29 +851,35 @@ export function createStudioRecorder(deps) {
 
   /** Gravação perdeu a captura por motivo externo (aba fechada, origem revogada, erro): DEGRADED. */
   function degrade(r, reason) {
-    return withLock(LOCK, async () => {
-      if (TERMINAL.has(r.state) || r.state === 'DEGRADED' || recordings.get(r.recordingId) !== r) {
-        return;
+    return withLock(LOCK, () => degradeNow(r, reason));
+  }
+
+  /** Degradação já dentro da fila de comandos (ex.: sensor sem confirmação durante uma operação). */
+  async function degradeNow(r, reason) {
+    if (TERMINAL.has(r.state) || r.state === 'DEGRADED' || recordings.get(r.recordingId) !== r) {
+      return;
+    }
+    // Decisões do próprio Recorder (fila cheia, sensor sem confirmação) liberam o consumidor; a retomada religa tudo.
+    const own = reason === 'STEP_BACKLOG_FULL' || reason === 'SENSOR_NOT_CONFIRMED';
+    if (steps.enabled(r)) {
+      await steps.stopSensors(r, false).catch(() => {});
+      if (reason === 'STEP_BACKLOG_FULL') {
+        r.backlogFull = true;
       }
-      if (steps.enabled(r)) {
-        await steps.stopSensors(r, false).catch(() => {});
-        if (reason === 'STEP_BACKLOG_FULL') {
-          r.backlogFull = true;
-        }
+    }
+    if (r.attached) {
+      r.lastCoverage = await coverage(r).catch(() => r.lastCoverage);
+      closeSegment(r);
+      if (own) {
+        await capture.release(r.tabId, consumerOf(r.recordingId), reason === 'STEP_BACKLOG_FULL' ? 'STUDIO_RECORDER_BACKLOG' : 'STUDIO_RECORDER_SENSOR',
+          { detachHost: true }).catch(() => {});
       }
-      if (r.attached) {
-        r.lastCoverage = await coverage(r).catch(() => r.lastCoverage);
-        closeSegment(r);
-        if (reason === 'STEP_BACKLOG_FULL') {
-          await capture.release(r.tabId, consumerOf(r.recordingId), 'STUDIO_RECORDER_BACKLOG', { detachHost: true }).catch(() => {});
-        }
-      }
-      r.state = 'DEGRADED';
-      r.reason = reason;
-      r.degradedOnce = true;
-      await remember(r, null, null, null);
-      emit(r, 'studio.recording.degraded', null);
-    });
+    }
+    r.state = 'DEGRADED';
+    r.reason = reason;
+    r.degradedOnce = true;
+    await remember(r, null, null, null);
+    emit(r, 'studio.recording.degraded', null);
   }
 
   function onCaptureStatus(rec) {
@@ -1022,8 +1063,8 @@ export function createStudioRecorder(deps) {
     });
     capture.on('afterBase', async (rec) => {
       const r = recordingOfTab(rec.tabId);
-      if (r && r.state === 'RECORDING' && r.attached) {
-        await steps.startSensors(r);
+      if (r && r.state === 'RECORDING' && r.attached && !(await steps.startSensors(r))) {
+        await degrade(r, 'SENSOR_NOT_CONFIRMED'); // documento novo sem sensor confirmado: interrupção declarada
       }
     });
     capture.on('frameAttached', async (rec, entry) => {

@@ -14,16 +14,31 @@ A alternância é pedida pelo Floating Recorder (`studio.recording.mode`), e o m
 extensão. A sequência é determinística:
 
 1. consolidação no modo anterior (`flush` e espera das interações);
-2. troca do modo no registro da gravação;
-3. `cs.recorder.mode` em cada documento: os ouvintes antigos saem antes de os novos entrarem, e nenhum sensor
-   antigo fica ativo.
+2. `cs.recorder.mode` no documento principal: os ouvintes antigos saem antes de os novos entrarem, e nenhum sensor
+   antigo fica ativo;
+3. **confirmação obrigatória**: o sensor principal precisa responder `{active: true, epoch, mode}` com a época
+   vigente e o modo pedido. Só então o modo da gravação muda;
+4. `cs.recorder.mode` em cada iframe. Iframe sem confirmação tem o sensor desligado (um iframe em modo desconhecido
+   não pode executar cliques durante um CAPTURE_ONLY) e conta como cobertura parcial (`PARTIAL_COVERAGE`).
+
+Sem a confirmação do sensor principal (mensagem perdida, recusa ou `{active: false}`), **nada é confirmado**:
+
+- a extensão religa os sensores no modo anterior (época nova) e responde `CAPTURE_FAILED` com o motivo
+  `SENSOR_NOT_CONFIRMED`. O Studio continua apresentando o modo anterior, que é o modo ativo no documento;
+- se nem o modo anterior for confirmado, a gravação vai para `DEGRADED` (`SENSOR_NOT_CONFIRMED`): a captura de
+  ações fica interrompida e declarada, nunca num modo suposto.
+
+A mesma regra vale para o início com `steps/1` (início recusado e captura liberada), para a retomada e para a troca
+de sessão. Cada etapa leva o modo informado pelo próprio sensor que a observou.
 
 Uma interação parcialmente registrada (ex.: preenchimento aberto) é **consolidada** no modo anterior, com
 `trigger: MODE_CHANGE`.
 
 ## Evidência
 
-- Node: `interaction-normalizer.test.js` (R11; troca de modo consolida antes) e `studio-steps.test.js` (S003-005).
+- Node: `interaction-normalizer.test.js` (R11; troca de modo consolida antes) e `studio-steps.test.js` (S003-005 e
+  os testes `REV-P1a` da revisão técnica: `cs.recorder.mode` recusado e `{active: false}`, sem restauração possível,
+  início com o sensor recusado ou inativo, iframe sem confirmação).
 - Chrome real, `Studio003InteractionsIT.s003CaptureOnly`:
   - o clique e o Enter em "Adicionar linha" não alteram a página (contador continua em 0);
   - as quatro propostas saem com `observation: PROPOSED`;

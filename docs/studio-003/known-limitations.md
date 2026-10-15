@@ -18,4 +18,10 @@
   ampliada.
 - **Encerramento abrupto do Studio.** As etapas ainda não confirmadas ficam retidas na extensão até a concessão
   expirar. Sem persistência definitiva no Studio, não há promessa de recuperá-las.
+- **Sensor sem confirmação.** Se o sensor do documento principal não confirmar `{active, epoch, mode}`, o início com
+  `steps/1` é recusado; na troca de modo, de sessão ou na retomada, a operação não é confirmada e, sem como voltar a
+  um estado conhecido, a gravação vai para `DEGRADED` (`SENSOR_NOT_CONFIRMED`). Sensor de iframe sem confirmação
+  deixa aquele documento sem observação (cobertura parcial declarada).
+- **Fila cheia.** Acima de 100 etapas pendentes, as interações são recusadas e contadas como perda declarada até a
+  fila drenar e a gravação ser retomada.
 - **Studio da STUDIO-002.** Sem a capacidade `steps/1`, a extensão grava só a parte técnica, como antes.

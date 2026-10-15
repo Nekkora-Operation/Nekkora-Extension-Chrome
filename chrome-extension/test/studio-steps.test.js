@@ -78,8 +78,21 @@ function withLock() {
 /** Content script falso: registra comandos do sensor; o flush devolve o lastSeq informado pelo teste. */
 let contentCalls;
 let sensor;
+/** Falhas do sensor por comando: 'reject' (mensagem não chega) ou 'inactive' (responde {active:false}); frame opcional. */
+let sensorFaults;
 function fakeContent(tabId, cmd, args, frameId) {
   contentCalls.push({ cmd, args: JSON.parse(JSON.stringify(args || {})), frameId });
+  const fault = sensorFaults[cmd];
+  if (fault && (fault.frameId === undefined || fault.frameId === frameId)) {
+    if (fault.times !== undefined && fault.times-- <= 0) {
+      delete sensorFaults[cmd];
+    } else {
+      return fault.kind === 'reject' ? Promise.reject(new HostError('CONTENT_UNAVAILABLE', 'sensor sem resposta')) : Promise.resolve({ active: false, listeners: 0 });
+    }
+  }
+  if (frameId !== 0 && cmd.startsWith('cs.recorder.')) {
+    return Promise.resolve({ active: cmd !== 'cs.recorder.stop', epoch: args.epoch, mode: args.mode, lastSeq: 0 }); // iframe sem atividade
+  }
   if (cmd === 'cs.recorder.start') {
     sensor = { epoch: args.epoch, mode: args.mode, lastSeq: 0, active: true };
     return Promise.resolve({ active: true, epoch: args.epoch, mode: args.mode, lastSeq: 0 });
@@ -95,8 +108,11 @@ function fakeContent(tabId, cmd, args, frameId) {
     return Promise.resolve(out);
   }
   if (cmd === 'cs.recorder.mode') {
+    if (!sensor || !sensor.active) {
+      return Promise.resolve({ active: false, listeners: 0 });
+    }
     sensor.mode = args.mode;
-    return Promise.resolve({ active: true });
+    return Promise.resolve({ active: true, epoch: sensor.epoch, mode: sensor.mode, lastSeq: sensor.lastSeq });
   }
   if (cmd === 'cs.verifyLocators') {
     if (liveFails) {
@@ -144,6 +160,7 @@ beforeEach(() => {
   contentCalls = [];
   hostCalls = [];
   sensor = null;
+  sensorFaults = {};
   hostFails = false;
   liveFails = false;
   capture = fakeCapture();
@@ -180,6 +197,7 @@ function interact(action, targetKey, extra = {}) {
   sensor.lastSeq = ++localSeq;
   return recorder.onSensor(1, 0, 'interaction', {
     epoch: sensor.epoch,
+    mode: sensor.mode,
     interaction: { localSeq, action, targetKey, observation: sensor.mode === 'CAPTURE_ONLY' ? 'PROPOSED' : 'INTERACTION_OBSERVED', firstAt: clock, lastAt: clock,
       events: 3, trigger: null, option: null, key: null, sensitive: false, evidence: [], notes: [], ...extra },
     element: { tag: 'input', type: 'text', role: null, htmlId: 'usuario', htmlName: null, name: 'Usuário', sensitive: false, inShadow: false },
@@ -470,4 +488,139 @@ test('S003-020 — submit/navegação logo após o clique entram como contexto p
   assert.equal(steps().length, 1, 'navegação não vira etapa');
   assert.equal(e.context.after.navigation, 'SAME_DOCUMENT');
   assert.ok(e.evidence.includes('NAVIGATION_FOLLOWED'));
+});
+
+// ------------------------------------------------------------------ revisão técnica da STUDIO-003 (P1 × 3 e P2)
+
+const status = async () => (await send('studio.recording.status', { recordingId: 'rec-1' })).payload.recordings[0];
+const late = (epoch, localSeqOf, action, targetKey) => recorder.onSensor(1, 0, 'interaction', {
+  epoch, mode: 'CAPTURE_AND_INTERACT',
+  interaction: { localSeq: localSeqOf, action, targetKey, observation: 'INTERACTION_OBSERVED', firstAt: clock, lastAt: clock, events: 1, evidence: [], notes: [] },
+});
+
+for (const kind of ['reject', 'inactive']) {
+  test(`REV-P1a — troca de modo sem confirmação do sensor principal (${kind}): nada é confirmado e o sensor segue no modo anterior`, async () => {
+    await startRecording();
+    sensorFaults['cs.recorder.mode'] = { kind };
+    const m = await send('studio.recording.mode', { recordingId: 'rec-1', operationId: 'op-m', mode: 'CAPTURE_ONLY' });
+    assert.equal(m.ok, false, 'a troca não pode ser dada como concluída');
+    assert.equal(m.error.code, 'CAPTURE_FAILED');
+    assert.equal(m.error.reason, 'SENSOR_NOT_CONFIRMED');
+    assert.ok(!posted.some((x) => x.event === 'studio.recording.modeChanged'), 'nenhum evento de modo trocado');
+    const st = await status();
+    assert.equal(st.mode, 'CAPTURE_AND_INTERACT', 'a gravação continua no modo anterior');
+    assert.equal(st.state, 'RECORDING');
+    assert.equal(sensor.active, true, 'sensor principal confirmado de novo');
+    assert.equal(sensor.mode, 'CAPTURE_AND_INTERACT', 'o documento está no modo que o Studio apresenta');
+    interact('CLICK', 'n3');
+    await settle();
+    assert.deepEqual(steps().map((e) => [e.mode, e.observation]), [['CAPTURE_AND_INTERACT', 'INTERACTION_OBSERVED']]);
+  });
+}
+
+test('REV-P1a — troca de modo sem confirmação e sem restauração possível: DEGRADED explícito, modo anterior mantido', async () => {
+  await startRecording();
+  sensorFaults['cs.recorder.mode'] = { kind: 'reject' };
+  sensorFaults['cs.recorder.start'] = { kind: 'reject' };
+  const m = await send('studio.recording.mode', { recordingId: 'rec-1', operationId: 'op-m', mode: 'CAPTURE_ONLY' });
+  assert.equal(m.ok, false);
+  assert.equal(m.error.reason, 'SENSOR_NOT_CONFIRMED');
+  await settle();
+  const st = await status();
+  assert.equal(st.state, 'DEGRADED', 'sensores em estado desconhecido: captura de ações interrompida, declarada');
+  assert.equal(st.reason, 'SENSOR_NOT_CONFIRMED');
+  assert.equal(st.mode, 'CAPTURE_AND_INTERACT');
+  assert.ok(!posted.some((x) => x.event === 'studio.recording.modeChanged'));
+});
+
+test('REV-P1a — troca de modo confirmada exige active, epoch e mode do sensor principal', async () => {
+  await startRecording();
+  const m = await send('studio.recording.mode', { recordingId: 'rec-1', operationId: 'op-m', mode: 'CAPTURE_ONLY' });
+  assert.equal(m.ok, true);
+  assert.equal(m.payload.recording.mode, 'CAPTURE_ONLY');
+  assert.equal(sensor.mode, 'CAPTURE_ONLY');
+});
+
+for (const kind of ['reject', 'inactive']) {
+  test(`REV-P1a — início com steps/1 sem confirmação do sensor principal (${kind}): início recusado e captura liberada`, async () => {
+    sensorFaults['cs.recorder.start'] = { kind };
+    const tabs = await send('browser.tabs.list', {});
+    const r = await send('studio.recording.start', { recordingId: 'rec-1', operationId: 'op-1', tabRef: tabs.payload.tabs[0].tabRef, mode: 'CAPTURE_ONLY',
+      leaseMs: 30000, capabilities: ['steps/1'], routeRef: 'route-a' });
+    assert.equal(r.ok, false, 'o início não pode ser confirmado com o sensor desconhecido');
+    assert.equal(r.error.code, 'CAPTURE_FAILED');
+    assert.equal(r.error.reason, 'SENSOR_NOT_CONFIRMED');
+    assert.equal(capture.get(1), null, 'consumidor do Recorder liberado');
+    assert.ok(!recorder.recordings.get('rec-1') || recorder.recordings.get('rec-1').state !== 'RECORDING');
+    assert.ok(!posted.some((x) => x.event === 'studio.recording.started'));
+  });
+}
+
+test('REV-P1a — sensor de iframe sem confirmação: cobertura parcial declarada, gravação segue com o principal', async () => {
+  await capture.acquire(1, 'inspetor');
+  capture.get(1).frames = { 7: { frameId: 7, status: 'ATTACHED' } };
+  sensorFaults['cs.recorder.start'] = { kind: 'reject', frameId: 7 };
+  const r = await startRecording();
+  assert.equal(r.payload.recording.state, 'RECORDING');
+  interact('CLICK', 'n3');
+  await settle();
+  await send('studio.recording.steps.ack', { recordingId: 'rec-1', upToSequence: 1 });
+  const fin = await send('studio.recording.finish', { recordingId: 'rec-1', operationId: 'op-f' });
+  assert.ok(fin.payload.summary.limitations.includes('PARTIAL_COVERAGE'), JSON.stringify(fin.payload.summary));
+  assert.equal(fin.payload.summary.actionCapture, 'PARTIAL');
+});
+
+test('REV-P1b — evento atrasado além do limite de espera da fronteira continua na sessão A, nunca na B', async () => {
+  await startRecording();
+  const oldEpoch = sensor.epoch;
+  sensor.lastSeq = ++localSeq; // interação consolidada na sessão A; a mensagem fica retida
+  const held = localSeq;
+  const before = clock;
+  const r = await send('studio.recording.route', { recordingId: 'rec-1', operationId: 'op-route', routeRef: 'route-b' });
+  assert.equal(r.ok, true);
+  assert.ok(clock - before >= 1500, 'a espera da fronteira esgotou (' + (clock - before) + ' ms)');
+  const out = late(oldEpoch, held, 'FILL', 'n2');
+  interact('CLICK', 'n3');
+  await settle();
+  const s = steps();
+  assert.equal(out.ok, true, 'a época da sessão A continua aceita depois da troca');
+  assert.equal(s.find((e) => e.action === 'FILL').routeRef, 'route-a', 'a interação da sessão A não recebe a rota nova');
+  assert.equal(s.find((e) => e.action === 'CLICK').routeRef, 'route-b');
+});
+
+test('REV-P1b — várias trocas: cada evento atrasado fica com a rota da sua época', async () => {
+  await startRecording();
+  const e1 = sensor.epoch;
+  sensor.lastSeq = ++localSeq;
+  const s1 = localSeq;
+  await send('studio.recording.route', { recordingId: 'rec-1', operationId: 'op-r1', routeRef: 'route-b' });
+  const e2 = sensor.epoch;
+  sensor.lastSeq = ++localSeq;
+  const s2 = localSeq;
+  await send('studio.recording.route', { recordingId: 'rec-1', operationId: 'op-r2', routeRef: 'route-c' });
+  late(e2, s2, 'FILL', 'n2');
+  late(e1, s1, 'FILL', 'n1');
+  interact('CLICK', 'n3');
+  await settle();
+  assert.deepEqual(steps().map((e) => [e.element.name, e.routeRef]), [['Senha', 'route-b'], ['Usuário', 'route-a'], ['Entrar', 'route-c']]);
+});
+
+test('REV-P2 — limite rígido de 100 pendentes: nada é admitido além dele, mesmo antes da degradação concluir', async () => {
+  await startRecording();
+  const results = [];
+  for (let i = 0; i < 130; i++) {
+    results.push(interact('CLICK', 'n3')); // síncrono: a degradação (assíncrona) ainda não rodou
+  }
+  const r = recorder.recordings.get('rec-1');
+  assert.equal(r.steps.nextSeq, 100, 'nenhuma etapa admitida além do limite');
+  assert.equal(results.filter((x) => x.ok).length, 100);
+  assert.ok(results.slice(100).every((x) => x.ok === false && x.error === 'STEP_BACKLOG_FULL'));
+  await settle();
+  await settle();
+  assert.equal(r.state, 'DEGRADED');
+  assert.equal(r.reason, 'STEP_BACKLOG_FULL');
+  const fin = await send('studio.recording.finish', { recordingId: 'rec-1', operationId: 'op-f' });
+  assert.equal(fin.payload.summary.steps.lost, 30, 'as recusadas são perda declarada, nunca silenciosa');
+  assert.ok(fin.payload.summary.limitations.includes('INTERACTIONS_LOST'));
+  assert.ok(fin.payload.summary.limitations.includes('STEP_BACKLOG_FULL'));
 });

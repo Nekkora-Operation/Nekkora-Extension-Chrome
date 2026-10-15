@@ -168,3 +168,22 @@ Nenhuma pendência bloqueante.
 - `context.after` e as evidências (`FORM_SUBMITTED`, `NAVIGATION_FOLLOWED`) são a base da análise de resultado
   (STUDIO-005).
 - O contrato aceita novas ações e evidências por acréscimo (enums fechados, fixtures).
+
+## Anexo — revisão técnica dos PRs (P1 × 3 e P2)
+
+A revisão encontrou três problemas de sincronização (P1) e um de robustez (P2). Os dois primeiros P1 e o P2 estão
+neste repositório; o terceiro P1 está no Studio. Primeiro vieram os testes que reproduzem cada defeito, rodados no
+código anterior à correção: **9 falharam** (o décimo é o controle da troca de modo confirmada, que já passava). Depois
+da correção, os 28 testes de `studio-steps.test.js` passam.
+
+| Achado | Defeito comprovado (antes) | Correção | Regressão |
+|---|---|---|---|
+| P1 — modo confirmado sem estar ativo | `cs.recorder.mode` recusado ou `{active:false}`: a extensão confirmava CAPTURE_ONLY e o documento seguia em CAPTURE_AND_INTERACT. O mesmo no início com `steps/1` | confirmação obrigatória `{active, epoch, mode}` do sensor principal no início, na retomada, na troca de modo e na troca de rota; sem ela, os sensores são religados no modo anterior e a resposta é `CAPTURE_FAILED`/`SENSOR_NOT_CONFIRMED`; sem restauração, `DEGRADED`; iframe sem confirmação = `PARTIAL_COVERAGE`; a etapa leva o modo informado pelo sensor | `REV-P1a` (7 testes) |
+| P1 — evento atrasado na sessão errada | mensagem retida além da espera de 1,5 s recebia a rota nova (`route-b`) | cada época pertence a uma rota; trocar de rota abre uma época nova; a etapa leva a rota da sua época | `REV-P1b` (2 testes) |
+| P2 — limite de 100 não rígido | 130 interações seguidas: 130 admitidas | admissão fechada de forma síncrona no limite; as excedentes são recusadas e contadas como perda declarada | `REV-P2` |
+
+Contrato `nekkora-bridge/1` sem mudança: `CAPTURE_FAILED` e o campo `reason` já existiam, e `SENSOR_NOT_CONFIRMED`
+é um motivo (texto livre do contrato). As fixtures não mudaram.
+
+Resultados depois da revisão: ver a seção "Testes depois da revisão" no PR #5.
+

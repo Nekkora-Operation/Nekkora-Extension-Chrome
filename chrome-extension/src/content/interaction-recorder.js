@@ -254,7 +254,7 @@
   function deliver(i) {
     state.lastSeq = i.localSeq;
     const el = NS.registry.elementFor(i.targetKey);
-    send('interaction', { epoch: state.epoch, interaction: i, element: el ? descriptor(el) : null, url: NS.privacyUrl(),
+    send('interaction', { epoch: state.epoch, mode: state.mode, interaction: i, element: el ? descriptor(el) : null, url: NS.privacyUrl(),
       title: maskText(document.title, 120) || null, discarded: state.normalizer.stats().discarded });
   }
 
@@ -433,6 +433,9 @@
     setMode(a) {
       if (!state) {
         return { active: false };
+      }
+      if (a.epoch && a.epoch !== state.epoch) {
+        return this.status(); // pedido de outra ativação: nada muda (o service worker não recebe a confirmação)
       }
       state.normalizer.setMode(a.mode);
       detach();

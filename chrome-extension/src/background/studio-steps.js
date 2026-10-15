@@ -13,13 +13,21 @@
  * - épocas: cada ativação dos sensores tem uma época; eventos de épocas encerradas (depois de pausar, cancelar,
  *   finalizar) são descartados e contados (STALE_EPOCH); o documento substituído mantém a época aceita para a
  *   consolidação feita na saída da página;
- * - rota: cada etapa leva a rota vigente na sua chegada; trocar de rota consolida antes (fronteira exata).
+ * - ativação CONFIRMADA: o sensor do documento principal precisa responder {active, epoch, mode} iguais aos pedidos
+ *   (início, retomada, troca de modo, troca de rota). Sem isso nada é dado como feito; sensor de iframe sem
+ *   confirmação = cobertura parcial declarada;
+ * - rota: cada época pertence a UMA rota. Trocar de rota consolida a época anterior e abre uma época nova; a etapa
+ *   leva a rota da época em que a interação aconteceu, nunca a vigente na chegada (um evento atrasado além da espera
+ *   da fronteira continua na sessão anterior);
+ * - limite rígido: ao atingir MAX_PENDING a admissão fecha na hora (síncrona); o que chegar depois é recusado e
+ *   contado como perda declarada, enquanto a gravação degrada (STEP_BACKLOG_FULL).
  */
 
 export const MAX_PENDING = 100;
 export const AFTER_WINDOW_MS = 400;
 export const FLUSH_WAIT_MS = 1500;
 export const FINISH_ACK_WAIT_MS = 5000;
+const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT']);
 const ACTIONS = new Set(['CLICK', 'FILL', 'SELECT_OPTION', 'CHECK', 'UNCHECK', 'PRESS_KEY', 'UNKNOWN']);
 const EVIDENCE = new Set(['FORM_SUBMITTED', 'DOUBLE_CLICK', 'VIA_KEYBOARD', 'VIA_LABEL', 'FOCUS_CLICK_ABSORBED', 'CUSTOM_COMBOBOX', 'NAVIGATION_FOLLOWED',
   'LOCATORS_VERIFIED_LIVE']);
@@ -54,6 +62,7 @@ export function createStepPipeline(deps) {
       discarded[k] = 0;
     }
     return { enabled: true, routeRef, nextSeq: 0, acked: 0, acknowledged: 0, rejected: 0, lost: 0, outbox: [], epochs: [], epoch: null,
+      epochRoute: {}, blocked: false, sensorGaps: 0,
       frames: {}, open: {}, discarded, sensorDiscards: {}, consolidated: 0, lastNav: null, stats: { correlationMs: [], resolved: 0, unresolved: 0, liveVerified: 0 } };
   }
 
@@ -121,23 +130,54 @@ export function createStepPipeline(deps) {
     return [0, ...(live ? Object.values(live.frames || {}).filter((f) => f.status === 'ATTACHED').map((f) => f.frameId) : [])];
   }
 
-  /** Liga os sensores em todos os documentos acompanhados (nova época). */
-  async function startSensors(r) {
-    if (!enabled(r)) {
-      return;
-    }
-    const epoch = newEpoch();
-    r.steps.epoch = epoch;
-    r.steps.epochs = [...r.steps.epochs.slice(-8), epoch];
-    for (const f of sensorFrames(r.tabId)) {
-      await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode }, f).catch(() => {});
-    }
+  /** Resposta do sensor confirma exatamente a época e o modo pedidos (resposta ausente, recusa ou inativo = não). */
+  function confirms(st, epoch, mode) {
+    return !!(st && st.active === true && st.epoch === epoch && st.mode === mode);
   }
 
-  /** Sensor de um frame que passou a ser acompanhado depois do início. */
+  /**
+   * Liga os sensores em todos os documentos acompanhados numa época NOVA, pertencente à rota vigente. Devolve true só
+   * se o sensor do documento principal confirmou {active, epoch, mode}; iframes sem confirmação viram cobertura parcial.
+   */
+  async function startSensors(r) {
+    if (!enabled(r)) {
+      return true;
+    }
+    const s = r.steps;
+    s.epochRoute = s.epochRoute || {}; // estado persistido antes desta versão
+    const epoch = newEpoch();
+    s.epoch = epoch;
+    s.epochs = [...s.epochs.slice(-8), epoch];
+    s.epochRoute[epoch] = s.routeRef;
+    for (const k of Object.keys(s.epochRoute)) {
+      if (!s.epochs.includes(k)) {
+        delete s.epochRoute[k];
+      }
+    }
+    if (s.nextSeq - s.acked < MAX_PENDING) {
+      s.blocked = false; // a fila drenou: a admissão reabre na nova ativação
+    }
+    let main = false;
+    for (const f of sensorFrames(r.tabId)) {
+      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode }, f).catch(() => null);
+      if (f === 0) {
+        main = confirms(st, epoch, r.mode);
+      } else if (!confirms(st, epoch, r.mode)) {
+        s.sensorGaps++;
+      }
+    }
+    deps.persist && deps.persist(r);
+    return main;
+  }
+
+  /** Sensor de um frame que passou a ser acompanhado depois do início (sem confirmação: cobertura parcial). */
   async function startFrame(r, frameId) {
     if (enabled(r) && r.steps.epoch && r.state === 'RECORDING') {
-      await toContent(r.tabId, 'cs.recorder.start', { epoch: r.steps.epoch, mode: r.mode }, frameId).catch(() => {});
+      const epoch = r.steps.epoch;
+      const st = await toContent(r.tabId, 'cs.recorder.start', { epoch, mode: r.mode }, frameId).catch(() => null);
+      if (frameId !== 0 && !confirms(st, epoch, r.mode)) {
+        r.steps.sensorGaps++;
+      }
     }
   }
 
@@ -188,17 +228,33 @@ export function createStepPipeline(deps) {
     r.steps.open = {};
   }
 
-  /** Troca de modo: consolida no modo ANTERIOR (cada etapa leva o modo vigente na sua chegada) e só então troca. */
+  /**
+   * Troca de modo: consolida no modo ANTERIOR e pede o novo ao sensor principal. O modo da gravação só muda depois da
+   * confirmação {active, epoch, mode}. Sem ela, os sensores são religados no modo anterior (nova época) para o documento
+   * voltar a um estado conhecido. Devolve {ok} ou {ok:false, restored}.
+   */
   async function setMode(r, mode) {
     if (!enabled(r) || !r.steps.epoch) {
-      r.mode = mode;
-      return;
+      r.mode = mode; // sem sensores ativos (pausa, interrupção): vale na próxima ativação
+      return { ok: true };
     }
     await flush(r, 'MODE_CHANGE');
-    r.mode = mode;
-    for (const f of sensorFrames(r.tabId)) {
-      await toContent(r.tabId, 'cs.recorder.mode', { mode: r.mode }, f).catch(() => {});
+    const epoch = r.steps.epoch;
+    const main = await toContent(r.tabId, 'cs.recorder.mode', { epoch, mode }, 0).catch(() => null);
+    if (!confirms(main, epoch, mode)) {
+      const restored = await startSensors(r); // r.mode continua o anterior
+      return { ok: false, restored };
     }
+    r.mode = mode;
+    for (const f of sensorFrames(r.tabId).filter((x) => x !== 0)) {
+      const st = await toContent(r.tabId, 'cs.recorder.mode', { epoch, mode }, f).catch(() => null);
+      if (!confirms(st, epoch, mode)) {
+        // iframe em modo desconhecido não pode continuar executando cliques em CAPTURE_ONLY: sensor desligado
+        await toContent(r.tabId, 'cs.recorder.stop', { discard: false }, f).catch(() => null);
+        r.steps.sensorGaps++;
+      }
+    }
+    return { ok: true };
   }
 
   // ------------------------------------------------------------------------------ recepção
@@ -225,12 +281,18 @@ export function createStepPipeline(deps) {
     const key = data.epoch + '|' + frameId;
     s.frames[key] = Math.max(s.frames[key] || 0, Number(i.localSeq) || 0);
     noteSensorStats(r, key, data.discarded);
+    // Limite rígido: a admissão fecha de forma síncrona; a degradação (assíncrona) só desliga os sensores depois.
+    if (s.blocked || s.nextSeq - s.acked >= MAX_PENDING) {
+      s.lost++; // recusada = perda declarada (resumo INTERACTIONS_LOST), nunca descarte silencioso
+      closeAdmission(r);
+      return { ok: false, error: 'STEP_BACKLOG_FULL' };
+    }
     s.consolidated += Math.max(0, (Number(i.events) || 1) - 1);
     const entry = {
       sequence: ++s.nextSeq,
       eventId: 'ev-' + r.recordingId.slice(-24) + '-' + s.nextSeq,
-      routeRef: s.routeRef,
-      mode: r.mode,
+      routeRef: (s.epochRoute && s.epochRoute[data.epoch]) || s.routeRef, // rota da época da interação, não a vigente na chegada
+      mode: MODES.has(data.mode) ? data.mode : r.mode, // modo aplicado de fato pelo sensor
       frameId,
       receivedAt: now(),
       interaction: i,
@@ -248,10 +310,19 @@ export function createStepPipeline(deps) {
     const next = prev.catch(() => {}).then(() => process(r, entry));
     chains.set(r.recordingId, next.catch(() => {}));
     // Pendentes = produzidas e ainda não confirmadas (em correlação + na outbox), não só as já emitidas.
-    if (s.nextSeq - s.acked >= MAX_PENDING && deps.onBacklogFull) {
-      deps.onBacklogFull(r); // sem descarte: a gravação degrada e os sensores param ao atingir o limite
+    if (s.nextSeq - s.acked >= MAX_PENDING) {
+      closeAdmission(r); // sem descarte: a gravação degrada e os sensores param ao atingir o limite
     }
     return { ok: true, sequence: entry.sequence };
+  }
+
+  function closeAdmission(r) {
+    if (!r.steps.blocked) {
+      r.steps.blocked = true;
+      if (deps.onBacklogFull) {
+        deps.onBacklogFull(r);
+      }
+    }
   }
 
   /** Evidência posterior (ex.: FORM_SUBMITTED) de uma interação ainda não emitida. */
@@ -528,13 +599,36 @@ export function createStepPipeline(deps) {
     return { resent, steps: state(r) };
   }
 
-  /** Troca de rota: consolida o que estava aberto na rota anterior e devolve a fronteira. */
+  /**
+   * Troca de rota: consolida a época da rota anterior e abre uma época nova, da rota nova, confirmada pelo sensor
+   * principal. Eventos da época anterior, mesmo chegando depois da espera da fronteira, continuam na rota anterior.
+   * Sem a confirmação, a rota volta à anterior (as épocas abertas na tentativa também) e os sensores são religados
+   * nela. Devolve {ok, boundary} ou {ok:false, restored}. boundary é informativa (sequência no momento da troca).
+   */
   async function route(r, routeRef) {
+    const s = r.steps;
+    const prev = s.routeRef;
+    if (!s.epoch || r.state !== 'RECORDING') {
+      s.routeRef = routeRef; // sem sensores ativos: a próxima ativação já nasce na rota nova
+      deps.persist(r);
+      return { ok: true, boundary: s.nextSeq };
+    }
     await flush(r, 'ROUTE_CHANGE');
-    const boundary = r.steps.nextSeq;
-    r.steps.routeRef = routeRef;
+    const boundary = s.nextSeq;
+    s.routeRef = routeRef;
+    if (await startSensors(r)) {
+      deps.persist(r);
+      return { ok: true, boundary };
+    }
+    s.routeRef = prev;
+    for (const [epoch, ref] of Object.entries(s.epochRoute)) {
+      if (ref === routeRef) {
+        s.epochRoute[epoch] = prev; // a troca não foi confirmada: nada é atribuído à rota nova
+      }
+    }
+    const restored = await startSensors(r);
     deps.persist(r);
-    return boundary;
+    return { ok: false, restored };
   }
 
   /** Espera as confirmações das etapas emitidas (finalização), dentro do limite. */

@@ -22,10 +22,13 @@
 
 ## Limite e backpressure
 
-- Até **100** etapas produzidas e não confirmadas. Ao atingir o limite, a gravação vai para `DEGRADED`
+- Até **100** etapas produzidas e não confirmadas, como **limite rígido**: ao atingir o limite, a admissão fecha na
+  hora, de forma síncrona, antes de a degradação (assíncrona) terminar. A gravação vai para `DEGRADED`
   (`STEP_BACKLOG_FULL`), os sensores param e o consumidor é liberado.
-- **Nada é descartado**: as etapas continuam retidas para o sync. O resumo registra a limitação `STEP_BACKLOG_FULL`.
-- Depois que o Studio confirma, a gravação pode ser retomada (`resume`).
+- Interação que chega com a admissão fechada é **recusada e contada como perda declarada** (`steps.lost`, limitação
+  `INTERACTIONS_LOST`). Nunca some em silêncio e nunca ultrapassa o limite.
+- As etapas admitidas continuam retidas para o sync. O resumo registra a limitação `STEP_BACKLOG_FULL`.
+- Depois que o Studio confirma, a gravação pode ser retomada (`resume`), e a admissão reabre na nova ativação.
 
 ## Finalização e cancelamento
 
@@ -44,10 +47,27 @@
 
 ## Rota de sessão lógica
 
-`studio.recording.route {routeRef}` consolida a rota anterior e devolve `boundarySequence`. Cada etapa leva a rota
-vigente na **sua chegada** ao service worker, então uma etapa atrasada nunca é associada à sessão nova
-(`Studio003InteractionsIT.s003Sessions`: o preenchimento aberto na troca saiu com a rota anterior, e a fronteira foi
-exata).
+`studio.recording.route {routeRef}`:
+
+1. consolida a época da rota anterior (`flush` e espera das interações, até 1,5 s);
+2. abre uma **época nova pertencente à rota nova**, confirmada pelo sensor principal (`{active, epoch, mode}`);
+3. devolve `boundarySequence`, informativa (a sequência no momento da troca).
+
+Cada época pertence a uma única rota, e a etapa leva a **rota da época em que a interação aconteceu**, não a rota
+vigente na chegada. Um evento da sessão anterior que chega depois da espera de 1,5 s continua na sessão anterior.
+Se ele chegar depois de a época sair da janela de épocas aceitas (pausa, cancelamento, mais de 8 ativações), é
+descartado e contado (`STALE_EPOCH`), nunca atribuído à sessão seguinte.
+
+Sem a confirmação do sensor principal, a troca é desfeita: a rota volta à anterior (inclusive para a época aberta
+na tentativa), os sensores são religados nela e a resposta é `CAPTURE_FAILED` (`SENSOR_NOT_CONFIRMED`). Se nem
+isso for confirmado, a gravação vai para `DEGRADED`. O Studio só considera a troca feita com a confirmação
+(`Nekkora-Studio/docs/studio-003/session-routing.md`).
+
+Evidência:
+
+- `Studio003InteractionsIT.s003Sessions`: o preenchimento aberto na troca saiu com a rota anterior;
+- Node `REV-P1b`: a mensagem retida além da espera de 1,5 s saiu com a rota anterior; com várias trocas, cada
+  evento atrasado ficou com a rota da sua época.
 
 ## Limitação declarada
 
@@ -57,8 +77,8 @@ recuperar todas as etapas** depois do encerramento abrupto do Studio.
 
 ## Testes
 
-- Node, `studio-steps.test.js` (18 testes): ordem, ACK, sync, rota, pausa, modo, backlog, cancelamento, perda,
-  `UNRESOLVED` e evidência.
+- Node, `studio-steps.test.js` (28 testes): ordem, ACK, sync, rota, pausa, modo, backlog, cancelamento, perda,
+  `UNRESOLVED` e evidência. Dez deles vêm da revisão técnica (`REV-P1a`, `REV-P1b`, `REV-P2`).
 - Chrome real, `Studio003InteractionsIT`:
   - `s003Reconnect`: Bridge derrubado, 2 pendentes, sync reemite 2, nenhuma duplicada;
   - `s003Sessions`, `s003Pause`, `s003Cancel`, `s003StudioLost`.

@@ -1,7 +1,8 @@
 {
+  "steps" : [ "1:SELECT_OPTION:SELECT:Estado", "2:CLICK:BUTTON:Pesquisar", "3:CHECK:RADIO:Pessoa física", "4:CHECK:CHECKBOX:Somente ativos", "5:UNCHECK:CHECKBOX:Somente ativos", "6:FILL:TEXTAREA:Observações", "7:FILL:CONTENTEDITABLE:Nota rápida", "8:CLICK:LINK:Clientes", "9:CLICK:BUTTON:Exportar", "10:UNKNOWN:TEXT:", "11:CLICK:BUTTON:Preencher automaticamente", "12:CLICK:COMBOBOX:Cidade", "13:SELECT_OPTION:COMBOBOX:Cidade", "14:FILL:SEARCH_INPUT:Pesquisa", "15:PRESS_KEY:SEARCH_INPUT:Pesquisa" ],
   "summary" : {
     "state" : "COMPLETED",
-    "durationMs" : 6872,
+    "durationMs" : 6752,
     "counters" : {
       "segments" : 1,
       "technicalCaptures" : 1,
@@ -34,6 +35,5 @@
         "NOT_RECORDING" : 0
       }
     }
-  },
-  "steps" : [ "1:SELECT_OPTION:SELECT:Estado", "2:CLICK:BUTTON:Pesquisar", "3:CHECK:RADIO:Pessoa física", "4:CHECK:CHECKBOX:Somente ativos", "5:UNCHECK:CHECKBOX:Somente ativos", "6:FILL:TEXTAREA:Observações", "7:FILL:CONTENTEDITABLE:Nota rápida", "8:CLICK:LINK:Clientes", "9:CLICK:BUTTON:Exportar", "10:UNKNOWN:TEXT:", "11:CLICK:BUTTON:Preencher automaticamente", "12:CLICK:COMBOBOX:Cidade", "13:SELECT_OPTION:COMBOBOX:Cidade", "14:FILL:SEARCH_INPUT:Pesquisa", "15:PRESS_KEY:SEARCH_INPUT:Pesquisa" ]
+  }
 }

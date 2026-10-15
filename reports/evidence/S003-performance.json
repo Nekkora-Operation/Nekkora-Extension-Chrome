@@ -1,22 +1,22 @@
 {
   "typedCharacters" : 300,
-  "typingMs" : 231,
+  "typingMs" : 212,
   "clicks" : 20,
   "clickToStepMs" : {
-    "p50" : 813,
-    "max" : 826,
-    "p95" : 826
+    "p95" : 817,
+    "p50" : 810,
+    "max" : 818
   },
   "eventBytes" : {
-    "avg" : 2376,
-    "max" : 2381
+    "max" : 2381,
+    "avg" : 2376
   },
   "pipeline" : {
     "consolidatedEvents" : 301,
     "correlationMs" : {
-      "max" : 14,
-      "p50" : 11,
-      "p95" : 12,
+      "max" : 33,
+      "p50" : 30,
+      "p95" : 33,
       "samples" : 21
     },
     "discarded" : {
