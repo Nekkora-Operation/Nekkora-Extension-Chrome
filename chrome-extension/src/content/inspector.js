@@ -1,10 +1,14 @@
 /*
- * Inspector Controller — modos OFF / INSPECT.
+ * Inspector Controller — modos OFF / INSPECT / SUSPENDED.
  *
  * Em INSPECT: o elemento sob o cursor recebe contorno rosa tracejado; o clique SELECIONA o elemento
  * e é interceptado na fase de captura (preventDefault + stopImmediatePropagation), de modo que a
  * ação normal do componente NÃO é disparada. Em OFF todos os ouvintes, observadores e o overlay são
  * removidos.
+ *
+ * SUSPENDED (STUDIO-003, D-STUDIO-003-03): enquanto os sensores do Recorder do Studio estão ligados neste documento, a
+ * inspeção pedida fica suspensa — sem ouvintes, para que nunca haja dois controladores interceptando o mesmo clique.
+ * O pedido é lembrado: ao desligar o Recorder, os ouvintes voltam (prioridade explícita e reversível).
  */
 (function (root) {
   const NS = root.NekkoraCS;
@@ -18,6 +22,8 @@
   let attached = [];       // { target, type, fn }
   let onSelect = null;
   let lastHover = null;
+  let suspendedBy = null; // motivo da suspensão (ex.: RECORDER)
+  let requested = false; // a inspeção foi pedida e deve voltar quando a suspensão terminar
 
   function relevant(el) {
     // Sobe até 3 níveis buscando um elemento com semântica de controle (ex.: <span> dentro de <button>).
@@ -84,31 +90,62 @@
     return [window, ...NS.capture.frameWindows()];
   }
 
+  function attachAll() {
+    for (const w of windows()) {
+      listen(w, 'pointermove', onMove, { capture: true, passive: true });
+      for (const type of BLOCKED) {
+        listen(w, type, block, { capture: true });
+      }
+      listen(w, 'keydown', onKey, { capture: true });
+    }
+  }
+
+  function detachAll() {
+    for (const a of attached) {
+      a.target.removeEventListener(a.type, a.fn, a.options);
+    }
+    attached = [];
+    lastHover = null;
+    NS.highlighter.hide('hover');
+  }
+
   NS.inspector = {
     start(selectCallback) {
-      if (mode === 'INSPECT') {
-        onSelect = selectCallback;
+      onSelect = selectCallback;
+      requested = true;
+      if (mode === 'INSPECT' || mode === 'SUSPENDED') {
+        return; // já ativa, ou suspensa pelo Recorder (volta quando ele parar)
+      }
+      if (suspendedBy) {
+        mode = 'SUSPENDED';
         return;
       }
       mode = 'INSPECT';
-      onSelect = selectCallback;
-      for (const w of windows()) {
-        listen(w, 'pointermove', onMove, { capture: true, passive: true });
-        for (const type of BLOCKED) {
-          listen(w, type, block, { capture: true });
-        }
-        listen(w, 'keydown', onKey, { capture: true });
-      }
+      attachAll();
     },
     stop() {
-      for (const a of attached) {
-        a.target.removeEventListener(a.type, a.fn, a.options);
-      }
-      attached = [];
+      detachAll();
       mode = 'OFF';
       onSelect = null;
-      lastHover = null;
-      NS.highlighter.hide('hover');
+      requested = false;
+    },
+    /** O Recorder assume a interceptação deste documento: a inspeção pedida fica suspensa (sem ouvintes). */
+    suspend(reason) {
+      suspendedBy = reason || 'RECORDER';
+      if (mode === 'INSPECT') {
+        detachAll();
+        mode = 'SUSPENDED';
+      }
+    },
+    /** O Recorder liberou o documento: a inspeção pedida volta com os ouvintes de antes. */
+    resume() {
+      suspendedBy = null;
+      if (mode === 'SUSPENDED' && requested) {
+        mode = 'INSPECT';
+        attachAll();
+      } else if (mode === 'SUSPENDED') {
+        mode = 'OFF';
+      }
     },
     mode() {
       return mode;

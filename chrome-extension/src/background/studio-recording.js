@@ -1,9 +1,10 @@
 /*
  * Studio Recording Controller (STUDIO-002) — gravação TÉCNICA controlada pelo Nekkora Studio.
  *
- * Gravar, nesta versão, é manter um consumidor próprio ("studio-recorder:<recordingId>") inscrito na CaptureSession
- * da aba: a página é observada de verdade (captura-base + deltas no motor Java), mas NENHUMA ação do usuário vira
- * etapa (sensores de interação: STUDIO-003). Finalizar NÃO exporta PageMap (D-STUDIO-002-03).
+ * Gravar é manter um consumidor próprio ("studio-recorder:<recordingId>") inscrito na CaptureSession da aba: a página
+ * é observada de verdade (captura-base + deltas no motor Java). Com a capacidade steps/1 (STUDIO-003) os sensores de
+ * interação também ficam ligados e cada interação consolidada vira uma etapa (studio-steps.js); sem ela, a gravação é
+ * só técnica, como na STUDIO-002. Finalizar NÃO exporta PageMap (D-STUDIO-002-03).
  *
  *   start   ─► RECORDING ─pause─► PAUSED ─resume─► RECORDING
  *                 │  ▲                │
@@ -24,12 +25,14 @@
  * Identificadores do Chrome não saem daqui: as abas são referidas por tabRef opaco.
  */
 import { HostError } from './native-client.js';
+import { createStepPipeline } from './studio-steps.js';
 
 const PROTOCOL = 'nekkora-nm/1';
 const KEY = 'nk.srec.';
 const REFS_KEY = 'nk.tabrefs';
 const LOCK = 'studio-recorder';
 const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT']);
+const CAPABILITIES = new Set(['steps/1']);
 const TERMINAL = new Set(['COMPLETED', 'CANCELLED', 'EXPIRED', 'FAILED']);
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
 const TAB_REF = /^t-[A-Za-z0-9]{8,40}$/;
@@ -63,7 +66,28 @@ export function createStudioRecorder(deps) {
     'studio.recording.cancel': cancel,
     'studio.recording.status': status,
     'studio.recording.renew': renew,
+    'studio.recording.steps.ack': stepsAck,
+    'studio.recording.steps.sync': stepsSync,
+    'studio.recording.route': route,
   };
+  /** Comandos atendidos fora da fila (só atualizam prazo/entrega; nunca esperam outra operação). */
+  const UNQUEUED = new Set(['studio.recording.renew', 'browser.tabs.list', 'studio.recording.steps.ack', 'studio.recording.steps.sync']);
+
+  const steps = createStepPipeline({
+    capture,
+    toContent: deps.toContent || (() => Promise.reject(new Error('sem content'))),
+    host: deps.host || (() => Promise.reject(new HostError('HOST_UNAVAILABLE', 'sem host'))),
+    tabKey: deps.tabKey || ((tabId) => 'tab-' + tabId),
+    frameOfNode: deps.frameOfNode || (() => 0),
+    now: () => now(),
+    sleep: deps.sleep,
+    broadcast,
+    persist: (r) => persist(r),
+    emitEvent: (r, payload) => postEvent(r, 'studio.recording.step', payload),
+    onBacklogFull: (r) => {
+      degrade(r, 'STEP_BACKLOG_FULL');
+    },
+  });
 
   function consumerOf(recordingId) {
     return 'studio-recorder:' + recordingId;
@@ -255,13 +279,15 @@ export function createStudioRecorder(deps) {
       startedAt: iso(r.startedAt),
       updatedAt: iso(r.updatedAt),
       reason: r.reason || null,
+      ...(steps.enabled(r) ? { steps: steps.state(r) } : {}),
     };
   }
 
   async function summary(r) {
     const c = counters(r);
     const cov = r.lastCoverage || { state: 'UNKNOWN', framesAttached: 0, framesUnavailable: 0 };
-    const limitations = ['ACTION_CAPTURE_NOT_AVAILABLE'];
+    const sum = steps.summary(r);
+    const limitations = sum ? [] : ['ACTION_CAPTURE_NOT_AVAILABLE'];
     if (cov.state === 'PARTIAL') {
       limitations.push('PARTIAL_COVERAGE');
     }
@@ -274,10 +300,30 @@ export function createStudioRecorder(deps) {
     if (c.segments === 0) {
       limitations.push('NEVER_ATTACHED');
     }
-    return {
+    let actionCapture = 'NOT_AVAILABLE';
+    if (sum) {
+      if (sum.unacknowledged > 0) {
+        limitations.push('STEPS_UNCONFIRMED');
+      }
+      if (sum.rejected > 0) {
+        limitations.push('STEPS_REJECTED');
+      }
+      if (sum.lost > 0) {
+        limitations.push('INTERACTIONS_LOST');
+      }
+      if (r.backlogFull) {
+        limitations.push('STEP_BACKLOG_FULL');
+      }
+      actionCapture = limitations.length ? 'PARTIAL' : 'AVAILABLE';
+    }
+    const out = {
       state: r.state, durationMs: Math.max(0, (r.endedAt || now()) - r.startedAt), counters: c, coverage: cov,
-      pageMapExported: false, actionCapture: 'NOT_AVAILABLE', limitations,
+      pageMapExported: false, actionCapture, limitations,
     };
+    if (sum) {
+      out.steps = sum;
+    }
+    return out;
   }
 
   async function remember(r, operationId, command, result) {
@@ -297,11 +343,18 @@ export function createStudioRecorder(deps) {
     view(r).then((recording) => {
       const payload = { recordingId: r.recordingId, operationId: operationId || null, recording, ...extra };
       broadcast('studio-recording', { tabId: r.tabId, event, state: r.state });
-      // Só com a porta nativa aberta: um evento sem Studio para recebê-lo não deve iniciar um processo do host.
-      if (typeof client.status !== 'function' || client.status().connected) {
-        client.post({ protocol: PROTOCOL, type: 'studio.event', event, payload, controller: { instanceId: r.controller } }).catch(() => {});
-      }
+      postEvent(r, event, payload);
     });
+  }
+
+  /** Só com a porta nativa aberta: um evento sem Studio para recebê-lo não deve iniciar um processo do host. */
+  function postEvent(r, event, payload) {
+    if (event === 'studio.recording.step') {
+      broadcast('studio-step', { tabId: r.tabId, sequence: payload.sequence, action: payload.action });
+    }
+    if (typeof client.status !== 'function' || client.status().connected) {
+      client.post({ protocol: PROTOCOL, type: 'studio.event', event, payload, controller: { instanceId: r.controller } }).catch(() => {});
+    }
   }
 
   // --------------------------------------------------------------------------------------- validação
@@ -353,7 +406,7 @@ export function createStudioRecorder(deps) {
   // ----------------------------------------------------------------------------------------- comandos
 
   async function start(p, controller) {
-    assertOnly(p, ['recordingId', 'operationId', 'tabRef', 'mode', 'leaseMs']);
+    assertOnly(p, ['recordingId', 'operationId', 'tabRef', 'mode', 'leaseMs', 'capabilities', 'routeRef']);
     assertId(p.recordingId, 'recordingId');
     assertId(p.operationId, 'operationId');
     if (typeof p.tabRef !== 'string' || !TAB_REF.test(p.tabRef)) {
@@ -364,6 +417,12 @@ export function createStudioRecorder(deps) {
     }
     if (!Number.isInteger(p.leaseMs) || p.leaseMs < 5000 || p.leaseMs > 300000) {
       throw fail('BAD_REQUEST', 'leaseMs fora do intervalo 5000..300000');
+    }
+    if (p.capabilities !== undefined && (!Array.isArray(p.capabilities) || p.capabilities.some((c) => !CAPABILITIES.has(c)))) {
+      throw fail('BAD_REQUEST', 'capabilities inválidas');
+    }
+    if (p.routeRef !== undefined) {
+      assertId(p.routeRef, 'routeRef');
     }
     const existing = recordings.get(p.recordingId);
     if (existing) {
@@ -414,6 +473,10 @@ export function createStudioRecorder(deps) {
     };
     openSegment(r, before);
     r.lastCoverage = await coverage(r);
+    if (Array.isArray(p.capabilities) && p.capabilities.includes('steps/1')) {
+      steps.enable(r, p.routeRef);
+      await steps.startSensors(r); // sensores só depois da captura confirmada
+    }
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'start', result);
     armLease(r);
@@ -477,6 +540,8 @@ export function createStudioRecorder(deps) {
     if (r.state !== 'RECORDING') {
       throw fail('INVALID_STATE', 'Só é possível pausar uma gravação ativa (estado atual: ' + r.state + ').');
     }
+    await steps.flush(r, 'PAUSE');
+    await steps.stopSensors(r, false); // eventos depois da pausa (época encerrada) são descartados
     await detach(r, 'STUDIO_RECORDER_PAUSED');
     r.state = 'PAUSED';
     r.reason = 'USER_PAUSED';
@@ -504,6 +569,8 @@ export function createStudioRecorder(deps) {
     const wasDegraded = r.state === 'DEGRADED';
     await attach(r);
     r.state = 'RECORDING';
+    r.backlogFull = false;
+    await steps.startSensors(r); // nova época: nada da pausa é aceito e a última etapa não se repete
     r.reason = wasDegraded ? 'RECOVERED' : 'USER_RESUMED';
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'resume', result);
@@ -529,7 +596,7 @@ export function createStudioRecorder(deps) {
     if (r.mode === p.mode) {
       return { recording: await view(r), duplicate: true };
     }
-    r.mode = p.mode; // configuração confirmada: os sensores que diferenciam os modos chegam na STUDIO-003
+    await steps.setMode(r, p.mode); // consolida no modo anterior e troca os sensores (nenhum sensor antigo fica ativo)
     const result = { recording: await view(r), duplicate: false };
     await remember(r, p.operationId, 'mode', result);
     emit(r, 'studio.recording.modeChanged', p.operationId);
@@ -537,6 +604,22 @@ export function createStudioRecorder(deps) {
   }
 
   async function end(r, state, reason, operationId, command, event) {
+    if (steps.enabled(r)) {
+      if (state === 'CANCELLED') {
+        steps.discardOutbox(r); // só as etapas DESTA gravação; o Studio descarta as dele
+        await steps.stopSensors(r, true);
+        await steps.drain(r);
+      } else {
+        if (r.state === 'RECORDING') {
+          await steps.flush(r, state === 'COMPLETED' ? 'FINISH' : 'STOP');
+        }
+        await steps.stopSensors(r, false);
+        await steps.drain(r);
+        if (state === 'COMPLETED') {
+          await steps.awaitAcks(r); // confirmações dentro do limite; o que faltar fica declarado no resumo
+        }
+      }
+    }
     await detach(r, state === 'COMPLETED' ? 'STUDIO_RECORDER_FINISHED' : state === 'CANCELLED' ? 'STUDIO_RECORDER_CANCELLED' : 'STUDIO_RECORDER_EXPIRED');
     r.state = state;
     r.reason = reason;
@@ -617,7 +700,68 @@ export function createStudioRecorder(deps) {
       persist(r);
       armLease(r);
     }
-    return { recordingId: r.recordingId, state: r.state, expiresInMs: TERMINAL.has(r.state) ? 0 : r.leaseMs };
+    const out = { recordingId: r.recordingId, state: r.state, expiresInMs: TERMINAL.has(r.state) ? 0 : r.leaseMs };
+    if (steps.enabled(r)) {
+      out.steps = steps.state(r);
+    }
+    return out;
+  }
+
+  function withSteps(p, controller) {
+    const r = owned(p.recordingId, controller);
+    if (!steps.enabled(r)) {
+      throw fail('BAD_REQUEST', 'A gravação não entrega etapas (capacidade steps/1 ausente).');
+    }
+    return r;
+  }
+
+  /** Confirmação cumulativa do Studio (fora da fila): só depois do domínio do Studio processar as etapas. */
+  async function stepsAck(p, controller) {
+    assertOnly(p, ['recordingId', 'upToSequence', 'rejected']);
+    assertId(p.recordingId, 'recordingId');
+    if (!Number.isInteger(p.upToSequence) || p.upToSequence < 0) {
+      throw fail('BAD_REQUEST', 'upToSequence inválido');
+    }
+    if (p.rejected !== undefined && (!Array.isArray(p.rejected) || p.rejected.length > 100 || p.rejected.some((n) => !Number.isInteger(n) || n < 1))) {
+      throw fail('BAD_REQUEST', 'rejected inválido');
+    }
+    const r = withSteps(p, controller);
+    return { recordingId: r.recordingId, steps: steps.ack(r, p.upToSequence, p.rejected) };
+  }
+
+  /** Reemissão das etapas retidas (perda detectada ou reconexão). Vale também para gravação encerrada (retenção). */
+  async function stepsSync(p, controller) {
+    assertOnly(p, ['recordingId', 'afterSequence']);
+    assertId(p.recordingId, 'recordingId');
+    if (!Number.isInteger(p.afterSequence) || p.afterSequence < 0) {
+      throw fail('BAD_REQUEST', 'afterSequence inválido');
+    }
+    const r = withSteps(p, controller);
+    const res = steps.sync(r, p.afterSequence);
+    return { recordingId: r.recordingId, resent: res.resent, steps: res.steps };
+  }
+
+  /** Troca de sessão lógica no Studio: consolida a rota anterior e devolve a fronteira de sequência. */
+  async function route(p, controller) {
+    assertOnly(p, ['recordingId', 'operationId', 'routeRef']);
+    assertId(p.recordingId, 'recordingId');
+    assertId(p.operationId, 'operationId');
+    assertId(p.routeRef, 'routeRef');
+    const r = withSteps(p, controller);
+    const again = replay(r, p.operationId, 'route');
+    if (again) {
+      return again;
+    }
+    if (TERMINAL.has(r.state)) {
+      throw ended(r);
+    }
+    if (r.steps.routeRef === p.routeRef) {
+      return { recording: await view(r), boundarySequence: r.steps.nextSeq, duplicate: true };
+    }
+    const boundarySequence = await steps.route(r, p.routeRef);
+    const result = { recording: await view(r), boundarySequence, duplicate: false };
+    await remember(r, p.operationId, 'route', result);
+    return result;
   }
 
   // ------------------------------------------------------------------------------------- concessão
@@ -672,9 +816,18 @@ export function createStudioRecorder(deps) {
       if (TERMINAL.has(r.state) || r.state === 'DEGRADED' || recordings.get(r.recordingId) !== r) {
         return;
       }
+      if (steps.enabled(r)) {
+        await steps.stopSensors(r, false).catch(() => {});
+        if (reason === 'STEP_BACKLOG_FULL') {
+          r.backlogFull = true;
+        }
+      }
       if (r.attached) {
         r.lastCoverage = await coverage(r).catch(() => r.lastCoverage);
         closeSegment(r);
+        if (reason === 'STEP_BACKLOG_FULL') {
+          await capture.release(r.tabId, consumerOf(r.recordingId), 'STUDIO_RECORDER_BACKLOG', { detachHost: true }).catch(() => {});
+        }
       }
       r.state = 'DEGRADED';
       r.reason = reason;
@@ -745,7 +898,7 @@ export function createStudioRecorder(deps) {
         throw fail('NOT_CONTROLLER', 'Controlador ausente.');
       }
       const payload = msg.payload || {};
-      const result = msg.command === 'studio.recording.renew' || msg.command === 'browser.tabs.list'
+      const result = UNQUEUED.has(msg.command)
         ? await fn(payload, controller)
         : await withLock(LOCK, () => fn(payload, controller));
       await reply({ ok: true, payload: result, error: null });
@@ -812,12 +965,69 @@ export function createStudioRecorder(deps) {
     checkLeases();
   }
 
+  // --------------------------------------------------------------------------------- sensores (content)
+
+  function recordingOfTab(tabId) {
+    return Array.from(recordings.values()).find((r) => r.tabId === tabId && !TERMINAL.has(r.state) && steps.enabled(r)) || null;
+  }
+
+  /** Mensagens do sensor de interações (interaction / interaction-evidence / interaction-open). */
+  function onSensor(tabId, frameId, event, data) {
+    const r = recordingOfTab(tabId);
+    if (!r) {
+      return { ok: false, error: 'NOT_RECORDING' };
+    }
+    if (event === 'interaction') {
+      return steps.accept(r, frameId, data);
+    }
+    if (event === 'interaction-evidence') {
+      return steps.evidence(r, frameId, data);
+    }
+    return steps.open(r, frameId, data);
+  }
+
+  /** Navegação (SPA ou novo documento) na aba de uma gravação: contexto posterior das etapas e consolidação. */
+  function onNavigation(tabId, kind, url) {
+    const r = recordingOfTab(tabId);
+    if (r) {
+      steps.navigation(r, kind, url);
+      if (kind !== 'NEW_DOCUMENT' && r.state === 'RECORDING') {
+        deps.toContent && deps.toContent(tabId, 'cs.recorder.navigation', {}, 0).catch(() => {});
+      }
+    }
+  }
+
+  function stepMetrics(recordingId) {
+    const r = recordings.get(recordingId);
+    return r ? steps.metrics(r) : null;
+  }
+
   function init(readyPromise) {
     ready = readyPromise;
     client.onHostMessage('studio.command', (msg) => {
       onCommand(msg);
     });
     capture.on('onStatus', onCaptureStatus);
+    // Documento substituído / nova base / frame anexado: os sensores acompanham o documento atual.
+    capture.on('onDocumentReplaced', (rec) => {
+      const r = recordingOfTab(rec.tabId);
+      if (r) {
+        steps.documentReplaced(r, 0);
+        steps.navigation(r, 'NEW_DOCUMENT', null);
+      }
+    });
+    capture.on('afterBase', async (rec) => {
+      const r = recordingOfTab(rec.tabId);
+      if (r && r.state === 'RECORDING' && r.attached) {
+        await steps.startSensors(r);
+      }
+    });
+    capture.on('frameAttached', async (rec, entry) => {
+      const r = recordingOfTab(rec.tabId);
+      if (r && entry.status === 'ATTACHED') {
+        await steps.startFrame(r, entry.frameId);
+      }
+    });
     chromeApi.tabs.onRemoved.addListener((tabId) => ready.then(() => onTabRemoved(tabId)).catch(() => {}));
     policy.onRemoved(() => ready.then(onPermissionsRemoved));
     chromeApi.alarms.onAlarm.addListener((a) => {
@@ -827,5 +1037,5 @@ export function createStudioRecorder(deps) {
     });
   }
 
-  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings };
+  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, steps };
 }

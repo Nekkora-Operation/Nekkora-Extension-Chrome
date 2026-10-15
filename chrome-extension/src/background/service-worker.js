@@ -174,6 +174,8 @@ const commands = {
   'studio.link.get': async () => studioLink.describe(),
   'studio.link.set': async (a) => studioLink.setEnabled(!!a.enabled),
   'studio.recordings': async () => studioRecording.list(),
+  /** Medições do pipeline de etapas (harness/diagnóstico): contagens e latências, sem conteúdo da página. */
+  'studio.steps.metrics': async (a) => studioRecording.stepMetrics(a.recordingId),
 
   // Gravação (eventos simulados pelo harness; contrato futuro da plataforma)
   'recording.event': async (a) => recording.dispatch(a.event || a),
@@ -324,6 +326,11 @@ async function onContentEvent(msg, sender) {
       inspection.resolveTarget(tabId, msg.data.targetId)
         .catch((e) => broadcast('error', { tabId, where: 'reacquire', ...errorInfo(e) }));
       return { ok: true };
+    // STUDIO-003: sensor de interações do Recorder do Studio
+    case 'interaction':
+    case 'interaction-evidence':
+    case 'interaction-open':
+      return studioRecording.onSensor(tabId, frameId, msg.event, msg.data);
     case 'resync-needed': {
       const rec = capture.get(tabId);
       if (rec && rec.sessionId === msg.data.sessionId) {
@@ -380,7 +387,10 @@ for (const evt of ['onHistoryStateUpdated', 'onReferenceFragmentUpdated']) {
     }
     const kind = evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT';
     broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraPrivacy.sanitizeUrl(d.url), at: Date.now(), transitionType: d.transitionType });
-    ready.then(() => capture.onNavigation(d.tabId, kind)).catch(() => {});
+    ready.then(() => {
+      studioRecording.onNavigation(d.tabId, kind, globalThis.NekkoraPrivacy.sanitizeUrl(d.url));
+      return capture.onNavigation(d.tabId, kind);
+    }).catch(() => {});
   }, HTTP_FILTER);
 }
 
