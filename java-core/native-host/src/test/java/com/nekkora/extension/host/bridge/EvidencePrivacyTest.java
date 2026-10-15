@@ -65,19 +65,30 @@ class EvidencePrivacyTest {
     }
 
     @Test
-    void mensagensComunsContinuamLiberadas() {
-        for (String ok : List.of("Usuário ou senha inválidos.", "Pedido registrado com sucesso.", "3 resultados encontrados.", "Informe o CEP.",
-                "Senha incorreta.", "Atualização concluída.")) {
-            assertTrue(EvidencePrivacy.safeMessage(ok), ok);
+    void modoEstritoNenhumTextoAtravessaOHostNemMensagemComumNemDadoDeTerceiroEmMinusculas() throws Exception {
+        for (String any : List.of("Usuário ou senha inválidos.", "Pedido registrado com sucesso.", "3 resultados encontrados.", "Senha incorreta.",
+                "o cliente joão já existe")) {
+            ObjectNode p = evidence();
+            ((ObjectNode) p.at("/details/message")).put("text", any);
+            EvidencePrivacy.reapply(p);
+            assertTrue(p.at("/details/message/text").isNull(), any);
+            assertEquals("SUPPRESSED", p.at("/details/message/availability").asText());
+            assertTrue(p.get("limitations").toString().contains("MESSAGE_SUPPRESSED"));
+            assertTrue(inContract(p), "continua no contrato");
         }
     }
 
     @Test
-    void mensagemSeguraPermaneceIgual() throws Exception {
+    void reaplicarEIdempotenteEMensagemSemTextoContinuaSemTexto() throws Exception {
         ObjectNode p = evidence();
-        String before = p.toString();
         EvidencePrivacy.reapply(p);
-        assertEquals(m.readTree(before), p, "idempotente sem dado sensível");
-        assertEquals("Usuário ou senha inválidos.", p.at("/details/message/text").asText());
+        String once = p.toString();
+        EvidencePrivacy.reapply(p);
+        assertEquals(m.readTree(once), p, "idempotente");
+        ObjectNode none = evidence();
+        ((ObjectNode) none.at("/details/message")).put("availability", "NONE").putNull("text");
+        EvidencePrivacy.reapply(none);
+        assertEquals("NONE", none.at("/details/message/availability").asText(), "sem texto continua NONE");
+        assertTrue(!none.get("limitations").toString().contains("MESSAGE_SUPPRESSED"));
     }
 }

@@ -1,10 +1,10 @@
 {
   "steps" : [ {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-1",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
     "sequence" : 1,
-    "routeRef" : "route-fc0fff",
-    "observedAt" : "2026-10-15T19:32:00.147Z",
+    "routeRef" : "route-71befa",
+    "observedAt" : "2026-10-15T19:59:21.947Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -82,9 +82,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-a29e7542-8b61-48a0-b750-8d96888792c7",
+        "targetId" : "tgt-acd0338f-5f4d-400d-9e08-924c28401b79",
         "nodeId" : "n15",
-        "captureId" : "cap-ps-mv9xqg61-jlclyz-2",
+        "captureId" : "cap-ps-mv9ypmzq-ftby5h-2",
         "documentId" : "doc:f0"
       }
     },
@@ -102,11 +102,11 @@
     "notes" : [ ],
     "events" : 5
   }, {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-2",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
     "sequence" : 2,
-    "routeRef" : "route-fc0fff",
-    "observedAt" : "2026-10-15T19:32:00.151Z",
+    "routeRef" : "route-71befa",
+    "observedAt" : "2026-10-15T19:59:21.951Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -184,9 +184,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-de4087b1-0bcf-4889-8b66-224de3964bd2",
+        "targetId" : "tgt-a9854cb5-19ec-4b8f-bcd1-13e5a4d96ea2",
         "nodeId" : "n17",
-        "captureId" : "cap-ps-mv9xqg61-jlclyz-2",
+        "captureId" : "cap-ps-mv9ypmzq-ftby5h-2",
         "documentId" : "doc:f0"
       }
     },
@@ -205,12 +205,12 @@
     "events" : 1
   } ],
   "evidence" : [ {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "evidenceId" : "evd-a-4f9b-a8a2-66f582fc0fff-1",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-1",
     "evidenceSequence" : 1,
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-1",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:32:00.151Z",
+    "observedAt" : "2026-10-15T19:59:21.951Z",
     "type" : "VALIDATION_FEEDBACK",
     "source" : "FORM_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -225,8 +225,8 @@
     "details" : {
       "region" : "campo do formulário cadastro",
       "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "CEP inválido."
+        "availability" : "SUPPRESSED",
+        "text" : null
       },
       "field" : "CEP",
       "state" : null,
@@ -235,14 +235,14 @@
       "candidates" : 0,
       "signalsObserved" : 0
     },
-    "limitations" : [ ]
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "evidenceId" : "evd-a-4f9b-a8a2-66f582fc0fff-2",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-2",
     "evidenceSequence" : 2,
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-2",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:32:00.153Z",
+    "observedAt" : "2026-10-15T19:59:21.952Z",
     "type" : "VALIDATION_FEEDBACK",
     "source" : "FORM_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -257,8 +257,8 @@
     "details" : {
       "region" : "campo do formulário cadastro",
       "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "Preencha este campo."
+        "availability" : "SUPPRESSED",
+        "text" : null
       },
       "field" : "E-mail",
       "state" : null,
@@ -267,14 +267,14 @@
       "candidates" : 0,
       "signalsObserved" : 0
     },
-    "limitations" : [ ]
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "evidenceId" : "evd-a-4f9b-a8a2-66f582fc0fff-3",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-3",
     "evidenceSequence" : 3,
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-1",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:32:03.150Z",
+    "observedAt" : "2026-10-15T19:59:24.950Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -301,12 +301,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-c0445141-0a1a-4f9b-a8a2-66f582fc0fff",
-    "evidenceId" : "evd-a-4f9b-a8a2-66f582fc0fff-4",
+    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
+    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-4",
     "evidenceSequence" : 4,
-    "eventId" : "ev-a-4f9b-a8a2-66f582fc0fff-2",
+    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:32:03.154Z",
+    "observedAt" : "2026-10-15T19:59:24.954Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",

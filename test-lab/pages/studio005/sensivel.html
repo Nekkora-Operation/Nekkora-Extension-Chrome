@@ -28,6 +28,7 @@
     <button id="limpa" type="button">Expirar código (limpa o campo)</button>
     <button id="remove" type="button">Saudar (remove o campo)</button>
     <button id="terceiro" type="button">Consultar cliente</button>
+    <button id="terceiro-minusculo" type="button">Verificar cadastro</button>
   </p>
   <caixa-segredo id="caixa-segredo"></caixa-segredo>
   <div id="alerta" role="alert" class="alerta-erro"></div>
@@ -56,6 +57,8 @@
     });
     // dado pessoal de terceiro que nunca foi digitado
     document.getElementById('terceiro').addEventListener('click', () => mostra('Cliente Maria Souza já possui cadastro.'));
+    // dado pessoal de terceiro só em minúsculas, nunca digitado (revisão final do PR #6: nenhuma heurística o reconheceria)
+    document.getElementById('terceiro-minusculo').addEventListener('click', () => mostra('o cliente joão já existe'));
     // campo dentro de Shadow DOM aberto; a mensagem repete o valor
     class CaixaSegredo extends HTMLElement {
       constructor() {

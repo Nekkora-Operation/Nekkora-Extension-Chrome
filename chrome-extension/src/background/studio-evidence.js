@@ -40,12 +40,11 @@ const OPERATIONS = new Set(['CLICK', 'PRESS_KEY', 'SELECT_OPTION', 'CHECK', 'UNC
 const WINDOW_ACTIONS = new Set([...OPERATIONS, 'FILL']);
 
 /**
- * @param deps { now, privacy, rules, persist, emitEvidence, broadcast }
+ * @param deps { now, privacy, persist, emitEvidence, broadcast }
  */
 export function createEvidencePipeline(deps) {
   const now = deps.now || (() => Date.now());
   const privacy = () => deps.privacy || globalThis.NekkoraPrivacy;
-  const rules = () => deps.rules || globalThis.NekkoraFeedback;
   const links = new Map(); // recordingId -> Map(`${epoch}|${frameId}|${localSeq}` -> vínculo com a interação/etapa)
 
   // --------------------------------------------------------------------------------- estado
@@ -215,11 +214,8 @@ export function createEvidencePipeline(deps) {
     if (!m || m.availability === 'NONE' || (m.availability !== 'AVAILABLE' && m.availability !== 'SUPPRESSED')) {
       return none();
     }
-    if (m.availability === 'SUPPRESSED' || typeof m.text !== 'string') {
-      return { availability: 'SUPPRESSED', text: null };
-    }
-    const again = rules().messagePolicy(m.text, []);
-    return again.availability === 'AVAILABLE' ? again : { availability: 'SUPPRESSED', text: null };
+    // modo estrito: havendo mensagem, o texto nunca segue (mesmo que a origem o tenha mandado)
+    return { availability: 'SUPPRESSED', text: null };
   }
 
   function docOf(link, d) {

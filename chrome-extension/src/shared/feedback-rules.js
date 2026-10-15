@@ -9,7 +9,7 @@
  *  - classificação reflete o SINAL realmente presente (role, aria-live, aria-invalid, aria-busy, invalid nativo…);
  *    uma classe CSS "error" sozinha não faz um erro (ERROR_HINT só reforça um alerta);
  *  - correlação explícita: com mais de uma interação candidata a evidência é AMBÍGUA — nunca se escolhe uma;
- *  - texto de mensagem: em caso de dúvida, omitido (SUPPRESSED). Regex não identifica todo dado pessoal.
+ *  - texto de mensagem: NUNCA sai (modo estrito). A evidência diz que houve mensagem, não o que ela dizia.
  */
 (function (root) {
   const MESSAGE_MAX = 160;
@@ -17,173 +17,21 @@
   const OPERATIONS = new Set(['CLICK', 'PRESS_KEY', 'SELECT_OPTION', 'CHECK', 'UNCHECK', 'UNKNOWN']);
   const ERROR_HINT = /(^|[^a-z])(error|erro|errors|erros|danger|invalid|invalido|inválido|falha|failure|fail)([^a-z]|$)/i;
 
-  function privacy() {
-    return root.NekkoraPrivacy || null;
-  }
 
   function normalize(text) {
     return String(text == null ? '' : text).replace(/\s+/g, ' ').trim();
   }
 
-  // ------------------------------------------------------------------ impressões digitais dos valores digitados
-
-  function hash(salt, str) {
-    let h = (0x811c9dc5 ^ salt) >>> 0;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 0x01000193);
-    }
-    return h >>> 0;
-  }
-
-  function randomSalt() {
-    try {
-      const b = new Uint32Array(1);
-      root.crypto.getRandomValues(b);
-      return b[0];
-    } catch (e) {
-      return (Math.random() * 0xffffffff) >>> 0;
-    }
-  }
-
   /**
-   * Revisão do PR #6 (P1): o valor digitado pode SUMIR do campo antes de a mensagem aparecer (campo limpo, removido, ou
-   * dentro de Shadow DOM). Guardamos só IMPRESSÕES DIGITAIS salgadas (hash de 32 bits com sal aleatório por documento)
-   * do valor inteiro e das palavras de 4+ caracteres — nunca o valor. A mensagem é comparada janela a janela: uma
-   * colisão só faz omitir mais (fail-closed). Limite de 300 impressões (as mais antigas saem).
+   * Política do TEXTO de uma mensagem — MODO ESTRITO (decisão da revisão final do PR #6): o texto livre que a página
+   * apresentou NUNCA sai. Uma mensagem com texto vira {availability: SUPPRESSED, text: null}; sem texto, NONE. O que
+   * aconteceu (tipo, classificação, sinais, região segura, documento, horário) continua sendo evidência; o conteúdo, não.
+   * Nenhuma heurística decide o que é dado pessoal: "o cliente joão já existe" é omitido como qualquer outra frase.
+   * Aplicada no content script (origem, antes de sair da página) e de novo no service worker; o host e o Studio repetem a
+   * regra. Os argumentos extras de versões anteriores (valores dos campos) não são mais lidos nem usados.
    */
-  function createFingerprints(max) {
-    const salt = randomSalt();
-    const limit = max || 300;
-    const byLength = new Map(); // tamanho -> Set(hash)
-    const order = [];
-
-    function put(v) {
-      if (v.length < 3 || v.length > 200) {
-        return;
-      }
-      let set = byLength.get(v.length);
-      if (!set) {
-        set = new Set();
-        byLength.set(v.length, set);
-      }
-      const h = hash(salt, v);
-      if (set.has(h)) {
-        return;
-      }
-      set.add(h);
-      order.push([v.length, h]);
-      while (order.length > limit) {
-        const [len, old] = order.shift();
-        const s2 = byLength.get(len);
-        s2.delete(old);
-        if (!s2.size) {
-          byLength.delete(len);
-        }
-      }
-    }
-
-    return {
-      add(value) {
-        const v = normalize(value).toLowerCase();
-        if (!v) {
-          return;
-        }
-        put(v);
-        for (const w of v.split(/[^0-9a-zà-ÿ]+/i)) {
-          if (w.length >= 4 && w !== v) {
-            put(w);
-          }
-        }
-      },
-      matches(text) {
-        const t = normalize(text).toLowerCase();
-        for (const [len, set] of byLength) {
-          for (let i = 0; i + len <= t.length; i++) {
-            if (set.has(hash(salt, t.substr(i, len)))) {
-              return true;
-            }
-          }
-        }
-        return false;
-      },
-      size() {
-        return order.length;
-      },
-      toJSON() {
-        return { fingerprints: order.length }; // nada que permita recuperar o valor
-      },
-    };
-  }
-
-  /**
-   * Fail-closed pela FORMA (revisão do PR #6): mesmo sem saber o que foi digitado, um texto com cara de identificador ou
-   * de nome não sai. Palavra com letras E dígitos ("Kq7Segredo"), palavra com maiúscula interna ("JoanaPrado") e
-   * palavra iniciada por maiúscula seguida de minúsculas fora do início da frase (nome próprio: "Cliente Maria Souza").
-   * Siglas (CEP, CPF) e o início de cada frase não contam. Não identifica todo dado pessoal (ex.: nomes em minúsculas
-   * nunca digitados nesta página) — limitação declarada.
-   */
-  function looksIdentifying(text) {
-    const sentences = text.split(/[.!?…]+\s*/);
-    for (const sentence of sentences) {
-      const words = sentence.split(/[\s,;:()"“”'’«»\/–—-]+/).filter(Boolean);
-      for (let i = 0; i < words.length; i++) {
-        const w = words[i];
-        if (/\d/.test(w) && /[a-zà-ÿ]/i.test(w)) {
-          return true;
-        }
-        if (/[a-zß-ÿ][A-ZÀ-Þ]/.test(w)) {
-          return true;
-        }
-        if (i > 0 && /^[A-ZÀ-Þ][a-zß-ÿ]+/.test(w)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Política do TEXTO de uma mensagem (aplicada no content script, antes de sair do contexto da página, e de novo no
-   * service worker e no host). {availability: NONE|AVAILABLE|SUPPRESSED, text}. Suprime quando: longo demais; a máscara
-   * de privacidade mudaria algo; aparência de segredo; sequência de 4+ dígitos (conta, documento, telefone, código);
-   * e-mail/URL; forma de identificador ou nome próprio; contém um valor presente nos campos da página; ou bate com a
-   * impressão digital de um valor digitado antes (mesmo que o campo já tenha sido limpo ou removido).
-   */
-  function messagePolicy(raw, fieldValues, fingerprints) {
-    const text = normalize(raw);
-    if (!text) {
-      return { availability: 'NONE', text: null };
-    }
-    const p = privacy();
-    const suppressed = { availability: 'SUPPRESSED', text: null };
-    if (text.length > MESSAGE_MAX) {
-      return suppressed;
-    }
-    if (p && (p.maskText(text) !== text || p.looksSecret(text))) {
-      return suppressed;
-    }
-    if (/\d{4,}/.test(text) || /@|:\/\/|www\./i.test(text)) {
-      return suppressed;
-    }
-    // token opaco longo (letras e dígitos misturados) sem espaço
-    if (text.split(' ').some((w) => w.length >= 20 && /\d/.test(w) && /[a-z]/i.test(w))) {
-      return suppressed;
-    }
-    if (looksIdentifying(text)) {
-      return suppressed;
-    }
-    if (fingerprints && fingerprints.matches(text)) {
-      return suppressed;
-    }
-    const lower = text.toLowerCase();
-    for (const v of fieldValues || []) {
-      const t = normalize(v).toLowerCase();
-      if (t.length >= 3 && lower.includes(t)) {
-        return suppressed;
-      }
-    }
-    return { availability: 'AVAILABLE', text };
+  function messagePolicy(raw) {
+    return normalize(raw) ? { availability: 'SUPPRESSED', text: null } : { availability: 'NONE', text: null };
   }
 
   /**
@@ -274,6 +122,5 @@
     return s === 'true' || s === 'false' || s === 'mixed' ? s : s === '' ? 'true' : 'absent';
   }
 
-  root.NekkoraFeedback = { MESSAGE_MAX, OPERATIONS, messagePolicy, classifyRegion, hasErrorHint, correlate, opensWindow, stateValue, normalize,
-    createFingerprints, looksIdentifying };
+  root.NekkoraFeedback = { MESSAGE_MAX, OPERATIONS, messagePolicy, classifyRegion, hasErrorHint, correlate, opensWindow, stateValue, normalize };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

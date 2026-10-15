@@ -250,6 +250,13 @@ class Studio005EvidenceIT extends SessionIT {
         }
     }
 
+    /** Modo estrito (revisão final do PR #6): houve mensagem, mas o texto não atravessou o Bridge. */
+    private static void assertTextWithheld(JsonNode e) {
+        assertEquals("SUPPRESSED", e.at("/details/message/availability").asText(), "texto omitido: " + e);
+        assertTrue(e.at("/details/message/text").isNull(), e.toString());
+        assertTrue(e.path("limitations").toString().contains("MESSAGE_SUPPRESSED"), e.toString());
+    }
+
     private JsonNode feedbackStatus(Page p) {
         return lab.call("page.diagnostics", p).at("/recorder/feedback");
     }
@@ -285,7 +292,7 @@ class Studio005EvidenceIT extends SessionIT {
         assertEquals("ERROR_INDICATOR", err.path("classification").asText());
         assertEquals("TEMPORALLY_ASSOCIATED", err.path("confidence").asText());
         assertEquals("AFTER_ACTION", err.path("relation").asText());
-        assertEquals("Usuário ou senha inválidos.", err.at("/details/message/text").asText());
+        assertTextWithheld(err); // a evidência diz que houve mensagem com indicador de erro, não o texto
         assertTrue(err.at("/details/signals").toString().contains("ROLE_ALERT"), err.toString());
         assertTrue(err.at("/details/signals").toString().contains("ERROR_HINT"), err.toString());
         assertEquals("MAIN", err.at("/document/frame").asText());
@@ -336,7 +343,7 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode enviar = awaitSteps(rid, 1).get(0);
         JsonNode msg = awaitEvidence(rid, "confirmação tardia", of(enviar, "VISIBLE_STATUS_MESSAGE"));
         assertEquals("STATUS_INDICATOR", msg.path("classification").asText());
-        assertEquals("Pedido registrado com sucesso.", msg.at("/details/message/text").asText(), "texto da página, não um resultado de negócio");
+        assertTextWithheld(msg);
         long delay = java.time.Instant.parse(msg.path("observedAt").asText()).toEpochMilli() - java.time.Instant.parse(enviar.path("observedAt").asText()).toEpochMilli();
         assertTrue(delay >= 900 && delay < 3000, "observada ~1 s depois da ação: " + delay + " ms");
         assertEquals(1, awaitWindowEnd(rid, enviar).at("/details/signalsObserved").asInt());
@@ -370,7 +377,7 @@ class Studio005EvidenceIT extends SessionIT {
         assertTrue(amb.path("stepSequence").isNull());
         assertEquals("AMBIGUOUS", amb.path("confidence").asText());
         assertEquals(2, amb.at("/details/candidates").asInt());
-        assertEquals("Atualização concluída.", amb.at("/details/message/text").asText());
+        assertTextWithheld(amb);
         assertTrue(evidences(rid).stream().noneMatch(e -> type("VISIBLE_STATUS_MESSAGE").test(e)), "nenhuma etapa escolhida arbitrariamente");
         for (JsonNode st : steps(rid)) {
             awaitWindowEnd(rid, st);
@@ -395,7 +402,7 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode cep = awaitEvidence(rid, "validação do CEP", of(fill, "VALIDATION_FEEDBACK"));
         assertEquals("DIRECTLY_OBSERVED", cep.path("confidence").asText(), "o próprio campo preenchido ficou inválido");
         assertEquals("CEP", cep.at("/details/field").asText());
-        assertEquals("CEP inválido.", cep.at("/details/message/text").asText());
+        assertTextWithheld(cep);
         assertTrue(cep.at("/details/signals").toString().contains("ARIA_INVALID"));
         JsonNode nat = awaitEvidence(rid, "validação nativa do e-mail", of(send, "VALIDATION_FEEDBACK"));
         assertEquals("E-mail", nat.at("/details/field").asText());
@@ -422,7 +429,7 @@ class Studio005EvidenceIT extends SessionIT {
         awaitEvidence(rid, "fim do carregamento", of(search, "LOADING_FINISHED"));
         awaitEvidence(rid, "conteúdo atualizado", of(search, "CONTENT_CHANGED"));
         JsonNode count = awaitEvidence(rid, "contagem de resultados", of(search, "VISIBLE_STATUS_MESSAGE"));
-        assertEquals("3 resultados encontrados.", count.at("/details/message/text").asText());
+        assertTextWithheld(count);
         JsonNode end = awaitWindowEnd(rid, search);
         assertEquals("OBSERVATION_COMPLETE", end.path("type").asText(), brief(evidences(rid)).toString());
         List<String> order = evidences(rid).stream().filter(e -> search.path("eventId").asText().equals(e.path("eventId").asText()))
@@ -481,7 +488,7 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode salvar = awaitSteps(rid, 1).get(0);
         JsonNode inFrame = awaitEvidence(rid, "erro dentro do iframe", of(salvar, "VISIBLE_ERROR_MESSAGE"));
         assertEquals("FRAME", inFrame.at("/document/frame").asText());
-        assertEquals("Erro ao salvar o rascunho.", inFrame.at("/details/message/text").asText());
+        assertTextWithheld(inFrame);
         d.switchTo().frame("externo"); // origem SEM permissão: nada é observado
         new Actions(d).moveToElement(d.findElement(By.id("salvar"))).click().perform();
         d.switchTo().defaultContent();
@@ -505,7 +512,7 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode inShadow = awaitEvidence(rid, "status no shadow root", of(comp, "VISIBLE_STATUS_MESSAGE"));
         assertTrue(inShadow.at("/document/inShadow").asBoolean(), inShadow.toString());
         assertEquals("MAIN", inShadow.at("/document/frame").asText());
-        assertEquals("Envio confirmado no componente.", inShadow.at("/details/message/text").asText());
+        assertTextWithheld(inShadow);
         ackAll(rid);
         JsonNode fin = op("studio.recording.finish", rid);
         assertTrue(fin.at("/payload/summary/limitations").toString().contains("PARTIAL_COVERAGE"), "cobertura parcial declarada: " + fin);
@@ -534,18 +541,16 @@ class Studio005EvidenceIT extends SessionIT {
         }
         List<JsonNode> msgs = evidences(rid).stream().filter(e -> type("VISIBLE_ERROR_MESSAGE").test(e)).toList();
         assertEquals(buttons.size() + 1, msgs.size(), brief(evidences(rid)).toString());
-        List<String> available = msgs.stream().filter(e -> "AVAILABLE".equals(e.at("/details/message/availability").asText()))
-                .map(e -> e.at("/details/message/text").asText()).toList();
-        assertEquals(List.of("Senha incorreta."), available, "só o texto sem dado sensível sai (sem a marcação HTML): " + brief(msgs));
-        assertEquals(buttons.size(), msgs.stream().filter(e -> e.path("limitations").toString().contains("MESSAGE_SUPPRESSED")).count());
-        assertNoSecretInEvidenceChannel("123.456.789-09", "ana.souza@exemplo.com", "eyJhbGciOiJIUzI1NiJ9", "Joana Prado", "Kq7-Segredo", "<b>", "termos de uso");
+        msgs.forEach(Studio005EvidenceIT::assertTextWithheld); // modo estrito: nenhuma, nem "Senha incorreta."
+        assertNoSecretInEvidenceChannel("123.456.789-09", "ana.souza@exemplo.com", "eyJhbGciOiJIUzI1NiJ9", "Joana Prado", "Kq7-Segredo", "<b>", "termos de uso",
+                "Senha incorreta");
         ackAll(rid);
         op("studio.recording.finish", rid);
         lab.writeEvidence("S005-sensitive-evidence.json", M.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("evidence", evidences(rid))));
     }
 
     @Test
-    @DisplayName("REV-P1a — S005-047/048: valor digitado que some antes da mensagem (campo limpo, removido, em Shadow DOM) e dado de terceiro não saem")
+    @DisplayName("REV-P1a — S005-047/048: valor digitado que some antes da mensagem (campo limpo, removido, em Shadow DOM) e dado de terceiro (inclusive só em minúsculas, nunca digitado) não saem")
     void s005SensitiveFieldGone() throws Exception {
         Page p = open(BASE + "sensivel.html");
         String rid = id("rec");
@@ -556,7 +561,7 @@ class Studio005EvidenceIT extends SessionIT {
         WebElement palavra = d.findElement(By.id("caixa-segredo")).getShadowRoot().findElement(By.cssSelector("#palavra"));
         new Actions(d).moveToElement(palavra).click().perform();
         palavra.sendKeys("pirilampo");
-        List<String> buttons = List.of("limpa", "remove", "terceiro");
+        List<String> buttons = List.of("limpa", "remove", "terceiro", "terceiro-minusculo");
         for (String b : buttons) {
             click(p, By.id(b));
             Thread.sleep(QUIET_MS);
@@ -564,18 +569,16 @@ class Studio005EvidenceIT extends SessionIT {
         WebElement enviar = d.findElement(By.id("caixa-segredo")).getShadowRoot().findElement(By.cssSelector("#enviar-palavra"));
         new Actions(d).moveToElement(enviar).click().perform();
         Thread.sleep(QUIET_MS);
-        List<JsonNode> s = awaitSteps(rid, 7);
+        List<JsonNode> s = awaitSteps(rid, 8);
         for (JsonNode st : s) {
             awaitWindowEnd(rid, st);
         }
         assertEquals("", lab.js(p, "return document.getElementById('token-temp').value"), "a página limpou o campo antes da mensagem");
         assertEquals(0L, lab.js(p, "return document.querySelectorAll('#apelido').length"), "a página removeu o campo antes da mensagem");
         List<JsonNode> msgs = evidences(rid).stream().filter(e -> type("VISIBLE_ERROR_MESSAGE").test(e)).toList();
-        assertEquals(4, msgs.size(), brief(evidences(rid)).toString());
-        for (JsonNode m : msgs) {
-            assertEquals("SUPPRESSED", m.at("/details/message/availability").asText(), "texto omitido: " + m);
-        }
-        assertNoSecretInEvidenceChannel("Kq7Segredo", "zorbalino", "pirilampo", "Maria Souza");
+        assertEquals(5, msgs.size(), brief(evidences(rid)).toString());
+        msgs.forEach(Studio005EvidenceIT::assertTextWithheld);
+        assertNoSecretInEvidenceChannel("Kq7Segredo", "zorbalino", "pirilampo", "Maria Souza", "o cliente joão", "joão");
         ackAll(rid);
         op("studio.recording.finish", rid);
     }

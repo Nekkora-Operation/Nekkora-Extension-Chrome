@@ -7,9 +7,9 @@
  *  - só existe com a capacidade evidence/1 e só em CAPTURE_AND_INTERACT (CAPTURE_ONLY não executa a ação: não há consequência);
  *  - não altera a página: nenhum evento disparado, nenhum reportValidity()/checkValidity(), nenhum atributo escrito;
  *  - MutationObserver só enquanto houver janela aberta (no máximo MAX_WINDOWS), desligado em seguida;
- *  - o texto lido (textContent) fica neste contexto: só sai o trecho que passar pela política de mensagem
- *    (NekkoraFeedback.messagePolicy). HTML nunca sai. Os valores dos campos são lidos APENAS para impedir que uma mensagem
- *    que os repita saia (comparação local, nunca armazenados nem enviados);
+ *  - o texto lido (textContent) fica neste contexto e serve só para detectar a mudança (hash local): pela política
+ *    ESTRITA (NekkoraFeedback.messagePolicy) o texto da mensagem nunca sai — só que houve mensagem. HTML nunca sai. Os
+ *    valores dos campos NÃO são lidos;
  *  - correlação determinística (NekkoraFeedback.correlate): com mais de uma interação candidata no mesmo documento a
  *    evidência é AMBÍGUA; uma mensagem que já estava na tela antes da interação não vira evidência;
  *  - toda janela termina com OBSERVATION_COMPLETE (com a contagem de sinais) ou OBSERVATION_INCOMPLETE (motivo).
@@ -29,7 +29,6 @@
   const SELECTOR = '[role="alert"],[role="alertdialog"],[role="status"],[aria-live],[aria-invalid],[aria-busy],[role="progressbar"]';
   const STATE_ATTRS = ['aria-expanded', 'aria-pressed', 'aria-checked', 'aria-selected', 'aria-disabled', 'disabled'];
   const OBSERVED_ATTRS = ['role', 'aria-live', 'aria-invalid', 'aria-busy', 'hidden', 'class', 'style', 'open', ...STATE_ATTRS];
-  const VALUE_TYPES = new Set(['', 'text', 'email', 'password', 'search', 'tel', 'url', 'number']);
 
   let st = null; // { epoch, send, windows: [], tracked: Map, observers: [], timer, listeners: [] }
   // Sequência das mensagens 'feedback' deste documento: monotônica (nunca reinicia), e a última enviada na época vigente
@@ -103,82 +102,9 @@
     }
   }
 
-  /** Valor de um campo de texto (ou editável), ou null — lido só para a comparação local da política de mensagem. */
-  function valueOf(f) {
-    if (!f || f.nodeType !== 1) {
-      return null;
-    }
-    const tag = f.tagName;
-    if (tag === 'INPUT' && !VALUE_TYPES.has((f.getAttribute('type') || '').toLowerCase())) {
-      return null;
-    }
-    if (tag === 'INPUT' || tag === 'TEXTAREA') {
-      return String(f.value || '').slice(0, 200);
-    }
-    const ce = f.getAttribute && f.getAttribute('contenteditable');
-    return ce === '' || ce === 'true' || ce === 'plaintext-only' ? String(f.textContent || '').slice(0, 200) : null;
-  }
-
-  /**
-   * Valores presentes AGORA nos campos de todas as raízes observáveis (documento, iframes de mesma origem e shadow roots
-   * abertos — revisão do PR #6: antes só o documento) — só para a comparação local da política de mensagem.
-   */
-  function fieldValues() {
-    const out = [];
-    for (const r of roots()) {
-      try {
-        for (const f of r.querySelectorAll('input, textarea, [contenteditable]')) {
-          if (out.length >= 80) {
-            return out;
-          }
-          const v = valueOf(f);
-          if (v && v.length >= 3) {
-            out.push(v);
-          }
-        }
-      } catch (e) {
-        // raiz inacessível: a política continua valendo para o resto
-      }
-    }
-    return out;
-  }
-
-  /**
-   * Revisão do PR #6 (P1): impressões digitais (hashes salgados, nunca os valores) dos valores digitados, tiradas ANTES de
-   * a página poder limpar ou remover o campo: em cada interação entregue e quando um campo perde o foco (captura, antes
-   * dos manipuladores da página). Vivem só na memória deste documento (somem com ele) e servem só para OMITIR texto.
-   */
-  let prints = null;
-
-  function fingerprints() {
-    if (!prints && root.NekkoraFeedback) {
-      prints = FB().createFingerprints(300);
-    }
-    return prints;
-  }
-
-  function rememberValues() {
-    const fp = fingerprints();
-    if (fp) {
-      for (const v of fieldValues()) {
-        fp.add(v);
-      }
-    }
-  }
-
-  function onBlur(event) {
-    if (!st) {
-      return;
-    }
-    const el = event.composedPath ? event.composedPath()[0] : event.target;
-    const v = valueOf(el);
-    if (v && v.length >= 3 && fingerprints()) {
-      fingerprints().add(v);
-    }
-  }
-
+  /** Política de mensagem no contexto da página (modo estrito: o texto nunca sai; nenhum valor de campo é lido). */
   function policy(raw) {
-    return FB().messagePolicy(raw, fieldValues(), fingerprints());
+    return FB().messagePolicy(raw);
   }
 
   function masked(s, max) {
@@ -593,7 +519,6 @@
       regionIds = new WeakMap();
       for (const w of windowsOf()) {
         w.addEventListener('invalid', onInvalid, { capture: true, passive: true });
-        w.addEventListener('blur', onBlur, { capture: true, passive: true });
         st.listeners.push(w);
       }
       return true;
@@ -606,7 +531,6 @@
       if (!st || !FB().opensWindow(i.action, 'CAPTURE_AND_INTERACT') || i.observation === 'PROPOSED') {
         return;
       }
-      rememberValues(); // antes de a página reagir à ação (pode limpar ou remover o campo)
       scan(st.windows.length > 0); // registra a linha de base (e entrega o que mudou para as janelas já abertas)
       if (st.windows.length >= MAX_WINDOWS) {
         close(st.windows[0], 'EVIDENCE_LIMIT_REACHED');
@@ -647,7 +571,6 @@
       disconnect();
       for (const w of st.listeners) {
         w.removeEventListener('invalid', onInvalid, { capture: true, passive: true });
-        w.removeEventListener('blur', onBlur, { capture: true, passive: true });
       }
       st = null;
       return lastInEpoch;

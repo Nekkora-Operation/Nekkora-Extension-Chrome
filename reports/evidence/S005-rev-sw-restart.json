@@ -1,10 +1,17 @@
 {
+  "status" : {
+    "enabled" : true,
+    "lastSequence" : 2,
+    "ackedSequence" : 2,
+    "pending" : 0,
+    "lost" : 0
+  },
   "step" : {
-    "recordingId" : "rec-ac3f963e-b0f9-45f6-b623-69d9efd9603f",
-    "eventId" : "ev-9-45f6-b623-69d9efd9603f-1",
+    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
+    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
     "sequence" : 1,
-    "routeRef" : "route-d9603f",
-    "observedAt" : "2026-10-15T19:31:57.786Z",
+    "routeRef" : "route-43bb99",
+    "observedAt" : "2026-10-15T19:59:19.596Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -69,9 +76,9 @@
       "context" : [ ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-743b78f7-0344-46a4-a548-961ed6bb0160",
+        "targetId" : "tgt-44db954f-d771-454b-a72f-ff52195d02e0",
         "nodeId" : "n9",
-        "captureId" : "cap-ps-mv9xqegv-pgx7ou-1",
+        "captureId" : "cap-ps-mv9yplaw-ft4oyi-1",
         "documentId" : "doc:f0"
       }
     },
@@ -90,12 +97,12 @@
     "events" : 1
   },
   "evidence" : [ {
-    "recordingId" : "rec-ac3f963e-b0f9-45f6-b623-69d9efd9603f",
-    "evidenceId" : "evd-9-45f6-b623-69d9efd9603f-1",
+    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
+    "evidenceId" : "evd-5-4de8-aa8c-d553ab43bb99-1",
     "evidenceSequence" : 1,
-    "eventId" : "ev-9-45f6-b623-69d9efd9603f-1",
+    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:31:58.912Z",
+    "observedAt" : "2026-10-15T19:59:20.717Z",
     "type" : "VISIBLE_STATUS_MESSAGE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -110,8 +117,8 @@
     "details" : {
       "region" : "status",
       "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "Pedido registrado com sucesso."
+        "availability" : "SUPPRESSED",
+        "text" : null
       },
       "field" : null,
       "state" : null,
@@ -120,14 +127,14 @@
       "candidates" : 0,
       "signalsObserved" : 0
     },
-    "limitations" : [ ]
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-ac3f963e-b0f9-45f6-b623-69d9efd9603f",
-    "evidenceId" : "evd-9-45f6-b623-69d9efd9603f-2",
+    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
+    "evidenceId" : "evd-5-4de8-aa8c-d553ab43bb99-2",
     "evidenceSequence" : 2,
-    "eventId" : "ev-9-45f6-b623-69d9efd9603f-1",
+    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:31:59.108Z",
+    "observedAt" : "2026-10-15T19:59:20.905Z",
     "type" : "OBSERVATION_INCOMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -153,12 +160,5 @@
       "signalsObserved" : 1
     },
     "limitations" : [ "PARTIAL_COVERAGE" ]
-  } ],
-  "status" : {
-    "enabled" : true,
-    "lastSequence" : 2,
-    "ackedSequence" : 2,
-    "pending" : 0,
-    "lost" : 0
-  }
+  } ]
 }

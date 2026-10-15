@@ -259,7 +259,8 @@ test('S005-010/023/027 — mensagem de erro depois do clique: evidência vincula
   assert.equal(ev[0].classification, 'ERROR_INDICATOR');
   assert.equal(ev[0].confidence, 'TEMPORALLY_ASSOCIATED');
   assert.equal(ev[0].relation, 'AFTER_ACTION');
-  assert.equal(ev[0].details.message.text, 'Usuário ou senha inválidos.');
+  assert.deepEqual(ev[0].details.message, { availability: 'SUPPRESSED', text: null }, 'modo estrito: a origem mandou texto, o service worker não o repassa');
+  assert.ok(ev[0].limitations.includes('MESSAGE_SUPPRESSED'));
   assert.equal(ev[0].evidenceSequence, 1);
   assert.match(ev[0].evidenceId, /^evd-/);
   assert.equal(st[0].evidence.includes('VISIBLE_ERROR_MESSAGE'), false, 'a etapa não muda: evidências estruturadas vêm em evento próprio');
@@ -294,7 +295,7 @@ test('S005-042 — evidência de iframe não é atribuída à ação do document
   assert.equal(other.ok, false);
   assert.equal(other.error, 'UNKNOWN_STEP');
   await settle();
-  assert.deepEqual(evidences().map((e) => e.details.message.text), ['Erro no quadro']);
+  assert.deepEqual(evidences().map((e) => [e.type, e.details.message.availability]), [['VISIBLE_ERROR_MESSAGE', 'SUPPRESSED']], 'só a evidência do próprio documento');
 });
 
 test('S005-042/044 — documento filho: frame=FRAME e limitação CROSS_DOCUMENT_NOT_ATTRIBUTED preservada', async () => {

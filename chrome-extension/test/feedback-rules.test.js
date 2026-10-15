@@ -12,8 +12,11 @@ new Function(readFileSync(path.join(here, '../src/shared/privacy.js'), 'utf8'))(
 new Function(readFileSync(path.join(here, '../src/shared/feedback-rules.js'), 'utf8'))();
 const F = globalThis.NekkoraFeedback;
 
-test('S005-047 — mensagem curta e sem dado sensível sai; vazia é NONE', () => {
-  assert.deepEqual(F.messagePolicy('  Usuário ou   senha inválidos. ', []), { availability: 'AVAILABLE', text: 'Usuário ou senha inválidos.' });
+test('S005-047 (modo estrito) — nem mensagem comum sai: o texto é sempre omitido; vazia é NONE', () => {
+  assert.deepEqual(F.messagePolicy('  Usuário ou   senha inválidos. '), { availability: 'SUPPRESSED', text: null });
+  for (const common of ['Senha incorreta.', 'Pedido registrado com sucesso.', '3 resultados encontrados.', 'Operação concluída.']) {
+    assert.deepEqual(F.messagePolicy(common), { availability: 'SUPPRESSED', text: null }, common);
+  }
   assert.deepEqual(F.messagePolicy('   ', []), { availability: 'NONE', text: null });
   assert.deepEqual(F.messagePolicy(null, []), { availability: 'NONE', text: null });
 });
@@ -34,10 +37,10 @@ test('S005-047/048/049 — em caso de dúvida o texto é omitido (SUPPRESSED): C
   }
 });
 
-test('S005-047/048 — mensagem que repete um valor digitado na página é suprimida (comparação local, valor nunca sai)', () => {
+test('S005-047/048 — mensagem que repete um valor digitado na página é suprimida (o valor do campo nem é consultado)', () => {
   assert.equal(F.messagePolicy('Usuário anateste não encontrado', ['anateste']).availability, 'SUPPRESSED');
   assert.equal(F.messagePolicy('Usuário ANATESTE não encontrado', ['anateste']).availability, 'SUPPRESSED', 'sem diferenciar maiúsculas');
-  assert.equal(F.messagePolicy('Usuário não encontrado', ['ab']).availability, 'AVAILABLE', 'valores curtos (<3) não suprimem tudo');
+  assert.equal(F.messagePolicy('Usuário não encontrado').availability, 'SUPPRESSED', 'modo estrito: qualquer texto é omitido');
 });
 
 test('S005-011/013/014 — classificação pelos SINAIS: alert, alertdialog, status, aria-live; classe "error" só reforça', () => {
@@ -95,23 +98,15 @@ test('S005-018 — valores de estado normalizados para o contrato', () => {
 
 // ------------------------------------------------------------------------------------------- revisão PR #6 — P1-a
 
-test('REV-P1a — valor digitado que JÁ NÃO está no campo (limpo/removido/shadow) continua impedindo o texto: impressão digital do valor', () => {
-  const fp = F.createFingerprints();
-  fp.add('Kq7Segredo');
-  fp.add('joana prado');
-  // o campo foi limpo/removido: a lista de valores atuais está vazia, mas a impressão digital continua
-  assert.equal(F.messagePolicy('O código Kq7Segredo expirou.', [], fp).availability, 'SUPPRESSED');
-  assert.equal(F.messagePolicy('Olá, Joana Prado!', [], fp).availability, 'SUPPRESSED');
-  assert.equal(F.messagePolicy('olá, JOANA!', [], fp).availability, 'SUPPRESSED', 'parte do valor (palavra de 4+ letras)');
-  assert.equal(F.messagePolicy('Usuário ou senha inválidos.', [], fp).availability, 'AVAILABLE');
-  assert.ok(!JSON.stringify(fp).includes('Kq7Segredo') && !JSON.stringify(fp).toLowerCase().includes('joana'), 'só impressões, nunca o valor');
+test('REV-P1a — valor digitado que JÁ NÃO está no campo (limpo/removido/shadow): o texto não sai, sem depender de conhecer o valor', () => {
+  // o campo foi limpo/removido/está em Shadow DOM: nada sobre os campos é informado à política — e mesmo assim nada sai
+  assert.deepEqual(F.messagePolicy('O código Kq7Segredo expirou.'), { availability: 'SUPPRESSED', text: null });
+  assert.deepEqual(F.messagePolicy('Até logo, zorbalino.'), { availability: 'SUPPRESSED', text: null });
+  assert.deepEqual(F.messagePolicy('Palavra pirilampo recusada.'), { availability: 'SUPPRESSED', text: null });
 });
 
-test('REV-P1a — fail-closed por forma: palavra com letras e dígitos, palavra com maiúscula interna e nome próprio fora do início são omitidos', () => {
-  for (const unsafe of ['O código Kq7Segredo expirou.', 'Olá, JoanaPrado!', 'Cliente Maria Souza já possui cadastro.', 'Atendente Carlos indisponível.']) {
-    assert.equal(F.messagePolicy(unsafe, []).availability, 'SUPPRESSED', unsafe);
-  }
-  for (const ok of ['Usuário ou senha inválidos.', 'Pedido registrado com sucesso.', '3 resultados encontrados.', 'Informe o CEP.', 'Senha incorreta.', 'Atualização concluída.']) {
-    assert.equal(F.messagePolicy(ok, []).availability, 'AVAILABLE', ok);
+test('REV-P1a — dado pessoal de terceiro nunca digitado (inclusive só em minúsculas) não sai', () => {
+  for (const unsafe of ['Cliente Maria Souza já possui cadastro.', 'Atendente Carlos indisponível.', 'o cliente joão já existe', 'olá, JoanaPrado!']) {
+    assert.deepEqual(F.messagePolicy(unsafe), { availability: 'SUPPRESSED', text: null }, unsafe);
   }
 });

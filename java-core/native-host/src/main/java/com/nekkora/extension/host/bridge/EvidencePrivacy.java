@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nekkora.extension.core.privacy.Privacy;
-import java.util.regex.Pattern;
 
 /**
  * Terceira barreira de privacidade das EVIDÊNCIAS observadas (STUDIO-005), no host, antes de sair para o Studio. O host
@@ -12,20 +11,14 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>título, região e campo passam pela política Java ({@link Privacy#maskText});</li>
  *   <li>URLs são sanitizadas de novo;</li>
- *   <li>o trecho de mensagem só segue se continuar idêntico depois da máscara, sem aparência de segredo e sem sequência
- *       longa de dígitos (conta, documento, telefone) — senão é SUPRIMIDO (availability=SUPPRESSED, text=null) com a
- *       limitação MESSAGE_SUPPRESSED. Em caso de dúvida, omite.</li>
+ *   <li>MODO ESTRITO (revisão final do PR #6): o texto livre de uma mensagem da página NUNCA segue — havendo texto, ele
+ *       é removido (availability=SUPPRESSED, text=null) com a limitação MESSAGE_SUPPRESSED, qualquer que seja o conteúdo.
+ *       A evidência continua dizendo que houve mensagem (tipo, classificação, sinais, região segura).</li>
  * </ul>
  * A validação estrita do schema ({@code additionalProperties: false}, enums fechados) completa a barreira: HTML, valores
  * de campos e PageMaps não têm onde entrar.
  */
 final class EvidencePrivacy {
-    private static final Pattern DIGITS = Pattern.compile("\\d{4,}");
-    private static final Pattern SENTENCES = Pattern.compile("[.!?…]+\\s*");
-    private static final Pattern WORDS = Pattern.compile("[\\s,;:()\"“”'’«»/–—-]+");
-    private static final Pattern MIXED = Pattern.compile("(?=.*\\d)(?=.*\\p{L}).*");
-    private static final Pattern CAMEL = Pattern.compile(".*\\p{Ll}\\p{Lu}.*");
-    private static final Pattern PROPER = Pattern.compile("\\p{Lu}\\p{Ll}+.*");
     static final int MESSAGE_MAX = 160;
 
     private EvidencePrivacy() {
@@ -47,7 +40,7 @@ final class EvidencePrivacy {
             }
             if (det.path("message") instanceof ObjectNode m) {
                 JsonNode t = m.get("text");
-                if (t != null && t.isTextual() && !safeMessage(t.asText())) {
+                if (t != null && !t.isNull()) { // modo estrito: nenhum texto de mensagem atravessa o host
                     m.putNull("text");
                     m.put("availability", "SUPPRESSED");
                     if (p.path("limitations") instanceof ArrayNode l && !contains(l, "MESSAGE_SUPPRESSED") && l.size() < 8) {
@@ -56,31 +49,6 @@ final class EvidencePrivacy {
                 }
             }
         }
-    }
-
-    /** Trecho de mensagem seguro para sair do host. */
-    static boolean safeMessage(String s) {
-        return s.length() <= MESSAGE_MAX && !Privacy.looksSecret(s) && Privacy.maskText(s).equals(s) && !DIGITS.matcher(s).find() && !looksIdentifying(s);
-    }
-
-    /**
-     * Fail-closed pela forma (revisão do PR #6), a mesma regra da extensão: palavra com letras e dígitos, palavra com
-     * maiúscula interna ou nome próprio fora do início da frase — o texto não sai.
-     */
-    static boolean looksIdentifying(String text) {
-        for (String sentence : SENTENCES.split(text)) {
-            int i = 0;
-            for (String w : WORDS.split(sentence.strip())) {
-                if (w.isEmpty()) {
-                    continue;
-                }
-                if (MIXED.matcher(w).matches() || CAMEL.matcher(w).matches() || (i > 0 && PROPER.matcher(w).matches())) {
-                    return true;
-                }
-                i++;
-            }
-        }
-        return false;
     }
 
     private static boolean contains(ArrayNode a, String v) {
