@@ -176,6 +176,7 @@ const commands = {
   'studio.recordings': async () => studioRecording.list(),
   /** Medições do pipeline de etapas (harness/diagnóstico): contagens e latências, sem conteúdo da página. */
   'studio.steps.metrics': async (a) => studioRecording.stepMetrics(a.recordingId),
+  'studio.evidence.metrics': async (a) => studioRecording.evidenceMetrics(a.recordingId),
 
   // Gravação (eventos simulados pelo harness; contrato futuro da plataforma)
   'recording.event': async (a) => recording.dispatch(a.event || a),
@@ -330,6 +331,7 @@ async function onContentEvent(msg, sender) {
     case 'interaction':
     case 'interaction-evidence':
     case 'interaction-open':
+    case 'feedback':
       return studioRecording.onSensor(tabId, frameId, msg.event, msg.data);
     case 'resync-needed': {
       const rec = capture.get(tabId);

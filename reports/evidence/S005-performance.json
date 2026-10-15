@@ -1,0 +1,39 @@
+{
+  "withoutEvidence" : {
+    "clickToStepMs" : {
+      "p95" : 839,
+      "max" : 915,
+      "p50" : 809
+    }
+  },
+  "withEvidence" : {
+    "clickToStepMs" : {
+      "p95" : 820,
+      "max" : 842,
+      "p50" : 810
+    },
+    "evidenceEvents" : 16,
+    "evidenceBytesMax" : 695,
+    "pipeline" : {
+      "byType" : {
+        "AMBIGUOUS_FEEDBACK" : 1,
+        "OBSERVATION_COMPLETE" : 15
+      },
+      "dropped" : 0,
+      "emitLatencyMs" : {
+        "max" : 1,
+        "p50" : 1,
+        "p95" : 1,
+        "samples" : 16
+      },
+      "incomplete" : 0,
+      "lastObservedAt" : "2026-10-15T20:45:33.704Z",
+      "lost" : 0,
+      "openWindows" : 0,
+      "pending" : 16,
+      "produced" : 16,
+      "unattributed" : 1
+    },
+    "idleObservers" : 0
+  }
+}

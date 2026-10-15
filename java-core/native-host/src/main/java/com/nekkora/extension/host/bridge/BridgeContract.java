@@ -27,13 +27,17 @@ public final class BridgeContract {
             "studio.recording.resume", "studio.recording.mode", "studio.recording.finish", "studio.recording.cancel",
             "studio.recording.status", "studio.recording.renew",
             // STUDIO-003: entrega confiável das etapas gravadas e rota de sessão lógica
-            "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route");
+            "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
+            // STUDIO-005: entrega confiável das evidências observadas
+            "studio.recording.evidence.ack", "studio.recording.evidence.sync");
     /** Eventos da extensão que podem ser repassados ao Studio. */
     public static final Set<String> FORWARDED_EVENTS = Set.of("studio.recording.started", "studio.recording.paused", "studio.recording.resumed",
             "studio.recording.modeChanged", "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded",
             "studio.recording.recovered", "studio.recording.failed", "studio.recording.expired",
             // STUDIO-003: etapa gravada (validada contra o schema estrito antes de sair do host)
-            "studio.recording.step");
+            "studio.recording.step",
+            // STUDIO-005: evidência observada (privacidade reaplicada e schema estrito antes de sair do host)
+            "studio.recording.evidence");
 
     private BridgeContract() {
     }

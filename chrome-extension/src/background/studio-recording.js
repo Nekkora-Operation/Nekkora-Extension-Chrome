@@ -26,13 +26,15 @@
  */
 import { HostError } from './native-client.js';
 import { createStepPipeline } from './studio-steps.js';
+import { createEvidencePipeline } from './studio-evidence.js';
+import '../shared/feedback-rules.js';
 
 const PROTOCOL = 'nekkora-nm/1';
 const KEY = 'nk.srec.';
 const REFS_KEY = 'nk.tabrefs';
 const LOCK = 'studio-recorder';
 const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT']);
-const CAPABILITIES = new Set(['steps/1']);
+const CAPABILITIES = new Set(['steps/1', 'evidence/1']);
 /** Limitações que tornam a captura de AÇÕES parcial (as demais descrevem só a captura técnica). */
 const ACTION_LIMITS = new Set(['PARTIAL_COVERAGE', 'INTERRUPTED', 'NEVER_ATTACHED', 'STEPS_UNCONFIRMED', 'STEPS_REJECTED', 'INTERACTIONS_LOST',
   'STEP_BACKLOG_FULL']);
@@ -72,11 +74,23 @@ export function createStudioRecorder(deps) {
     'studio.recording.steps.ack': stepsAck,
     'studio.recording.steps.sync': stepsSync,
     'studio.recording.route': route,
+    'studio.recording.evidence.ack': evidenceAck,
+    'studio.recording.evidence.sync': evidenceSync,
   };
   /** Comandos atendidos fora da fila (só atualizam prazo/entrega; nunca esperam outra operação). */
-  const UNQUEUED = new Set(['studio.recording.renew', 'browser.tabs.list', 'studio.recording.steps.ack', 'studio.recording.steps.sync']);
+  const UNQUEUED = new Set(['studio.recording.renew', 'browser.tabs.list', 'studio.recording.steps.ack', 'studio.recording.steps.sync',
+    'studio.recording.evidence.ack', 'studio.recording.evidence.sync']);
+
+  /** Evidências observadas (STUDIO-005): só com evidence/1, que exige steps/1 (a evidência pertence a uma etapa). */
+  const evidence = createEvidencePipeline({
+    now: () => now(),
+    persist: (r) => persist(r),
+    broadcast,
+    emitEvidence: (r, payload) => postEvent(r, 'studio.recording.evidence', payload),
+  });
 
   const steps = createStepPipeline({
+    evidence,
     capture,
     toContent: deps.toContent || (() => Promise.reject(new Error('sem content'))),
     host: deps.host || (() => Promise.reject(new HostError('HOST_UNAVAILABLE', 'sem host'))),
@@ -288,6 +302,7 @@ export function createStudioRecorder(deps) {
       updatedAt: iso(r.updatedAt),
       reason: r.reason || null,
       ...(steps.enabled(r) ? { steps: steps.state(r) } : {}),
+      ...(evidence.enabled(r) ? { evidence: evidence.state(r) } : {}),
     };
   }
 
@@ -332,8 +347,21 @@ export function createStudioRecorder(deps) {
       state: r.state, durationMs: Math.max(0, (r.endedAt || now()) - r.startedAt), counters: c, coverage: cov,
       pageMapExported: false, actionCapture, limitations,
     };
+    const evSum = evidence.summary(r);
+    if (evSum) {
+      // limitações das evidências descrevem a OBSERVAÇÃO, não a captura de ações (actionCapture não muda)
+      if (evSum.unacknowledged > 0) {
+        limitations.push('EVIDENCE_UNCONFIRMED');
+      }
+      if (evSum.lost > 0) {
+        limitations.push('EVIDENCE_LOST');
+      }
+    }
     if (sum) {
       out.steps = sum;
+    }
+    if (evSum) {
+      out.evidence = evSum;
     }
     return out;
   }
@@ -363,6 +391,9 @@ export function createStudioRecorder(deps) {
   function postEvent(r, event, payload) {
     if (event === 'studio.recording.step') {
       broadcast('studio-step', { tabId: r.tabId, sequence: payload.sequence, action: payload.action });
+    }
+    if (event === 'studio.recording.evidence') {
+      broadcast('studio-evidence', { tabId: r.tabId, sequence: payload.evidenceSequence, type: payload.type });
     }
     if (typeof client.status !== 'function' || client.status().connected) {
       client.post({ protocol: PROTOCOL, type: 'studio.event', event, payload, controller: { instanceId: r.controller } }).catch(() => {});
@@ -433,6 +464,9 @@ export function createStudioRecorder(deps) {
     if (p.capabilities !== undefined && (!Array.isArray(p.capabilities) || p.capabilities.some((c) => !CAPABILITIES.has(c)))) {
       throw fail('BAD_REQUEST', 'capabilities inválidas');
     }
+    if (Array.isArray(p.capabilities) && p.capabilities.includes('evidence/1') && !p.capabilities.includes('steps/1')) {
+      throw fail('BAD_REQUEST', 'evidence/1 exige steps/1');
+    }
     if (p.routeRef !== undefined) {
       assertId(p.routeRef, 'routeRef');
     }
@@ -487,6 +521,9 @@ export function createStudioRecorder(deps) {
     r.lastCoverage = await coverage(r);
     if (Array.isArray(p.capabilities) && p.capabilities.includes('steps/1')) {
       steps.enable(r, p.routeRef);
+      if (p.capabilities.includes('evidence/1')) {
+        evidence.enable(r);
+      }
       // sensores só depois da captura confirmada; sem a confirmação do sensor principal o início não é confirmado
       if (!(await steps.startSensors(r))) {
         await steps.stopSensors(r, true).catch(() => {});
@@ -558,7 +595,7 @@ export function createStudioRecorder(deps) {
       throw fail('INVALID_STATE', 'Só é possível pausar uma gravação ativa (estado atual: ' + r.state + ').');
     }
     await steps.flush(r, 'PAUSE');
-    await steps.stopSensors(r, false); // eventos depois da pausa (época encerrada) são descartados
+    await steps.stopSensors(r, false, 'WINDOW_CUT_BY_PAUSE'); // eventos depois da pausa (época encerrada) são descartados
     await detach(r, 'STUDIO_RECORDER_PAUSED');
     r.state = 'PAUSED';
     r.reason = 'USER_PAUSED';
@@ -637,6 +674,7 @@ export function createStudioRecorder(deps) {
     if (steps.enabled(r)) {
       if (state === 'CANCELLED') {
         steps.discardOutbox(r); // só as etapas DESTA gravação; o Studio descarta as dele
+        evidence.discardOutbox(r); // e as evidências (nenhuma evidência sobrevive ao cancelamento)
         await steps.stopSensors(r, true);
         await steps.drain(r);
       } else {
@@ -647,6 +685,7 @@ export function createStudioRecorder(deps) {
         await steps.drain(r);
         if (state === 'COMPLETED') {
           await steps.awaitAcks(r); // confirmações dentro do limite; o que faltar fica declarado no resumo
+          await evidence.awaitAcks(r, 3000, deps.sleep || ((ms) => new Promise((res) => setTimeout(res, ms))));
         }
       }
     }
@@ -734,6 +773,9 @@ export function createStudioRecorder(deps) {
     if (steps.enabled(r)) {
       out.steps = steps.state(r);
     }
+    if (evidence.enabled(r)) {
+      out.evidence = evidence.state(r);
+    }
     return out;
   }
 
@@ -769,6 +811,40 @@ export function createStudioRecorder(deps) {
     const r = withSteps(p, controller);
     const res = steps.sync(r, p.afterSequence);
     return { recordingId: r.recordingId, resent: res.resent, steps: res.steps };
+  }
+
+  function withEvidence(p, controller) {
+    const r = owned(p.recordingId, controller);
+    if (!evidence.enabled(r)) {
+      throw fail('BAD_REQUEST', 'A gravação não entrega evidências (capacidade evidence/1 ausente).');
+    }
+    return r;
+  }
+
+  /** Confirmação cumulativa das evidências (fora da fila): só depois do domínio do Studio registrá-las. */
+  async function evidenceAck(p, controller) {
+    assertOnly(p, ['recordingId', 'upToSequence', 'rejected']);
+    assertId(p.recordingId, 'recordingId');
+    if (!Number.isInteger(p.upToSequence) || p.upToSequence < 0) {
+      throw fail('BAD_REQUEST', 'upToSequence inválido');
+    }
+    if (p.rejected !== undefined && (!Array.isArray(p.rejected) || p.rejected.length > 100 || p.rejected.some((n) => !Number.isInteger(n) || n < 1))) {
+      throw fail('BAD_REQUEST', 'rejected inválido');
+    }
+    const r = withEvidence(p, controller);
+    return { recordingId: r.recordingId, evidence: evidence.ack(r, p.upToSequence, p.rejected) };
+  }
+
+  /** Reemissão das evidências retidas (lacuna detectada pelo Studio ou reconexão). */
+  async function evidenceSync(p, controller) {
+    assertOnly(p, ['recordingId', 'afterSequence']);
+    assertId(p.recordingId, 'recordingId');
+    if (!Number.isInteger(p.afterSequence) || p.afterSequence < 0) {
+      throw fail('BAD_REQUEST', 'afterSequence inválido');
+    }
+    const r = withEvidence(p, controller);
+    const res = evidence.sync(r, p.afterSequence);
+    return { recordingId: r.recordingId, resent: res.resent, evidence: res.evidence };
   }
 
   /** Troca de sessão lógica no Studio: consolida a rota anterior e devolve a fronteira de sequência. */
@@ -1016,11 +1092,17 @@ export function createStudioRecorder(deps) {
     return Array.from(recordings.values()).find((r) => r.tabId === tabId && !TERMINAL.has(r.state) && steps.enabled(r)) || null;
   }
 
-  /** Mensagens do sensor de interações (interaction / interaction-evidence / interaction-open). */
+  /** Mensagens do sensor de interações (interaction / interaction-evidence / interaction-open / feedback). */
   function onSensor(tabId, frameId, event, data) {
     const r = recordingOfTab(tabId);
     if (!r) {
       return { ok: false, error: 'NOT_RECORDING' };
+    }
+    if (event === 'feedback') {
+      if (!data || typeof data.epoch !== 'string' || !r.steps.epochs.includes(data.epoch)) {
+        return { ok: false, error: 'STALE_EPOCH' }; // observação de uma ativação encerrada: não é aceita
+      }
+      return evidence.feedback(r, frameId, data);
     }
     if (event === 'interaction') {
       return steps.accept(r, frameId, data);
@@ -1036,6 +1118,7 @@ export function createStudioRecorder(deps) {
     const r = recordingOfTab(tabId);
     if (r) {
       steps.navigation(r, kind, url);
+      evidence.navigation(r, kind, url);
       if (kind !== 'NEW_DOCUMENT' && r.state === 'RECORDING') {
         deps.toContent && deps.toContent(tabId, 'cs.recorder.navigation', {}, 0).catch(() => {});
       }
@@ -1047,6 +1130,11 @@ export function createStudioRecorder(deps) {
     return r ? steps.metrics(r) : null;
   }
 
+  function evidenceMetrics(recordingId) {
+    const r = recordings.get(recordingId);
+    return r ? evidence.metrics(r) : null;
+  }
+
   function init(readyPromise) {
     ready = readyPromise;
     client.onHostMessage('studio.command', (msg) => {
@@ -1054,11 +1142,15 @@ export function createStudioRecorder(deps) {
     });
     capture.on('onStatus', onCaptureStatus);
     // Documento substituído / nova base / frame anexado: os sensores acompanham o documento atual.
-    capture.on('onDocumentReplaced', (rec) => {
+    capture.on('onDocumentReplaced', (rec, data) => {
       const r = recordingOfTab(rec.tabId);
       if (r) {
         steps.documentReplaced(r, 0);
         steps.navigation(r, 'NEW_DOCUMENT', null);
+        // novo documento: evidência de navegação (associada à ação recente, se houver uma só) e, depois, as janelas do
+        // documento substituído terminam INCOMPLETAS (WINDOW_CUT_BY_NAVIGATION)
+        evidence.navigation(r, 'NEW_DOCUMENT', data && typeof data.url === 'string' ? data.url : null);
+        evidence.documentReplaced(r, 0);
       }
     });
     capture.on('afterBase', async (rec) => {
@@ -1082,5 +1174,5 @@ export function createStudioRecorder(deps) {
     });
   }
 
-  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, steps };
+  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, evidenceMetrics, steps, evidence };
 }

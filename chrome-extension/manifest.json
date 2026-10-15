@@ -60,6 +60,8 @@
         "src/content/locator-runner.js",
         "src/content/highlighter.js",
         "src/content/inspector.js",
+        "src/shared/feedback-rules.js",
+        "src/content/feedback-observer.js",
         "src/content/interaction-recorder.js",
         "src/content/content-main.js"
       ],

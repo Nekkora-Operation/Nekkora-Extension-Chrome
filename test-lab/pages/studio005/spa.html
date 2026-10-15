@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>SPA com evidências (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>SPA (STUDIO-005)</h1>
+  <p class="muted">Cenário 6: troca de rota sem recarga (History API), painel que abre (aria-expanded) e link que
+    carrega outro documento.</p>
+  <p>
+    <button id="rota-clientes" type="button">Clientes</button>
+    <button id="filtros" type="button" aria-expanded="false" aria-controls="painel-filtros">Filtros</button>
+    <a id="outro-documento" href="/lab/studio005/tardia.html">Ir para pedidos</a>
+  </p>
+  <section id="painel-filtros" hidden><p>Filtros avançados</p></section>
+  <h2 id="titulo-rota">Início</h2>
+  <script>
+    document.getElementById('rota-clientes').addEventListener('click', () => {
+      history.pushState({ v: 'clientes' }, '', '/lab/studio005/spa.html?view=clientes');
+      document.getElementById('titulo-rota').textContent = 'Clientes';
+    });
+    document.getElementById('filtros').addEventListener('click', (e) => {
+      const b = e.currentTarget;
+      const open = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', open ? 'false' : 'true');
+      document.getElementById('painel-filtros').hidden = open;
+    });
+  </script>
+</body>
+</html>

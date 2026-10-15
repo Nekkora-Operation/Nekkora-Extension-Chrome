@@ -1,0 +1,336 @@
+{
+  "steps" : [ {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
+    "sequence" : 1,
+    "routeRef" : "route-a0cc04",
+    "observedAt" : "2026-10-15T20:44:54.063Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "TEXT_INPUT",
+      "role" : "textbox",
+      "name" : "CEP",
+      "tag" : "input",
+      "htmlId" : "cep",
+      "htmlName" : "cep",
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=cep}",
+        "css" : "input#cep",
+        "xpath" : "//input[@id=\"cep\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "NAME",
+        "description" : "input {name=cep}",
+        "css" : "input[name=\"cep\"]",
+        "xpath" : "//input[@name=\"cep\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"CEP\"}",
+        "css" : null,
+        "xpath" : "//input[@id=//label[normalize-space(.)=\"CEP\"]/@for]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=cadastro} >> input {id=cep}",
+        "css" : "form#cadastro input#cep",
+        "xpath" : "//form[@id=\"cadastro\"]//input[@id=\"cep\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=textbox} {name=\"CEP\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Validação (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "CEP",
+        "locator" : "input#cep",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : "cadastro"
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-3714e2c2-4907-4dbb-8f8b-4cf083791540",
+        "nodeId" : "n15",
+        "captureId" : "cap-ps-mva0c744-t5wr6z-2",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html",
+      "title" : "Validação (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FOCUS_CLICK_ABSORBED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 5
+  }, {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
+    "sequence" : 2,
+    "routeRef" : "route-a0cc04",
+    "observedAt" : "2026-10-15T20:44:54.067Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Cadastrar",
+      "tag" : "button",
+      "htmlId" : "enviar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=enviar}",
+        "css" : "button#enviar",
+        "xpath" : "//button[@id=\"enviar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=cadastro} >> button {id=enviar}",
+        "css" : "form#cadastro button#enviar",
+        "xpath" : "//form[@id=\"cadastro\"]//button[@id=\"enviar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Cadastrar\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Cadastrar\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Cadastrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=cadastro} >> p {nth-of-type 3} >> button",
+        "css" : "form#cadastro > p:nth-of-type(3) > button",
+        "xpath" : "//form[@id=\"cadastro\"]/p[3]/button",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Validação (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Cadastrar",
+        "locator" : "button#enviar",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : "cadastro"
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-109cb2be-c785-4a63-9b4d-f446b1dc79f7",
+        "nodeId" : "n17",
+        "captureId" : "cap-ps-mva0c744-t5wr6z-2",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html",
+      "title" : "Validação (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  } ],
+  "evidence" : [ {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:44:54.067Z",
+    "type" : "VALIDATION_FEEDBACK",
+    "source" : "FORM_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : "VALIDATION_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : "região de validação",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : "campo de texto",
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_INVALID", "ARIA_ERRORMESSAGE" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:44:54.068Z",
+    "type" : "VALIDATION_FEEDBACK",
+    "source" : "FORM_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "VALIDATION_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : "região de validação",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : "campo de e-mail",
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "NATIVE_INVALID" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:44:57.065Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:44:57.070Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  } ]
+}

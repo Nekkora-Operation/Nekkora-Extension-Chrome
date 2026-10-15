@@ -1,0 +1,770 @@
+{
+  "steps" : [ {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-1",
+    "sequence" : 1,
+    "routeRef" : "route-8ca117",
+    "observedAt" : "2026-10-15T20:43:29.822Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "TEXT_INPUT",
+      "role" : "textbox",
+      "name" : "Usuário",
+      "tag" : "input",
+      "htmlId" : "usuario",
+      "htmlName" : "usuario",
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=usuario}",
+        "css" : "input#usuario",
+        "xpath" : "//input[@id=\"usuario\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "NAME",
+        "description" : "input {name=usuario}",
+        "css" : "input[name=\"usuario\"]",
+        "xpath" : "//input[@name=\"usuario\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"Usuário\"}",
+        "css" : null,
+        "xpath" : "//input[@id=//label[normalize-space(.)=\"Usuário\"]/@for]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> input {id=usuario}",
+        "css" : "form#login input#usuario",
+        "xpath" : "//form[@id=\"login\"]//input[@id=\"usuario\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=textbox} {name=\"Usuário\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login com erro (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Usuário",
+        "locator" : "input#usuario",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-f2f1e8b3-41b8-4a3e-8c0e-93972b02c5f3",
+        "nodeId" : "n15",
+        "captureId" : "cap-ps-mva0aea7-whiyjy-1",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html",
+      "title" : "Login com erro (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FOCUS_CLICK_ABSORBED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 11
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-2",
+    "sequence" : 2,
+    "routeRef" : "route-8ca117",
+    "observedAt" : "2026-10-15T20:43:30.224Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "PASSWORD_INPUT",
+      "role" : "textbox",
+      "name" : "Senha",
+      "tag" : "input",
+      "htmlId" : null,
+      "htmlName" : null,
+      "sensitive" : true,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=senha}",
+        "css" : "input#senha",
+        "xpath" : "//input[@id=\"senha\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "NAME",
+        "description" : "input {name=senha}",
+        "css" : "input[name=\"senha\"]",
+        "xpath" : "//input[@name=\"senha\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"Senha\"}",
+        "css" : null,
+        "xpath" : "//input[@id=//label[normalize-space(.)=\"Senha\"]/@for]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> input {id=senha}",
+        "css" : "form#login input#senha",
+        "xpath" : "//form[@id=\"login\"]//input[@id=\"senha\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=textbox} {name=\"Senha\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login com erro (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Senha",
+        "locator" : "input#senha",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-ef1df1d6-ff85-4f41-a6cb-656405e32dc8",
+        "nodeId" : "n17",
+        "captureId" : "cap-ps-mva0aea7-whiyjy-1",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html",
+      "title" : "Login com erro (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FOCUS_CLICK_ABSORBED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 17
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-3",
+    "sequence" : 3,
+    "routeRef" : "route-8ca117",
+    "observedAt" : "2026-10-15T20:43:30.226Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Entrar",
+      "tag" : "button",
+      "htmlId" : "entrar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=entrar}",
+        "css" : "button#entrar",
+        "xpath" : "//button[@id=\"entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> button {id=entrar}",
+        "css" : "form#login button#entrar",
+        "xpath" : "//form[@id=\"login\"]//button[@id=\"entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Entrar\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Entrar\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=login} >> p {nth-of-type 3} >> button {nth-of-type 1}",
+        "css" : "form#login > p:nth-of-type(3) > button:nth-of-type(1)",
+        "xpath" : "//form[@id=\"login\"]/p[3]/button[1]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login com erro (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Entrar",
+        "locator" : "button#entrar",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-c9bf61a3-4f98-4cea-b49e-73819de7e117",
+        "nodeId" : "n18",
+        "captureId" : "cap-ps-mva0aea7-whiyjy-2",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html",
+      "title" : "Login com erro (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FORM_SUBMITTED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-4",
+    "sequence" : 4,
+    "routeRef" : "route-8ca117",
+    "observedAt" : "2026-10-15T20:43:36.974Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Ajuda",
+      "tag" : "button",
+      "htmlId" : "ajuda",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=ajuda}",
+        "css" : "button#ajuda",
+        "xpath" : "//button[@id=\"ajuda\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> button {id=ajuda}",
+        "css" : "form#login button#ajuda",
+        "xpath" : "//form[@id=\"login\"]//button[@id=\"ajuda\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Ajuda\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Ajuda\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Ajuda\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=login} >> p {nth-of-type 3} >> button {nth-of-type 3}",
+        "css" : "form#login > p:nth-of-type(3) > button:nth-of-type(3)",
+        "xpath" : "//form[@id=\"login\"]/p[3]/button[3]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login com erro (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Ajuda",
+        "locator" : "button#ajuda",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-a4fd5db3-91f8-4860-8ea1-3d87e5c076e4",
+        "nodeId" : "n20",
+        "captureId" : "cap-ps-mva0aea7-whiyjy-3",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html",
+      "title" : "Login com erro (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-5",
+    "sequence" : 5,
+    "routeRef" : "route-8ca117",
+    "observedAt" : "2026-10-15T20:43:43.812Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Entrar (mensagem com o usuário)",
+      "tag" : "button",
+      "htmlId" : "entrar-eco",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=entrar-eco}",
+        "css" : "button#entrar-eco",
+        "xpath" : "//button[@id=\"entrar-eco\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> button {id=entrar-eco}",
+        "css" : "form#login button#entrar-eco",
+        "xpath" : "//form[@id=\"login\"]//button[@id=\"entrar-eco\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Entrar (mensagem com o usuário)\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Entrar (mensagem com o usuário)\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Entrar (mensagem com o usuário)\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=login} >> p {nth-of-type 3} >> button {nth-of-type 2}",
+        "css" : "form#login > p:nth-of-type(3) > button:nth-of-type(2)",
+        "xpath" : "//form[@id=\"login\"]/p[3]/button[2]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login com erro (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Entrar (mensagem com o usuário)",
+        "locator" : "button#entrar-eco",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-da033b8b-732a-4da0-ae68-de6d289f9923",
+        "nodeId" : "n19",
+        "captureId" : "cap-ps-mva0aea7-whiyjy-4",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html",
+      "title" : "Login com erro (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  } ],
+  "evidence" : [ {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:43:30.227Z",
+    "type" : "FORM_SUBMITTED",
+    "source" : "INTERACTION_NORMALIZER",
+    "relation" : "AT_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "SUBMIT_EVENT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:43:30.332Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:43:32.833Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:43:33.236Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:43:33.237Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T20:43:39.981Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:43:43.917Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-bb15a933-edf6-4ec9-a434-29386f8ca117",
+    "evidenceId" : "evd-6-4ec9-a434-29386f8ca117-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-6-4ec9-a434-29386f8ca117-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:43:46.820Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  } ]
+}

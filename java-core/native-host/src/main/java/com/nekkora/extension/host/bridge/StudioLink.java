@@ -197,6 +197,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         if ("studio.recording.step".equals(type)) {
             StepPrivacy.reapply(ev.get("payload")); // terceira barreira: o host não confia na sanitização da extensão
         }
+        if ("studio.recording.evidence".equals(type)) {
+            EvidencePrivacy.reapply(ev.get("payload")); // idem para as evidências observadas (STUDIO-005)
+        }
         ev.put("seq", 1);
         if (!BridgeContract.valid(ev)) {
             LOG.warning("Evento fora do contrato não repassado (" + type + "): " + BridgeContract.problems(ev));

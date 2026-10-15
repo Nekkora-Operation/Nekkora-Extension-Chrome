@@ -1,0 +1,46 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.recording.evidence",
+  "seq": 60,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "evidenceId": "evd-1-4",
+    "evidenceSequence": 4,
+    "eventId": "ev-1-3",
+    "stepSequence": 3,
+    "observedAt": "2026-10-15T12:00:07.650Z",
+    "type": "VISIBLE_ERROR_MESSAGE",
+    "source": "FEEDBACK_OBSERVER",
+    "relation": "AFTER_ACTION",
+    "confidence": "TEMPORALLY_ASSOCIATED",
+    "classification": "ERROR_INDICATOR",
+    "document": {
+      "frame": "MAIN",
+      "inShadow": false,
+      "title": "Login de teste",
+      "url": "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details": {
+      "region": "alerta do formulário login",
+      "message": {
+        "availability": "AVAILABLE",
+        "text": "Usuário ou senha inválidos."
+      },
+      "field": null,
+      "state": null,
+      "navigation": null,
+      "signals": [
+        "ROLE_ALERT",
+        "ERROR_HINT"
+      ],
+      "candidates": 0,
+      "signalsObserved": 0
+    },
+    "limitations": [],
+    "pageMap": {
+      "schemaVersion": "0.2.0",
+      "nodes": []
+    }
+  }
+}

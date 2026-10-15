@@ -41,6 +41,8 @@ final class TestStudioServer implements AutoCloseable {
     final byte[] secret = new byte[32];
     final String instanceId = "studio-test-" + System.nanoTime();
     final BlockingQueue<JsonNode> received = new LinkedBlockingQueue<>();
+    /** Tudo o que chegou, na ordem (o {@link #await} consome a fila; este registro não). */
+    final java.util.List<JsonNode> all = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final ServerSocketChannel server;
     private final Path socket;
     private final AtomicLong seq = new AtomicLong();
@@ -140,7 +142,9 @@ final class TestStudioServer implements AutoCloseable {
                 if (raw == null) {
                     break;
                 }
-                received.add(m.readTree(raw));
+                JsonNode msg = m.readTree(raw);
+                all.add(msg);
+                received.add(msg);
             }
         } catch (IOException e) {
             // conexão encerrada

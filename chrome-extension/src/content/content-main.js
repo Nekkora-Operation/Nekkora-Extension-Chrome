@@ -216,7 +216,7 @@
       return { found: true, hostNodeId: NS.registry.idFor(iframe), accessibleFromParent, sandboxed: iframe.hasAttribute('sandbox') };
     },
     // ---- sensor de interações do Recorder do Studio (STUDIO-003)
-    'cs.recorder.start': (a) => NS.interactionRecorder.start({ epoch: a.epoch, mode: a.mode }),
+    'cs.recorder.start': (a) => NS.interactionRecorder.start({ epoch: a.epoch, mode: a.mode, evidence: !!a.evidence }),
     'cs.recorder.mode': (a) => NS.interactionRecorder.setMode({ epoch: a.epoch, mode: a.mode }),
     'cs.recorder.flush': (a) => NS.interactionRecorder.flush({ reason: a.reason }),
     'cs.recorder.stop': (a) => NS.interactionRecorder.stop({ discard: !!a.discard }),

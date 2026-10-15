@@ -254,6 +254,118 @@ fixtures_invalid.update({
                                                         "summary": dict(summary_available, actionCapture="COMPLETE")}},
 })
 
+# ---------------------------------------------------------------------------------------------- STUDIO-005: evidence/1
+REC5 = "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31"
+
+
+def _ev5(type_, payload, seq=60):
+    return {"protocol": P, "kind": "event", "type": type_, "seq": seq, "payload": payload}
+
+
+def _cmd5(type_, payload, seq=70, id_="c-50"):
+    return {"protocol": P, "kind": "command", "type": type_, "id": id_, "seq": seq, "payload": payload}
+
+
+def _resp5(type_, payload, seq=71, id_="c-50"):
+    return {"protocol": P, "kind": "response", "type": type_, "id": id_, "seq": seq, "ok": True, "payload": payload, "error": None}
+
+
+def _evidence5(**over):
+    e = {
+        "recordingId": REC5,
+        "evidenceId": "evd-1-4",
+        "evidenceSequence": 4,
+        "eventId": "ev-1-3",
+        "stepSequence": 3,
+        "observedAt": "2026-10-15T12:00:07.650Z",
+        "type": "VISIBLE_ERROR_MESSAGE",
+        "source": "FEEDBACK_OBSERVER",
+        "relation": "AFTER_ACTION",
+        "confidence": "TEMPORALLY_ASSOCIATED",
+        "classification": "ERROR_INDICATOR",
+        "document": {"frame": "MAIN", "inShadow": False, "title": "Login de teste", "url": "http://127.0.0.1:18765/lab/studio005/login-erro.html"},
+        "details": {
+            "region": "alerta do formulário login",
+            "message": {"availability": "AVAILABLE", "text": "Usuário ou senha inválidos."},
+            "field": None, "state": None, "navigation": None,
+            "signals": ["ROLE_ALERT", "ERROR_HINT"], "candidates": 0, "signalsObserved": 0,
+        },
+        "limitations": [],
+    }
+    for k, v in over.items():
+        if k in e["details"] and k not in ("message",):
+            e["details"][k] = v
+        else:
+            e[k] = v
+    return e
+
+
+_EVSTATE5 = {"enabled": True, "lastSequence": 6, "ackedSequence": 4, "pending": 2, "lost": 0}
+fixtures_valid["s005-command-start-evidence"] = _cmd5("studio.recording.start", {
+    "recordingId": REC5, "operationId": "op-s5", "tabRef": "t-Q2f9LmZx7Kp1", "mode": "CAPTURE_AND_INTERACT", "leaseMs": 30000,
+    "capabilities": ["steps/1", "evidence/1"], "routeRef": "route-1"})
+fixtures_valid["s005-event-evidence-error"] = _ev5("studio.recording.evidence", _evidence5())
+_e = _evidence5(evidenceId="evd-1-5", evidenceSequence=5, type="FORM_SUBMITTED", source="INTERACTION_NORMALIZER", relation="AT_ACTION",
+                confidence="DIRECTLY_OBSERVED", classification=None, observedAt="2026-10-15T12:00:07.080Z")
+_e["details"].update({"region": "formulário login", "message": {"availability": "NONE", "text": None}, "signals": ["SUBMIT_EVENT"]})
+fixtures_valid["s005-event-evidence-form-submitted"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-6", evidenceSequence=6, type="VALIDATION_FEEDBACK", source="FORM_OBSERVER", relation="AT_ACTION",
+                confidence="DIRECTLY_OBSERVED", classification="VALIDATION_INDICATOR")
+_e["details"].update({"region": "formulário cadastro", "field": "E-mail", "message": {"availability": "SUPPRESSED", "text": None},
+                      "signals": ["NATIVE_INVALID"]})
+_e["limitations"] = ["MESSAGE_SUPPRESSED"]
+fixtures_valid["s005-event-evidence-validation"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-7", evidenceSequence=7, eventId=None, stepSequence=None, type="AMBIGUOUS_FEEDBACK", confidence="AMBIGUOUS",
+                classification="UNKNOWN_FEEDBACK")
+_e["details"].update({"candidates": 2, "message": {"availability": "SUPPRESSED", "text": None}, "signals": ["ROLE_STATUS"]})
+fixtures_valid["s005-event-evidence-ambiguous"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-8", evidenceSequence=8, type="ROUTE_CHANGED", source="NAVIGATION_OBSERVER", confidence="TEMPORALLY_ASSOCIATED",
+                classification=None)
+_e["details"].update({"region": None, "message": {"availability": "NONE", "text": None}, "signals": ["HISTORY_API"],
+                      "navigation": {"kind": "SAME_DOCUMENT", "url": "http://127.0.0.1:18765/lab/studio005/spa.html#/clientes"}})
+fixtures_valid["s005-event-evidence-route"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-9", evidenceSequence=9, type="ELEMENT_STATE_CHANGED", confidence="DIRECTLY_OBSERVED", classification=None)
+_e["details"].update({"region": "botão Filtros", "message": {"availability": "NONE", "text": None}, "signals": ["TARGET_ATTRIBUTE"],
+                      "state": {"attribute": "aria-expanded", "from": "false", "to": "true"}})
+fixtures_valid["s005-event-evidence-state"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-10", evidenceSequence=10, type="OBSERVATION_INCOMPLETE", source="RECORDER", confidence="INCOMPLETE",
+                classification=None)
+_e["details"].update({"region": None, "message": {"availability": "NONE", "text": None}, "signals": [], "signalsObserved": 1})
+_e["limitations"] = ["WINDOW_CUT_BY_PAUSE"]
+fixtures_valid["s005-event-evidence-incomplete"] = _ev5("studio.recording.evidence", _e)
+_e = _evidence5(evidenceId="evd-1-11", evidenceSequence=11, type="OBSERVATION_COMPLETE", confidence="DIRECTLY_OBSERVED", classification=None)
+_e["document"].update({"frame": "FRAME", "inShadow": True, "title": None, "url": None})
+_e["details"].update({"region": None, "message": {"availability": "NONE", "text": None}, "signals": [], "signalsObserved": 0})
+fixtures_valid["s005-event-evidence-complete-frame"] = _ev5("studio.recording.evidence", _e)
+fixtures_valid["s005-command-evidence-ack"] = _cmd5("studio.recording.evidence.ack", {"recordingId": REC5, "upToSequence": 4, "rejected": [2]})
+fixtures_valid["s005-response-evidence-ack"] = _resp5("studio.recording.evidence.ack", {"recordingId": REC5, "evidence": _EVSTATE5})
+fixtures_valid["s005-command-evidence-sync"] = _cmd5("studio.recording.evidence.sync", {"recordingId": REC5, "afterSequence": 4})
+fixtures_valid["s005-response-evidence-sync"] = _resp5("studio.recording.evidence.sync", {"recordingId": REC5, "resent": 2, "evidence": _EVSTATE5})
+fixtures_valid["s005-response-renew-evidence"] = _resp5("studio.recording.renew", {
+    "recordingId": REC5, "state": "RECORDING", "expiresInMs": 30000,
+    "steps": {"enabled": True, "lastSequence": 3, "ackedSequence": 3, "pending": 0, "lost": 0}, "evidence": _EVSTATE5})
+
+
+def _bad5(name, mutate):
+    e = _evidence5()
+    mutate(e)
+    fixtures_invalid[name] = _ev5("studio.recording.evidence", e)
+
+
+_bad5("s005-evidence-with-html", lambda e: e["details"].update({"html": "<div role=alert>Usuário ou senha inválidos.</div>"}))
+_bad5("s005-evidence-with-typed-value", lambda e: e["details"].update({"value": "anateste"}))
+_bad5("s005-evidence-with-pagemap", lambda e: e.update({"pageMap": {"schemaVersion": "0.2.0", "nodes": []}}))
+_bad5("s005-evidence-unknown-type", lambda e: e.update({"type": "BUSINESS_SUCCESS"}))
+_bad5("s005-evidence-message-too-long", lambda e: e["details"].update({"message": {"availability": "AVAILABLE", "text": "x" * 161}}))
+_bad5("s005-evidence-without-sequence", lambda e: e.pop("evidenceSequence"))
+_bad5("s005-evidence-unknown-signal", lambda e: e["details"].update({"signals": ["CSS_CLASS_ERROR"]}))
+_bad5("s005-evidence-confidence-percent", lambda e: e.update({"confidence": 0.8}))
+_bad5("s005-evidence-business-outcome", lambda e: e.update({"businessOutcome": "SUCCESS"}))
+fixtures_invalid["s005-start-unknown-evidence-capability"] = _cmd5("studio.recording.start", {
+    "recordingId": REC5, "operationId": "op-s5", "tabRef": "t-Q2f9LmZx7Kp1", "mode": "CAPTURE_AND_INTERACT", "leaseMs": 30000,
+    "capabilities": ["steps/1", "evidence/2"], "routeRef": "route-1"})
+fixtures_invalid["s005-evidence-as-lifecycle-payload"] = _ev5("studio.recording.degraded", _evidence5())
+
 for name, body in fixtures_valid.items():
     with open(os.path.join(valid, name + ".json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(body, f, ensure_ascii=False, indent=2)

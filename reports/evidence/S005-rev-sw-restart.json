@@ -1,0 +1,164 @@
+{
+  "step" : {
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
+    "sequence" : 1,
+    "routeRef" : "route-244e04",
+    "observedAt" : "2026-10-15T20:44:51.711Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Enviar pedido",
+      "tag" : "button",
+      "htmlId" : "enviar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=enviar}",
+        "css" : "button#enviar",
+        "xpath" : "//button[@id=\"enviar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Enviar pedido\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Enviar pedido\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Enviar pedido\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "POSITIONAL",
+        "description" : "html >> body >> p {nth-of-type 2} >> button {nth-of-type 1}",
+        "css" : "html > body > p:nth-of-type(2) > button:nth-of-type(1)",
+        "xpath" : "//html/body/p[2]/button[1]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Mensagem tardia (STUDIO-005)",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Enviar pedido",
+        "locator" : "button#enviar",
+        "restriction" : null
+      } ],
+      "context" : [ ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-d1b35a0d-37cb-42a7-92ad-f52db657efb1",
+        "nodeId" : "n9",
+        "captureId" : "cap-ps-mva0c5ei-inwve8-1",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio005/tardia.html",
+      "title" : "Mensagem tardia (STUDIO-005)",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  },
+  "evidence" : [ {
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "evidenceId" : "evd-e-4242-8ca4-21ba56244e04-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:44:52.828Z",
+    "type" : "VISIBLE_STATUS_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "STATUS_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/tardia.html"
+    },
+    "details" : {
+      "region" : "mensagem de status",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_STATUS" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "evidenceId" : "evd-e-4242-8ca4-21ba56244e04-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:44:53.086Z",
+    "type" : "OBSERVATION_INCOMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "INCOMPLETE",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/tardia.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ "PARTIAL_COVERAGE" ]
+  } ],
+  "status" : {
+    "enabled" : true,
+    "lastSequence" : 2,
+    "ackedSequence" : 2,
+    "pending" : 0,
+    "lost" : 0
+  }
+}

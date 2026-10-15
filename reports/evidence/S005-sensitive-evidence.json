@@ -1,0 +1,515 @@
+{
+  "evidence" : [ {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:44:16.186Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:44:18.676Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:44:19.079Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:44:19.079Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T20:44:20.383Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T20:44:23.288Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:44:24.079Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:44:26.985Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-9",
+    "evidenceSequence" : 9,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-6",
+    "stepSequence" : 6,
+    "observedAt" : "2026-10-15T20:44:27.764Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-10",
+    "evidenceSequence" : 10,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-6",
+    "stepSequence" : 6,
+    "observedAt" : "2026-10-15T20:44:30.663Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-11",
+    "evidenceSequence" : 11,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-7",
+    "stepSequence" : 7,
+    "observedAt" : "2026-10-15T20:44:31.442Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-12",
+    "evidenceSequence" : 12,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-7",
+    "stepSequence" : 7,
+    "observedAt" : "2026-10-15T20:44:34.346Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-13",
+    "evidenceSequence" : 13,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-8",
+    "stepSequence" : 8,
+    "observedAt" : "2026-10-15T20:44:35.122Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-14",
+    "evidenceSequence" : 14,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-8",
+    "stepSequence" : 8,
+    "observedAt" : "2026-10-15T20:44:38.016Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-15",
+    "evidenceSequence" : 15,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-9",
+    "stepSequence" : 9,
+    "observedAt" : "2026-10-15T20:44:38.823Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-86acfcf2-39be-480b-9126-7f76a2a860d5",
+    "evidenceId" : "evd-e-480b-9126-7f76a2a860d5-16",
+    "evidenceSequence" : 16,
+    "eventId" : "ev-e-480b-9126-7f76a2a860d5-9",
+    "stepSequence" : 9,
+    "observedAt" : "2026-10-15T20:44:41.724Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/sensivel.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  } ]
+}

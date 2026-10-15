@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Iframe com mensagens (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe { width: 46%; height: 200px; border: 1px solid #999; margin: 4px; vertical-align: top; }</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Iframe com mensagens (STUDIO-005)</h1>
+  <p class="muted">Cenário 7: mensagens dentro de um iframe autorizado são da ação feita no iframe; a mensagem que o
+    documento principal escreve dentro do iframe NÃO é atribuída à ação do documento principal. O iframe de outra origem
+    sem permissão não é observado. O componente com Shadow DOM aberto também é observado (região dentro do shadow root).</p>
+  <p>
+    <button id="principal" type="button">Atualizar painel</button>
+    <button id="principal-no-quadro" type="button">Avisar no quadro</button>
+  </p>
+  <p id="status-principal" role="status"></p>
+  <h2>Componente (Shadow DOM aberto)</h2>
+  <caixa-confirmacao id="caixa"></caixa-confirmacao>
+  <iframe id="quadro" title="Rascunho" src="/lab/studio005/quadro.html"></iframe>
+  <iframe id="externo" title="Parceiro sem permissão"></iframe>
+  <script>
+    document.getElementById('principal').addEventListener('click', () => {
+      document.getElementById('status-principal').textContent = 'Painel atualizado.';
+    });
+    document.getElementById('principal-no-quadro').addEventListener('click', () => {
+      const d = document.getElementById('quadro').contentDocument;
+      const a = d.getElementById('alerta-quadro');
+      a.textContent = 'Aviso escrito pelo painel.';
+      a.hidden = false;
+    });
+    class CaixaConfirmacao extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<button id="confirmar" type="button">Confirmar envio</button> <p id="estado" role="status"></p>';
+        root.getElementById('confirmar').addEventListener('click', () => {
+          root.getElementById('estado').textContent = 'Envio confirmado no componente.';
+        });
+      }
+    }
+    customElements.define('caixa-confirmacao', CaixaConfirmacao);
+    const ext = new URLSearchParams(location.search).get('externo');
+    if (ext) {
+      document.getElementById('externo').src = ext;
+    }
+  </script>
+</body>
+</html>

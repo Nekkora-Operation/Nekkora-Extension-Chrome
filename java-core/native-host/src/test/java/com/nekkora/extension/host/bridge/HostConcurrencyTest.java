@@ -113,6 +113,103 @@ class HostConcurrencyTest {
         }
     }
 
+    /**
+     * STUDIO-005 / revisão do PR #6 (P2, S005-055): a segunda fila de entrega (evidências) não pode prender o controle. Motor
+     * ocupado por uma operação longa + rajada de evidências da extensão para o Studio + comandos de controle (pausa e
+     * finalização) no meio da rajada: os comandos são repassados e respondidos enquanto o motor ainda está ocupado e sem
+     * esperar a rajada terminar; todas as evidências chegam ao Studio, dentro do contrato e com a 3ª barreira aplicada.
+     */
+    @Test
+    void s005055RajadaDeEvidenciasNaoPrendeOControle() throws Exception {
+        try (TestStudioServer studio = new TestStudioServer(tmp.resolve("bridge"), TestStudioServer.Mode.NORMAL, 5000);
+             ExtensionSide ext = new ExtensionSide(tmp.resolve("data"), tmp.resolve("bridge"))) {
+            ext.enableLink();
+            assertNotNull(ext.awaitLink("CONNECTED", 10_000));
+            long holdMs = 6000;
+            String hold = ext.request("host.hold", m.createObjectNode().put("ms", holdMs)); // motor ocupado
+            Thread.sleep(500);
+            JsonNode base = m.readTree(getClass().getResourceAsStream("/contracts/studio-bridge/fixtures/valid/s005-event-evidence-error.json")).path("payload");
+            int burst = 300;
+            long b0 = System.nanoTime();
+            long[] producerEnd = new long[1];
+            Thread producer = new Thread(() -> {
+                try {
+                    for (int i = 1; i <= burst; i++) {
+                        ObjectNode p = base.deepCopy();
+                        p.put("evidenceId", "evd-1-" + i).put("evidenceSequence", i);
+                        ((ObjectNode) p.at("/details/message")).put("text", i % 2 == 0 ? "Usuário ou senha inválidos." : "Cliente Maria Souza já possui cadastro.");
+                        ObjectNode ev = m.createObjectNode().put("protocol", "nekkora-nm/1").put("type", "studio.event").put("event", "studio.recording.evidence");
+                        ev.set("payload", p);
+                        ev.putObject("controller").put("instanceId", studio.instanceId);
+                        ext.write(ev.toString());
+                        Thread.sleep(5); // rajada contínua (~1,5 s): os comandos chegam no MEIO dela
+                    }
+                    producerEnd[0] = System.nanoTime();
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "rajada-de-evidencias");
+            producer.start();
+            Thread.sleep(300); // a rajada já está em andamento
+
+            long p0 = System.nanoTime();
+            String pid = studio.command("studio.recording.pause", m.createObjectNode().put("recordingId", "rec-1").put("operationId", "op-1"));
+            ExtensionSide.Frame cmd = ext.await(n -> "studio.command".equals(n.path("type").asText()) && "studio.recording.pause".equals(n.path("command").asText()), 5000);
+            assertNotNull(cmd, "pausa repassada durante a rajada");
+            long forwardMs = (cmd.atNanos() - p0) / 1_000_000;
+            ObjectNode reply = m.createObjectNode().put("protocol", "nekkora-nm/1").put("type", "studio.reply").put("id", cmd.json().path("id").asText()).put("ok", true);
+            reply.set("payload", m.readTree(getClass().getResourceAsStream("/contracts/studio-bridge/fixtures/valid/response-pause.json")).path("payload"));
+            reply.putNull("error");
+            ext.write(reply.toString());
+            JsonNode resp = studio.await(n -> pid.equals(n.path("id").asText()), 5000);
+            long pauseRoundTripMs = (System.nanoTime() - p0) / 1_000_000;
+            assertNotNull(resp);
+            assertTrue(resp.path("ok").asBoolean());
+
+            long f0 = System.nanoTime();
+            String fid = studio.command("studio.recording.finish", m.createObjectNode().put("recordingId", "rec-1").put("operationId", "op-2"));
+            ExtensionSide.Frame fin = ext.await(n -> "studio.command".equals(n.path("type").asText()) && "studio.recording.finish".equals(n.path("command").asText()), 5000);
+            assertNotNull(fin, "finalização repassada durante a rajada");
+            long finishForwardMs = (fin.atNanos() - f0) / 1_000_000;
+
+            producer.join(20_000);
+            long burstMs = (System.nanoTime() - b0) / 1_000_000;
+            long deadline = System.currentTimeMillis() + 15_000;
+            while (studio.all.stream().filter(x -> "studio.recording.evidence".equals(x.path("type").asText())).count() < burst
+                    && System.currentTimeMillis() < deadline) {
+                Thread.sleep(50);
+            }
+            List<JsonNode> got = studio.all.stream().filter(x -> "studio.recording.evidence".equals(x.path("type").asText())).toList();
+            ExtensionSide.Frame held = ext.await(n -> hold.equals(n.path("id").asText()), 15_000);
+            assertNotNull(held);
+            boolean controlWhileBusy = cmd.atNanos() < held.atNanos() && fin.atNanos() < held.atNanos();
+            boolean controlBeforeBurstEnd = fin.atNanos() < producerEnd[0];
+
+            Map<String, Object> ev = new LinkedHashMap<>();
+            ev.put("engineOperation", "host.hold " + holdMs + " ms");
+            ev.put("evidenceBurst", burst);
+            ev.put("burstDurationMs", burstMs);
+            ev.put("pauseForwardedMs", forwardMs);
+            ev.put("pauseRoundTripMs", pauseRoundTripMs);
+            ev.put("finishForwardedMs", finishForwardMs);
+            ev.put("controlHandledWhileEngineBusy", controlWhileBusy);
+            ev.put("controlForwardedBeforeBurstEnded", controlBeforeBurstEnd);
+            ev.put("evidenceDelivered", got.size());
+            evidence("S005-055-evidence-burst-control", ev);
+
+            assertTrue(controlWhileBusy, "pausa e finalização atendidas com o motor ainda ocupado");
+            assertTrue(controlBeforeBurstEnd, "pausa e finalização repassadas ANTES de a rajada terminar (não esperaram a fila de evidências)");
+            assertTrue(forwardMs < 500, "repasse da pausa em " + forwardMs + " ms (limite da S002-022)");
+            assertTrue(finishForwardMs < 500, "repasse da finalização em " + finishForwardMs + " ms");
+            assertTrue(pauseRoundTripMs < 500, "pausa ida e volta em " + pauseRoundTripMs + " ms");
+            assertEquals(burst, got.size(), "todas as evidências entregues ao Studio");
+            for (JsonNode g : got) {
+                assertTrue(BridgeContract.valid(g), BridgeContract.problems(g).toString());
+                assertTrue(!g.toString().contains("Maria Souza"), "3ª barreira aplicada na rajada");
+            }
+        }
+    }
+
     @Test
     void s002022OperacaoLongaNaoBloqueiaOControle() throws Exception {
         try (TestStudioServer studio = new TestStudioServer(tmp.resolve("bridge"), TestStudioServer.Mode.NORMAL, 5000);

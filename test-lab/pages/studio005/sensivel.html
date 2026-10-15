@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Mensagens sensíveis (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Mensagens com dados sensíveis (STUDIO-005)</h1>
+  <p class="muted">Cenário 8: mensagens que contêm CPF, e-mail, token, valor digitado, texto longo ou marcação HTML.
+    Todos os dados são fictícios. O texto dessas mensagens não pode sair da página.</p>
+  <p><label for="nome">Nome</label> <input id="nome" type="text"></p>
+  <p><label for="codigo">Código de acesso</label> <input id="codigo" type="password"></p>
+  <p>
+    <button id="cpf" type="button">Verificar CPF</button>
+    <button id="email" type="button">Reenviar código</button>
+    <button id="token" type="button">Sessão</button>
+    <button id="eco" type="button">Saudar</button>
+    <button id="senha" type="button">Validar código</button>
+    <button id="longo" type="button">Termos</button>
+    <button id="marcacao" type="button">Marcação</button>
+  </p>
+  <h2>Campos que somem antes da mensagem (revisão do PR #6)</h2>
+  <p><label for="token-temp">Código temporário</label> <input id="token-temp" type="password">
+    <label for="apelido">Apelido</label> <input id="apelido" type="text"></p>
+  <p>
+    <button id="limpa" type="button">Expirar código (limpa o campo)</button>
+    <button id="remove" type="button">Saudar (remove o campo)</button>
+    <button id="terceiro" type="button">Consultar cliente</button>
+    <button id="terceiro-minusculo" type="button">Verificar cadastro</button>
+  </p>
+  <caixa-segredo id="caixa-segredo"></caixa-segredo>
+  <div id="alerta" role="alert" class="alerta-erro"></div>
+  <script>
+    const alerta = document.getElementById('alerta');
+    const mostra = (t) => { alerta.textContent = t; };
+    document.getElementById('cpf').addEventListener('click', () => mostra('CPF 123.456.789-09 já cadastrado.'));
+    document.getElementById('email').addEventListener('click', () => mostra('Enviamos o código para ana.souza@exemplo.com.'));
+    document.getElementById('token').addEventListener('click', () => mostra('Sessão eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U expirada.'));
+    document.getElementById('eco').addEventListener('click', () => mostra('Olá, ' + document.getElementById('nome').value + '!'));
+    document.getElementById('senha').addEventListener('click', () => mostra('O código ' + document.getElementById('codigo').value + ' expirou.'));
+    document.getElementById('longo').addEventListener('click', () => mostra('Ao continuar você concorda com os termos de uso, a política de privacidade e o tratamento de dados descritos no contrato de prestação de serviços vigente nesta data.'));
+    // o campo é LIMPO antes da mensagem que repete o valor
+    document.getElementById('limpa').addEventListener('click', () => {
+      const c = document.getElementById('token-temp');
+      const v = c.value;
+      c.value = '';
+      mostra('O código ' + v + ' expirou.');
+    });
+    // o campo é REMOVIDO da página antes da mensagem
+    document.getElementById('remove').addEventListener('click', () => {
+      const c = document.getElementById('apelido');
+      const v = c.value;
+      c.remove();
+      mostra('Até logo, ' + v + '.');
+    });
+    // dado pessoal de terceiro que nunca foi digitado
+    document.getElementById('terceiro').addEventListener('click', () => mostra('Cliente Maria Souza já possui cadastro.'));
+    // dado pessoal de terceiro só em minúsculas, nunca digitado (revisão final do PR #6: nenhuma heurística o reconheceria)
+    document.getElementById('terceiro-minusculo').addEventListener('click', () => mostra('o cliente joão já existe'));
+    // campo dentro de Shadow DOM aberto; a mensagem repete o valor
+    class CaixaSegredo extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<label for="palavra">Palavra-chave</label> <input id="palavra" type="text"> <button id="enviar-palavra" type="button">Enviar palavra</button>';
+        root.getElementById('enviar-palavra').addEventListener('click', () => mostra('Palavra ' + root.getElementById('palavra').value + ' recusada.'));
+      }
+    }
+    customElements.define('caixa-segredo', CaixaSegredo);
+    document.getElementById('marcacao').addEventListener('click', () => { alerta.innerHTML = 'Senha <b>incorreta</b>.'; });
+  </script>
+</body>
+</html>

@@ -126,7 +126,21 @@
         "startedAt": { "$ref": "#/$defs/Instant" },
         "updatedAt": { "$ref": "#/$defs/Instant" },
         "reason": { "type": ["string", "null"], "maxLength": 60, "description": "Motivo do último estado (ex.: TAB_CLOSED, PERMISSION_REVOKED, LEASE_EXPIRED, STEP_BACKLOG_FULL)." },
-        "steps": { "$ref": "#/$defs/StepsState" }
+        "steps": { "$ref": "#/$defs/StepsState" },
+        "evidence": { "$ref": "#/$defs/EvidenceState" }
+      }
+    },
+    "EvidenceState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "lastSequence", "ackedSequence", "pending", "lost"],
+      "description": "STUDIO-005: entrega das evidências observadas (somente com a capacidade evidence/1). Mesma semântica de StepsState, com sequência própria: lastSequence = última evidência emitida; ackedSequence = última confirmada pelo Studio depois do domínio; pending = emitidas e retidas; lost = evidências declaradas perdidas (limite atingido).",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "lastSequence": { "type": "integer", "minimum": 0 },
+        "ackedSequence": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "lost": { "type": "integer", "minimum": 0 }
       }
     },
     "StepsState": {
@@ -156,9 +170,25 @@
         "limitations": {
           "type": "array",
           "maxItems": 12,
-          "items": { "enum": ["ACTION_CAPTURE_NOT_AVAILABLE", "PARTIAL_COVERAGE", "INTERRUPTED", "RECOVERIES_OCCURRED", "NEVER_ATTACHED", "STEPS_UNCONFIRMED", "STEPS_REJECTED", "INTERACTIONS_LOST", "STEP_BACKLOG_FULL"] }
+          "items": { "enum": ["ACTION_CAPTURE_NOT_AVAILABLE", "PARTIAL_COVERAGE", "INTERRUPTED", "RECOVERIES_OCCURRED", "NEVER_ATTACHED", "STEPS_UNCONFIRMED", "STEPS_REJECTED", "INTERACTIONS_LOST", "STEP_BACKLOG_FULL", "EVIDENCE_UNCONFIRMED", "EVIDENCE_LOST"] }
         },
-        "steps": { "$ref": "#/$defs/StepsSummary" }
+        "steps": { "$ref": "#/$defs/StepsSummary" },
+        "evidence": { "$ref": "#/$defs/EvidenceSummary" }
+      }
+    },
+    "EvidenceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["produced", "acknowledged", "rejected", "unacknowledged", "lost", "unattributed", "incomplete"],
+      "description": "STUDIO-005: evidências da gravação. unattributed = evidências que não puderam ser associadas com segurança a uma etapa (AMBIGUOUS_FEEDBACK); incomplete = observações interrompidas (OBSERVATION_INCOMPLETE). Nada é descartado em silêncio.",
+      "properties": {
+        "produced": { "type": "integer", "minimum": 0 },
+        "acknowledged": { "type": "integer", "minimum": 0 },
+        "rejected": { "type": "integer", "minimum": 0 },
+        "unacknowledged": { "type": "integer", "minimum": 0 },
+        "lost": { "type": "integer", "minimum": 0 },
+        "unattributed": { "type": "integer", "minimum": 0 },
+        "incomplete": { "type": "integer", "minimum": 0 }
       }
     },
     "StepsSummary": {
@@ -273,7 +303,8 @@
         "bridge.status", "bridge.heartbeat", "browser.tabs.list",
         "studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode",
         "studio.recording.finish", "studio.recording.cancel", "studio.recording.status", "studio.recording.renew",
-        "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route"
+        "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
+        "studio.recording.evidence.ack", "studio.recording.evidence.sync"
       ]
     },
     "Command": {
@@ -297,7 +328,9 @@
         { "if": { "properties": { "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.steps.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RoutePayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RoutePayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.evidence.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } }
       ]
     },
     "StartPayload": {
@@ -310,7 +343,7 @@
         "tabRef": { "$ref": "#/$defs/TabRef" },
         "mode": { "$ref": "#/$defs/Mode" },
         "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 },
-        "capabilities": { "type": "array", "maxItems": 4, "uniqueItems": true, "items": { "enum": ["steps/1"] }, "description": "STUDIO-003: steps/1 = o Studio recebe as etapas gravadas e as confirma. Ausente (Studio da STUDIO-002): gravação apenas técnica." },
+        "capabilities": { "type": "array", "maxItems": 4, "uniqueItems": true, "items": { "enum": ["steps/1", "evidence/1"] }, "description": "STUDIO-003: steps/1 = o Studio recebe as etapas gravadas e as confirma. Ausente (Studio da STUDIO-002): gravação apenas técnica. STUDIO-005: evidence/1 = o Studio também recebe as evidências observadas depois das interações (studio.recording.evidence) e as confirma; só vale junto com steps/1." },
         "routeRef": { "$ref": "#/$defs/Id", "description": "Rota inicial das etapas (opaca, gerada pelo Studio): cada etapa carrega a rota vigente quando foi consolidada." }
       }
     },
@@ -391,7 +424,9 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.steps.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RouteResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RouteResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.evidence.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceAckResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceSyncResult" } } } }
       ]
     },
     "StatusResult": {
@@ -465,7 +500,8 @@
         "recordingId": { "$ref": "#/$defs/Id" },
         "state": { "$ref": "#/$defs/RecordingState" },
         "expiresInMs": { "type": "integer", "minimum": 0 },
-        "steps": { "$ref": "#/$defs/StepsState", "description": "STUDIO-003: a cada renovação o Studio confere se recebeu todas as etapas emitidas (detecção de perda)." }
+        "steps": { "$ref": "#/$defs/StepsState", "description": "STUDIO-003: a cada renovação o Studio confere se recebeu todas as etapas emitidas (detecção de perda)." },
+        "evidence": { "$ref": "#/$defs/EvidenceState", "description": "STUDIO-005: idem para as evidências." }
       }
     },
     "AckResult": {
@@ -484,6 +520,22 @@
         "steps": { "$ref": "#/$defs/StepsState" }
       }
     },
+    "EvidenceAckResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "evidence"],
+      "properties": { "recordingId": { "$ref": "#/$defs/Id" }, "evidence": { "$ref": "#/$defs/EvidenceState" } }
+    },
+    "EvidenceSyncResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "resent", "evidence"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "resent": { "type": "integer", "minimum": 0, "description": "Evidências reemitidas como eventos studio.recording.evidence, em ordem de sequência." },
+        "evidence": { "$ref": "#/$defs/EvidenceState" }
+      }
+    },
     "RouteResult": {
       "type": "object",
       "additionalProperties": false,
@@ -500,7 +552,7 @@
         "bridge.connected", "bridge.disconnected",
         "studio.recording.started", "studio.recording.paused", "studio.recording.resumed", "studio.recording.modeChanged",
         "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded", "studio.recording.recovered",
-        "studio.recording.failed", "studio.recording.expired", "studio.recording.step"
+        "studio.recording.failed", "studio.recording.expired", "studio.recording.step", "studio.recording.evidence"
       ]
     },
     "Event": {
@@ -517,8 +569,9 @@
       "allOf": [
         { "if": { "properties": { "type": { "const": "bridge.connected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusResult" } } } },
         { "if": { "properties": { "type": { "const": "bridge.disconnected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DisconnectedPayload" } } } },
-        { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\.", "not": { "const": "studio.recording.step" } } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.recording.step" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StepEventPayload" } } } }
+        { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\.", "not": { "enum": ["studio.recording.step", "studio.recording.evidence"] } } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.step" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StepEventPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.evidence" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceEventPayload" } } } }
       ]
     },
     "DisconnectedPayload": {
@@ -604,6 +657,107 @@
             "NO_UNIQUE_LOCATOR", "INDISTINGUISHABLE_LOOKALIKES", "ACCESS_RESTRICTED", "LIVE_CHECK_UNAVAILABLE", "CROSS_FRAME_ORDER_BY_RECEPTION", "RESENT"] }
         },
         "events": { "type": "integer", "minimum": 1, "maximum": 100000, "description": "Eventos do navegador consolidados nesta etapa." }
+      }
+    },
+    "EvidenceType": {
+      "enum": [
+        "FORM_SUBMITTED", "ROUTE_CHANGED", "DOCUMENT_CHANGED",
+        "VISIBLE_ALERT", "VISIBLE_ERROR_MESSAGE", "VISIBLE_STATUS_MESSAGE", "VALIDATION_FEEDBACK",
+        "LOADING_INDICATOR", "LOADING_FINISHED", "ELEMENT_STATE_CHANGED", "CONTENT_CHANGED",
+        "OBSERVATION_COMPLETE", "OBSERVATION_INCOMPLETE", "AMBIGUOUS_FEEDBACK"
+      ],
+      "description": "STUDIO-005: taxonomia FECHADA de evidências observadas (cada tipo tem regra de produção e teste). Evidência é um acontecimento observado, nunca um resultado presumido: VISIBLE_ERROR_MESSAGE não significa falha de negócio; OBSERVATION_COMPLETE sem sinais não significa ausência de erro."
+    },
+    "EvidenceEventPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "evidenceId", "evidenceSequence", "eventId", "stepSequence", "observedAt", "type", "source", "relation", "confidence", "classification", "document", "details", "limitations"],
+      "description": "STUDIO-005: uma evidência observada depois (ou no instante) de uma interação. Estruturada e sanitizada: nenhum HTML, nenhum valor de campo, nenhum PageMap. Texto de mensagem só quando seguro (curto, sem dado pessoal, sem valor digitado na página), senão SUPPRESSED. Identificadores são técnicos: transportados, nunca exibidos.",
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "evidenceId": { "$ref": "#/$defs/Id", "description": "Identidade da evidência (deduplicação em reemissões)." },
+        "evidenceSequence": { "type": "integer", "minimum": 1, "description": "Sequência própria das evidências, por gravação (confirmação cumulativa e reemissão)." },
+        "eventId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }], "description": "Etapa (eventId de studio.recording.step) à qual a evidência foi associada; null = não atribuída a uma etapa (AMBIGUOUS_FEEDBACK)." },
+        "stepSequence": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }], "description": "Sequência da etapa associada (o Studio aplica a evidência só depois da etapa)." },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "type": { "$ref": "#/$defs/EvidenceType" },
+        "source": { "enum": ["INTERACTION_NORMALIZER", "FEEDBACK_OBSERVER", "FORM_OBSERVER", "NAVIGATION_OBSERVER", "RECORDER"] },
+        "relation": { "enum": ["AT_ACTION", "AFTER_ACTION"], "description": "AT_ACTION: parte da própria operação (envio, validação nativa). AFTER_ACTION: depois da interação, dentro da janela de observação." },
+        "confidence": { "enum": ["DIRECTLY_OBSERVED", "TEMPORALLY_ASSOCIATED", "AMBIGUOUS", "INCOMPLETE"], "description": "Qualidade da associação, sem percentuais: DIRECTLY_OBSERVED = ligada à interação por um sinal da própria operação; TEMPORALLY_ASSOCIATED = depois da interação, no mesmo documento, sem outra candidata; AMBIGUOUS = várias interações candidatas; INCOMPLETE = observação interrompida." },
+        "classification": { "oneOf": [{ "type": "null" }, { "enum": ["ERROR_INDICATOR", "STATUS_INDICATOR", "VALIDATION_INDICATOR", "UNKNOWN_FEEDBACK"] }], "description": "Classificação funcional do SINAL (não do resultado de negócio)." },
+        "document": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["frame", "inShadow", "title", "url"],
+          "properties": {
+            "frame": { "enum": ["MAIN", "FRAME"] },
+            "inShadow": { "type": "boolean" },
+            "title": { "type": ["string", "null"], "maxLength": 120 },
+            "url": { "type": ["string", "null"], "maxLength": 2000 }
+          }
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["region", "message", "field", "state", "navigation", "signals", "candidates", "signalsObserved"],
+          "properties": {
+            "region": { "type": ["string", "null"], "maxLength": 120, "description": "Descrição curta e sanitizada da região (ex.: alerta do formulário login)." },
+            "message": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["availability", "text"],
+              "properties": {
+                "availability": { "enum": ["NONE", "AVAILABLE", "SUPPRESSED"], "description": "NONE: sem mensagem; AVAILABLE: trecho seguro em text; SUPPRESSED: havia mensagem, omitida por privacidade." },
+                "text": { "type": ["string", "null"], "maxLength": 160 }
+              }
+            },
+            "field": { "type": ["string", "null"], "maxLength": 120, "description": "Nome acessível do campo (validação), nunca o valor." },
+            "state": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["attribute", "from", "to"],
+                  "properties": {
+                    "attribute": { "enum": ["aria-expanded", "aria-pressed", "aria-checked", "aria-selected", "aria-disabled", "disabled"] },
+                    "from": { "enum": ["true", "false", "mixed", "absent"] },
+                    "to": { "enum": ["true", "false", "mixed", "absent"] }
+                  }
+                }
+              ]
+            },
+            "navigation": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kind", "url"],
+                  "properties": {
+                    "kind": { "enum": ["SAME_DOCUMENT", "NEW_DOCUMENT"] },
+                    "url": { "type": ["string", "null"], "maxLength": 2000 }
+                  }
+                }
+              ]
+            },
+            "signals": {
+              "type": "array",
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": { "enum": ["ROLE_ALERT", "ROLE_ALERTDIALOG", "ROLE_STATUS", "ARIA_LIVE_ASSERTIVE", "ARIA_LIVE_POLITE", "ARIA_INVALID", "NATIVE_INVALID", "ARIA_ERRORMESSAGE", "ERROR_HINT", "ARIA_BUSY", "ROLE_PROGRESSBAR", "SUBMIT_EVENT", "HISTORY_API", "NEW_DOCUMENT", "TARGET_ATTRIBUTE"] },
+              "description": "Sinais verificáveis que sustentam a evidência (nenhum isoladamente comprova resultado de negócio)."
+            },
+            "candidates": { "type": "integer", "minimum": 0, "maximum": 20, "description": "AMBIGUOUS_FEEDBACK: quantas interações eram candidatas." },
+            "signalsObserved": { "type": "integer", "minimum": 0, "maximum": 50, "description": "OBSERVATION_COMPLETE/INCOMPLETE: quantas evidências a janela produziu." }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "enum": ["MESSAGE_SUPPRESSED", "WINDOW_CUT_BY_NAVIGATION", "WINDOW_CUT_BY_PAUSE", "WINDOW_CUT_BY_STOP", "EVIDENCE_LIMIT_REACHED", "CROSS_DOCUMENT_NOT_ATTRIBUTED", "PARTIAL_COVERAGE", "ORDER_BY_RECEPTION"] }
+        }
       }
     },
     "ElementRef": {

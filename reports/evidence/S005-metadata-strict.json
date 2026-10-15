@@ -1,0 +1,292 @@
+{
+  "evidence" : [ {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:43:47.923Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T20:43:50.827Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:43:51.610Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T20:43:54.519Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:43:55.437Z",
+    "type" : "VALIDATION_FEEDBACK",
+    "source" : "FORM_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : "VALIDATION_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : "região de validação",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : "campo de telefone",
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_INVALID", "ARIA_ERRORMESSAGE" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T20:43:58.330Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T20:43:58.331Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:43:59.127Z",
+    "type" : "VISIBLE_STATUS_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "STATUS_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : "mensagem de status",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_STATUS" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-b8bb2487-bdcb-4042-b67f-ebb972ec8d1a",
+    "evidenceId" : "evd-b-4042-b67f-ebb972ec8d1a-9",
+    "evidenceSequence" : 9,
+    "eventId" : "ev-b-4042-b67f-ebb972ec8d1a-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T20:44:02.026Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : null,
+      "url" : "http://127.0.0.1:18765/lab/studio005/metadados.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  } ],
+  "stepChannelElementNames" : [ "Verificar (aria-label)", "Verificar (aria-labelledby)", "telefone do cliente joão", "Validar telefone", "Verificar (título)" ]
+}

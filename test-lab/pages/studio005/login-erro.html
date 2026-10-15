@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Login com erro (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Login com erro (STUDIO-005)</h1>
+  <p class="muted">Cenário 1: autenticação inválida mostra um alerta. Dados fictícios; nada é enviado a servidor.</p>
+  <p id="aviso-antigo" role="status">Sistema em manutenção às 22h.</p>
+
+  <form id="login" autocomplete="off">
+    <p><label for="usuario">Usuário</label> <input id="usuario" name="usuario" type="text"></p>
+    <p><label for="senha">Senha</label> <input id="senha" name="senha" type="password"></p>
+    <p>
+      <button id="entrar" type="submit">Entrar</button>
+      <button id="entrar-eco" type="button">Entrar (mensagem com o usuário)</button>
+      <button id="ajuda" type="button">Ajuda</button>
+    </p>
+    <div id="erro" role="alert" class="mensagem erro-login" hidden></div>
+    <!-- classe "error" sem role/aria: NÃO é evidência de erro (a classe CSS sozinha não comprova nada) -->
+    <div id="dica" class="error" hidden></div>
+  </form>
+
+  <script>
+    const erro = document.getElementById('erro');
+    document.getElementById('login').addEventListener('submit', (e) => {
+      e.preventDefault();
+      erro.textContent = 'Usuário ou senha inválidos.';
+      erro.hidden = false;
+    });
+    document.getElementById('entrar-eco').addEventListener('click', () => {
+      // a mensagem repete o valor digitado: o texto não pode sair da página
+      erro.textContent = 'Usuário ' + document.getElementById('usuario').value + ' não encontrado.';
+      erro.hidden = false;
+    });
+    document.getElementById('ajuda').addEventListener('click', () => {
+      const d = document.getElementById('dica');
+      d.textContent = 'Use o usuário de teste.';
+      d.hidden = false;
+    });
+  </script>
+</body>
+</html>
