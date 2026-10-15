@@ -10,7 +10,7 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 
 | | |
 |---|---|
-| Missões | NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · NEKKORA-CHROME-003 (Frame Intelligence, diagnóstico de proteções e consolidação) · **NEKKORA-REAL-001** (piloto em sites http/https autorizados) |
+| Missões | **NEKKORA-STUDIO-002** (Studio Bridge `nekkora-bridge/1`: gravação técnica controlada pelo Nekkora Studio) · NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · NEKKORA-CHROME-003 (Frame Intelligence, diagnóstico de proteções e consolidação) · **NEKKORA-REAL-001** (piloto em sites http/https autorizados) |
 | Estado | REAL-001: [relatório](reports/real-web-pilot-final-report.md) — autoriza testes exploratórios controlados, **não** é homologação para produção · CHROME-003: [relatório](reports/chrome-003-final-report.md) · CHROME-002: [relatório](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
 | Linguagem principal | Java 21 (motor de análise, host Native Messaging, servidor do laboratório, testes) |
 | Navegador | Google Chrome 155 (convencional, homologado) / Chrome for Testing 155 (suíte automatizada) — MV3 |
@@ -38,6 +38,12 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 Documentação detalhada: [arquitetura](docs/architecture.md) · [contratos](docs/contracts.md) ·
 [decisões](docs/decisions.md) · [plano de testes](docs/test-plan.md) · [limitações](docs/limitations.md) ·
 [relatórios por fase](docs/phase-reports.md).
+
+STUDIO-002: [protocolo nekkora-bridge/1](docs/studio-002/bridge-protocol.md) ·
+[Native Host bidirecional](docs/studio-002/native-host-integration.md) ·
+[gravação técnica do Studio](docs/studio-002/studio-recording.md) · [compatibilidade](docs/studio-002/compatibility.md) ·
+[segurança](docs/studio-002/security.md) · [relatório](reports/studio-002-bridge-final-report.md). No painel,
+"Conectar ao Nekkora Studio" (opt-in) liga o canal local autenticado com o Studio; sem ele, nada muda.
 
 CHROME-002: [ciclo de captura contínua, sessões, recuperação e retenção](docs/chrome-002/capture-lifecycle.md) ·
 [inspeção com botão único e DEV × PRD](docs/chrome-002/inspection.md) ·
