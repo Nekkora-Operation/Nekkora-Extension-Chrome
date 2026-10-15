@@ -1,267 +1,10 @@
 {
-  "evidence" : [ {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-1",
-    "evidenceSequence" : 1,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-3",
-    "stepSequence" : 3,
-    "observedAt" : "2026-10-15T17:04:16.326Z",
-    "type" : "FORM_SUBMITTED",
-    "source" : "INTERACTION_NORMALIZER",
-    "relation" : "AT_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ "SUBMIT_EVENT" ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-2",
-    "evidenceSequence" : 2,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-3",
-    "stepSequence" : 3,
-    "observedAt" : "2026-10-15T17:04:16.432Z",
-    "type" : "VISIBLE_ERROR_MESSAGE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "TEMPORALLY_ASSOCIATED",
-    "classification" : "ERROR_INDICATOR",
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : "mensagem de erro do formulário login",
-      "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "Usuário ou senha inválidos."
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-3",
-    "evidenceSequence" : 3,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-1",
-    "stepSequence" : 1,
-    "observedAt" : "2026-10-15T17:04:18.930Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-4",
-    "evidenceSequence" : 4,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-2",
-    "stepSequence" : 2,
-    "observedAt" : "2026-10-15T17:04:19.330Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-5",
-    "evidenceSequence" : 5,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-3",
-    "stepSequence" : 3,
-    "observedAt" : "2026-10-15T17:04:19.330Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 1
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-6",
-    "evidenceSequence" : 6,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-4",
-    "stepSequence" : 4,
-    "observedAt" : "2026-10-15T17:04:26.114Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-7",
-    "evidenceSequence" : 7,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-5",
-    "stepSequence" : 5,
-    "observedAt" : "2026-10-15T17:04:30.018Z",
-    "type" : "VISIBLE_ERROR_MESSAGE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "TEMPORALLY_ASSOCIATED",
-    "classification" : "ERROR_INDICATOR",
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : "mensagem de erro do formulário login",
-      "message" : {
-        "availability" : "SUPPRESSED",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ "MESSAGE_SUPPRESSED" ]
-  }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "evidenceId" : "evd-9-4407-b6c6-7ead94bb849f-8",
-    "evidenceSequence" : 8,
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-5",
-    "stepSequence" : 5,
-    "observedAt" : "2026-10-15T17:04:32.913Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Login com erro (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 1
-    },
-    "limitations" : [ ]
-  } ],
   "steps" : [ {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-1",
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "eventId" : "ev-5-4d4d-acde-58343117d163-1",
     "sequence" : 1,
-    "routeRef" : "route-bb849f",
-    "observedAt" : "2026-10-15T17:04:15.917Z",
+    "routeRef" : "route-17d163",
+    "observedAt" : "2026-10-15T18:09:46.939Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -339,9 +82,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-d66f8481-e01f-4989-a32b-5690a337cca1",
+        "targetId" : "tgt-9a54aac2-a722-4bb9-a040-596aa068c25a",
         "nodeId" : "n15",
-        "captureId" : "cap-ps-mv9sggk6-ympi9h-1",
+        "captureId" : "cap-ps-mv9uspvp-58naft-1",
         "documentId" : "doc:f0"
       }
     },
@@ -359,11 +102,11 @@
     "notes" : [ ],
     "events" : 11
   }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-2",
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "eventId" : "ev-5-4d4d-acde-58343117d163-2",
     "sequence" : 2,
-    "routeRef" : "route-bb849f",
-    "observedAt" : "2026-10-15T17:04:16.324Z",
+    "routeRef" : "route-17d163",
+    "observedAt" : "2026-10-15T18:09:47.343Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -441,9 +184,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-8bea22e3-9058-4a94-809d-59c210b5048f",
+        "targetId" : "tgt-556c42de-9934-4d69-88dc-e2d432fbb806",
         "nodeId" : "n17",
-        "captureId" : "cap-ps-mv9sggk6-ympi9h-1",
+        "captureId" : "cap-ps-mv9uspvp-58naft-1",
         "documentId" : "doc:f0"
       }
     },
@@ -461,11 +204,11 @@
     "notes" : [ ],
     "events" : 17
   }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-3",
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "eventId" : "ev-5-4d4d-acde-58343117d163-3",
     "sequence" : 3,
-    "routeRef" : "route-bb849f",
-    "observedAt" : "2026-10-15T17:04:16.326Z",
+    "routeRef" : "route-17d163",
+    "observedAt" : "2026-10-15T18:09:47.345Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -543,9 +286,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-fb9f60ab-22a1-4a0a-8809-fefafad3af77",
+        "targetId" : "tgt-91929bf9-1fe3-40db-bcfe-3627b1b9677e",
         "nodeId" : "n18",
-        "captureId" : "cap-ps-mv9sggk6-ympi9h-2",
+        "captureId" : "cap-ps-mv9uspvp-58naft-2",
         "documentId" : "doc:f0"
       }
     },
@@ -563,11 +306,11 @@
     "notes" : [ ],
     "events" : 1
   }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-4",
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "eventId" : "ev-5-4d4d-acde-58343117d163-4",
     "sequence" : 4,
-    "routeRef" : "route-bb849f",
-    "observedAt" : "2026-10-15T17:04:23.098Z",
+    "routeRef" : "route-17d163",
+    "observedAt" : "2026-10-15T18:09:54.109Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -645,9 +388,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-e990e1fe-736d-4656-91a1-03d8becc9e84",
+        "targetId" : "tgt-66a0cf50-74b5-4866-8ea9-fc50c171d3d6",
         "nodeId" : "n20",
-        "captureId" : "cap-ps-mv9sggk6-ympi9h-3",
+        "captureId" : "cap-ps-mv9uspvp-58naft-3",
         "documentId" : "doc:f0"
       }
     },
@@ -665,11 +408,11 @@
     "notes" : [ ],
     "events" : 1
   }, {
-    "recordingId" : "rec-f2b127b9-9709-4407-b6c6-7ead94bb849f",
-    "eventId" : "ev-9-4407-b6c6-7ead94bb849f-5",
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "eventId" : "ev-5-4d4d-acde-58343117d163-5",
     "sequence" : 5,
-    "routeRef" : "route-bb849f",
-    "observedAt" : "2026-10-15T17:04:29.911Z",
+    "routeRef" : "route-17d163",
+    "observedAt" : "2026-10-15T18:10:00.954Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -747,9 +490,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-3455157a-bb68-478c-9475-b83022b94f93",
+        "targetId" : "tgt-1ee1c2e7-9da2-474d-838c-fda36aec9343",
         "nodeId" : "n19",
-        "captureId" : "cap-ps-mv9sggk6-ympi9h-4",
+        "captureId" : "cap-ps-mv9uspvp-58naft-4",
         "documentId" : "doc:f0"
       }
     },
@@ -766,5 +509,262 @@
     "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
     "notes" : [ ],
     "events" : 1
+  } ],
+  "evidence" : [ {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T18:09:47.346Z",
+    "type" : "FORM_SUBMITTED",
+    "source" : "INTERACTION_NORMALIZER",
+    "relation" : "AT_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "SUBMIT_EVENT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T18:09:47.451Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro do formulário login",
+      "message" : {
+        "availability" : "AVAILABLE",
+        "text" : "Usuário ou senha inválidos."
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T18:09:49.951Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T18:09:50.357Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-5",
+    "evidenceSequence" : 5,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-3",
+    "stepSequence" : 3,
+    "observedAt" : "2026-10-15T18:09:50.357Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-6",
+    "evidenceSequence" : 6,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-4",
+    "stepSequence" : 4,
+    "observedAt" : "2026-10-15T18:09:57.113Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-7",
+    "evidenceSequence" : 7,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T18:10:01.062Z",
+    "type" : "VISIBLE_ERROR_MESSAGE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "ERROR_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : "mensagem de erro do formulário login",
+      "message" : {
+        "availability" : "SUPPRESSED",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ROLE_ALERT", "ERROR_HINT" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ "MESSAGE_SUPPRESSED" ]
+  }, {
+    "recordingId" : "rec-4e86c6bb-dc75-4d4d-acde-58343117d163",
+    "evidenceId" : "evd-5-4d4d-acde-58343117d163-8",
+    "evidenceSequence" : 8,
+    "eventId" : "ev-5-4d4d-acde-58343117d163-5",
+    "stepSequence" : 5,
+    "observedAt" : "2026-10-15T18:10:03.965Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Login com erro (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
   } ]
 }

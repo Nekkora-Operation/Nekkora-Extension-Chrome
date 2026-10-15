@@ -1,139 +1,10 @@
 {
-  "evidence" : [ {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "evidenceId" : "evd-a-4635-8f83-674fc8085c7f-1",
-    "evidenceSequence" : 1,
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-1",
-    "stepSequence" : 1,
-    "observedAt" : "2026-10-15T17:05:22.740Z",
-    "type" : "VALIDATION_FEEDBACK",
-    "source" : "FORM_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : "VALIDATION_INDICATOR",
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
-    },
-    "details" : {
-      "region" : "campo do formulário cadastro",
-      "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "CEP inválido."
-      },
-      "field" : "CEP",
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ "ARIA_INVALID", "ARIA_ERRORMESSAGE" ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "evidenceId" : "evd-a-4635-8f83-674fc8085c7f-2",
-    "evidenceSequence" : 2,
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-2",
-    "stepSequence" : 2,
-    "observedAt" : "2026-10-15T17:05:22.741Z",
-    "type" : "VALIDATION_FEEDBACK",
-    "source" : "FORM_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "TEMPORALLY_ASSOCIATED",
-    "classification" : "VALIDATION_INDICATOR",
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
-    },
-    "details" : {
-      "region" : "campo do formulário cadastro",
-      "message" : {
-        "availability" : "AVAILABLE",
-        "text" : "Preencha este campo."
-      },
-      "field" : "E-mail",
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ "NATIVE_INVALID" ],
-      "candidates" : 0,
-      "signalsObserved" : 0
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "evidenceId" : "evd-a-4635-8f83-674fc8085c7f-3",
-    "evidenceSequence" : 3,
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-1",
-    "stepSequence" : 1,
-    "observedAt" : "2026-10-15T17:05:25.740Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 1
-    },
-    "limitations" : [ ]
-  }, {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "evidenceId" : "evd-a-4635-8f83-674fc8085c7f-4",
-    "evidenceSequence" : 4,
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-2",
-    "stepSequence" : 2,
-    "observedAt" : "2026-10-15T17:05:25.742Z",
-    "type" : "OBSERVATION_COMPLETE",
-    "source" : "FEEDBACK_OBSERVER",
-    "relation" : "AFTER_ACTION",
-    "confidence" : "DIRECTLY_OBSERVED",
-    "classification" : null,
-    "document" : {
-      "frame" : "MAIN",
-      "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
-      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
-    },
-    "details" : {
-      "region" : null,
-      "message" : {
-        "availability" : "NONE",
-        "text" : null
-      },
-      "field" : null,
-      "state" : null,
-      "navigation" : null,
-      "signals" : [ ],
-      "candidates" : 0,
-      "signalsObserved" : 1
-    },
-    "limitations" : [ ]
-  } ],
   "steps" : [ {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-1",
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-1",
     "sequence" : 1,
-    "routeRef" : "route-085c7f",
-    "observedAt" : "2026-10-15T17:05:22.737Z",
+    "routeRef" : "route-9e7e1b",
+    "observedAt" : "2026-10-15T18:10:53.748Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -211,9 +82,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-5ba0304c-9134-4e33-927c-e9c2ad54e488",
+        "targetId" : "tgt-54a239aa-a747-4582-a327-1a7c140af6e0",
         "nodeId" : "n15",
-        "captureId" : "cap-ps-mv9shw22-4xldtj-2",
+        "captureId" : "cap-ps-mv9uu58w-icxjbd-2",
         "documentId" : "doc:f0"
       }
     },
@@ -231,11 +102,11 @@
     "notes" : [ ],
     "events" : 5
   }, {
-    "recordingId" : "rec-3dc5d1ac-4c8a-4635-8f83-674fc8085c7f",
-    "eventId" : "ev-a-4635-8f83-674fc8085c7f-2",
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-2",
     "sequence" : 2,
-    "routeRef" : "route-085c7f",
-    "observedAt" : "2026-10-15T17:05:22.739Z",
+    "routeRef" : "route-9e7e1b",
+    "observedAt" : "2026-10-15T18:10:53.751Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -313,9 +184,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-9cdd1e6a-9d35-4b1d-8759-0d15a221ef24",
+        "targetId" : "tgt-cc4aeb2f-822e-446d-a628-489d592ea1d5",
         "nodeId" : "n17",
-        "captureId" : "cap-ps-mv9shw22-4xldtj-2",
+        "captureId" : "cap-ps-mv9uu58w-icxjbd-2",
         "documentId" : "doc:f0"
       }
     },
@@ -332,5 +203,134 @@
     "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
     "notes" : [ ],
     "events" : 1
+  } ],
+  "evidence" : [ {
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "evidenceId" : "evd-9-4465-9547-af9cf99e7e1b-1",
+    "evidenceSequence" : 1,
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T18:10:53.751Z",
+    "type" : "VALIDATION_FEEDBACK",
+    "source" : "FORM_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : "VALIDATION_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Validação (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : "campo do formulário cadastro",
+      "message" : {
+        "availability" : "AVAILABLE",
+        "text" : "CEP inválido."
+      },
+      "field" : "CEP",
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "ARIA_INVALID", "ARIA_ERRORMESSAGE" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "evidenceId" : "evd-9-4465-9547-af9cf99e7e1b-2",
+    "evidenceSequence" : 2,
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T18:10:53.753Z",
+    "type" : "VALIDATION_FEEDBACK",
+    "source" : "FORM_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "TEMPORALLY_ASSOCIATED",
+    "classification" : "VALIDATION_INDICATOR",
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Validação (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : "campo do formulário cadastro",
+      "message" : {
+        "availability" : "AVAILABLE",
+        "text" : "Preencha este campo."
+      },
+      "field" : "E-mail",
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ "NATIVE_INVALID" ],
+      "candidates" : 0,
+      "signalsObserved" : 0
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "evidenceId" : "evd-9-4465-9547-af9cf99e7e1b-3",
+    "evidenceSequence" : 3,
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-1",
+    "stepSequence" : 1,
+    "observedAt" : "2026-10-15T18:10:56.751Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Validação (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
+  }, {
+    "recordingId" : "rec-c4454aac-4919-4465-9547-af9cf99e7e1b",
+    "evidenceId" : "evd-9-4465-9547-af9cf99e7e1b-4",
+    "evidenceSequence" : 4,
+    "eventId" : "ev-9-4465-9547-af9cf99e7e1b-2",
+    "stepSequence" : 2,
+    "observedAt" : "2026-10-15T18:10:56.754Z",
+    "type" : "OBSERVATION_COMPLETE",
+    "source" : "FEEDBACK_OBSERVER",
+    "relation" : "AFTER_ACTION",
+    "confidence" : "DIRECTLY_OBSERVED",
+    "classification" : null,
+    "document" : {
+      "frame" : "MAIN",
+      "inShadow" : false,
+      "title" : "Validação (STUDIO-005)",
+      "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
+    },
+    "details" : {
+      "region" : null,
+      "message" : {
+        "availability" : "NONE",
+        "text" : null
+      },
+      "field" : null,
+      "state" : null,
+      "navigation" : null,
+      "signals" : [ ],
+      "candidates" : 0,
+      "signalsObserved" : 1
+    },
+    "limitations" : [ ]
   } ]
 }
