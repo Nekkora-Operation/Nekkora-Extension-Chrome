@@ -94,8 +94,10 @@ Medições:
 - `reports/evidence/S002-018-lease-expiry.json`, `S002-022-browser-long-operation.json`,
   `S002-020-storage-session.json`.
 - Medições de unidade: `java-core/native-host/target/studio-002/*.json`, copiadas para `reports/studio-002/`.
-- Homologação real com o Studio de verdade: relatório e capturas no repositório Nekkora-Studio
-  (`reports/studio-002-final-report.md`, `reports/studio-002/evidence/`).
+- Homologação real com o Studio de verdade (Windows 11, Chrome for Testing 155, host instalado pelo
+  `install-host.ps1`): **42 verificações, 0 falhas**. O relatório e as capturas estão no repositório Nekkora-Studio
+  (`reports/studio-002-final-report.md`, `reports/studio-002/evidence/`), incluindo o painel da extensão "Conectada ao
+  Nekkora Studio" e a concessão expirada 10.143 ms após a queda do Studio, com a inspeção preservada.
 
 ## 13. Falhas encontradas e 14. correções
 
