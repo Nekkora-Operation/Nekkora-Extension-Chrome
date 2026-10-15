@@ -251,6 +251,15 @@
         exposedValue = P.maskText(v.length > 200 ? v.slice(0, 200) : v);
       }
     }
+    // STUDIO-003: o conteúdo de um editor contenteditable é VALOR DE CAMPO (digitado pelo usuário) — como o de um input,
+    // não sai da página; o hospedeiro informa só se há conteúdo e o tamanho.
+    const editableContent = !!el.isContentEditable;
+    const ce = el.getAttribute('contenteditable');
+    if (editableContent && (ce === '' || ce === 'true' || ce === 'plaintext-only')) {
+      const v = el.textContent || '';
+      hasValue = v.trim().length > 0;
+      valueLength = sensitive ? null : v.length;
+    }
 
     let inert = false;
     if (el.closest('[inert]')) {
@@ -277,7 +286,7 @@
       }
     }
 
-    const own = tag === 'svg' ? svgTitle(el) : ownText(el);
+    const own = tag === 'svg' ? svgTitle(el) : editableContent ? '' : ownText(el);
     const out = {
       id: NS.registry.idFor(el),
       parentId: ctx.parentId,
@@ -312,7 +321,7 @@
       scroll,
       exposedValue,
     };
-    const segs = tag === 'svg' ? undefined : textSegments(el, ctx.childIds, own);
+    const segs = tag === 'svg' || editableContent ? undefined : textSegments(el, ctx.childIds, own);
     if (segs) {
       out.textSegments = segs;
     }

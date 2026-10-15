@@ -1,0 +1,47 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.recording.step",
+  "seq": 51,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "eventId": "ev-1-7",
+    "sequence": 7,
+    "routeRef": "route-1",
+    "observedAt": "2026-10-15T12:00:07.000Z",
+    "mode": "CAPTURE_AND_INTERACT",
+    "observation": "INTERACTION_OBSERVED",
+    "action": "UNKNOWN",
+    "element": {
+      "resolution": "UNRESOLVED",
+      "kind": "UNKNOWN",
+      "role": null,
+      "name": "Ícone",
+      "tag": "span",
+      "htmlId": null,
+      "htmlName": null,
+      "sensitive": false,
+      "locators": [],
+      "preferredLocator": -1,
+      "accessPath": [],
+      "context": [],
+      "lookalikes": 0
+    },
+    "parameters": {
+      "valueCaptured": false,
+      "option": null,
+      "key": null
+    },
+    "context": {
+      "url": "http://127.0.0.1:18765/lab/studio003/login.html",
+      "title": "Login de teste",
+      "frame": "MAIN"
+    },
+    "evidence": [],
+    "notes": [
+      "AMBIGUOUS_TARGET",
+      "ELEMENT_UNRESOLVED"
+    ],
+    "events": 4
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.recording.route",
+  "id": "c-33",
+  "seq": 33,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "operationId": "op-route-1",
+    "routeRef": "route-2"
+  }
+}

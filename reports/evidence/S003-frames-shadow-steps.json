@@ -1,0 +1,414 @@
+{
+  "steps" : [ {
+    "recordingId" : "rec-5f384b73-4278-4168-8ff0-003afdfee06d",
+    "eventId" : "ev-8-4168-8ff0-003afdfee06d-1",
+    "sequence" : 1,
+    "routeRef" : "route-f",
+    "observedAt" : "2026-10-15T13:12:46.728Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "TEXT_INPUT",
+      "role" : "textbox",
+      "name" : "Nome",
+      "tag" : "input",
+      "htmlId" : "nome",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=nome}",
+        "css" : "input#nome",
+        "xpath" : "//input[@id=\"nome\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"Nome\"}",
+        "css" : null,
+        "xpath" : "//input[@id=//label[normalize-space(.)=\"Nome\"]/@for]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=form-cadastro} >> input {id=nome}",
+        "css" : "form#form-cadastro input#nome",
+        "xpath" : "//form[@id=\"form-cadastro\"]//input[@id=\"nome\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=textbox} {name=\"Nome\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "ATTRIBUTE",
+        "description" : "input {type=text}",
+        "css" : "input[type=\"text\"]",
+        "xpath" : "//input[@type=\"text\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Formulário em iframe",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "IFRAME",
+        "label" : "Cadastro",
+        "locator" : "iframe#cadastro",
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Nome",
+        "locator" : "input#nome",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-73b0ba03-7868-4dda-9eac-3938a1e01de8",
+        "nodeId" : "n19",
+        "captureId" : "cap-ps-mv9k6ros-wiqfhw-3",
+        "documentId" : "doc:f1"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio003/frames.html?externo=http%3A%2F%2Fsite-x.nekkora.test%3A18765%2Flab%2Fstudio003%2Fframe-form.html",
+      "title" : "Formulário em iframe",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FOCUS_CLICK_ABSORBED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 13
+  }, {
+    "recordingId" : "rec-5f384b73-4278-4168-8ff0-003afdfee06d",
+    "eventId" : "ev-8-4168-8ff0-003afdfee06d-2",
+    "sequence" : 2,
+    "routeRef" : "route-f",
+    "observedAt" : "2026-10-15T13:12:46.730Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Salvar cadastro",
+      "tag" : "button",
+      "htmlId" : "salvar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=salvar}",
+        "css" : "button#salvar",
+        "xpath" : "//button[@id=\"salvar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=form-cadastro} >> button {id=salvar}",
+        "css" : "form#form-cadastro button#salvar",
+        "xpath" : "//form[@id=\"form-cadastro\"]//button[@id=\"salvar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Salvar cadastro\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Salvar cadastro\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Salvar cadastro\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=form-cadastro} >> p {nth-of-type 2} >> button",
+        "css" : "form#form-cadastro > p:nth-of-type(2) > button",
+        "xpath" : "//form[@id=\"form-cadastro\"]/p[2]/button",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Formulário em iframe",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "IFRAME",
+        "label" : "Cadastro",
+        "locator" : "iframe#cadastro",
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Salvar cadastro",
+        "locator" : "button#salvar",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-a248bac9-8752-4d37-800a-9b527fba045f",
+        "nodeId" : "n20",
+        "captureId" : "cap-ps-mv9k6ros-wiqfhw-4",
+        "documentId" : "doc:f1"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio003/frames.html?externo=http%3A%2F%2Fsite-x.nekkora.test%3A18765%2Flab%2Fstudio003%2Fframe-form.html",
+      "title" : "Formulário em iframe",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "FORM_SUBMITTED", "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  }, {
+    "recordingId" : "rec-5f384b73-4278-4168-8ff0-003afdfee06d",
+    "eventId" : "ev-8-4168-8ff0-003afdfee06d-3",
+    "sequence" : 3,
+    "routeRef" : "route-f",
+    "observedAt" : "2026-10-15T13:12:47.289Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "FILL",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "TEXT_INPUT",
+      "role" : "textbox",
+      "name" : "Usuário do componente",
+      "tag" : "input",
+      "htmlId" : "usuario",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "input {id=usuario}",
+        "css" : "input#usuario",
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "LABEL",
+        "description" : "input {label=\"Usuário do componente\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=textbox} {name=\"Usuário do componente\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "ATTRIBUTE",
+        "description" : "input {type=text}",
+        "css" : "input[type=\"text\"]",
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "POSITIONAL",
+        "description" : "input {nth-of-type 1}",
+        "css" : "input:nth-of-type(1)",
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Formulário em iframe",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "SHADOW_ROOT",
+        "label" : "custom-login#componente",
+        "locator" : "custom-login#componente",
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Usuário do componente",
+        "locator" : "input#usuario",
+        "restriction" : null
+      } ],
+      "context" : [ ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-99f8d8d6-0312-42d9-b2c9-18c3e17bfadd",
+        "nodeId" : "n22",
+        "captureId" : "cap-ps-mv9k6ros-wiqfhw-5",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio003/frames.html?externo=http%3A%2F%2Fsite-x.nekkora.test%3A18765%2Flab%2Fstudio003%2Fframe-form.html",
+      "title" : "Formulário em iframe",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 5
+  }, {
+    "recordingId" : "rec-5f384b73-4278-4168-8ff0-003afdfee06d",
+    "eventId" : "ev-8-4168-8ff0-003afdfee06d-4",
+    "sequence" : 4,
+    "routeRef" : "route-f",
+    "observedAt" : "2026-10-15T13:12:47.290Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "→ Entrar",
+      "tag" : "button",
+      "htmlId" : "entrar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=entrar}",
+        "css" : "button#entrar",
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"→ Entrar\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Entrar →\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "POSITIONAL",
+        "description" : "button {nth-of-type 1}",
+        "css" : "button:nth-of-type(1)",
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Formulário em iframe",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "SHADOW_ROOT",
+        "label" : "custom-login#componente",
+        "locator" : "custom-login#componente",
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "→ Entrar",
+        "locator" : "button#entrar",
+        "restriction" : null
+      } ],
+      "context" : [ ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-9accaed4-04b6-43df-9d97-a429eaab9c39",
+        "nodeId" : "n23",
+        "captureId" : "cap-ps-mv9k6ros-wiqfhw-5",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio003/frames.html?externo=http%3A%2F%2Fsite-x.nekkora.test%3A18765%2Flab%2Fstudio003%2Fframe-form.html",
+      "title" : "Formulário em iframe",
+      "frame" : "MAIN"
+    },
+    "evidence" : [ "LOCATORS_VERIFIED_LIVE" ],
+    "notes" : [ ],
+    "events" : 1
+  } ]
+}

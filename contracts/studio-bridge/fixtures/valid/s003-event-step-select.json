@@ -1,0 +1,87 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.recording.step",
+  "seq": 49,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "eventId": "ev-1-5",
+    "sequence": 5,
+    "routeRef": "route-2",
+    "observedAt": "2026-10-15T12:00:07.000Z",
+    "mode": "CAPTURE_AND_INTERACT",
+    "observation": "INTERACTION_OBSERVED",
+    "action": "SELECT_OPTION",
+    "element": {
+      "resolution": "RESOLVED",
+      "kind": "SELECT",
+      "role": "combobox",
+      "name": "Estado",
+      "tag": "select",
+      "htmlId": "estado",
+      "htmlName": null,
+      "sensitive": false,
+      "locators": [
+        {
+          "strategy": "ID",
+          "description": "id \"entrar\"",
+          "css": "#entrar",
+          "xpath": "//*[@id='entrar']",
+          "matchCount": 1,
+          "matchesTarget": true,
+          "stability": "HEURISTIC_STABLE",
+          "validation": "LIVE"
+        },
+        {
+          "strategy": "ROLE_NAME",
+          "description": "botão \"Entrar\"",
+          "css": null,
+          "xpath": "//button[normalize-space()='Entrar']",
+          "matchCount": 1,
+          "matchesTarget": true,
+          "stability": "HEURISTIC_STABLE",
+          "validation": "SNAPSHOT"
+        }
+      ],
+      "preferredLocator": 0,
+      "accessPath": [
+        {
+          "type": "MAIN_DOCUMENT",
+          "label": "Login de teste",
+          "locator": null,
+          "restriction": null
+        },
+        {
+          "type": "ELEMENT",
+          "label": "Entrar",
+          "locator": "#entrar",
+          "restriction": null
+        }
+      ],
+      "context": [],
+      "lookalikes": 0,
+      "correlation": {
+        "targetId": "tgt-7f3a91c2",
+        "nodeId": "n8",
+        "captureId": "cap-12",
+        "documentId": "doc:f0"
+      }
+    },
+    "parameters": {
+      "valueCaptured": false,
+      "option": {
+        "label": "São Paulo",
+        "value": "SP"
+      },
+      "key": null
+    },
+    "context": {
+      "url": "http://127.0.0.1:18765/lab/studio003/consulta.html",
+      "title": "Consulta",
+      "frame": "MAIN"
+    },
+    "evidence": [],
+    "notes": [],
+    "events": 2
+  }
+}

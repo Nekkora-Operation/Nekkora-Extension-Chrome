@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Cadastro (iframe)</title>
+</head>
+<body>
+  <form id="form-cadastro" autocomplete="off">
+    <p><label for="nome">Nome</label> <input id="nome" type="text"></p>
+    <p><button id="salvar" type="submit">Salvar cadastro</button></p>
+    <p id="status-cadastro" role="status"></p>
+  </form>
+  <script>
+    document.getElementById('form-cadastro').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('status-cadastro').textContent = 'Cadastro salvo.';
+    });
+  </script>
+</body>
+</html>

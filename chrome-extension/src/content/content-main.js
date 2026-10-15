@@ -66,6 +66,7 @@
       tracker: NS.tracker.stats(),
       highlight: NS.highlighter.state(),
       registrySize: NS.registry.size(),
+      recorder: NS.interactionRecorder ? NS.interactionRecorder.status() : null,
     };
   }
 
@@ -80,8 +81,9 @@
       NS.inspector.stop();
       return diagnostics();
     },
-    /** Desliga tudo: inspeção, rastreamento e overlay. */
+    /** Desliga tudo: inspeção, sensor do Recorder, rastreamento e overlay. */
     'cs.disable': () => {
+      NS.interactionRecorder.stop({ discard: false });
       NS.inspector.stop();
       NS.tracker.stop();
       NS.highlighter.destroy();
@@ -213,6 +215,13 @@
       }
       return { found: true, hostNodeId: NS.registry.idFor(iframe), accessibleFromParent, sandboxed: iframe.hasAttribute('sandbox') };
     },
+    // ---- sensor de interações do Recorder do Studio (STUDIO-003)
+    'cs.recorder.start': (a) => NS.interactionRecorder.start({ epoch: a.epoch, mode: a.mode }),
+    'cs.recorder.mode': (a) => NS.interactionRecorder.setMode({ epoch: a.epoch, mode: a.mode }),
+    'cs.recorder.flush': (a) => NS.interactionRecorder.flush({ reason: a.reason }),
+    'cs.recorder.stop': (a) => NS.interactionRecorder.stop({ discard: !!a.discard }),
+    'cs.recorder.navigation': () => NS.interactionRecorder.navigation(),
+    'cs.recorder.status': () => NS.interactionRecorder.status(),
     'cs.diagnostics': () => diagnostics(),
     'cs.nodeInfo': (a) => {
       const el = NS.registry.elementFor(a.nodeId);

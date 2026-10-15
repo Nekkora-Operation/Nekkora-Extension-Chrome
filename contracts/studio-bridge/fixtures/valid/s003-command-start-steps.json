@@ -1,0 +1,18 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.recording.start",
+  "id": "c-30",
+  "seq": 30,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "operationId": "op-start-3",
+    "tabRef": "t-Q2f9LmZx7Kp1",
+    "mode": "CAPTURE_AND_INTERACT",
+    "leaseMs": 30000,
+    "capabilities": [
+      "steps/1"
+    ],
+    "routeRef": "route-1"
+  }
+}

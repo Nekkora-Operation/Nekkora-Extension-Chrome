@@ -10,7 +10,7 @@ mudanças na interface — recusando explicitamente qualquer resolução insegur
 
 | | |
 |---|---|
-| Missões | **NEKKORA-STUDIO-002** (Studio Bridge `nekkora-bridge/1`: gravação técnica controlada pelo Nekkora Studio) · NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · NEKKORA-CHROME-003 (Frame Intelligence, diagnóstico de proteções e consolidação) · **NEKKORA-REAL-001** (piloto em sites http/https autorizados) |
+| Missões | **NEKKORA-STUDIO-003** (interações reais viram etapas: sensor, normalizador e entrega confiável) · **NEKKORA-STUDIO-002** (Studio Bridge `nekkora-bridge/1`: gravação técnica controlada pelo Nekkora Studio) · NEKKORA-CHROME-001 (inspeção, família, localizadores, reencontro) · NEKKORA-CHROME-002 (captura automática contínua, botão único, exportação na finalização) · NEKKORA-CHROME-003 (Frame Intelligence, diagnóstico de proteções e consolidação) · **NEKKORA-REAL-001** (piloto em sites http/https autorizados) |
 | Estado | REAL-001: [relatório](reports/real-web-pilot-final-report.md) — autoriza testes exploratórios controlados, **não** é homologação para produção · CHROME-003: [relatório](reports/chrome-003-final-report.md) · CHROME-002: [relatório](reports/chrome-002-final-report.md) · CHROME-001: [relatório](reports/final-report.md) |
 | Linguagem principal | Java 21 (motor de análise, host Native Messaging, servidor do laboratório, testes) |
 | Navegador | Google Chrome 155 (convencional, homologado) / Chrome for Testing 155 (suíte automatizada) — MV3 |
@@ -44,6 +44,14 @@ STUDIO-002: [protocolo nekkora-bridge/1](docs/studio-002/bridge-protocol.md) ·
 [gravação técnica do Studio](docs/studio-002/studio-recording.md) · [compatibilidade](docs/studio-002/compatibility.md) ·
 [segurança](docs/studio-002/security.md) · [relatório](reports/studio-002-bridge-final-report.md). No painel,
 "Conectar ao Nekkora Studio" (opt-in) liga o canal local autenticado com o Studio; sem ele, nada muda.
+
+STUDIO-003: [sensor de interações e regras de normalização](docs/studio-003/interaction-recorder.md) ·
+[modos de captura](docs/studio-003/capture-modes.md) · [referência do elemento](docs/studio-003/element-correlation.md) ·
+[entrega das etapas](docs/studio-003/event-delivery.md) · [contrato](docs/studio-003/bridge-contract.md) ·
+[privacidade](docs/studio-003/privacy.md) · [limitações](docs/studio-003/known-limitations.md) ·
+[relatório](reports/studio-003-interactions-final-report.md). Com uma gravação do Studio ativa, as interações na aba
+viram etapas ordenadas, com a referência técnica do elemento e sem valores digitados. Em "Capturar", a ação não é
+executada; em "Capturar e interagir", a página funciona normalmente.
 
 CHROME-002: [ciclo de captura contínua, sessões, recuperação e retenção](docs/chrome-002/capture-lifecycle.md) ·
 [inspeção com botão único e DEV × PRD](docs/chrome-002/inspection.md) ·

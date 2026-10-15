@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://nekkora.dev/contracts/studio-bridge/1",
   "title": "Nekkora Studio Bridge (nekkora-bridge/1)",
-  "description": "Mensagens entre o Nekkora Studio (servidor local) e o Native Host Java (cliente), num canal local autenticado (Unix Domain Socket ou TCP em 127.0.0.1). Cada mensagem é um quadro: 4 bytes big-endian sem sinal com o tamanho + JSON UTF-8 (no máximo 262144 bytes). Somente CONTROLE de gravação: PageMaps, snapshots e conteúdo bruto da página nunca trafegam por este canal. Contrato separado do Native Messaging (nekkora-nm/1). Identificadores (recordingId, operationId, tabRef, instanceId) são técnicos: transportados, nunca exibidos.",
+  "description": "Mensagens entre o Nekkora Studio (servidor local) e o Native Host Java (cliente), num canal local autenticado (Unix Domain Socket ou TCP em 127.0.0.1). Cada mensagem é um quadro: 4 bytes big-endian sem sinal com o tamanho + JSON UTF-8 (no máximo 262144 bytes). Somente CONTROLE de gravação e, a partir da STUDIO-003, ETAPAS gravadas (referência compacta do elemento, sem valores digitados): PageMaps, snapshots e conteúdo bruto da página nunca trafegam por este canal. Contrato separado do Native Messaging (nekkora-nm/1). Identificadores (recordingId, operationId, tabRef, instanceId) são técnicos: transportados, nunca exibidos.",
   "oneOf": [
     { "$ref": "#/$defs/Handshake" },
     { "$ref": "#/$defs/Command" },
@@ -19,7 +19,7 @@
     "Instant": { "type": "string", "format": "date-time" },
     "Mode": {
       "enum": ["CAPTURE_ONLY", "CAPTURE_AND_INTERACT"],
-      "description": "CAPTURE_ONLY = 'Capturar' (selecionar e registrar sem executar a ação); CAPTURE_AND_INTERACT = 'Capturar e interagir' (observar sem bloquear). Na STUDIO-002 o modo é apenas configuração confirmada: os sensores de interação chegam na STUDIO-003."
+      "description": "CAPTURE_ONLY = 'Capturar' (selecionar e registrar sem executar a ação); CAPTURE_AND_INTERACT = 'Capturar e interagir' (observar sem bloquear). Com a capacidade steps/1 (STUDIO-003) os sensores de interação aplicam o modo; sem ela o modo é apenas configuração confirmada (STUDIO-002)."
     },
     "RecordingState": {
       "enum": ["RECORDING", "PAUSED", "DEGRADED", "COMPLETED", "CANCELLED", "EXPIRED", "FAILED"],
@@ -125,7 +125,21 @@
         },
         "startedAt": { "$ref": "#/$defs/Instant" },
         "updatedAt": { "$ref": "#/$defs/Instant" },
-        "reason": { "type": ["string", "null"], "maxLength": 60, "description": "Motivo do último estado (ex.: TAB_CLOSED, PERMISSION_REVOKED, LEASE_EXPIRED)." }
+        "reason": { "type": ["string", "null"], "maxLength": 60, "description": "Motivo do último estado (ex.: TAB_CLOSED, PERMISSION_REVOKED, LEASE_EXPIRED, STEP_BACKLOG_FULL)." },
+        "steps": { "$ref": "#/$defs/StepsState" }
+      }
+    },
+    "StepsState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "lastSequence", "ackedSequence", "pending", "lost"],
+      "description": "STUDIO-003: entrega das etapas gravadas (somente com a capacidade steps/1). lastSequence = última etapa emitida; ackedSequence = última confirmada pelo Studio (cumulativa); pending = emitidas e ainda não confirmadas (retidas para retransmissão); lost = interações declaradas perdidas (documento substituído antes da consolidação).",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "lastSequence": { "type": "integer", "minimum": 0 },
+        "ackedSequence": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "lost": { "type": "integer", "minimum": 0 }
       }
     },
     "Summary": {
@@ -138,11 +152,30 @@
         "counters": { "$ref": "#/$defs/Counters" },
         "coverage": { "$ref": "#/$defs/Coverage" },
         "pageMapExported": { "const": false, "description": "Finalizar NÃO é exportar (D-STUDIO-002-03)." },
-        "actionCapture": { "const": "NOT_AVAILABLE", "description": "Nenhuma etapa de automação é produzida pela gravação técnica (STUDIO-003)." },
+        "actionCapture": { "enum": ["NOT_AVAILABLE", "AVAILABLE", "PARTIAL"], "description": "NOT_AVAILABLE: gravação só técnica (sem a capacidade steps/1, comportamento STUDIO-002). AVAILABLE: sensores ativos, cobertura completa e todas as etapas confirmadas. PARTIAL: etapas produzidas com alguma limitação (cobertura parcial, etapas não confirmadas ou recusadas, interrupção ou perda declarada)." },
         "limitations": {
           "type": "array",
-          "maxItems": 10,
-          "items": { "enum": ["ACTION_CAPTURE_NOT_AVAILABLE", "PARTIAL_COVERAGE", "INTERRUPTED", "RECOVERIES_OCCURRED", "NEVER_ATTACHED"] }
+          "maxItems": 12,
+          "items": { "enum": ["ACTION_CAPTURE_NOT_AVAILABLE", "PARTIAL_COVERAGE", "INTERRUPTED", "RECOVERIES_OCCURRED", "NEVER_ATTACHED", "STEPS_UNCONFIRMED", "STEPS_REJECTED", "INTERACTIONS_LOST", "STEP_BACKLOG_FULL"] }
+        },
+        "steps": { "$ref": "#/$defs/StepsSummary" }
+      }
+    },
+    "StepsSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["produced", "acknowledged", "rejected", "unacknowledged", "lost", "discarded"],
+      "properties": {
+        "produced": { "type": "integer", "minimum": 0 },
+        "acknowledged": { "type": "integer", "minimum": 0, "description": "Aceitas pelo domínio do Studio (confirmação explícita)." },
+        "rejected": { "type": "integer", "minimum": 0, "description": "Recusadas pelo domínio do Studio (nunca contadas como aceitas)." },
+        "unacknowledged": { "type": "integer", "minimum": 0 },
+        "lost": { "type": "integer", "minimum": 0 },
+        "discarded": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "propertyNames": { "enum": ["UNTRUSTED", "NON_INTERACTIVE", "FOCUS_ONLY", "PROGRAMMATIC_SUBMIT", "PROGRAMMATIC_CHANGE", "ABSORBED", "AFTER_STOP", "STALE_EPOCH", "NOT_RECORDING"] },
+          "description": "Eventos descartados por motivo (contagem): nenhum descarte é silencioso."
         }
       }
     },
@@ -239,7 +272,8 @@
       "enum": [
         "bridge.status", "bridge.heartbeat", "browser.tabs.list",
         "studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode",
-        "studio.recording.finish", "studio.recording.cancel", "studio.recording.status", "studio.recording.renew"
+        "studio.recording.finish", "studio.recording.cancel", "studio.recording.status", "studio.recording.renew",
+        "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route"
       ]
     },
     "Command": {
@@ -260,7 +294,10 @@
         { "if": { "properties": { "type": { "enum": ["studio.recording.pause", "studio.recording.resume", "studio.recording.finish", "studio.recording.cancel"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingTarget" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.mode" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/ModePayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewPayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.steps.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RoutePayload" } } } }
       ]
     },
     "StartPayload": {
@@ -272,7 +309,38 @@
         "operationId": { "$ref": "#/$defs/Id" },
         "tabRef": { "$ref": "#/$defs/TabRef" },
         "mode": { "$ref": "#/$defs/Mode" },
-        "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 }
+        "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 },
+        "capabilities": { "type": "array", "maxItems": 4, "uniqueItems": true, "items": { "enum": ["steps/1"] }, "description": "STUDIO-003: steps/1 = o Studio recebe as etapas gravadas e as confirma. Ausente (Studio da STUDIO-002): gravação apenas técnica." },
+        "routeRef": { "$ref": "#/$defs/Id", "description": "Rota inicial das etapas (opaca, gerada pelo Studio): cada etapa carrega a rota vigente quando foi consolidada." }
+      }
+    },
+    "AckPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "upToSequence"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "upToSequence": { "type": "integer", "minimum": 0, "description": "Confirmação CUMULATIVA: todas as etapas até esta sequência foram processadas pelo domínio do Studio." },
+        "rejected": { "type": "array", "maxItems": 100, "items": { "type": "integer", "minimum": 1 }, "description": "Sequências processadas e RECUSADAS pelo domínio (não são contadas como aceitas)." }
+      }
+    },
+    "SyncPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "afterSequence"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "afterSequence": { "type": "integer", "minimum": 0, "description": "Reemite, em ordem, as etapas retidas com sequência maior que esta." }
+      }
+    },
+    "RoutePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "operationId", "routeRef"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "operationId": { "$ref": "#/$defs/Id" },
+        "routeRef": { "$ref": "#/$defs/Id" }
       }
     },
     "ModePayload": {
@@ -320,7 +388,10 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.recording.finish", "studio.recording.cancel"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EndResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusListResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.steps.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RouteResult" } } } }
       ]
     },
     "StatusResult": {
@@ -393,7 +464,34 @@
       "properties": {
         "recordingId": { "$ref": "#/$defs/Id" },
         "state": { "$ref": "#/$defs/RecordingState" },
-        "expiresInMs": { "type": "integer", "minimum": 0 }
+        "expiresInMs": { "type": "integer", "minimum": 0 },
+        "steps": { "$ref": "#/$defs/StepsState", "description": "STUDIO-003: a cada renovação o Studio confere se recebeu todas as etapas emitidas (detecção de perda)." }
+      }
+    },
+    "AckResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "steps"],
+      "properties": { "recordingId": { "$ref": "#/$defs/Id" }, "steps": { "$ref": "#/$defs/StepsState" } }
+    },
+    "SyncResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "resent", "steps"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "resent": { "type": "integer", "minimum": 0, "description": "Etapas reemitidas como eventos studio.recording.step, em ordem de sequência." },
+        "steps": { "$ref": "#/$defs/StepsState" }
+      }
+    },
+    "RouteResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recording", "boundarySequence", "duplicate"],
+      "properties": {
+        "recording": { "$ref": "#/$defs/Recording" },
+        "boundarySequence": { "type": "integer", "minimum": 0, "description": "Última sequência consolidada na rota anterior: as etapas seguintes carregam a rota nova." },
+        "duplicate": { "type": "boolean" }
       }
     },
 
@@ -402,7 +500,7 @@
         "bridge.connected", "bridge.disconnected",
         "studio.recording.started", "studio.recording.paused", "studio.recording.resumed", "studio.recording.modeChanged",
         "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded", "studio.recording.recovered",
-        "studio.recording.failed", "studio.recording.expired"
+        "studio.recording.failed", "studio.recording.expired", "studio.recording.step"
       ]
     },
     "Event": {
@@ -419,7 +517,8 @@
       "allOf": [
         { "if": { "properties": { "type": { "const": "bridge.connected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusResult" } } } },
         { "if": { "properties": { "type": { "const": "bridge.disconnected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DisconnectedPayload" } } } },
-        { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\." } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } }
+        { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\.", "not": { "const": "studio.recording.step" } } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.step" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StepEventPayload" } } } }
       ]
     },
     "DisconnectedPayload": {
@@ -437,6 +536,151 @@
         "operationId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }], "description": "Operação do Studio que provocou o evento; null para eventos originados no navegador (aba fechada, permissão revogada, concessão expirada)." },
         "recording": { "$ref": "#/$defs/Recording" },
         "summary": { "$ref": "#/$defs/Summary" }
+      }
+    },
+    "StepEventPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "eventId", "sequence", "routeRef", "observedAt", "mode", "observation", "action", "element", "parameters", "context", "evidence", "notes"],
+      "description": "STUDIO-003: uma etapa gravada (interação funcional já normalizada). Nenhum valor digitado trafega: preencher registra QUE houve preenchimento (valueCaptured=false). Identificadores são técnicos: transportados, nunca exibidos.",
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "eventId": { "$ref": "#/$defs/Id", "description": "Identidade do evento (deduplicação em reemissões)." },
+        "sequence": { "type": "integer", "minimum": 1, "description": "Sequência explícita por gravação, atribuída pela extensão na ordem de recepção das interações." },
+        "routeRef": { "$ref": "#/$defs/Id", "description": "Rota vigente quando a interação foi consolidada (o Studio a associa à sessão lógica)." },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "mode": { "$ref": "#/$defs/Mode" },
+        "observation": { "enum": ["INTERACTION_OBSERVED", "PROPOSED"], "description": "INTERACTION_OBSERVED: interação real encaminhada à página (não comprova resultado de negócio). PROPOSED: elemento selecionado em CAPTURE_ONLY, ação NÃO executada." },
+        "action": { "enum": ["CLICK", "FILL", "SELECT_OPTION", "CHECK", "UNCHECK", "PRESS_KEY", "UNKNOWN"] },
+        "element": { "$ref": "#/$defs/ElementRef" },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["valueCaptured"],
+          "properties": {
+            "valueCaptured": { "const": false, "description": "Valores digitados nunca são capturados." },
+            "option": {
+              "oneOf": [{ "type": "null" }, {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["label", "value"],
+                "properties": { "label": { "type": "string", "maxLength": 120 }, "value": { "type": "string", "maxLength": 120 } }
+              }],
+              "description": "Opção escolhida (SELECT_OPTION), já sanitizada; null quando não identificada ou em campo sensível."
+            },
+            "key": { "enum": ["Enter", null], "description": "Tecla (PRESS_KEY)." }
+          }
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["url", "title", "frame"],
+          "properties": {
+            "url": { "type": ["string", "null"], "maxLength": 2000, "description": "URL do documento sanitizada pela política nekkora-privacy/1." },
+            "title": { "type": ["string", "null"], "maxLength": 120 },
+            "frame": { "enum": ["MAIN", "FRAME"] },
+            "after": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "navigation": { "enum": ["NONE", "SAME_DOCUMENT", "NEW_DOCUMENT"] },
+                "url": { "type": ["string", "null"], "maxLength": 2000 }
+              },
+              "description": "Contexto observado logo depois da interação (quando chegou dentro da janela de correlação)."
+            }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": { "enum": ["FORM_SUBMITTED", "DOUBLE_CLICK", "VIA_KEYBOARD", "VIA_LABEL", "FOCUS_CLICK_ABSORBED", "CUSTOM_COMBOBOX", "NAVIGATION_FOLLOWED", "LOCATORS_VERIFIED_LIVE"] }
+        },
+        "notes": {
+          "type": "array",
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": { "enum": ["AMBIGUOUS_TARGET", "OPTION_NOT_IDENTIFIED", "OPTION_NOT_CHOSEN", "OPTION_WITHOUT_PROVEN_COMBOBOX", "ELEMENT_UNRESOLVED",
+            "NO_UNIQUE_LOCATOR", "INDISTINGUISHABLE_LOOKALIKES", "ACCESS_RESTRICTED", "LIVE_CHECK_UNAVAILABLE", "CROSS_FRAME_ORDER_BY_RECEPTION", "RESENT"] }
+        },
+        "events": { "type": "integer", "minimum": 1, "maximum": 100000, "description": "Eventos do navegador consolidados nesta etapa." }
+      }
+    },
+    "ElementRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolution", "kind", "name", "tag", "sensitive", "locators", "preferredLocator", "accessPath", "context"],
+      "description": "Referência COMPACTA ao elemento (nunca um PageMap). RESOLVED: correlacionado pelo motor semântico; UNRESOLVED: somente o descritor observado, sem identidade nem localizador definitivo.",
+      "properties": {
+        "resolution": { "enum": ["RESOLVED", "UNRESOLVED"] },
+        "kind": { "type": "string", "pattern": "^[A-Z_]{1,40}$", "description": "Categoria semântica (elementKind do PageMap)." },
+        "role": { "type": ["string", "null"], "maxLength": 40 },
+        "name": { "type": "string", "maxLength": 120 },
+        "tag": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,40}$" },
+        "htmlId": { "type": ["string", "null"], "maxLength": 120 },
+        "htmlName": { "type": ["string", "null"], "maxLength": 120 },
+        "sensitive": { "type": "boolean" },
+        "locators": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["strategy", "description", "css", "xpath", "matchCount", "matchesTarget", "stability", "validation"],
+            "properties": {
+              "strategy": { "enum": ["TEST_ATTRIBUTE", "ID", "NAME", "LABEL", "ROLE_NAME", "CONTEXTUAL", "ROW_CONTEXT", "ATTRIBUTE", "TEXT", "XPATH_RELATIVE", "POSITIONAL"] },
+              "description": { "type": "string", "maxLength": 200 },
+              "css": { "type": ["string", "null"], "maxLength": 500 },
+              "xpath": { "type": ["string", "null"], "maxLength": 500 },
+              "matchCount": { "type": "integer", "minimum": 0 },
+              "matchesTarget": { "type": "boolean" },
+              "stability": { "enum": ["OBSERVED_STABLE", "HEURISTIC_STABLE", "UNKNOWN", "HEURISTIC_UNSTABLE", "OBSERVED_UNSTABLE"] },
+              "validation": { "enum": ["LIVE", "SNAPSHOT", "NONE"], "description": "LIVE: executado na DOM real e único; SNAPSHOT: único na captura; NONE: não validado." }
+            }
+          }
+        },
+        "preferredLocator": { "type": "integer", "minimum": -1, "maximum": 4, "description": "Índice do localizador validado preferencial; -1 quando nenhum é validado." },
+        "accessPath": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "label"],
+            "properties": {
+              "type": { "enum": ["MAIN_DOCUMENT", "IFRAME", "SHADOW_ROOT", "ELEMENT"] },
+              "label": { "type": "string", "maxLength": 120 },
+              "locator": { "type": ["string", "null"], "maxLength": 500 },
+              "restriction": { "type": ["string", "null"], "maxLength": 40 }
+            }
+          }
+        },
+        "context": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["relation", "kind", "name"],
+            "properties": {
+              "relation": { "enum": ["IN_DIALOG", "IN_ROW", "IN_LIST_ITEM", "IN_FORM"] },
+              "kind": { "type": "string", "pattern": "^[A-Z_]{1,40}$" },
+              "name": { "type": "string", "maxLength": 120 }
+            }
+          }
+        },
+        "lookalikes": { "type": "integer", "minimum": 0 },
+        "correlation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "targetId": { "$ref": "#/$defs/Id" },
+            "nodeId": { "$ref": "#/$defs/Id" },
+            "captureId": { "$ref": "#/$defs/Id" },
+            "documentId": { "$ref": "#/$defs/Id" }
+          },
+          "description": "Chaves internas de correlação com o motor (nunca exibidas)."
+        }
       }
     }
   }

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Formulário em iframe</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>iframe { width: 46%; height: 220px; border: 1px solid #999; margin: 4px; vertical-align: top; }</style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Iframe e Shadow DOM (STUDIO-003)</h1>
+  <p class="muted">Cenário 4: formulário dentro de iframe autorizado (mesma origem) e componente com Shadow DOM aberto.
+    O iframe de origem sem permissão é preenchido pelo teste (site-x).</p>
+  <iframe id="cadastro" title="Cadastro" src="/lab/studio003/frame-form.html"></iframe>
+  <iframe id="externo" title="Parceiro sem permissão"></iframe>
+  <h2>Componente</h2>
+  <custom-login id="componente"></custom-login>
+  <p id="saida" role="status"></p>
+  <script>
+    class CustomLogin extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<label for="usuario">Usuário do componente</label> <input id="usuario" type="text">'
+          + ' <button id="entrar" type="button"><span class="icone">→</span> Entrar</button>';
+        root.getElementById('entrar').addEventListener('click', () => {
+          document.getElementById('saida').textContent = 'Componente acionado.';
+        });
+      }
+    }
+    customElements.define('custom-login', CustomLogin);
+    const ext = new URLSearchParams(location.search).get('externo');
+    if (ext) {
+      document.getElementById('externo').src = ext;
+    }
+  </script>
+</body>
+</html>

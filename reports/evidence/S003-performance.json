@@ -1,0 +1,40 @@
+{
+  "typedCharacters" : 300,
+  "typingMs" : 212,
+  "clicks" : 20,
+  "clickToStepMs" : {
+    "p95" : 817,
+    "p50" : 810,
+    "max" : 818
+  },
+  "eventBytes" : {
+    "max" : 2381,
+    "avg" : 2376
+  },
+  "pipeline" : {
+    "consolidatedEvents" : 301,
+    "correlationMs" : {
+      "max" : 33,
+      "p50" : 30,
+      "p95" : 33,
+      "samples" : 21
+    },
+    "discarded" : {
+      "ABSORBED" : 0,
+      "AFTER_STOP" : 0,
+      "FOCUS_ONLY" : 0,
+      "NON_INTERACTIVE" : 0,
+      "NOT_RECORDING" : 0,
+      "PROGRAMMATIC_CHANGE" : 0,
+      "PROGRAMMATIC_SUBMIT" : 0,
+      "STALE_EPOCH" : 0,
+      "UNTRUSTED" : 0
+    },
+    "liveVerified" : 21,
+    "lost" : 0,
+    "pending" : 0,
+    "produced" : 21,
+    "resolved" : 21,
+    "unresolved" : 0
+  }
+}

@@ -52,6 +52,7 @@
         "src/shared/tokens.js",
         "src/shared/privacy.js",
         "src/content/ns.js",
+        "src/shared/interaction-normalizer.js",
         "src/content/node-registry.js",
         "src/content/sensitivity.js",
         "src/content/capture.js",
@@ -59,6 +60,7 @@
         "src/content/locator-runner.js",
         "src/content/highlighter.js",
         "src/content/inspector.js",
+        "src/content/interaction-recorder.js",
         "src/content/content-main.js"
       ],
       "run_at": "document_idle",
