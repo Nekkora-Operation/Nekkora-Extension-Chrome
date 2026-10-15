@@ -14,6 +14,7 @@ Mesmo modelo das etapas (STUDIO-003, `docs/studio-003/event-delivery.md`), com u
 | Fronteiras | `flush`/`stop` devolvem `lastFeedback` (sequência das mensagens do observador na época) e o service worker espera a chegada antes de encerrar a época |
 | Exatamente uma vez | cada janela termina uma vez; a conclusão repetida ou tardia é recusada |
 | Cancelamento | outbox, filas e janelas descartadas; nada mais é emitido |
+| Reinício do service worker (revisão do PR #6) | a janela aberta é persistida ao abrir, com o vínculo exato (`eventId`/`sequence`) e a marca "etapa emitida" (gravada na emissão). Depois do reinício, o vínculo é reconstruído **só** desse registro, nunca por proximidade. Etapa não emitida → perda declarada. Invariante na emissão: sem etapa, só `AMBIGUOUS_FEEDBACK` sai; qualquer outra vira perda declarada, nunca evento inválido na outbox |
 | Finalização | drena, declara as janelas abertas (`WINDOW_CUT_BY_STOP`) e espera os ACKs por até 3 s. O que faltar fica em `EVIDENCE_UNCONFIRMED` |
 
 ## Ciclo de vida

@@ -11,13 +11,20 @@
 5. **Iframes de outra origem sem permissão** não são observados. A cobertura fica `PARTIAL`, como na STUDIO-003.
 6. **Regiões fora do seletor** (avisos sem papel ARIA, "toasts" só visuais) não são detectadas. Isso é intencional:
    classe CSS sozinha não comprova nada.
-7. **A política de mensagem é conservadora.** Mensagens legítimas com 4 ou mais dígitos ("Pedido 12345 criado")
-   saem como `SUPPRESSED`.
-8. **Valores dos campos lidos para comparação** (só no content script, só para suprimir). Isso está documentado em `privacy.md`.
-9. **Achado de privacidade fora do escopo:** o texto visível da página que repete um valor digitado aparece na captura
-   técnica existente (log local de diagnóstico do service worker e `contextTexts` do registro de alvos do motor). Não
-   atravessa o Bridge nem é evidência, mas merece uma missão própria de privacidade da captura técnica.
-10. **Persistência**: a outbox e o estado ficam em `storage.session`, e os vínculos ficam em memória. Depois de um
-    reinício do service worker, evidências de etapas antigas são descartadas (`dropped`); a persistência definitiva é da STUDIO-006.
-11. **Ordem entre documentos**: a sequência das evidências é a ordem de emissão no service worker (técnica), não a
+7. **A política de mensagem é conservadora.** Mensagens legítimas com 4 ou mais dígitos ("Pedido 12345 criado") ou com
+   nome próprio no meio da frase ("Bem-vindo ao Portal") saem como `SUPPRESSED`.
+8. **Valores dos campos lidos para comparação e impressões digitais salgadas** (só no content script, só para suprimir,
+   nunca o valor). Isso está documentado em `privacy.md`.
+9. **Dado pessoal de terceiro em minúsculas**, nunca digitado nesta página, não é reconhecido pela forma. É o limite
+   declarado da política; a garantia total exigiria nunca enviar o texto (decisão de produto).
+10. **Achado de segurança, prioridade alta, fora do escopo da STUDIO-005:** o texto visível da página que repete um valor
+    digitado aparece na captura técnica existente (log local de diagnóstico do service worker e `contextTexts` do
+    registro de alvos do motor). Não atravessa o Bridge nem é evidência. **Até a correção na origem, o Recorder não deve
+    ser usado com dados reais de clientes.**
+11. **Reinício do service worker** (revisão do PR #6): a janela aberta persiste o vínculo exato com a etapa. Se a etapa
+    já tinha sido emitida, as evidências seguem vinculadas e a janela termina declarada (normalmente
+    `OBSERVATION_INCOMPLETE`/`PARTIAL_COVERAGE`, porque os sensores voltam numa época nova). Se a etapa não tinha sido
+    emitida, a observação é declarada perdida (`lost`, `EVIDENCE_LOST`) e nada é emitido sem vínculo. As navegações não
+    são associadas a ações anteriores ao reinício (os candidatos ficam só na memória). A persistência definitiva é da STUDIO-006.
+12. **Ordem entre documentos**: a sequência das evidências é a ordem de emissão no service worker (técnica), não a
     ordem absoluta entre iframes.

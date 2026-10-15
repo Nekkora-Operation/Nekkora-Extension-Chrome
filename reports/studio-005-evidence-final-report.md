@@ -7,9 +7,11 @@ fictícios. Nada aqui executa automações, valida negócio, usa IA, persiste em
 
 | Suíte | Commit `8b251c5` (antes) | Branch (depois) |
 |---|---|---|
-| Java (core 175, host 51, laboratório 4, contrato 2) | 232/232 | 235/235 (host +3: `EvidencePrivacyTest`) |
-| Node | 96/96 | 129/129 (+33: `feedback-rules` 8, `studio-evidence` 25) |
-| Navegador (`*IT` sem `*LiveWebIT`/`*ManualIT`, 6 grupos) | 211/211 (28 classes) | 224/224 (29 classes, +13 `Studio005EvidenceIT`) |
+| Java (core 175, host 51, laboratório 4, contrato 2) | 232/232 | **237/237** (host +5: `EvidencePrivacyTest` 4, `HostConcurrencyTest` +1) |
+| Node | 96/96 | **133/133** (+37: `feedback-rules` 10, `studio-evidence` 27) |
+| Navegador (`*IT` sem `*LiveWebIT`/`*ManualIT`, 6 grupos) | 211/211 (28 classes) | **226/226** (29 classes, +15 `Studio005EvidenceIT`) |
+
+Números depois da revisão do PR #6 (anexo no fim).
 
 Nenhum teste foi removido nem afrouxado.
 
@@ -131,7 +133,7 @@ homologação com o Studio estão no repositório do Studio (`reports/studio-005
 
 ## 16. Desempenho
 
-Em `docs/studio-005/performance.md`. Clique → etapa p50 810/811 ms com e sem evidências; emissão em 1–2 ms; maior evento
+Em `docs/studio-005/performance.md`. Clique → etapa p50 811/814 ms com e sem evidências (regressão depois da revisão); emissão em 1–2 ms; maior evento
 716 bytes; nenhum `MutationObserver` em repouso.
 
 ## 17. Falhas encontradas
@@ -168,3 +170,73 @@ comparação, achado da captura técnica, persistência só em `storage.session`
   reconstruídos e as evidências antigas não precisam mais ser descartadas.
 - Missão recomendada: privacidade da captura técnica (texto visível em deltas e `contextTexts`).
 - Janelas configuráveis por automação e evidências de rede **não** estão no escopo atual e dependem de decisão de produto.
+
+## Anexo — revisão técnica do PR #6 (P1 × 2, P2 × 1, achado de segurança)
+
+Procedimento da revisão: **primeiro os testes que reproduzem, depois a correção localizada, depois a regressão
+completa**, nas mesmas branches.
+
+### P1-a — valor digitado que some do campo antes da mensagem
+
+- **Reprodução, antes da correção:**
+  - testes Node `REV-P1a` falhando (`messagePolicy` sem as impressões e sem a regra de forma);
+  - `Studio005EvidenceIT.s005SensitiveFieldGone` falhando no **Chrome real**: com o campo limpo pela página,
+    `"O código Kq7Segredo expirou."` atravessou extensão → host → Studio de laboratório com `availability: AVAILABLE`.
+  - Casos cobertos: campo limpo, campo removido da DOM, campo em Shadow DOM e dado de terceiro nunca digitado.
+- **Correção:**
+  - impressões digitais salgadas dos valores digitados (só hashes, só na memória do documento), tiradas antes da reação
+    da página;
+  - comparação com os valores atuais percorrendo os shadow roots;
+  - regra **fail-closed pela forma** (letras com dígitos, maiúscula interna, nome próprio fora do início) nas quatro
+    barreiras: content script, service worker, host (`EvidencePrivacy.looksIdentifying`) e Studio (`Message.of`).
+- **Depois da correção:** as 4 mensagens ficam `SUPPRESSED` e nenhum dos valores aparece no evento, no
+  `storage.session`, nos arquivos do host ou no Studio. A homologação real continua 50/0.
+  Limite declarado: dado pessoal de terceiro só em minúsculas e nunca digitado não é reconhecido por forma (ver `privacy.md`).
+
+### P1-b — reinício do service worker com janela aberta
+
+- **Reprodução:** o teste Node `REV-P1b` (instância nova sobre o mesmo `storage.session`) emitia
+  `OBSERVATION_COMPLETE` com `eventId: null`, fora do contrato. Era exatamente o cenário da revisão.
+- **Correção:**
+  - a janela persiste ao abrir o vínculo mínimo **exato** (`eventId`/`sequence`) e a marca "etapa emitida", gravada na
+    emissão da etapa;
+  - depois do reinício, o vínculo é reconstruído só desse registro, nunca por proximidade temporal;
+  - etapa não emitida → **perda declarada** (`lost`, `EVIDENCE_LOST`), sem evento;
+  - invariante em `emit`: sem etapa, só `AMBIGUOUS_FEEDBACK` sai.
+- **Provas:**
+  - 2 testes Node: etapa emitida e etapa perdida, com a fila seguindo depois;
+  - IT `s005ServiceWorkerRestartDuringWindow` com **reinício real** do service worker no Chrome
+    (`ServiceWorker.stopAllWorkers`) no meio da janela. Todas as evidências chegaram com o `eventId` exato; a janela
+    terminou uma única vez e declarada (`OBSERVATION_INCOMPLETE`/`PARTIAL_COVERAGE`, porque os sensores voltam numa
+    época nova); a fila foi reconciliada (`pending = 0`). Arquivo: `reports/evidence/S005-rev-sw-restart.json`.
+
+### P2 — prioridade do Native Host com a fila de evidências (S005-055)
+
+`HostConcurrencyTest.s005055RajadaDeEvidenciasNaoPrendeOControle`. O motor ficou ocupado por `host.hold` de 6 s.
+A extensão enviou uma rajada contínua de 300 evidências (1,8 s), e a pausa e a finalização do Studio foram enviadas no
+meio dela. Resultado medido:
+
+- repasse da pausa em 1 ms e ida e volta em 2 ms;
+- repasse da finalização em 0 ms;
+- os dois comandos atendidos **antes do fim da rajada** e com o motor ainda ocupado;
+- 300/300 evidências entregues dentro do contrato, com a 3ª barreira aplicada.
+
+O limite de 500 ms das asserções é o mesmo da S002-022. O teste está em `target/studio-002/S005-055-evidence-burst-control.json`.
+O caso S005-055 passa a estar **coberto**.
+
+### Achado de segurança — captura técnica antiga
+
+Ele é mantido **separado** da STUDIO-005, como pediu a revisão, e está explícito em `privacy.md` e
+`known-limitations.md`: até a correção na origem da captura técnica, **o Recorder não deve ser usado com dados reais de
+clientes**. A recomendação é uma missão de segurança de prioridade alta antes de qualquer uso com dados reais.
+
+### Regressão completa depois das correções
+
+| Suíte | Resultado |
+|---|---|
+| Extensão Java | 237/237 |
+| Extensão Node | 133/133 |
+| Extensão navegador (6 grupos) | 226/226 (34 + 55 + 47 + 23 + 27 + 40) |
+| Studio Windows | 337/337 |
+| Studio Linux (Docker, contra a extensão `b9d4e06`) | 337/337 |
+| Homologação real `Studio005Homologation` | 50/0 |

@@ -1,16 +1,16 @@
 {
   "withoutEvidence" : {
     "clickToStepMs" : {
-      "p95" : 849,
-      "max" : 910,
-      "p50" : 811
+      "p95" : 823,
+      "max" : 838,
+      "p50" : 814
     }
   },
   "withEvidence" : {
     "clickToStepMs" : {
-      "p95" : 817,
+      "p95" : 814,
       "max" : 835,
-      "p50" : 810
+      "p50" : 811
     },
     "evidenceEvents" : 16,
     "evidenceBytesMax" : 716,
@@ -27,7 +27,7 @@
         "samples" : 16
       },
       "incomplete" : 0,
-      "lastObservedAt" : "2026-10-15T18:11:33.451Z",
+      "lastObservedAt" : "2026-10-15T19:32:39.767Z",
       "lost" : 0,
       "openWindows" : 0,
       "pending" : 16,

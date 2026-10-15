@@ -2,13 +2,13 @@
 
 ## Medição real (`Studio005EvidenceIT.s005Performance`, Chrome for Testing, Windows)
 
-15 cliques consecutivos na mesma página, com e sem `evidence/1` (arquivo `reports/evidence/S005-performance.json`):
+15 cliques consecutivos na mesma página, com e sem `evidence/1` (arquivo `reports/evidence/S005-performance.json`, execução da regressão depois da revisão do PR #6):
 
 | Medida | Sem `evidence/1` | Com `evidence/1` |
 |---|---|---|
-| clique → etapa no Studio, p50 | 811 ms | 810 ms |
-| clique → etapa no Studio, p95 | 849 ms | 817 ms |
-| clique → etapa no Studio, máximo | 910 ms | 835 ms |
+| clique → etapa no Studio, p50 | 814 ms | 811 ms |
+| clique → etapa no Studio, p95 | 823 ms | 814 ms |
+| clique → etapa no Studio, máximo | 838 ms | 835 ms |
 | eventos de evidência | — | 16 (15 conclusões de janela + 1 aviso ambíguo) |
 | maior evento de evidência | — | 716 bytes |
 | latência de emissão no service worker (p50/p95/máx) | — | 1 / 2 / 2 ms |
@@ -28,5 +28,5 @@ A diferença está dentro do ruído. O tempo até a etapa é dominado pela janel
 
 ## Regressão
 
-A suíte do navegador (`*IT`, exceto `*LiveWebIT`/`*ManualIT`) passou em 6 grupos: 224/224 (211 anteriores + 13 novos).
+A suíte do navegador (`*IT`, exceto `*LiveWebIT`/`*ManualIT`) passou em 6 grupos: 226/226 (211 anteriores + 15 novos, depois da revisão do PR #6).
 Os testes de desempenho existentes (CHROME-002/003, REAL-001 e STUDIO-003) continuam dentro dos limites.
