@@ -57,3 +57,9 @@ tr.primary-row td:first-child { border-left: 3px solid var(--nekkora-primary); }
 .steps .step-type { font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--nekkora-text-secondary); margin-right: 4px; }
 .explanation { margin: 4px 0; font-size: 12px; color: var(--nekkora-text-secondary); }
 #diag-info dd[data-level="HIGH"], #diag-info dd[data-level="REQUIRES_HUMAN_INTERVENTION"] { color: var(--nekkora-danger); font-weight: 600; }
+
+/* Canal com o Nekkora Studio (STUDIO-002) */
+.studio-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 4px 0 6px; cursor: pointer; }
+.studio #studio-state[data-kind="ok"]::before { content: "● "; color: #2e9e63; }
+.studio #studio-state[data-kind="wait"]::before { content: "● "; color: #c79a2b; }
+.studio #studio-state[data-kind="err"]::before { content: "● "; color: #c2466d; }

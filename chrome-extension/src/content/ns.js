@@ -7,7 +7,7 @@
     return; // injeção repetida (ex.: recarga da extensão): mantém a instância existente
   }
   const NekkoraCS = {
-    version: '0.3.0',
+    version: '0.4.0',
     /**
      * Somente documentos http/https. O content script só existe onde o Chrome concedeu acesso (laboratório local por
      * host_permissions; demais origens por autorização explícita do usuário, injeção pelo service worker), e o

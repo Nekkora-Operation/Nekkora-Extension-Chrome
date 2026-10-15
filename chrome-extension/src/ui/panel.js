@@ -376,6 +376,33 @@ async function refreshHost() {
   }
 }
 
+const STUDIO_STATES = {
+  DISABLED: ['Desligada', ''],
+  SEARCHING: ['Aguardando o Nekkora Studio (abra o Studio neste computador)', 'wait'],
+  CONNECTING: ['Conectando…', 'wait'],
+  CONNECTED: ['Conectada ao Nekkora Studio', 'ok'],
+  INSECURE: ['Recusada: arquivo de conexão do Studio sem proteção adequada', 'err'],
+  INCOMPATIBLE: ['Recusada: versão do Studio incompatível', 'err'],
+  AUTH_FAILED: ['Recusada: autenticação do Studio falhou', 'err'],
+  HOST_DISCONNECTED: ['Motor Java reiniciando…', 'wait'],
+  HOST_UNAVAILABLE: ['Motor Java indisponível', 'err'],
+};
+
+function renderStudioLink(d) {
+  $('studio-enabled').checked = !!d.enabled;
+  const [text, kind] = d.enabled ? (STUDIO_STATES[d.state] || [d.state, 'wait']) : STUDIO_STATES.DISABLED;
+  setText($('studio-state'), text);
+  $('studio-state').dataset.kind = kind;
+}
+
+async function refreshStudioLink() {
+  try {
+    renderStudioLink(await call('studio.link.get'));
+  } catch (e) {
+    setText($('studio-state'), 'Indisponível');
+  }
+}
+
 async function refreshState() {
   if (tabId == null) {
     return;
@@ -406,7 +433,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       explanation: $('path-explanation').textContent, diagnosis: $('diag-info').textContent,
       access: { origin: $('acc-origin').textContent, state: $('acc-state').textContent, kind: $('acc-state').dataset.kind,
         hint: $('acc-hint').textContent, authorize: !$('btn-authorize').hidden, authorizeAll: !$('btn-authorize-all').hidden,
-        revoke: !$('btn-revoke').hidden }, message: $('message').hidden ? '' : $('message').textContent });
+        revoke: !$('btn-revoke').hidden }, studio: { enabled: $('studio-enabled').checked, state: $('studio-state').textContent },
+      message: $('message').hidden ? '' : $('message').textContent });
   } else if (msg.cmd === 'panel.click' && $(msg.id)) {
     $(msg.id).click();
     sendResponse({ clicked: msg.id });
@@ -426,6 +454,10 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
   if (msg.event === 'access-changed') {
     refreshAccess();
+    return;
+  }
+  if (msg.event === 'studio-link') {
+    renderStudioLink(msg.data);
     return;
   }
   if (!msg.data || msg.data.tabId !== tabId) {
@@ -478,6 +510,19 @@ async function switchTab(id) {
 }
 
 (async () => {
+  // Interruptor do Studio ligado ANTES de qualquer espera: um clique logo na abertura do painel não se perde.
+  $('studio-enabled').onchange = async (e) => {
+    const box = e.currentTarget;
+    box.disabled = true;
+    try {
+      renderStudioLink(await call('studio.link.set', { enabled: box.checked }));
+    } catch (err) {
+      message(String(err.message || err));
+      await refreshStudioLink();
+    } finally {
+      box.disabled = false;
+    }
+  };
   const fixedTab = new URLSearchParams(location.search).has('tabId');
   renderMode(await call('config.get'));
   await refreshHost();
@@ -487,6 +532,7 @@ async function switchTab(id) {
     // Painel nativo: acompanha a aba ativa da janela (o estado é por aba).
     chrome.tabs.onActivated.addListener((info) => switchTab(info.tabId));
   }
+  await refreshStudioLink();
   $('btn-authorize').onclick = () => access && access.pattern && requestOrigins([access.pattern]);
   $('btn-authorize-all').onclick = () => {
     $('acc-confirm-all').hidden = false; // autorização ampla exige uma segunda confirmação explícita

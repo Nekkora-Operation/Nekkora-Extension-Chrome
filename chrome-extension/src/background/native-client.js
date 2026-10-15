@@ -5,7 +5,10 @@
  * - fragmentação de mensagens grandes na ida e remontagem na volta;
  * - timeout por requisição;
  * - reconexão preguiçosa com espera progressiva após desconexão;
- * - falhas propagadas com código estável (HOST_UNAVAILABLE, HOST_DISCONNECTED, TIMEOUT, códigos do host).
+ * - falhas propagadas com código estável (HOST_UNAVAILABLE, HOST_DISCONNECTED, TIMEOUT, códigos do host);
+ * - STUDIO-002: mensagens INICIADAS pelo host (studio.command, studio.link) têm tipo explícito e roteamento próprio:
+ *   nunca são tratadas como resposta de uma requisição, e tipos sem manipulador registrado são descartados (nunca
+ *   executados). post() envia mensagens que não são requisições (studio.reply, studio.event).
  */
 export const PROTOCOL = 'nekkora-nm/1';
 export const HOST_NAME = 'com.nekkora.extension_chrome';
@@ -48,7 +51,10 @@ export class NativeClient {
     this.seq = 0;
     this.transferSeq = 0;
     this.onConnectionLost = options.onConnectionLost || null;
-    this.stats = { connects: 0, disconnects: 0, requests: 0, responses: 0, chunksIn: 0, chunksOut: 0, lastError: null, lastDisconnectAt: 0 };
+    this.hostHandlers = new Map(); // tipo de mensagem iniciada pelo host -> manipulador
+    this.connectedListeners = [];
+    this.stats = { connects: 0, disconnects: 0, requests: 0, responses: 0, chunksIn: 0, chunksOut: 0, lastError: null, lastDisconnectAt: 0,
+      hostMessages: 0, ignored: 0 };
   }
 
   status() {
@@ -75,7 +81,41 @@ export class NativeClient {
     this.stats.connects++;
     port.onMessage.addListener((m) => this.onMessage(m));
     port.onDisconnect.addListener(() => this.onDisconnect(port));
+    for (const fn of this.connectedListeners) {
+      try {
+        fn(); // ex.: reconfigurar o canal do Studio no NOVO processo do host
+      } catch (e) {
+        // o cliente nunca falha por causa de um ouvinte
+      }
+    }
     return port;
+  }
+
+  /** Registra o manipulador de um tipo de mensagem INICIADA pelo host (lista explícita; o resto é descartado). */
+  onHostMessage(type, fn) {
+    if (type === 'response' || type === 'chunk') {
+      throw new Error('tipo reservado: ' + type);
+    }
+    this.hostHandlers.set(type, fn);
+  }
+
+  /** Ouvinte chamado a cada nova porta (novo processo do host). */
+  onConnected(fn) {
+    this.connectedListeners.push(fn);
+  }
+
+  /** Envia uma mensagem que NÃO é requisição (sem correlação nem espera): studio.reply / studio.event. */
+  async post(message) {
+    const json = JSON.stringify(message);
+    if (json.length > 256 * 1024) {
+      throw new HostError('MESSAGE_TOO_LARGE', 'mensagem de controle acima de 256 KiB');
+    }
+    const port = await this.ensureConnected();
+    try {
+      port.postMessage(message);
+    } catch (e) {
+      throw new HostError('HOST_DISCONNECTED', String(e && e.message || e));
+    }
   }
 
   onDisconnect(port) {
@@ -126,6 +166,17 @@ export class NativeClient {
       }
     }
     if (!msg || msg.type !== 'response') {
+      const handler = msg && this.hostHandlers.get(msg.type);
+      if (!handler || msg.protocol !== PROTOCOL) {
+        this.stats.ignored++; // tipo desconhecido: descartado, nunca executado
+        return;
+      }
+      this.stats.hostMessages++;
+      try {
+        handler(msg);
+      } catch (e) {
+        this.stats.lastError = 'manipulador ' + msg.type + ': ' + (e && e.message);
+      }
       return;
     }
     const p = this.pending.get(msg.id);
