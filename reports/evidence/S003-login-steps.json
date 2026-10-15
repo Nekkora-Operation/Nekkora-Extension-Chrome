@@ -1,0 +1,147 @@
+{
+  "steps" : [ "1:FILL:TEXT_INPUT:Usuário", "2:FILL:PASSWORD_INPUT:Senha", "3:CLICK:BUTTON:Entrar" ],
+  "click" : {
+    "recordingId" : "rec-e8facb28-613a-4545-a5e4-2608cf3ef39c",
+    "eventId" : "ev-a-4545-a5e4-2608cf3ef39c-3",
+    "sequence" : 3,
+    "routeRef" : "route-login",
+    "observedAt" : "2026-10-15T12:07:48.223Z",
+    "mode" : "CAPTURE_AND_INTERACT",
+    "observation" : "INTERACTION_OBSERVED",
+    "action" : "CLICK",
+    "element" : {
+      "resolution" : "RESOLVED",
+      "kind" : "BUTTON",
+      "role" : "button",
+      "name" : "Entrar",
+      "tag" : "button",
+      "htmlId" : "entrar",
+      "htmlName" : null,
+      "sensitive" : false,
+      "locators" : [ {
+        "strategy" : "ID",
+        "description" : "button {id=entrar}",
+        "css" : "button#entrar",
+        "xpath" : "//button[@id=\"entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "CONTEXTUAL",
+        "description" : "form {id=login} >> button {id=entrar}",
+        "css" : "form#login button#entrar",
+        "xpath" : "//form[@id=\"login\"]//button[@id=\"entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "ROLE_NAME",
+        "description" : "* {role=button} {name=\"Entrar\"}",
+        "css" : null,
+        "xpath" : null,
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "SNAPSHOT"
+      }, {
+        "strategy" : "TEXT",
+        "description" : "button {text=\"Entrar\"}",
+        "css" : null,
+        "xpath" : "//button[normalize-space(.)=\"Entrar\"]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_STABLE",
+        "validation" : "LIVE"
+      }, {
+        "strategy" : "XPATH_RELATIVE",
+        "description" : "form {id=login} >> p {nth-of-type 4} >> button {nth-of-type 1}",
+        "css" : "form#login > p:nth-of-type(4) > button:nth-of-type(1)",
+        "xpath" : "//form[@id=\"login\"]/p[4]/button[1]",
+        "matchCount" : 1,
+        "matchesTarget" : true,
+        "stability" : "HEURISTIC_UNSTABLE",
+        "validation" : "LIVE"
+      } ],
+      "preferredLocator" : 0,
+      "accessPath" : [ {
+        "type" : "MAIN_DOCUMENT",
+        "label" : "Login de teste",
+        "locator" : null,
+        "restriction" : null
+      }, {
+        "type" : "ELEMENT",
+        "label" : "Entrar",
+        "locator" : "button#entrar",
+        "restriction" : null
+      } ],
+      "context" : [ {
+        "relation" : "IN_FORM",
+        "kind" : "FORM",
+        "name" : ""
+      } ],
+      "lookalikes" : 0,
+      "correlation" : {
+        "targetId" : "tgt-8fe9c418-6fb5-4bcf-94f7-6ae998f820c6",
+        "nodeId" : "n20",
+        "captureId" : "cap-ps-mv9hv7bb-7tmjg9-1",
+        "documentId" : "doc:f0"
+      }
+    },
+    "parameters" : {
+      "valueCaptured" : false,
+      "option" : null,
+      "key" : null
+    },
+    "context" : {
+      "url" : "http://127.0.0.1:18765/lab/studio003/login.html",
+      "title" : "Login de teste",
+      "frame" : "MAIN",
+      "after" : {
+        "navigation" : "NEW_DOCUMENT",
+        "url" : null
+      }
+    },
+    "evidence" : [ "FORM_SUBMITTED", "LOCATORS_VERIFIED_LIVE", "NAVIGATION_FOLLOWED" ],
+    "notes" : [ ],
+    "events" : 1
+  },
+  "summary" : {
+    "state" : "COMPLETED",
+    "durationMs" : 1155,
+    "counters" : {
+      "segments" : 1,
+      "technicalCaptures" : 2,
+      "synchronizations" : 0,
+      "recoveries" : 1
+    },
+    "coverage" : {
+      "state" : "COMPLETE",
+      "framesAttached" : 0,
+      "framesUnavailable" : 0
+    },
+    "pageMapExported" : false,
+    "actionCapture" : "AVAILABLE",
+    "limitations" : [ "RECOVERIES_OCCURRED" ],
+    "steps" : {
+      "produced" : 3,
+      "acknowledged" : 3,
+      "rejected" : 0,
+      "unacknowledged" : 0,
+      "lost" : 0,
+      "discarded" : {
+        "UNTRUSTED" : 0,
+        "NON_INTERACTIVE" : 0,
+        "FOCUS_ONLY" : 0,
+        "PROGRAMMATIC_SUBMIT" : 0,
+        "PROGRAMMATIC_CHANGE" : 0,
+        "ABSORBED" : 0,
+        "AFTER_STOP" : 0,
+        "STALE_EPOCH" : 0,
+        "NOT_RECORDING" : 0
+      }
+    }
+  },
+  "elapsedMs" : 1297
+}

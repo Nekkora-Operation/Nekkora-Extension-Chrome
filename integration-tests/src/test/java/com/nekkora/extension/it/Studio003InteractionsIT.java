@@ -224,6 +224,9 @@ class Studio003InteractionsIT extends SessionIT {
         assertEquals("AVAILABLE", fin.at("/payload/summary/actionCapture").asText(), fin.at("/payload/summary").toString());
         assertEquals(3, fin.at("/payload/summary/steps/acknowledged").asInt());
         assertFalse(fin.at("/payload/summary/pageMapExported").asBoolean());
+        JsonNode rec = lab.call("page.diagnostics", p).path("recorder");
+        assertFalse(rec.path("active").asBoolean(true), "S003-002: finalizar desliga o sensor: " + rec);
+        assertEquals(0, rec.path("listeners").asInt(-1), "S003-002: nenhum ouvinte do Recorder depois de finalizar");
         assertNoSecretAnywhere(PASSWORD, USER);
         Map<String, Object> ev = new LinkedHashMap<>();
         ev.put("steps", summary(s));
