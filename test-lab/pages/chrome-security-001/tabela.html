@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Tabela (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Tabela (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 6. Linhas e células com nomes e identificadores fictícios (rowTexts, cabeçalhos, contexto de linha).</p>
+  <table id="carteira">
+    <caption>Carteira de Hipólito Sarmento</caption>
+    <thead><tr><th>Titular</th><th>Pedido</th><th>Ação</th></tr></thead>
+    <tbody>
+      <tr><td>Wenceslau Barbacena</td><td>PED-55821</td><td><button type="button" class="ver">Visualizar</button></td></tr>
+      <tr><td>Jandira Pontual</td><td>PED-55822</td><td><button type="button" class="ver">Visualizar</button></td></tr>
+    </tbody>
+  </table>
+  <p id="sel" role="status"></p>
+  <script>
+    for (const b of document.querySelectorAll('button.ver')) {
+      b.addEventListener('click', () => { document.getElementById('sel').textContent = 'linha aberta'; });
+    }
+  </script>
+</body>
+</html>

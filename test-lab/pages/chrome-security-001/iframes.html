@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Iframes (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Iframes (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 8. Iframe autorizado (mesma origem) e iframe de origem sem permissão (site-x).</p>
+  <iframe id="autorizado" title="Autorizado" src="/lab/chrome-security-001/frames/ficha-gervasio-barros.html" width="420" height="90"></iframe>
+  <iframe id="sem-permissao" title="Sem permissão" width="420" height="90"></iframe>
+  <script>
+    document.getElementById('sem-permissao').src = 'http://site-x.nekkora.test:' + location.port + '/lab/chrome-security-001/frames/ficha-gervasio-barros.html';
+  </script>
+</body>
+</html>

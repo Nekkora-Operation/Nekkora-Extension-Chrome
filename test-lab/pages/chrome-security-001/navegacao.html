@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Navegação (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Navegação (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 10. Mudança de rota (History API e fragmento) e de documento com nomes fictícios no caminho.</p>
+  <p><button id="rota-cliente" type="button">Rota do cliente</button>
+     <button id="hash-cliente" type="button">Fragmento do cliente</button>
+     <a id="doc-cliente" href="/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo#ficha-ataulfo">Ficha</a></p>
+  <p id="onde" role="status"></p>
+  <script>
+    document.getElementById('rota-cliente').addEventListener('click', () => {
+      history.pushState({}, '', '/lab/chrome-security-001/clientes/joao-oliveira');
+      document.getElementById('onde').textContent = 'rota trocada';
+    });
+    document.getElementById('hash-cliente').addEventListener('click', () => {
+      location.hash = '#/clientes/benvinda-guaraciaba';
+      document.getElementById('onde').textContent = 'fragmento trocado';
+    });
+  </script>
+</body>
+</html>

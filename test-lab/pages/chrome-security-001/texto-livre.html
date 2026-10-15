@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Texto livre (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Texto livre (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 1. Dados fictícios. Frases que não seguem nenhum formato reconhecível (CPF, e-mail, token):
+    nenhuma expressão regular as identifica como dado pessoal.</p>
+  <!-- SEC001-001 / SEC001-022: texto próprio -->
+  <p id="aviso">o cliente joão já existe</p>
+  <p id="pedido">Pedido de Ximena Tavolaro aprovado</p>
+  <!-- SEC001-023: texto descendente -->
+  <div id="contrato"><span><b>Contrato de Irineu Calabouço</b></span></div>
+  <!-- SEC001-024: conteúdo misto (segmentos de texto entre filhos) -->
+  <div id="misto">Cliente Severino Pitanguy <button id="consultar-misto" type="button">Consultar</button> ativo</div>
+  <!-- SEC001-021: título de SVG (nome acessível de botão de ícone) -->
+  <button id="excluir" type="button"><svg width="16" height="16" viewBox="0 0 16 16"><title>Excluir Doralice Mondego</title><rect width="16" height="16"></rect></svg></button>
+  <p><button id="ok" type="button">Confirmar</button></p>
+</body>
+</html>

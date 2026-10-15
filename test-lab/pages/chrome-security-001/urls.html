@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>URLs (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <script src="/lab/chrome-security-001/js/cliente-clotilde-merces.js"></script>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>URLs (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 5. Caminhos, fragmentos e parâmetros com identificadores fictícios: rota de SPA, novo documento,
+    iframe, recurso e requisição.</p>
+  <!-- SEC001-003 / SEC001-050: rota com nome no caminho (History API) -->
+  <p><button id="rota" type="button">Abrir cliente (rota)</button></p>
+  <!-- SEC001-049 / SEC001-050: novo documento com nome no caminho, parâmetro e fragmento -->
+  <p><a id="novo-doc" href="/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo#ficha-ataulfo">Abrir ficha</a></p>
+  <!-- SEC001-053: requisição com nome no caminho -->
+  <p><button id="requisicao" type="button">Consultar API</button></p>
+  <!-- SEC001-051: iframe com nome no caminho -->
+  <iframe id="quadro" title="Quadro" src="/lab/chrome-security-001/frames/ficha-gervasio-barros.html" width="400" height="80"></iframe>
+  <p id="saida" role="status"></p>
+  <script>
+    document.getElementById('rota').addEventListener('click', () => {
+      history.pushState({}, '', '/lab/chrome-security-001/clientes/joao-oliveira#aba-bonifacio');
+      document.getElementById('saida').textContent = 'rota aberta';
+    });
+    document.getElementById('requisicao').addEventListener('click', () => {
+      fetch('/api/clientes/sinfronio-lacerda?nome=Sinfronio').catch(() => {}).finally(() => {
+        document.getElementById('saida').textContent = 'consulta feita';
+      });
+    });
+  </script>
+</body>
+</html>
