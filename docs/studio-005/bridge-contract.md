@@ -41,7 +41,8 @@ Vocabulários **fechados**:
 - `source`, `relation`, `confidence` (sem percentuais), `classification`, `signals` (15), `limitations` (8), atributos
   e valores de estado: ver o schema.
 
-Não existe campo de resultado de negócio. As fixtures inválidas provam a recusa de `businessOutcome`, `html`, `value`,
+O texto de mensagem (`AVAILABLE` + trecho) continua permitido pelo schema, porque o contrato não mudou, mas o modo
+estrito faz com que nenhuma barreira o produza ou deixe passar (ver `privacy.md`). Não existe campo de resultado de negócio. As fixtures inválidas provam a recusa de `businessOutcome`, `html`, `value`,
 `pageMap`, tipo e sinal desconhecidos, confiança numérica, mensagem acima de 160 caracteres, falta de sequência e
 evidência num evento de ciclo de vida.
 

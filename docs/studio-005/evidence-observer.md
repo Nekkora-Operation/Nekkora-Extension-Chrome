@@ -61,10 +61,11 @@ Uma mensagem **que já estava na tela** antes da interação e não mudou não v
 ## O que o observador nunca faz
 
 - Não dispara eventos, não chama `reportValidity()`/`checkValidity()` e não escreve atributos.
-- Não lê nem envia HTML (`innerHTML`). O texto (`textContent`) é lido só para a política de mensagem e para o hash local.
+- Não lê nem envia HTML (`innerHTML`). O texto (`textContent`) é lido só para o hash local (mudança/duplicata); pelo
+  modo estrito ele nunca sai.
 - Não observa documentos sem autorização: os iframes de outra origem sem permissão não recebem content script.
 - Não tira capturas de tela.
-- Não guarda os valores dos campos. Eles são lidos **apenas** para comparar com a mensagem (ver `privacy.md`).
+- Não lê os valores dos campos (o modo estrito tornou desnecessária qualquer comparação com eles).
 
 ## Cortes
 

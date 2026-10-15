@@ -28,16 +28,12 @@ validação nativa), nunca do texto e nunca só de classe CSS.
 - **Nativa**: o evento `invalid` que o **próprio navegador** dispara quando recusa o envio. É escutado na captura, e
   nada é disparado pela extensão: nada de `reportValidity()` ou `checkValidity()`. Limitação: o `invalid` não atravessa
   shadow roots.
-- Homologado: "CEP inválido." (`ARIA_INVALID` + `ARIA_ERRORMESSAGE`, `DIRECTLY_OBSERVED` da etapa "Preencher CEP") e
+- Homologado: a página mostrou "CEP inválido." (o texto não sai; a evidência leva `ARIA_INVALID` + `ARIA_ERRORMESSAGE`, `DIRECTLY_OBSERVED` da etapa "Preencher CEP") e
   "E-mail" obrigatório (`NATIVE_INVALID`, associado ao clique em "Cadastrar"). O formulário não foi enviado, e a
   observação não o enviou.
 
-## Texto da mensagem
+## Texto da mensagem (modo estrito)
 
-O texto passa pela política de mensagem (`privacy.md`) **antes de sair do content script**. O resultado é sempre um destes:
-
-- `AVAILABLE` + trecho de até 160 caracteres;
-- `SUPPRESSED` + `null` (com a limitação `MESSAGE_SUPPRESSED`);
-- `NONE` (região sem texto).
-
-HTML nunca é lido para envio. No cenário "Marcação" (`Senha <b>incorreta</b>.`) só sai o texto `Senha incorreta.`.
+O texto **nunca sai**: havendo texto, `SUPPRESSED` + `null` (limitação `MESSAGE_SUPPRESSED`); sem texto, `NONE`. O texto
+lido serve só ao hash local que detecta mudança e duplicata. HTML nunca é lido para envio. A evidência continua dizendo
+que houve mensagem, com tipo, classificação, sinais, região segura, documento e horário. Ver `privacy.md`.

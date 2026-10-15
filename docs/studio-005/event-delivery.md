@@ -6,7 +6,7 @@ Mesmo modelo das etapas (STUDIO-003, `docs/studio-003/event-delivery.md`), com u
 |---|---|
 | Identidade | `evidenceId` (`evd-<gravação>-<n>`) e `evidenceSequence` (1, 2, 3…) atribuídos no service worker, na emissão |
 | Ordem | as evidências de uma etapa saem **depois** dela (fila por etapa, até 40); as ambíguas saem na hora; dentro da gravação, a sequência é a ordem técnica |
-| Outbox | retida (em `storage.session`, sem valores digitados e com o texto já sanitizado) até o ACK |
+| Outbox | retida (em `storage.session`, sem valores digitados e sem texto de mensagem) até o ACK |
 | ACK | `studio.recording.evidence.ack {upToSequence, rejected[]}`, cumulativo, enviado pelo Studio **depois** de registrar no domínio (fora da fila de comandos) |
 | Sync | `studio.recording.evidence.sync {afterSequence}` reemite em ordem com a **mesma identidade** (o Studio deduplica) |
 | Detecção de lacuna | `renew`, `status` e o próprio ACK devolvem `evidence.lastSequence`. Se faltar algo no Studio, ele pede o sync |

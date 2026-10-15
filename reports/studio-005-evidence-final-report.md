@@ -82,9 +82,9 @@ navegação com candidatas de até 3 s; vínculo por `epoch|frameId|localSeq`; e
 
 ## 8. Políticas de privacidade
 
-Em `docs/studio-005/privacy.md`: política de mensagem ("em caso de dúvida, omite") com comparação local aos valores dos
-campos, quatro barreiras (content script, service worker, host e Studio), nada de HTML, valores, cookies, tokens ou
-PageMap. A homologação no Chrome mostrou só `Senha incorreta.` liberado entre 7 mensagens sensíveis.
+Em `docs/studio-005/privacy.md`. **Modo estrito**, decisão da revisão final: o texto livre das mensagens da página
+nunca atravessa o Bridge (`SUPPRESSED`/`NONE`), nas quatro barreiras (content script, service worker, host e Studio).
+Não há HTML, valores de campos (nem lidos), cookies, tokens ou PageMap. A evidência estruturada continua.
 
 ## 9. Integração com o domínio
 
@@ -240,3 +240,29 @@ clientes**. A recomendação é uma missão de segurança de prioridade alta ant
 | Studio Windows | 337/337 |
 | Studio Linux (Docker, contra a extensão `b9d4e06`) | 337/337 |
 | Homologação real `Studio005Homologation` | 50/0 |
+
+## Anexo 2 — revisão final: modo estrito de privacidade
+
+A revisão final aprovou as correções dos P1 (P1-b e P2 encerrados) e decidiu que **o texto livre das mensagens da
+página não atravessa o Bridge**, como comportamento padrão. Correção localizada (`281d249`):
+
+| Regra da decisão | Como ficou |
+|---|---|
+| texto arbitrário não atravessa o Bridge | `messagePolicy` na origem devolve `SUPPRESSED` para qualquer texto; o service worker e o host removem qualquer texto recebido; o Studio (`Message.of`) idem |
+| mensagens continuam gerando evidência estruturada | tipo, classificação, sinais, região segura, documento, horário e correlação inalterados; `SUPPRESSED` + `text: null` + `MESSAGE_SUPPRESSED` |
+| sem texto continua `NONE` | testado em Node, no host e no domínio |
+| na origem e de novo no host e no Studio | 4 barreiras com a mesma regra |
+| testes atualizados preservando a detecção | as asserções de texto viraram "evidência do tipo certo, com indicador, texto omitido"; erro, status, validação, carregamento e navegação continuam verificados |
+| teste explícito de terceiro em minúsculas | `o cliente joão já existe` no laboratório (`sensivel.html`), no IT `s005SensitiveFieldGone`, em Node, no host e no Recorder do Studio |
+| sem nova configuração, sem IA, correlação intacta | nenhuma configuração; contrato e correlação inalterados |
+| testes de reprodução dos P1 preservados | `REV-P1a` (Node, IT) e `REV-P1b` (Node, IT com reinício real) continuam na suíte |
+
+Com o modo estrito, o observador **não lê mais os valores dos campos**, e as impressões digitais e a regra de forma da
+primeira correção foram retiradas. O contrato continua aceitando `AVAILABLE`, mas nenhuma barreira o produz ou deixa passar.
+
+Regressão: Java 237/237, Node 133/133, navegador 226/226, Studio 337/337 (Windows) e 337/337 (Linux, contra
+`281d249`), homologação real 50/0. Nos 6 arquivos `reports/evidence/S005-*.json` da execução real, há 38 mensagens e
+**nenhuma com texto**.
+
+O achado da captura técnica antiga **não** é resolvido pelo modo estrito. Ele segue para a missão CHROME-SECURITY-001,
+antes da STUDIO-006, e o Recorder não deve ser usado com dados reais até lá.

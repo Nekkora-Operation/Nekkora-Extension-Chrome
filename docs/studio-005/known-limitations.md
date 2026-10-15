@@ -11,12 +11,13 @@
 5. **Iframes de outra origem sem permissão** não são observados. A cobertura fica `PARTIAL`, como na STUDIO-003.
 6. **Regiões fora do seletor** (avisos sem papel ARIA, "toasts" só visuais) não são detectadas. Isso é intencional:
    classe CSS sozinha não comprova nada.
-7. **A política de mensagem é conservadora.** Mensagens legítimas com 4 ou mais dígitos ("Pedido 12345 criado") ou com
-   nome próprio no meio da frase ("Bem-vindo ao Portal") saem como `SUPPRESSED`.
-8. **Valores dos campos lidos para comparação e impressões digitais salgadas** (só no content script, só para suprimir,
-   nunca o valor). Isso está documentado em `privacy.md`.
-9. **Dado pessoal de terceiro em minúsculas**, nunca digitado nesta página, não é reconhecido pela forma. É o limite
-   declarado da política; a garantia total exigiria nunca enviar o texto (decisão de produto).
+7. **Modo estrito: o Studio não vê o texto de nenhuma mensagem**, nem das inofensivas ("Usuário ou senha inválidos.").
+   Ele vê que houve mensagem, com tipo, classificação, sinais e região. Mostrar mensagens úteis depende do catálogo
+   controlado de mensagens seguras, uma evolução futura de contrato, não autorizada nesta missão.
+8. **Os valores dos campos não são lidos.** O modo estrito tornou desnecessária a comparação; as impressões digitais da
+   primeira correção foram retiradas.
+9. **Classificação depende de sinais semânticos**: sem o texto, o Studio distingue erro, status e validação pelos
+   sinais da página (ARIA, validação nativa), como antes.
 10. **Achado de segurança, prioridade alta, fora do escopo da STUDIO-005:** o texto visível da página que repete um valor
     digitado aparece na captura técnica existente (log local de diagnóstico do service worker e `contextTexts` do
     registro de alvos do motor). Não atravessa o Bridge nem é evidência. **Até a correção na origem, o Recorder não deve
