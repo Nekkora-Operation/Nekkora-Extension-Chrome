@@ -56,7 +56,7 @@ public final class TargetRegistry {
                 }
             });
         } catch (IOException | RuntimeException e) {
-            LOG.log(Level.WARNING, "Registro de alvos ilegível; iniciando vazio", e);
+            LOG.log(Level.WARNING, "Registro de alvos ilegível; iniciando vazio", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
         }
     }
 
@@ -148,7 +148,7 @@ public final class TargetRegistry {
             }
             store.write("targets", "registry", new Persisted(TargetIdentity.SCHEMA_VERSION, lab, labOwners));
         } catch (IOException e) {
-            LOG.log(Level.WARNING, "Falha ao persistir registro de alvos", e);
+            LOG.log(Level.WARNING, "Falha ao persistir registro de alvos", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
         }
     }
 }

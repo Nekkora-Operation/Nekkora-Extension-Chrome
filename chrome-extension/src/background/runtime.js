@@ -10,8 +10,41 @@ export const client = new NativeClient();
 const EVENT_LOG_LIMIT = 200;
 export const eventLog = [];
 
+/**
+ * Log de diagnóstico (CHROME-SECURITY-001): RETÉM só campos de uma lista fechada — identificadores técnicos, códigos,
+ * estados, números e booleanos; listas viram contagens. Nenhum payload bruto (nós, mutações, nomes, localizadores,
+ * URLs, títulos, mensagens de erro) fica guardado, seja qual for o produtor. A difusão ao vivo para as páginas da
+ * extensão não é retida aqui.
+ */
+const LOG_KEYS = new Set(['tabId', 'sessionId', 'captureId', 'recordingId', 'operationId', 'targetId', 'source', 'seq', 'sequence',
+  'status', 'state', 'reason', 'where', 'code', 'kind', 'action', 'type', 'event', 'automatic', 'frameId', 'transitionType',
+  'evidenceSequence', 'connected', 'enabled', 'mode', 'syncState', 'resolution', 'changedCount', 'nodes', 'frames', 'counts', 'removed',
+  'added', 'authorized', 'lost']);
+const LOG_TOKEN = /^[A-Za-z0-9:._-]{1,80}$/;
+
+export function diagnosticEntry(event, data) {
+  const out = {};
+  if (data && typeof data === 'object') {
+    for (const [k, v] of Object.entries(data)) {
+      if (!LOG_KEYS.has(k)) {
+        continue;
+      }
+      if (typeof v === 'number' || typeof v === 'boolean') {
+        out[k] = v;
+      } else if (typeof v === 'string' && LOG_TOKEN.test(v)) {
+        out[k] = v;
+      } else if (Array.isArray(v)) {
+        out[k + 'Count'] = v.length;
+      } else if (v && typeof v === 'object' && k === 'counts') {
+        out.counts = Object.fromEntries(Object.entries(v).filter(([, n]) => typeof n === 'number'));
+      }
+    }
+  }
+  return { event: LOG_TOKEN.test(String(event)) ? event : 'unknown', data: out, at: Date.now() };
+}
+
 export function broadcast(event, data) {
-  const entry = { event, data, at: Date.now() };
+  const entry = diagnosticEntry(event, data);
   eventLog.push(entry);
   if (eventLog.length > EVENT_LOG_LIMIT) {
     eventLog.shift();

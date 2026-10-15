@@ -23,7 +23,8 @@ import java.util.Objects;
  * @param rect       retângulo em coordenadas do viewport do frame, ou {@code null}
  * @param labelIds   ids temporários de labels associados pela API {@code element.labels}
  * @param scroll     métricas de rolagem quando o elemento é rolável, ou {@code null}
- * @param exposedValue valor do controle SOMENTE quando a política permite (campos de pesquisa); senão {@code null}
+ * @param exposedValue sempre {@code null} (CHROME-SECURITY-001): nenhum valor de campo é aceito, nem o de pesquisa — o
+ *                     campo segue no contrato só por compatibilidade
  * @param textSegments conteúdo MISTO (CHROME-002, opcional): {@code childIds.size()+1} trechos de texto, o i-ésimo
  *                     antes do i-ésimo filho e o último após o último — preserva a ordem texto/elemento; {@code null}
  *                     quando o elemento não tem texto e filhos intercalados
@@ -59,7 +60,7 @@ public record RawNode(
         attributes = attributes == null ? Map.of() : com.nekkora.extension.core.privacy.AttributePrivacy.sanitize(Map.copyOf(attributes));
         labelIds = labelIds == null ? List.of() : List.copyOf(labelIds);
         ownText = ownText == null ? "" : com.nekkora.extension.core.privacy.Privacy.maskText(ownText);
-        exposedValue = com.nekkora.extension.core.privacy.Privacy.maskText(exposedValue);
+        exposedValue = null; // barreira no motor: mesmo uma extensão antiga que envie o valor não o faz entrar
         state = state == null ? NodeState.UNKNOWN : state;
         frameId = frameId == null ? "f0" : frameId;
         scopeId = scopeId == null ? "doc:" + frameId : scopeId;

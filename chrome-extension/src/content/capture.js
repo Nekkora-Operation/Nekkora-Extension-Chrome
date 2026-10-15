@@ -242,14 +242,13 @@
 
     let hasValue = null;
     let valueLength = null;
-    let exposedValue = null;
+    // CHROME-SECURITY-001 (SEC001-004): nenhum valor de campo sai da página — nem o de pesquisa. Ser um campo de pesquisa
+    // não torna o termo pesquisado público ("João Oliveira", um CPF). Só a presença e o tamanho.
+    const exposedValue = null;
     if (textEntry || tag === 'select') {
       const v = el.value == null ? '' : String(el.value);
       hasValue = v.length > 0;
       valueLength = sensitive ? null : v.length;
-      if (textEntry && NS.sensitivity.isSearchField(el)) {
-        exposedValue = P.maskText(v.length > 200 ? v.slice(0, 200) : v);
-      }
     }
     // STUDIO-003: o conteúdo de um editor contenteditable é VALOR DE CAMPO (digitado pelo usuário) — como o de um input,
     // não sai da página; o hospedeiro informa só se há conteúdo e o tamanho.

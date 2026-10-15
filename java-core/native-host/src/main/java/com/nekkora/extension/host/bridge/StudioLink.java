@@ -149,7 +149,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
                 default -> responses.failure(id, type, "UNKNOWN_COMMAND", "Comando desconhecido: " + type);
             };
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "studio.link falhou", e);
+            LOG.log(Level.WARNING, "studio.link falhou", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             return responses.failure(id, type, "INTERNAL_ERROR", e.getClass().getSimpleName());
         }
     }
@@ -202,7 +202,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         }
         ev.put("seq", 1);
         if (!BridgeContract.valid(ev)) {
-            LOG.warning("Evento fora do contrato não repassado (" + type + "): " + BridgeContract.problems(ev));
+            LOG.warning("Evento fora do contrato não repassado (" + type + "): " + BridgeContract.problemSummary(ev));
             return;
         }
         ev.remove("seq");
@@ -508,7 +508,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         boolean ok = BridgeContract.valid(resp);
         resp.remove("seq");
         if (!ok) {
-            LOG.warning("Resposta fora do contrato não repassada (" + type + "): " + BridgeContract.problems(resp));
+            LOG.warning("Resposta fora do contrato não repassada (" + type + "): " + BridgeContract.problemSummary(resp));
             respondError(c, id, type, "INTERNAL_ERROR", "Resposta da extensão fora do contrato.");
             return;
         }
@@ -619,7 +619,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
                 try {
                     r.run();
                 } catch (RuntimeException e) {
-                    LOG.log(Level.SEVERE, "Falha no canal do Studio", e);
+                    LOG.log(Level.SEVERE, "Falha no canal do Studio", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
                 }
             });
         } catch (java.util.concurrent.RejectedExecutionException ignored) {

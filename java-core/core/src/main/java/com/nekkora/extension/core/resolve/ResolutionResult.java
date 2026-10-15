@@ -57,7 +57,7 @@ public record ResolutionResult(
     public ResolutionResult {
         locatorChecks = List.copyOf(locatorChecks);
         candidates = List.copyOf(candidates);
-        attributeChanges = Map.copyOf(attributeChanges);
+        attributeChanges = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.attributeChanges(attributeChanges);
         evidence = List.copyOf(evidence);
         diagnostics = diagnostics == null ? List.of() : List.copyOf(diagnostics);
     }

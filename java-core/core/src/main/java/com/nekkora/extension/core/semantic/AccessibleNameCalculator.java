@@ -268,7 +268,7 @@ public final class AccessibleNameCalculator {
             return vt != null ? TextNormalizer.normalize(vt) : TextNormalizer.normalize(c.attr("aria-valuenow"));
         }
         if (c.tag().equals("input") && !Set.of("button", "submit", "reset", "image", "checkbox", "radio", "hidden").contains(type(c))) {
-            return c.exposedValue() == null ? "" : TextNormalizer.normalize(c.exposedValue());
+            return ""; // o valor digitado nunca compõe o nome (CHROME-SECURITY-001)
         }
         return null;
     }

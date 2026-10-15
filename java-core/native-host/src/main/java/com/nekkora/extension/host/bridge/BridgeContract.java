@@ -47,6 +47,15 @@ public final class BridgeContract {
         return SCHEMA.validate(message).stream().map(ValidationMessage::getMessage).collect(Collectors.toCollection(java.util.TreeSet::new));
     }
 
+    /**
+     * Problemas de validação SEM valores (CHROME-SECURITY-001): só o caminho e a regra violada — a mensagem do validador
+     * pode citar o conteúdo recusado. É o que vai para o log.
+     */
+    public static Set<String> problemSummary(JsonNode message) {
+        return SCHEMA.validate(message).stream().map(m -> m.getInstanceLocation() + " " + m.getType())
+                .collect(Collectors.toCollection(java.util.TreeSet::new));
+    }
+
     public static boolean valid(JsonNode message) {
         return SCHEMA.validate(message).isEmpty();
     }
