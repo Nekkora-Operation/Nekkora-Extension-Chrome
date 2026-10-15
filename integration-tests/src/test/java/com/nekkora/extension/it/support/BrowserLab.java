@@ -115,7 +115,7 @@ public final class BrowserLab {
 
         ChromeDriverService service = new ChromeDriverService.Builder()
                 .usingDriverExecutable(chrome.chromedriver().toFile())
-                .withEnvironment(Map.of("NEKKORA_DATA_DIR", hostData.toString()))
+                .withEnvironment(Map.of("NEKKORA_DATA_DIR", hostData.toString(), "NEKKORA_BRIDGE_DIR", bridgeDir().toString()))
                 .usingAnyFreePort()
                 .build();
         ChromeOptions o = new ChromeOptions();
@@ -180,6 +180,11 @@ public final class BrowserLab {
         }
         driver = null;
         server = null;
+    }
+
+    /** Diretório de descoberta do Studio usado pelo host do Chrome de teste (STUDIO-002; nunca o do usuário). */
+    public Path bridgeDir() {
+        return repo.resolve("integration-tests").resolve("target").resolve("studio-bridge");
     }
 
     public WebDriver driver() {
