@@ -441,6 +441,26 @@ test('S003-029 — evidência posterior (submit) anexada à etapa ainda não emi
   assert.equal(other.error.code, 'NOT_CONTROLLER', 'controlador antigo/outro não confirma etapas');
 });
 
+test('resumo — descartes do normalizador de cada documento somados; nova base técnica não torna a captura de ações parcial', async () => {
+  await startRecording();
+  const r1 = recorder.onSensor(1, 0, 'interaction', {
+    epoch: sensor.epoch, discarded: { UNTRUSTED: 3, PROGRAMMATIC_CHANGE: 1, NON_INTERACTIVE: 2, INVENTADO: 9 },
+    interaction: { localSeq: ++localSeq, action: 'CLICK', targetKey: 'n3', observation: 'INTERACTION_OBSERVED', events: 1, evidence: [], notes: [] },
+  });
+  sensor.lastSeq = localSeq;
+  assert.equal(r1.ok, true);
+  await settle();
+  recorder.recordings.get('rec-1').counters.recoveries = 1; // ex.: nova base depois de navegar
+  await send('studio.recording.steps.ack', { recordingId: 'rec-1', upToSequence: 1 });
+  const fin = await send('studio.recording.finish', { recordingId: 'rec-1', operationId: 'op-f' });
+  const d = fin.payload.summary.steps.discarded;
+  assert.equal(d.UNTRUSTED, 3);
+  assert.equal(d.PROGRAMMATIC_CHANGE, 1);
+  assert.equal(d.NON_INTERACTIVE, 2);
+  assert.equal(d.INVENTADO, undefined, 'só motivos do contrato');
+  assert.equal(fin.payload.summary.actionCapture, 'AVAILABLE');
+});
+
 test('S003-020 — submit/navegação logo após o clique entram como contexto posterior (sem etapa NAVIGATE)', async () => {
   await startRecording();
   interact('CLICK', 'n3');

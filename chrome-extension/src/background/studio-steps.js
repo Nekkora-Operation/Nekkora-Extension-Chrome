@@ -32,7 +32,8 @@ const RELATIONS = new Set(['IN_DIALOG', 'IN_ROW', 'IN_LIST_ITEM', 'IN_FORM']);
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
 const KIND = /^[A-Z_]{1,40}$/;
 const TAG = /^[a-z][a-z0-9-]{0,40}$/;
-export const DISCARD_KEYS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROGRAMMATIC_SUBMIT', 'ABSORBED', 'AFTER_STOP', 'STALE_EPOCH', 'NOT_RECORDING'];
+export const DISCARD_KEYS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROGRAMMATIC_SUBMIT', 'PROGRAMMATIC_CHANGE', 'ABSORBED', 'AFTER_STOP', 'STALE_EPOCH',
+  'NOT_RECORDING'];
 
 /**
  * @param deps { client, broadcast, capture, toContent, host, tabKey, frameOfNode, now, sleep, privacy, emitEvent, onBacklogFull }
@@ -53,7 +54,7 @@ export function createStepPipeline(deps) {
       discarded[k] = 0;
     }
     return { enabled: true, routeRef, nextSeq: 0, acked: 0, acknowledged: 0, rejected: 0, lost: 0, outbox: [], epochs: [], epoch: null,
-      frames: {}, open: {}, discarded, consolidated: 0, lastNav: null, stats: { correlationMs: [], resolved: 0, unresolved: 0, liveVerified: 0 } };
+      frames: {}, open: {}, discarded, sensorDiscards: {}, consolidated: 0, lastNav: null, stats: { correlationMs: [], resolved: 0, unresolved: 0, liveVerified: 0 } };
   }
 
   function enable(r, routeRef) {
@@ -78,7 +79,26 @@ export function createStepPipeline(deps) {
     }
     const s = r.steps;
     return { produced: s.nextSeq, acknowledged: s.acknowledged, rejected: s.rejected, unacknowledged: s.outbox.length, lost: s.lost,
-      discarded: { ...s.discarded } };
+      discarded: discards(r) };
+  }
+
+  /** Descartes do service worker + os do normalizador de cada documento (contagens cumulativas por sensor). */
+  function discards(r) {
+    const out = { ...r.steps.discarded };
+    for (const per of Object.values(r.steps.sensorDiscards || {})) {
+      for (const [k, v] of Object.entries(per || {})) {
+        if (DISCARD_KEYS.includes(k) && Number.isInteger(v) && v > 0) {
+          out[k] = (out[k] || 0) + v;
+        }
+      }
+    }
+    return out;
+  }
+
+  function noteSensorStats(r, key, discarded) {
+    if (discarded && typeof discarded === 'object') {
+      r.steps.sensorDiscards[key] = discarded;
+    }
   }
 
   function discard(r, reason, n = 1) {
@@ -134,6 +154,7 @@ export function createStepPipeline(deps) {
       const st = await toContent(r.tabId, 'cs.recorder.flush', { reason }, f).catch(() => null);
       if (st && st.active && st.epoch) {
         marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0 });
+        noteSensorStats(r, st.epoch + '|' + f, st.stats && st.stats.discarded);
       }
     }
     await waitArrivals(r, marks);
@@ -154,6 +175,9 @@ export function createStepPipeline(deps) {
     const marks = [];
     for (const f of sensorFrames(r.tabId)) {
       const st = await toContent(r.tabId, 'cs.recorder.stop', { discard: !!discardOpen }, f).catch(() => null);
+      if (st && st.epoch) {
+        noteSensorStats(r, st.epoch + '|' + f, st.stats && st.stats.discarded);
+      }
       if (st && st.epoch && !discardOpen) {
         marks.push({ key: st.epoch + '|' + f, lastSeq: st.lastSeq || 0 });
       }
@@ -200,6 +224,7 @@ export function createStepPipeline(deps) {
     }
     const key = data.epoch + '|' + frameId;
     s.frames[key] = Math.max(s.frames[key] || 0, Number(i.localSeq) || 0);
+    noteSensorStats(r, key, data.discarded);
     s.consolidated += Math.max(0, (Number(i.events) || 1) - 1);
     const entry = {
       sequence: ++s.nextSeq,
@@ -535,7 +560,7 @@ export function createStepPipeline(deps) {
     }
     const ms = r.steps.stats.correlationMs.slice().sort((a, b) => a - b);
     const pct = (p) => (ms.length ? ms[Math.min(ms.length - 1, Math.floor(p * ms.length))] : null);
-    return { produced: r.steps.nextSeq, consolidatedEvents: r.steps.consolidated, discarded: { ...r.steps.discarded }, lost: r.steps.lost,
+    return { produced: r.steps.nextSeq, consolidatedEvents: r.steps.consolidated, discarded: discards(r), lost: r.steps.lost,
       resolved: r.steps.stats.resolved, unresolved: r.steps.stats.unresolved, liveVerified: r.steps.stats.liveVerified,
       correlationMs: { p50: pct(0.5), p95: pct(0.95), max: ms.length ? ms[ms.length - 1] : null, samples: ms.length },
       pending: r.steps.outbox.length };

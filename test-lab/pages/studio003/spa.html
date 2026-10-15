@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Aplicação de página única</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>SPA (STUDIO-003)</h1>
+  <p class="muted">Cenário 5: ações antes e depois de uma troca de rota sem recarga (History API).</p>
+  <nav aria-label="Rotas"><button id="rota-painel" type="button">Painel</button> <button id="rota-clientes" type="button">Clientes</button></nav>
+  <main id="app"></main>
+  <script>
+    const views = {
+      painel: '<h2>Painel</h2><p><button id="atualizar" type="button">Atualizar painel</button></p>',
+      clientes: '<h2>Clientes</h2><p><label for="filtro">Filtro</label> <input id="filtro" type="text"></p>'
+        + '<p><button id="filtrar" type="button">Filtrar</button></p><p id="contagem">0 clientes</p>',
+    };
+    function render(name) {
+      document.getElementById('app').innerHTML = views[name];
+      if (name === 'clientes') {
+        document.getElementById('filtrar').addEventListener('click', () => {
+          document.getElementById('contagem').textContent = '3 clientes';
+        });
+      }
+    }
+    function go(name) {
+      history.pushState({ name }, '', '/lab/studio003/spa.html#/' + name);
+      render(name);
+    }
+    document.getElementById('rota-painel').addEventListener('click', () => go('painel'));
+    document.getElementById('rota-clientes').addEventListener('click', () => go('clientes'));
+    window.addEventListener('popstate', (e) => render((e.state && e.state.name) || 'painel'));
+    render('painel');
+  </script>
+</body>
+</html>

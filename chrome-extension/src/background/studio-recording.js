@@ -33,6 +33,9 @@ const REFS_KEY = 'nk.tabrefs';
 const LOCK = 'studio-recorder';
 const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT']);
 const CAPABILITIES = new Set(['steps/1']);
+/** Limitações que tornam a captura de AÇÕES parcial (as demais descrevem só a captura técnica). */
+const ACTION_LIMITS = new Set(['PARTIAL_COVERAGE', 'INTERRUPTED', 'NEVER_ATTACHED', 'STEPS_UNCONFIRMED', 'STEPS_REJECTED', 'INTERACTIONS_LOST',
+  'STEP_BACKLOG_FULL']);
 const TERMINAL = new Set(['COMPLETED', 'CANCELLED', 'EXPIRED', 'FAILED']);
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
 const TAB_REF = /^t-[A-Za-z0-9]{8,40}$/;
@@ -314,7 +317,8 @@ export function createStudioRecorder(deps) {
       if (r.backlogFull) {
         limitations.push('STEP_BACKLOG_FULL');
       }
-      actionCapture = limitations.length ? 'PARTIAL' : 'AVAILABLE';
+      // RECOVERIES_OCCURRED é fato da captura técnica (ex.: nova base depois de navegar), não perda de ações.
+      actionCapture = limitations.some((l) => ACTION_LIMITS.has(l)) ? 'PARTIAL' : 'AVAILABLE';
     }
     const out = {
       state: r.state, durationMs: Math.max(0, (r.endedAt || now()) - r.startedAt), counters: c, coverage: cov,

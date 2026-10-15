@@ -21,9 +21,13 @@
  *  R2 clique em TEXT só posiciona o cursor: é absorvido pelo preenchimento seguinte (sem etapa se não houver edição).
  *  R3 input em TEXT abre um preenchimento; consolida em focusout, change, Enter, interação em outro alvo, navegação
  *     ou flush (pausa, modo, sessão, finalização). Uma etapa por preenchimento, nunca por caractere.
- *  R4 Enter confiável em TEXT ⇒ consolida o preenchimento e gera PRESS_KEY (Enter); o submit seguinte é evidência.
+ *  R4 Enter confiável em TEXT ⇒ consolida o preenchimento e gera PRESS_KEY (Enter); o submit seguinte é evidência. O
+ *     clique que o navegador dispara no botão padrão do formulário (envio implícito: detail=0, mesmo formulário, logo
+ *     depois do Enter) faz parte dessa operação — nenhum clique físico é inventado.
  *  R5 checkbox: change ⇒ CHECK/UNCHECK pelo estado final; o clique no controle ou na label associada é absorvido.
- *     radio: change marcado ⇒ CHECK.
+ *     radio: change marcado ⇒ CHECK. O change só conta se houver ATIVAÇÃO real antes (clique confiável no controle ou
+ *     na label, ou Espaço/setas no teclado): o Chrome entrega como confiável o change de um .click() feito pela
+ *     página, que não é ação do usuário (PROGRAMMATIC_CHANGE).
  *  R6 select: change ⇒ SELECT_OPTION com a opção (label/valor já sanitizados); cliques no select são absorvidos.
  *  R7 submit nunca vira etapa: é evidência do CLICK/PRESS_KEY que o provocou; sem gatilho confiável ⇒ descartado.
  *  R8 evento não confiável (isTrusted=false) ⇒ descartado (UNTRUSTED), contado.
@@ -32,13 +36,15 @@
  *  R11 CAPTURE_ONLY: a captura (clique, Enter ou Espaço bloqueados) gera uma PROPOSTA pelo tipo de controle.
  */
 (function (root) {
-  const DISCARD_REASONS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROGRAMMATIC_SUBMIT', 'ABSORBED', 'AFTER_STOP'];
+  const DISCARD_REASONS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROGRAMMATIC_SUBMIT', 'PROGRAMMATIC_CHANGE', 'ABSORBED', 'AFTER_STOP'];
+  const TOGGLE_KEYS = new Set([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
   function createNormalizer(options) {
     const onInteraction = options.onInteraction;
     const onEvidence = options.onEvidence || (() => {});
     const doubleClickMs = options.doubleClickMs || 600;
     const submitWindowMs = options.submitWindowMs || 1500;
+    const activationWindowMs = options.activationWindowMs || 1000;
 
     let mode = options.mode || 'CAPTURE_AND_INTERACT';
     let active = true;
@@ -47,6 +53,8 @@
     let focusClick = null; // { targetKey, at } — clique de posicionamento ainda não absorvido
     let lastEmitted = null; // { localSeq, action, targetKey, at, formKey }
     let absorbNextClickOn = null; // { key, until } — clique técnico depois de change em checkbox/radio (label)
+    let activation = null; // { key, at } — clique confiável num checkbox/radio (ou na label dele)
+    let keyToggleAt = -Infinity; // Espaço/setas confiáveis num checkbox/radio (as setas mudam o radio do grupo)
     const stats = { observed: 0, interactions: 0, consolidated: 0, discarded: {} };
     for (const r of DISCARD_REASONS) {
       stats.discarded[r] = 0;
@@ -125,11 +133,20 @@
           return;
         case 'CHECKBOX':
         case 'RADIO':
+          activation = { key: t.key, at: o.at }; // ativação real: o change seguinte é do usuário
+          discard('ABSORBED'); // R5: a operação vem do change
+          return;
         case 'SELECT':
-          discard('ABSORBED'); // R5/R6: a operação vem do change
+          discard('ABSORBED'); // R6: a operação vem do change
           return;
         case 'CLICKABLE':
         case 'COMBOBOX_OPTION': {
+          // R4: envio implícito por Enter — o navegador "clica" o botão padrão do mesmo formulário (detail 0).
+          if (o.detail === 0 && lastEmitted && lastEmitted.action === 'PRESS_KEY' && o.at - lastEmitted.at <= 150
+              && t.formKey && t.formKey === lastEmitted.formKey) {
+            discard('ABSORBED');
+            return;
+          }
           // R1: clique repetido (duplo) no mesmo alvo funde-se ao anterior.
           if ((o.detail || 1) > 1 && lastEmitted && lastEmitted.action !== 'FILL' && lastEmitted.targetKey === (t.comboboxKey || t.key)
               && o.at - lastEmitted.at <= doubleClickMs) {
@@ -143,7 +160,8 @@
             return;
           }
           emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, formKey: t.formKey,
-            evidence: o.viaKeyboard ? ['VIA_KEYBOARD'] : [], notes: t.control === 'COMBOBOX_OPTION' ? ['OPTION_WITHOUT_PROVEN_COMBOBOX'] : [] });
+            evidence: o.viaKeyboard || o.detail === 0 ? ['VIA_KEYBOARD'] : [], // detail 0: ativação pelo teclado (Enter/Espaço no botão)
+            notes: t.control === 'COMBOBOX_OPTION' ? ['OPTION_WITHOUT_PROVEN_COMBOBOX'] : [] });
           return;
         }
         case 'AMBIGUOUS':
@@ -182,6 +200,10 @@
         }
         return;
       }
+      if ((t.control === 'CHECKBOX' || t.control === 'RADIO') && !activated(t.key, o.at)) {
+        discard('PROGRAMMATIC_CHANGE'); // change sem ativação do usuário (ex.: .click() feito pela página)
+        return;
+      }
       settleOthers(t.key, 'OTHER_TARGET');
       if (t.control === 'CHECKBOX') {
         absorbNextClickOn = t.viaLabel ? { key: t.key, until: o.at + 50 } : null;
@@ -205,8 +227,16 @@
       discard('NON_INTERACTIVE');
     }
 
+    function activated(key, at) {
+      return (activation && activation.key === key && at - activation.at <= activationWindowMs) || at - keyToggleAt <= activationWindowMs;
+    }
+
     function onKeydown(o) {
       const t = o.target;
+      if (TOGGLE_KEYS.has(o.key) && (t.control === 'CHECKBOX' || t.control === 'RADIO')) {
+        keyToggleAt = o.at; // marcação pelo teclado
+        return;
+      }
       if (o.key !== 'Enter' || t.control !== 'TEXT') {
         return; // somente Enter em campo de texto é uma operação elegível (R4)
       }

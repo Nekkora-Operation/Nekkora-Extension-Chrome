@@ -255,7 +255,7 @@
     state.lastSeq = i.localSeq;
     const el = NS.registry.elementFor(i.targetKey);
     send('interaction', { epoch: state.epoch, interaction: i, element: el ? descriptor(el) : null, url: NS.privacyUrl(),
-      title: maskText(document.title, 120) || null });
+      title: maskText(document.title, 120) || null, discarded: state.normalizer.stats().discarded });
   }
 
   function syncOpen() {
@@ -287,9 +287,11 @@
     syncOpen();
   }
 
+  const SENSOR_KEYS = new Set(['Enter', ' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+
   function passive(event) {
-    if (event.type === 'keydown' && event.key !== 'Enter') {
-      return; // somente Enter é elegível (sem registrar o resto da digitação)
+    if (event.type === 'keydown' && !SENSOR_KEYS.has(event.key)) {
+      return; // só Enter (operação) e Espaço/setas (ativação de checkbox/radio); o resto da digitação não é lido
     }
     observe(event.type, event);
   }

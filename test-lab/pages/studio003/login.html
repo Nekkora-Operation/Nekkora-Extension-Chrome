@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Login de teste</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Login de teste (STUDIO-003)</h1>
+  <p class="muted">Cenário 1 da homologação: preencher usuário e senha e entrar. Dados fictícios; nada é enviado a servidor.</p>
+
+  <form id="login" autocomplete="off">
+    <p><label for="usuario">Usuário</label> <input id="usuario" name="usuario" type="text"></p>
+    <p><label for="senha">Senha</label> <input id="senha" name="senha" type="password"></p>
+    <p><input id="lembrar" type="checkbox"> <label for="lembrar">Lembrar acesso</label></p>
+    <p>
+      <button id="entrar" type="submit">Entrar</button>
+      <button id="ajuda" type="button" title="Ajuda"><span class="icon" aria-hidden="true">?</span> <span>Ajuda</span></button>
+    </p>
+    <div id="erro" role="alert" hidden></div>
+  </form>
+  <p id="ajuda-texto" hidden>Use o usuário de teste.</p>
+
+  <script>
+    // Envio local: nunca coloca usuário/senha na URL. Usuário vazio mostra o erro; senão abre a consulta.
+    document.getElementById('login').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const erro = document.getElementById('erro');
+      if (!document.getElementById('usuario').value) {
+        erro.textContent = 'Usuário ou senha inválidos';
+        erro.hidden = false;
+        return;
+      }
+      setTimeout(() => { location.href = '/lab/studio003/consulta.html'; }, 50);
+    });
+    document.getElementById('ajuda').addEventListener('click', () => {
+      document.getElementById('ajuda-texto').hidden = false;
+    });
+  </script>
+</body>
+</html>

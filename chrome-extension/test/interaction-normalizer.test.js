@@ -110,6 +110,23 @@ test('R4 — Enter no campo: consolida o FILL e registra PRESS_KEY; o submit é 
   assert.deepEqual(r.evidence, [{ localSeq: 2, evidence: 'FORM_SUBMITTED' }]);
 });
 
+test('R4 — envio implícito por Enter: o clique sintético no botão padrão não vira etapa; o submit é evidência do Enter', () => {
+  const r = rig();
+  typeInto(r, { ...USER, formKey: 'f1' }, 3);
+  r.ev('keydown', { ...USER, formKey: 'f1' }, { key: 'Enter' });
+  r.ev('click', ENTRAR, { detail: 0 }); // disparado pelo navegador (envio implícito)
+  r.ev('submit', { key: 'f1', control: 'NONE' }, { formKey: 'f1' });
+  assert.deepEqual(r.actions(), ['FILL:n1', 'PRESS_KEY:n1'], 'nenhum clique inventado');
+  assert.deepEqual(r.evidence, [{ localSeq: 2, evidence: 'FORM_SUBMITTED' }]);
+});
+
+test('R1 — Enter/Espaço num botão focado (detail 0, sem Enter em campo antes) é CLICK pelo teclado', () => {
+  const r = rig();
+  r.ev('click', ENTRAR, { detail: 0 });
+  assert.deepEqual(r.actions(), ['CLICK:n3']);
+  assert.deepEqual(r.out[0].evidence, ['VIA_KEYBOARD']);
+});
+
 test('R4 — outras teclas não viram etapas', () => {
   const r = rig();
   typeInto(r, USER, 2);
@@ -123,10 +140,31 @@ test('S003-017/018/R5 — checkbox marcado e desmarcado (clique absorvido; label
   const r = rig();
   r.ev('click', ACEITO);
   r.ev('change', { ...ACEITO, checked: true });
+  r.ev('click', { ...ACEITO, viaLabel: true }); // clique na label (o alvo funcional é o controle)
   r.ev('change', { ...ACEITO, checked: false, viaLabel: true });
   r.ev('click', ACEITO); // clique técnico disparado pela label depois do change
   assert.deepEqual(r.actions(), ['CHECK:n5', 'UNCHECK:n5']);
   assert.deepEqual(r.out[1].evidence, ['VIA_LABEL']);
+});
+
+test('S003-043/R5 — change de checkbox/radio sem ativação do usuário (.click() da página) NÃO vira etapa', () => {
+  const r = rig();
+  // O Chrome entrega o change de um .click() programático como confiável; o clique em si não é.
+  r.n.observe({ type: 'click', trusted: false, at: 5, target: ACEITO });
+  r.n.observe({ type: 'change', trusted: true, at: 6, target: { ...ACEITO, checked: true } });
+  r.n.observe({ type: 'change', trusted: true, at: 7, target: { ...PF, checked: true } });
+  assert.deepEqual(r.actions(), []);
+  assert.equal(r.n.stats().discarded.PROGRAMMATIC_CHANGE, 2);
+  assert.equal(r.n.stats().discarded.UNTRUSTED, 1);
+});
+
+test('R5 — marcação pelo teclado (Espaço no checkbox, setas no grupo de radio) é ativação real', () => {
+  const r = rig();
+  r.ev('keydown', ACEITO, { key: ' ' });
+  r.ev('change', { ...ACEITO, checked: true });
+  r.ev('keydown', PF, { key: 'ArrowDown' });
+  r.ev('change', { ...PJ, checked: true });
+  assert.deepEqual(r.actions(), ['CHECK:n5', 'CHECK:n8']);
 });
 
 test('S003-019/R5 — radio: só a opção marcada vira etapa CHECK', () => {

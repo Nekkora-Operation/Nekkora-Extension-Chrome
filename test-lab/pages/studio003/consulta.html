@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Consulta de clientes</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    .clicavel { cursor: pointer; display: inline-block; padding: 4px 8px; border: 1px dashed #999; }
+    [role="listbox"] { border: 1px solid #999; padding: 2px; list-style: none; margin: 4px 0; max-width: 220px; }
+    [role="option"] { cursor: pointer; padding: 2px 4px; }
+    #nota { border: 1px solid #999; min-height: 40px; padding: 4px; max-width: 420px; }
+  </style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Consulta de clientes (STUDIO-003)</h1>
+  <p class="muted">Cenário 2: selecionar estado, pesquisar e controles de seleção. Dados fictícios.</p>
+
+  <nav aria-label="Menu"><a id="menu-clientes" href="#clientes">Clientes</a> · <a id="menu-pedidos" href="#pedidos">Pedidos</a></nav>
+
+  <form id="consulta" autocomplete="off">
+    <p><label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        <option value="">Selecione</option>
+        <option value="SP">São Paulo</option>
+        <option value="RJ">Rio de Janeiro</option>
+      </select></p>
+    <p><label for="pesquisa">Pesquisa</label> <input id="pesquisa" name="q" type="search"></p>
+    <fieldset><legend>Tipo de pessoa</legend>
+      <input id="pf" name="tipo" type="radio" value="PF"> <label for="pf">Pessoa física</label>
+      <input id="pj" name="tipo" type="radio" value="PJ"> <label for="pj">Pessoa jurídica</label>
+    </fieldset>
+    <p><input id="ativos" type="checkbox"> <label for="ativos">Somente ativos</label></p>
+    <p><label for="obs">Observações</label><br><textarea id="obs" rows="2" cols="40"></textarea></p>
+    <p>Nota rápida</p>
+    <div id="nota" contenteditable="true" aria-label="Nota rápida"></div>
+    <p><button id="pesquisar" type="submit">Pesquisar</button></p>
+  </form>
+
+  <section>
+    <h2>Componentes personalizados</h2>
+    <p><span id="cidade-label">Cidade</span>
+      <button id="cidade" type="button" role="combobox" aria-labelledby="cidade-label" aria-controls="lista-cidades" aria-expanded="false">Escolha</button></p>
+    <ul id="lista-cidades" role="listbox" aria-labelledby="cidade-label" hidden>
+      <li role="option" id="op-campinas">Campinas</li>
+      <li role="option" id="op-santos">Santos</li>
+    </ul>
+    <p><span id="exportar" role="button" tabindex="0">Exportar</span></p>
+    <p><span id="detalhes" class="clicavel">Detalhes</span> <span id="texto-solto">Texto sem interação</span></p>
+    <p><button id="adicionar" type="button">Adicionar linha</button> <span id="linhas">0</span> linha(s)</p>
+    <p><button id="automatico" type="button">Preencher automaticamente</button></p>
+  </section>
+
+  <section>
+    <h2>Resultado</h2>
+    <div id="resultado" role="status">Nenhuma pesquisa.</div>
+  </section>
+
+  <script>
+    document.getElementById('consulta').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('resultado').textContent = 'Pesquisa realizada.';
+    });
+    const combo = document.getElementById('cidade');
+    const lista = document.getElementById('lista-cidades');
+    combo.addEventListener('click', () => {
+      lista.hidden = !lista.hidden;
+      combo.setAttribute('aria-expanded', String(!lista.hidden));
+    });
+    for (const op of lista.querySelectorAll('[role="option"]')) {
+      op.addEventListener('click', () => {
+        combo.textContent = op.textContent;
+        lista.hidden = true;
+        combo.setAttribute('aria-expanded', 'false');
+      });
+    }
+    document.getElementById('exportar').addEventListener('click', () => {
+      document.getElementById('resultado').textContent = 'Exportação solicitada.';
+    });
+    document.getElementById('detalhes').addEventListener('click', () => {
+      document.getElementById('resultado').textContent = 'Detalhes exibidos.';
+    });
+    document.getElementById('adicionar').addEventListener('click', () => {
+      const s = document.getElementById('linhas');
+      s.textContent = String(Number(s.textContent) + 1);
+    });
+    // Eventos PROGRAMÁTICOS (isTrusted = false): não podem virar etapas.
+    document.getElementById('automatico').addEventListener('click', () => {
+      const q = document.getElementById('pesquisa');
+      q.value = 'preenchido pelo script';
+      q.dispatchEvent(new Event('input', { bubbles: true }));
+      q.dispatchEvent(new Event('change', { bubbles: true }));
+      document.getElementById('ativos').click();
+      document.getElementById('pesquisar').click();
+    });
+  </script>
+</body>
+</html>

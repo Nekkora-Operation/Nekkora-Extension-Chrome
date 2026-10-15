@@ -174,7 +174,7 @@
         "discarded": {
           "type": "object",
           "additionalProperties": { "type": "integer", "minimum": 0 },
-          "propertyNames": { "enum": ["UNTRUSTED", "NON_INTERACTIVE", "FOCUS_ONLY", "PROGRAMMATIC_SUBMIT", "ABSORBED", "AFTER_STOP", "STALE_EPOCH", "NOT_RECORDING"] },
+          "propertyNames": { "enum": ["UNTRUSTED", "NON_INTERACTIVE", "FOCUS_ONLY", "PROGRAMMATIC_SUBMIT", "PROGRAMMATIC_CHANGE", "ABSORBED", "AFTER_STOP", "STALE_EPOCH", "NOT_RECORDING"] },
           "description": "Eventos descartados por motivo (contagem): nenhum descarte é silencioso."
         }
       }
