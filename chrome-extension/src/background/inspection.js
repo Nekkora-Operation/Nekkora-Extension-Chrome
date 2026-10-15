@@ -138,7 +138,9 @@ export function revoke(tabId, reason) {
 
 export function forget(tabId) {
   states.delete(tabId);
-  chrome.storage.session.remove(KEY + tabId).catch(() => {});
+  // STUDIO-002: a última inspeção da aba também sai. Antes ela ficava para sempre em storage.session e, numa sessão
+  // longa (centenas de abas), esgotava a cota de 10 MB — e o estado mínimo de captura/gravação deixava de ser salvo.
+  chrome.storage.session.remove([KEY + tabId, 'inspection:' + tabId]).catch(() => {});
 }
 
 // ------------------------------------------------------------------------------ captura avulsa (sem sessão)

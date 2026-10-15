@@ -1,0 +1,11 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "handshake",
+  "type": "bridge.welcome",
+  "seq": 2,
+  "payload": {
+    "proof": "rUbu45NIDGh0MX2WHJPUfhccubJ3Vr9ZDlUfym-KswI",
+    "heartbeatMs": 5000,
+    "maxFrameBytes": 262144
+  }
+}

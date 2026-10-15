@@ -1,0 +1,54 @@
+{
+  "recording" : {
+    "recordingId" : "rec-129c4423-b67d-4c00-9236-7100c5103020",
+    "state" : "COMPLETED",
+    "mode" : "CAPTURE_ONLY",
+    "tab" : {
+      "tabRef" : "t-19XOIyA8FVmPDn",
+      "title" : "Captura contínua",
+      "host" : "127.0.0.1"
+    },
+    "capture" : {
+      "recorderAttached" : false,
+      "otherConsumers" : 0,
+      "captureStatus" : null
+    },
+    "coverage" : {
+      "state" : "UNKNOWN",
+      "framesAttached" : 0,
+      "framesUnavailable" : 0
+    },
+    "counters" : {
+      "segments" : 2,
+      "technicalCaptures" : 2,
+      "synchronizations" : 1,
+      "recoveries" : 0
+    },
+    "lease" : {
+      "leaseMs" : 30000,
+      "expiresInMs" : 0
+    },
+    "startedAt" : "2026-10-15T09:46:29.697Z",
+    "updatedAt" : "2026-10-15T09:46:29.859Z",
+    "reason" : "USER_FINISHED"
+  },
+  "summary" : {
+    "state" : "COMPLETED",
+    "durationMs" : 167,
+    "counters" : {
+      "segments" : 2,
+      "technicalCaptures" : 2,
+      "synchronizations" : 1,
+      "recoveries" : 0
+    },
+    "coverage" : {
+      "state" : "COMPLETE",
+      "framesAttached" : 0,
+      "framesUnavailable" : 0
+    },
+    "pageMapExported" : false,
+    "actionCapture" : "NOT_AVAILABLE",
+    "limitations" : [ "ACTION_CAPTURE_NOT_AVAILABLE" ]
+  },
+  "duplicate" : false
+}

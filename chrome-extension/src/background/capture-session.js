@@ -257,8 +257,13 @@ export function acquire(tabId, consumer, options = {}) {
   });
 }
 
-/** Remove o consumidor; a sessão termina quando não resta nenhum. */
-export function release(tabId, consumer, reason) {
+/**
+ * Remove o consumidor; a sessão termina quando não resta nenhum.
+ * options.detachHost (STUDIO-002): ao encerrar a sessão, NÃO espera o motor confirmar o capture.session.stop — o
+ * encerramento local (rastreadores desligados, consumidor removido) é imediato e o pedido ao motor segue na fila dele.
+ * Usado pelo Recorder do Studio para que pausar/finalizar não fique atrás de uma operação longa do motor.
+ */
+export function release(tabId, consumer, reason, options = {}) {
   return withLock('tab:' + tabId, async () => {
     const rec = sessions.get(tabId);
     if (!rec) {
@@ -270,7 +275,7 @@ export function release(tabId, consumer, reason) {
       emitStatus(rec, true);
       return describe(rec);
     }
-    return endInner(rec, reason || 'RELEASED');
+    return endInner(rec, reason || 'RELEASED', options);
   });
 }
 
@@ -282,13 +287,14 @@ export function end(tabId, reason) {
   });
 }
 
-async function endInner(rec, reason) {
+async function endInner(rec, reason, options = {}) {
   for (const f of [0, ...Object.values(rec.frames).map((x) => x.frameId)]) {
     await toContent(rec.tabId, 'cs.session.stop', {}, f).catch(() => {});
   }
   let hostResult = null;
   if (rec.epoch > 0 && client.status().connected) {
-    hostResult = await host('capture.session.stop', { sessionId: rec.sessionId, reason, release: true }).catch((e) => errorInfo(e));
+    const stop = host('capture.session.stop', { sessionId: rec.sessionId, reason, release: true }).catch((e) => errorInfo(e));
+    hostResult = options.detachHost ? { pending: true } : await stop;
   }
   rec.status = 'COMPLETED';
   rec.reason = reason;

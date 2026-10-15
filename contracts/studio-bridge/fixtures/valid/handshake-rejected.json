@@ -1,0 +1,12 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "handshake",
+  "type": "bridge.rejected",
+  "seq": 2,
+  "payload": {
+    "error": {
+      "code": "AUTH_FAILED",
+      "message": "Credencial do Bridge inválida."
+    }
+  }
+}

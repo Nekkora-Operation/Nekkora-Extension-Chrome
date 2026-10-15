@@ -1,0 +1,8 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "browser.tabs.list",
+  "id": "c-2",
+  "seq": 4,
+  "payload": {}
+}

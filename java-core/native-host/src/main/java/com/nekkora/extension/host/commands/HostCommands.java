@@ -56,6 +56,17 @@ public final class HostCommands implements CommandRouter.CommandGroup {
             }
             return Map.of("length", sb.length(), "data", sb.toString());
         });
+        // Operação longa CONTROLADA (teste de responsividade S002-022): ocupa o motor por até 60 s.
+        router.register("host.hold", p -> {
+            long ms = Math.min(Math.max(p.path("ms").asLong(0), 0), 60_000);
+            long t0 = System.nanoTime();
+            try {
+                Thread.sleep(ms);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return Map.of("heldMs", Math.round((System.nanoTime() - t0) / 1e6));
+        });
         router.register("host.fail", p -> {
             throw new CommandException("TEST_FAILURE", "Falha solicitada para teste de tratamento de erro");
         });

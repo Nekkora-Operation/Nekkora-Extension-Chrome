@@ -1,0 +1,8 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "page.capture",
+  "id": "c-1",
+  "seq": 1,
+  "payload": {}
+}

@@ -1,0 +1,8 @@
+{
+  "transfers" : 3,
+  "chunks" : 153,
+  "controlMessages" : 443,
+  "framesObserved" : 596,
+  "controlRightAfterATransfer" : 3,
+  "interleavedWithinTransfer" : 0
+}

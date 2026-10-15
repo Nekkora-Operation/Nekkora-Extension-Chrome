@@ -1,0 +1,7 @@
+{
+  "engineOperation" : "host.hold 8000 ms",
+  "bridgeStatusMs" : 1,
+  "pauseConfirmedMs" : 3,
+  "renewMs" : 1,
+  "engineBusyReported" : true
+}

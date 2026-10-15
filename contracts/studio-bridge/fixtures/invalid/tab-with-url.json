@@ -1,0 +1,23 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "browser.tabs.list",
+  "id": "c-2",
+  "seq": 4,
+  "ok": true,
+  "payload": {
+    "tabs": [
+      {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "x",
+        "host": "127.0.0.1",
+        "url": "http://127.0.0.1/?token=abc",
+        "access": "LAB",
+        "active": true,
+        "recording": false
+      }
+    ],
+    "truncated": false
+  },
+  "error": null
+}

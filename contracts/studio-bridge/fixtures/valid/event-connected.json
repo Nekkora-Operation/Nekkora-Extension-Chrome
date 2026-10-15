@@ -1,0 +1,17 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "bridge.connected",
+  "seq": 3,
+  "payload": {
+    "link": "CONNECTED",
+    "extension": {
+      "version": "0.4.0",
+      "buildMode": "DEV"
+    },
+    "host": {
+      "version": "0.2.0",
+      "engineBusy": false
+    }
+  }
+}

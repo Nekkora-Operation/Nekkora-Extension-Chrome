@@ -1,0 +1,12 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "bridge.heartbeat",
+  "id": "c-9",
+  "seq": 3,
+  "ok": true,
+  "payload": {
+    "at": "2026-10-15T12:00:00.000Z"
+  },
+  "error": null
+}

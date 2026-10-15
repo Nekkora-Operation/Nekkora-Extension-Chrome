@@ -1,0 +1,5 @@
+{
+  "leaseMs" : 5000,
+  "expiredAfterMs" : 5053,
+  "remainingConsumers" : [ "inspection" ]
+}

@@ -1,0 +1,15 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.recording.start",
+  "id": "c-1",
+  "seq": 1,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "operationId": "op-8a2b4c6d-1e3f-4a5b-8c7d-9e0f1a2b3c4d",
+    "tabRef": "t-Q2f9LmZx7Kp1",
+    "mode": "CAPTURE_ONLY",
+    "leaseMs": 30000,
+    "script": "document.cookie"
+  }
+}

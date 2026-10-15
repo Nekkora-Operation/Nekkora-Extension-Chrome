@@ -1,0 +1,443 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nekkora.dev/contracts/studio-bridge/1",
+  "title": "Nekkora Studio Bridge (nekkora-bridge/1)",
+  "description": "Mensagens entre o Nekkora Studio (servidor local) e o Native Host Java (cliente), num canal local autenticado (Unix Domain Socket ou TCP em 127.0.0.1). Cada mensagem é um quadro: 4 bytes big-endian sem sinal com o tamanho + JSON UTF-8 (no máximo 262144 bytes). Somente CONTROLE de gravação: PageMaps, snapshots e conteúdo bruto da página nunca trafegam por este canal. Contrato separado do Native Messaging (nekkora-nm/1). Identificadores (recordingId, operationId, tabRef, instanceId) são técnicos: transportados, nunca exibidos.",
+  "oneOf": [
+    { "$ref": "#/$defs/Handshake" },
+    { "$ref": "#/$defs/Command" },
+    { "$ref": "#/$defs/Response" },
+    { "$ref": "#/$defs/Event" }
+  ],
+  "$defs": {
+    "Protocol": { "const": "nekkora-bridge/1" },
+    "Id": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{1,80}$" },
+    "Seq": { "type": "integer", "minimum": 1 },
+    "Nonce": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$", "description": "32 bytes aleatórios em base64url sem preenchimento." },
+    "Proof": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$", "description": "HMAC-SHA256 em base64url sem preenchimento." },
+    "Version": { "type": "string", "maxLength": 40 },
+    "Instant": { "type": "string", "format": "date-time" },
+    "Mode": {
+      "enum": ["CAPTURE_ONLY", "CAPTURE_AND_INTERACT"],
+      "description": "CAPTURE_ONLY = 'Capturar' (selecionar e registrar sem executar a ação); CAPTURE_AND_INTERACT = 'Capturar e interagir' (observar sem bloquear). Na STUDIO-002 o modo é apenas configuração confirmada: os sensores de interação chegam na STUDIO-003."
+    },
+    "RecordingState": {
+      "enum": ["RECORDING", "PAUSED", "DEGRADED", "COMPLETED", "CANCELLED", "EXPIRED", "FAILED"],
+      "description": "Estado AUTORITATIVO da gravação técnica, mantido pela extensão. PAUSED é a pausa pedida pelo usuário (não confundir com o PAUSED técnico da CaptureSession). COMPLETED, CANCELLED, EXPIRED e FAILED são terminais."
+    },
+    "Access": {
+      "enum": ["LAB", "AUTHORIZED", "PERMISSION_REQUIRED", "BROWSER_INTERNAL", "BROWSER_RESTRICTED", "UNSUPPORTED_SCHEME", "INVALID_URL", "URL_UNAVAILABLE"],
+      "description": "Mesma classificação da política central de acesso da extensão (access-policy.js)."
+    },
+    "ErrorCode": {
+      "enum": [
+        "BAD_REQUEST", "UNKNOWN_COMMAND", "COMMAND_NOT_ALLOWED", "PROTOCOL_UNSUPPORTED", "AUTH_FAILED", "BRIDGE_BUSY",
+        "HANDSHAKE_TIMEOUT", "FRAME_TOO_LARGE", "EXTENSION_UNAVAILABLE", "TIMEOUT", "TAB_NOT_FOUND", "ORIGIN_NOT_ALLOWED",
+        "RECORDING_NOT_FOUND", "RECORDING_ALREADY_ACTIVE", "RECORDING_ENDED", "INVALID_STATE", "NOT_CONTROLLER",
+        "INVALID_MODE", "CAPTURE_FAILED", "OPERATION_CONFLICT", "INTERNAL_ERROR"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "message": { "type": "string", "maxLength": 500 },
+        "reason": { "type": ["string", "null"], "maxLength": 60, "description": "Motivo detalhado (ex.: PERMISSION_REQUIRED para ORIGIN_NOT_ALLOWED)." },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "TabRef": { "type": "string", "pattern": "^t-[A-Za-z0-9]{8,40}$", "description": "Referência opaca da aba: o identificador interno do Chrome não sai da extensão." },
+    "TabSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tabRef", "title", "host"],
+      "properties": {
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "title": { "type": ["string", "null"], "maxLength": 120, "description": "Título mascarado pela política de privacidade; null quando o Chrome não o informa (origem sem acesso)." },
+        "host": { "type": ["string", "null"], "maxLength": 253, "description": "Somente o nome do host (sem caminho, consulta ou fragmento)." }
+      }
+    },
+    "Tab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tabRef", "title", "host", "access", "active", "recording"],
+      "properties": {
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "title": { "$ref": "#/$defs/TabSummary/properties/title" },
+        "host": { "$ref": "#/$defs/TabSummary/properties/host" },
+        "access": { "$ref": "#/$defs/Access" },
+        "active": { "type": "boolean", "description": "Aba ativa da sua janela." },
+        "recording": { "type": "boolean", "description": "Já existe gravação do Studio nesta aba." }
+      }
+    },
+    "Coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "framesAttached", "framesUnavailable"],
+      "properties": {
+        "state": { "enum": ["COMPLETE", "PARTIAL", "UNKNOWN"], "description": "PARTIAL: há documentos (iframes) relevantes que a captura não acompanha (ex.: origem não autorizada)." },
+        "framesAttached": { "type": "integer", "minimum": 0 },
+        "framesUnavailable": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Counters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segments", "technicalCaptures", "synchronizations", "recoveries"],
+      "properties": {
+        "segments": { "type": "integer", "minimum": 0, "description": "Trechos em que o Recorder esteve inscrito na captura (cada retomada abre um novo)." },
+        "technicalCaptures": { "type": "integer", "minimum": 0, "description": "Capturas-base da página durante a participação do Recorder." },
+        "synchronizations": { "type": "integer", "minimum": 0, "description": "Deltas aplicados pelo motor durante a participação do Recorder." },
+        "recoveries": { "type": "integer", "minimum": 0, "description": "Ressincronizações (recuperações) durante a participação do Recorder." }
+      }
+    },
+    "Recording": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "state", "mode", "tab", "capture", "coverage", "counters", "lease", "startedAt", "updatedAt", "reason"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "state": { "$ref": "#/$defs/RecordingState" },
+        "mode": { "$ref": "#/$defs/Mode" },
+        "tab": { "$ref": "#/$defs/TabSummary" },
+        "capture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recorderAttached", "otherConsumers", "captureStatus"],
+          "properties": {
+            "recorderAttached": { "type": "boolean", "description": "O consumidor do Recorder está inscrito na sessão de captura da aba." },
+            "otherConsumers": { "type": "integer", "minimum": 0, "description": "Quantidade de OUTROS consumidores (inspeção manual, gravações legadas): enquanto > 0 a observação da página continua mesmo com o Recorder pausado." },
+            "captureStatus": { "type": ["string", "null"], "enum": ["STARTING", "ACTIVE", "PAUSED", "RECOVERING", "FINALIZING", "ERROR", null], "description": "Estado TÉCNICO da CaptureSession da aba (PAUSED técnico = motor indisponível)." }
+          }
+        },
+        "coverage": { "$ref": "#/$defs/Coverage" },
+        "counters": { "$ref": "#/$defs/Counters" },
+        "lease": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["leaseMs", "expiresInMs"],
+          "properties": {
+            "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 },
+            "expiresInMs": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "startedAt": { "$ref": "#/$defs/Instant" },
+        "updatedAt": { "$ref": "#/$defs/Instant" },
+        "reason": { "type": ["string", "null"], "maxLength": 60, "description": "Motivo do último estado (ex.: TAB_CLOSED, PERMISSION_REVOKED, LEASE_EXPIRED)." }
+      }
+    },
+    "Summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "durationMs", "counters", "coverage", "pageMapExported", "actionCapture", "limitations"],
+      "properties": {
+        "state": { "enum": ["COMPLETED", "CANCELLED", "EXPIRED"] },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "counters": { "$ref": "#/$defs/Counters" },
+        "coverage": { "$ref": "#/$defs/Coverage" },
+        "pageMapExported": { "const": false, "description": "Finalizar NÃO é exportar (D-STUDIO-002-03)." },
+        "actionCapture": { "const": "NOT_AVAILABLE", "description": "Nenhuma etapa de automação é produzida pela gravação técnica (STUDIO-003)." },
+        "limitations": {
+          "type": "array",
+          "maxItems": 10,
+          "items": { "enum": ["ACTION_CAPTURE_NOT_AVAILABLE", "PARTIAL_COVERAGE", "INTERRUPTED", "RECOVERIES_OCCURRED", "NEVER_ATTACHED"] }
+        }
+      }
+    },
+    "RecordingTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "operationId"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "operationId": { "$ref": "#/$defs/Id" }
+      }
+    },
+
+    "Handshake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "kind", "type", "seq", "payload"],
+      "properties": {
+        "protocol": { "$ref": "#/$defs/Protocol" },
+        "kind": { "const": "handshake" },
+        "type": { "enum": ["bridge.challenge", "bridge.hello", "bridge.welcome", "bridge.rejected"] },
+        "seq": { "$ref": "#/$defs/Seq" },
+        "payload": { "type": "object" }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "bridge.challenge" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/ChallengePayload" } } } },
+        { "if": { "properties": { "type": { "const": "bridge.hello" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/HelloPayload" } } } },
+        { "if": { "properties": { "type": { "const": "bridge.welcome" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/WelcomePayload" } } } },
+        { "if": { "properties": { "type": { "const": "bridge.rejected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RejectedPayload" } } } }
+      ]
+    },
+    "ChallengePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instanceId", "serverNonce", "accepts", "studio"],
+      "properties": {
+        "instanceId": { "$ref": "#/$defs/Id" },
+        "serverNonce": { "$ref": "#/$defs/Nonce" },
+        "accepts": { "type": "array", "minItems": 1, "items": { "type": "string", "maxLength": 40 } },
+        "studio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version"],
+          "properties": { "version": { "$ref": "#/$defs/Version" } }
+        }
+      }
+    },
+    "HelloPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instanceId", "clientNonce", "proof", "client"],
+      "properties": {
+        "instanceId": { "$ref": "#/$defs/Id" },
+        "clientNonce": { "$ref": "#/$defs/Nonce" },
+        "proof": { "$ref": "#/$defs/Proof", "description": "HMAC-SHA256(segredo, \"nekkora-bridge/1|client|\" + instanceId + \"|\" + serverNonce + \"|\" + clientNonce)." },
+        "client": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hostVersion", "nativeProtocol", "extension"],
+          "properties": {
+            "hostVersion": { "$ref": "#/$defs/Version" },
+            "nativeProtocol": { "const": "nekkora-nm/1" },
+            "extension": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["version", "buildMode"],
+              "properties": {
+                "version": { "$ref": "#/$defs/Version" },
+                "buildMode": { "enum": ["DEV", "PRD"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "WelcomePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proof", "heartbeatMs", "maxFrameBytes"],
+      "properties": {
+        "proof": { "$ref": "#/$defs/Proof", "description": "HMAC-SHA256(segredo, \"nekkora-bridge/1|server|\" + instanceId + \"|\" + serverNonce + \"|\" + clientNonce): o Studio prova que conhece o mesmo segredo." },
+        "heartbeatMs": { "type": "integer", "minimum": 1000, "maximum": 60000 },
+        "maxFrameBytes": { "type": "integer", "minimum": 1024, "maximum": 262144 }
+      }
+    },
+    "RejectedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": { "error": { "$ref": "#/$defs/Error" } }
+    },
+
+    "CommandType": {
+      "enum": [
+        "bridge.status", "bridge.heartbeat", "browser.tabs.list",
+        "studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode",
+        "studio.recording.finish", "studio.recording.cancel", "studio.recording.status", "studio.recording.renew"
+      ]
+    },
+    "Command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "kind", "type", "id", "seq", "payload"],
+      "properties": {
+        "protocol": { "$ref": "#/$defs/Protocol" },
+        "kind": { "const": "command" },
+        "type": { "$ref": "#/$defs/CommandType" },
+        "id": { "$ref": "#/$defs/Id" },
+        "seq": { "$ref": "#/$defs/Seq" },
+        "payload": { "type": "object" }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "enum": ["bridge.status", "bridge.heartbeat", "browser.tabs.list"] } } }, "then": { "properties": { "payload": { "type": "object", "additionalProperties": false, "maxProperties": 0 } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.start" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StartPayload" } } } },
+        { "if": { "properties": { "type": { "enum": ["studio.recording.pause", "studio.recording.resume", "studio.recording.finish", "studio.recording.cancel"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingTarget" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.mode" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/ModePayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewPayload" } } } }
+      ]
+    },
+    "StartPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "operationId", "tabRef", "mode", "leaseMs"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "operationId": { "$ref": "#/$defs/Id" },
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "mode": { "$ref": "#/$defs/Mode" },
+        "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 }
+      }
+    },
+    "ModePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "operationId", "mode"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "operationId": { "$ref": "#/$defs/Id" },
+        "mode": { "$ref": "#/$defs/Mode" }
+      }
+    },
+    "StatusPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "recordingId": { "$ref": "#/$defs/Id" } }
+    },
+    "RenewPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId"],
+      "properties": { "recordingId": { "$ref": "#/$defs/Id" } }
+    },
+
+    "Response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "kind", "type", "id", "seq", "ok", "payload", "error"],
+      "properties": {
+        "protocol": { "$ref": "#/$defs/Protocol" },
+        "kind": { "const": "response" },
+        "type": { "type": "string", "pattern": "^[a-z][A-Za-z0-9._-]{0,79}$", "description": "Tipo do comando respondido (em UNKNOWN_COMMAND, o tipo recebido; 'invalid' se ilegível). Respostas de sucesso só existem para os tipos de CommandType." },
+        "id": { "$ref": "#/$defs/Id", "description": "Mesmo id do comando." },
+        "seq": { "$ref": "#/$defs/Seq" },
+        "ok": { "type": "boolean" },
+        "payload": { "type": ["object", "null"] },
+        "error": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Error" }] }
+      },
+      "allOf": [
+        { "if": { "properties": { "ok": { "const": false } } }, "then": { "properties": { "payload": { "type": "null" }, "error": { "$ref": "#/$defs/Error" } } } },
+        { "if": { "properties": { "ok": { "const": true } } }, "then": { "properties": { "error": { "type": "null" }, "payload": { "type": "object" }, "type": { "$ref": "#/$defs/CommandType" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "bridge.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "bridge.heartbeat" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/HeartbeatResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "browser.tabs.list" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/TabsResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.recording.finish", "studio.recording.cancel"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EndResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusListResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.renew" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RenewResult" } } } }
+      ]
+    },
+    "StatusResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["link", "extension", "host"],
+      "properties": {
+        "link": { "enum": ["CONNECTED"] },
+        "extension": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "buildMode"],
+          "properties": { "version": { "$ref": "#/$defs/Version" }, "buildMode": { "enum": ["DEV", "PRD"] } }
+        },
+        "host": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "engineBusy"],
+          "properties": {
+            "version": { "$ref": "#/$defs/Version" },
+            "engineBusy": { "type": "boolean", "description": "O motor Java está executando uma operação longa (ex.: exportação). Comandos de controle continuam sendo atendidos." }
+          }
+        }
+      }
+    },
+    "HeartbeatResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["at"],
+      "properties": { "at": { "$ref": "#/$defs/Instant" } }
+    },
+    "TabsResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tabs", "truncated"],
+      "properties": {
+        "tabs": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/Tab" } },
+        "truncated": { "type": "boolean" }
+      }
+    },
+    "RecordingResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recording", "duplicate"],
+      "properties": {
+        "recording": { "$ref": "#/$defs/Recording" },
+        "duplicate": { "type": "boolean", "description": "true quando a mesma operação (operationId) já tinha sido aplicada: nada foi repetido." }
+      }
+    },
+    "EndResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recording", "summary", "duplicate"],
+      "properties": {
+        "recording": { "$ref": "#/$defs/Recording" },
+        "summary": { "$ref": "#/$defs/Summary" },
+        "duplicate": { "type": "boolean" }
+      }
+    },
+    "StatusListResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordings"],
+      "properties": { "recordings": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/Recording" } } }
+    },
+    "RenewResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "state", "expiresInMs"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "state": { "$ref": "#/$defs/RecordingState" },
+        "expiresInMs": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "EventType": {
+      "enum": [
+        "bridge.connected", "bridge.disconnected",
+        "studio.recording.started", "studio.recording.paused", "studio.recording.resumed", "studio.recording.modeChanged",
+        "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded", "studio.recording.recovered",
+        "studio.recording.failed", "studio.recording.expired"
+      ]
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "kind", "type", "seq", "payload"],
+      "properties": {
+        "protocol": { "$ref": "#/$defs/Protocol" },
+        "kind": { "const": "event" },
+        "type": { "$ref": "#/$defs/EventType" },
+        "seq": { "$ref": "#/$defs/Seq" },
+        "payload": { "type": "object" }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "const": "bridge.connected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StatusResult" } } } },
+        { "if": { "properties": { "type": { "const": "bridge.disconnected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DisconnectedPayload" } } } },
+        { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\." } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } }
+      ]
+    },
+    "DisconnectedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": { "reason": { "enum": ["CHROME_DISCONNECTED", "LINK_DISABLED", "HOST_SHUTDOWN"] } }
+    },
+    "RecordingEventPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordingId", "operationId", "recording"],
+      "properties": {
+        "recordingId": { "$ref": "#/$defs/Id" },
+        "operationId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }], "description": "Operação do Studio que provocou o evento; null para eventos originados no navegador (aba fechada, permissão revogada, concessão expirada)." },
+        "recording": { "$ref": "#/$defs/Recording" },
+        "summary": { "$ref": "#/$defs/Summary" }
+      }
+    }
+  }
+}

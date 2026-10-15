@@ -83,6 +83,19 @@ public final class MessageProcessor {
         }
     }
 
+    /** Resposta de sucesso no envelope padrão (usada pelo canal do Studio, fora do roteador do motor). */
+    public List<String> success(String id, String type, Object payload) {
+        ObjectNode resp = envelope(id, type, true, System.nanoTime());
+        resp.set("payload", json.tree(payload));
+        resp.putNull("error");
+        return chunks.split(resp.toString());
+    }
+
+    /** Resposta de erro no envelope padrão (fragmento recusado pelo leitor, canal do Studio). */
+    public List<String> failure(String id, String type, String code, String message) {
+        return error(id, type, code, message, System.nanoTime());
+    }
+
     private ObjectNode envelope(String id, String type, boolean ok, long t0) {
         ObjectNode resp = json.mapper().createObjectNode();
         resp.put("protocol", ChunkCodec.PROTOCOL);

@@ -1,0 +1,15 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.recording.start",
+  "id": "c-10",
+  "seq": 10,
+  "ok": false,
+  "payload": null,
+  "error": {
+    "code": "ORIGIN_NOT_ALLOWED",
+    "reason": "PERMISSION_REQUIRED",
+    "message": "Este site ainda não está autorizado. Abra a Nekkora Extension no Chrome e conceda acesso ao site.",
+    "retryable": false
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "handshake",
+  "type": "bridge.hello",
+  "seq": 1,
+  "payload": {
+    "instanceId": "studio-7c1d",
+    "clientNonce": "035_QrCURqxWkxR-qlHJw0zEmTn95arfOkf5xBV9rEk",
+    "proof": "abc",
+    "client": {
+      "hostVersion": "0.2.0",
+      "nativeProtocol": "nekkora-nm/1",
+      "extension": {
+        "version": "0.4.0",
+        "buildMode": "DEV"
+      }
+    }
+  }
+}

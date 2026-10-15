@@ -1,0 +1,11 @@
+{
+  "engineOperation" : "host.hold 6000 ms (operação longa controlada)",
+  "bridgeStatusResponseMs" : 2,
+  "studioCommandForwardedToExtensionMs" : 1,
+  "extensionReplyToStudioMs" : 1,
+  "studioPauseRoundTripMs" : 3,
+  "extensionLinkStatusResponseMs" : 1,
+  "engineOperationCompletedAtMs" : 6007,
+  "engineQueuedPingCompletedAtMs" : 6014,
+  "controlHandledWhileEngineBusy" : true
+}

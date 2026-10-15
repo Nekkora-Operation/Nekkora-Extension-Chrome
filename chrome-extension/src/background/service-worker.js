@@ -9,6 +9,8 @@
  *   inspection       botão único, estados da inspeção, seleção e reencontro
  *   recording        contrato de eventos de gravação (exportação na finalização)
  *   config           modo DEV/PRD (controlado pelo projeto)
+ *   studio-link      canal com o Nekkora Studio (opt-in no painel; STUDIO-002)
+ *   studio-recording gravação técnica controlada pelo Studio (consumidor próprio, concessão, sem exportação)
  */
 import '../shared/privacy.js';
 import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, assertAllowed, errorInfo, HostError } from './runtime.js';
@@ -20,6 +22,8 @@ import * as frames from './frames.js';
 import * as docs from './diagnostics.js';
 import * as inspection from './inspection.js';
 import * as recording from './recording.js';
+import * as studioLink from './studio-link.js';
+import { recorder as studioRecording } from './studio-recorder.js';
 
 /** Hooks de teste permitidos (somente leitura, declarados pelas páginas do laboratório). */
 const ALLOWED_TEST_HOOKS = ['getCurrentFilters', 'getVisibleResultCount', 'getLastApiQuery', 'getRenderCount', 'getActionLog'];
@@ -31,8 +35,12 @@ const ready = (async () => {
   await capture.restore();
   await inspection.restore();
   await recording.restore();
+  await studioRecording.restore();
 })();
-ready.then(() => capture.reconcile()).catch(() => {});
+ready.then(() => capture.reconcile()).then(() => studioRecording.reconcile()).catch(() => {});
+studioRecording.init(ready);
+client.onHostMessage('studio.link', studioLink.onHostLink);
+studioLink.init(ready).catch(() => {});
 
 async function readTestHooks(tabId) {
   await assertAllowed(tabId);
@@ -161,6 +169,11 @@ const commands = {
     return docs.syncFrameMetadata(rec);
   },
   'page.highlightFrame': async (a) => docs.highlightFrame(a.tabId, a.nodeId || (inspection.get(a.tabId).selected || {}).nodeId),
+
+  // Canal com o Nekkora Studio (STUDIO-002). Ligar/desligar é um gesto do usuário no painel.
+  'studio.link.get': async () => studioLink.describe(),
+  'studio.link.set': async (a) => studioLink.setEnabled(!!a.enabled),
+  'studio.recordings': async () => studioRecording.list(),
 
   // Gravação (eventos simulados pelo harness; contrato futuro da plataforma)
   'recording.event': async (a) => recording.dispatch(a.event || a),
