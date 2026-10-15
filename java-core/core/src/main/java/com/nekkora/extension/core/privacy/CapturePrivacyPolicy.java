@@ -218,6 +218,19 @@ public final class CapturePrivacyPolicy {
     private static final Pattern REL = Pattern.compile("^([^?#]*)(\\?[^#]*)?(#.*)?$");
     private static final Pattern SCHEME = Pattern.compile("^([a-zA-Z][a-zA-Z0-9+.-]*):");
 
+    /** Lacuna codificada para {@link java.net.URI} (que recusa chaves). */
+    private static final String HOLE_ENCODED = "%7B%E2%80%A6%7D";
+
+    /** URL (possivelmente um modelo com lacunas) pronta para {@code URI.create}. */
+    public static String forUri(String url) {
+        return url == null ? null : url.replace(" ", "%20").replace(HOLE, HOLE_ENCODED);
+    }
+
+    /** Desfaz {@link #forUri} num pedaço de URL obtido de {@code URI}. */
+    public static String fromUri(String part) {
+        return part == null ? null : part.replace(HOLE_ENCODED, HOLE);
+    }
+
     private static String safeDecode(String s) {
         try {
             return URLDecoder.decode(s.replace("+", "%2B"), StandardCharsets.UTF_8);
@@ -315,7 +328,7 @@ public final class CapturePrivacyPolicy {
 
     private static final Pattern QUOTED = Pattern.compile("'([^']*)'|\"([^\"]*)\"");
     private static final Pattern CSS_TOKEN = Pattern.compile("[#.](-?[A-Za-z_][A-Za-z0-9_-]*)");
-    private static final Pattern PAIR = Pattern.compile("\\b[A-Za-z][A-Za-z0-9-]*=([^\\s,}\\]\"'()]+)");
+    private static final Pattern PAIR = Pattern.compile("\\b[A-Za-z][A-Za-z0-9-]*=([^\\s,}\\]\"'()/\\[][^\\s,}\\]\"'()]*)");
     private static final Pattern DIGITS = Pattern.compile("\\d+");
 
     private static boolean literalOk(String v) {

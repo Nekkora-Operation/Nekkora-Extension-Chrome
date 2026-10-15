@@ -64,7 +64,7 @@ public final class InteractionAnalyzer {
             String path = null;
             Map<String, List<String>> q = Map.of();
             try {
-                URI u = URI.create(r.url());
+                URI u = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(r.url()));
                 path = u.getPath();
                 q = urls.parse(r.url(), null).observed().query();
             } catch (IllegalArgumentException ignored) {

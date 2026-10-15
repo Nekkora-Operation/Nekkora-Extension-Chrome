@@ -45,7 +45,8 @@ const expressions = [
   "//button[text()='Consultar João Oliveira']", "[data-customer='joao-oliveira']", 'form > p:nth-of-type(3) > input',
   '/html/body/main/form[1]/p[12]/input', 'button {name="Consultar"}', 'section {has child <h2> "ficha de luciola assumpcao"} >> input {id=rua}',
   'input {id=rua}', 'tr {row: "Wenceslau Barbacena"} >> button', 'input[type=submit]', '.btn.btn-primary', '.cliente-rosamunda-teixeira',
-  "a[href='/clientes/{…}']", '', null,
+  "a[href='/clientes/{…}']", '//input[@id=//label[normalize-space(.)="Nome"]/@for]',
+  '//input[@id=//label[normalize-space(.)="Nome do cliente João"]/@for]', '', null,
 ];
 const attrs = [
   ['id', 'pesquisar', 'input', 'search'], ['id', 'cliente-anacleto-prudencio', 'button', null], ['name', 'q', 'input', 'search'],

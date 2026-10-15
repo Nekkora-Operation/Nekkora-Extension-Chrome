@@ -16,7 +16,11 @@ public final class UrlSanitizer {
     private UrlSanitizer() {
     }
 
-    /** {@code https://host:porta/caminho}; {@code about:blank}/{@code about:srcdoc} preservados; {@code null} se vazio. */
+    /**
+     * Origem + MODELO do caminho (CHROME-SECURITY-001, nekkora-privacy/2: segmento fora do vocabulário vira {…}), sem
+     * consulta nem fragmento; {@code about:blank}/{@code about:srcdoc} preservados; {@code null} se vazio. É a 3ª barreira
+     * das URLs de frames e recursos: reaplica o modelo mesmo que o produtor não o tenha feito.
+     */
     public static String sanitize(String url) {
         if (url == null || url.isBlank()) {
             return null;
@@ -26,22 +30,13 @@ public final class UrlSanitizer {
             int cut = indexOfAny(u, '?', '#');
             return cut < 0 ? u : u.substring(0, cut);
         }
-        try {
-            URI uri = URI.create(u.replace(" ", "%20"));
-            if (uri.getScheme() == null || uri.getHost() == null) {
-                int cut = indexOfAny(u, '?', '#');
-                String s = cut < 0 ? u : u.substring(0, cut);
-                return s.length() > MAX ? s.substring(0, MAX) : s;
-            }
-            String s = uri.getScheme().toLowerCase(Locale.ROOT) + "://" + uri.getHost().toLowerCase(Locale.ROOT)
-                    + (uri.getPort() > 0 ? ":" + uri.getPort() : "")
-                    + (uri.getRawPath() == null ? "" : com.nekkora.extension.core.privacy.Privacy.sanitizePathOnly(uri.getRawPath()));
-            return s.length() > MAX ? s.substring(0, MAX) : s;
-        } catch (IllegalArgumentException e) {
-            int cut = indexOfAny(u, '?', '#');
-            String s = cut < 0 ? u : u.substring(0, cut);
-            return s.length() > MAX ? s.substring(0, MAX) : s;
+        String t = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.urlTemplate(u);
+        if (t == null) {
+            return null;
         }
+        int cut = indexOfAny(t, '?', '#');
+        String s = cut < 0 ? t : t.substring(0, cut);
+        return s.length() > MAX ? s.substring(0, MAX) : s;
     }
 
     /** Somente os nomes dos parâmetros da query (valores descartados). */
@@ -75,7 +70,7 @@ public final class UrlSanitizer {
             return null;
         }
         try {
-            URI uri = URI.create(url.replace(" ", "%20"));
+            URI uri = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(url));
             if (uri.getScheme() == null || uri.getHost() == null) {
                 return null;
             }
@@ -93,9 +88,11 @@ public final class UrlSanitizer {
         }
         try {
             if (base == null || base.startsWith("about:")) {
-                return URI.create(declared.trim().replace(" ", "%20")).toString();
+                return com.nekkora.extension.core.privacy.CapturePrivacyPolicy.fromUri(
+                        URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(declared.trim())).toString());
             }
-            return URI.create(base.replace(" ", "%20")).resolve(declared.trim().replace(" ", "%20")).toString();
+            return com.nekkora.extension.core.privacy.CapturePrivacyPolicy.fromUri(URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(base))
+                    .resolve(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(declared.trim())).toString());
         } catch (IllegalArgumentException e) {
             return declared.trim();
         }
@@ -107,8 +104,8 @@ public final class UrlSanitizer {
             return url;
         }
         try {
-            URI uri = URI.create(url.replace(" ", "%20"));
-            return uri.getRawPath();
+            URI uri = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(url));
+            return com.nekkora.extension.core.privacy.CapturePrivacyPolicy.fromUri(uri.getRawPath());
         } catch (IllegalArgumentException e) {
             return null;
         }

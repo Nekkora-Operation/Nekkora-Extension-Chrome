@@ -47,7 +47,7 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
             long t0 = System.nanoTime();
             String sessionId = Payloads.required(p, "sessionId");
             String tabKey = Payloads.required(p, "tabKey");
-            RawSnapshot snap = s.json.read(Payloads.node(p, "snapshot"), RawSnapshot.class);
+            RawSnapshot snap = s.snapshot(Payloads.node(p, "snapshot"));
             HostCaptureSession session = s.session.captureSessions().open(sessionId, tabKey);
             TabState tab = s.session.tab(tabKey);
             PageAnalysis analysis;
@@ -66,17 +66,18 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
 
         router.register("capture.session.delta", p -> {
             HostCaptureSession session = session(Payloads.required(p, "sessionId"));
-            SnapshotDelta delta = s.json.read(Payloads.node(p, "delta"), SnapshotDelta.class);
+            SnapshotDelta raw = s.json.read(Payloads.node(p, "delta"), SnapshotDelta.class);
             synchronized (session) {
-                String pageSession = delta.document() == null ? null : delta.document().pageSessionId();
-                String rejection = session.check(delta.epoch(), delta.sourceOrTop(), delta.seq(), pageSession);
+                String pageSession = raw.document() == null ? null : raw.document().pageSessionId();
+                String rejection = session.check(raw.epoch(), raw.sourceOrTop(), raw.seq(), pageSession);
                 if (rejection != null) {
                     session.rejected(rejection);
-                    throw new CommandException(rejection, "Delta " + delta.sourceOrTop() + "#" + delta.seq() + " (época " + delta.epoch()
+                    throw new CommandException(rejection, "Delta " + raw.sourceOrTop() + "#" + raw.seq() + " (época " + raw.epoch()
                             + ") recusado: " + rejection + "; sessão " + session.describe());
                 }
                 TabState tab = s.session.tab(session.tabKey());
                 PageAnalysis base = s.capture(tab, session.latestCaptureId());
+                SnapshotDelta delta = s.privacy(raw, base);
                 Map<String, Object> out = deltas.apply(tab, base, delta, Payloads.flag(p, "autoResolve", true), session.sessionId());
                 session.accepted(delta.sourceOrTop(), delta.seq(), (String) out.get("captureId"));
                 out.put("session", session.describe());
@@ -88,7 +89,7 @@ public final class SessionCommands implements CommandRouter.CommandGroup {
             HostCaptureSession session = session(Payloads.required(p, "sessionId"));
             String hostNodeId = Payloads.required(p, "hostNodeId");
             String source = Payloads.required(p, "source");
-            RawSnapshot child = s.json.read(Payloads.node(p, "snapshot"), RawSnapshot.class);
+            RawSnapshot child = s.snapshot(Payloads.node(p, "snapshot"));
             synchronized (session) {
                 TabState tab = s.session.tab(session.tabKey());
                 PageAnalysis base = s.capture(tab, session.latestCaptureId());

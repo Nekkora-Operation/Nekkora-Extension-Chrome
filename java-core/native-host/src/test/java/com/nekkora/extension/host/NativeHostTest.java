@@ -121,14 +121,26 @@ class NativeHostTest {
         JsonNode submit = call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
         assertTrue(submit.get("ok").asBoolean(), submit.toString());
         assertEquals(16, submit.at("/payload/nodes").asInt());
-        assertEquals("duplicated-ids", submit.at("/payload/navigation/inferred/screen").asText());
+        // CHROME-SECURITY-001: o caminho chega como MODELO; segmentos fora do vocabulário não viram "tela" inventada
+        assertTrue(submit.at("/payload/navigation/inferred/screen").isNull(), submit.at("/payload/navigation").toString());
+        assertFalse(submit.toString().contains("duplicated"), "segmento do caminho não atravessou");
 
         JsonNode inspect = call("element.inspect", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\"}");
         assertTrue(inspect.get("ok").asBoolean(), inspect.toString());
         assertEquals("BUTTON", inspect.at("/payload/classification/kind").asText());
-        assertEquals("clientes-inativos", inspect.at("/payload/family/table/idAttr").asText());
-        assertEquals("202", inspect.at("/payload/family/row/rowKey/data-client").asText());
-        assertEquals("ROW_CONTEXT", inspect.at("/payload/locators/primary/strategy").asText());
+        assertEquals("Excluir", inspect.at("/payload/classification/name/name").asText(), "nome de controle do vocabulário continua");
+        assertEquals("clientes-inativos", inspect.at("/payload/family/table/idAttr").asText(), "id do desenvolvedor feito de termos do vocabulário");
+        // a CHAVE da linha (data-client=202, identificador de negócio) e os textos das células não atravessam
+        assertEquals(0, inspect.at("/payload/family/row/rowKey").size(), inspect.at("/payload/family/row").toString());
+        assertEquals(0, inspect.at("/payload/family/row/cellTexts").size());
+        assertFalse(inspect.toString().contains("202"), "valor da chave de linha retido");
+        // sem a chave da linha, o localizador estável e único vem da estrutura com ids do vocabulário (não é inventado)
+        assertEquals("CONTEXTUAL", inspect.at("/payload/locators/primary/strategy").asText());
+        assertEquals(1, inspect.at("/payload/locators/primary/matchCount").asInt());
+        assertTrue(inspect.at("/payload/locators/primary/matchesTarget").asBoolean());
+        for (String f : new String[]{"css", "xpath", "semantic"}) {
+            assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(inspect.at("/payload/locators/primary/" + f).asText()), f);
+        }
         assertEquals("ATTR_EQUALS", inspect.at("/payload/locators/primary/query/steps/0/predicates/0/type").asText());
         assertEquals(1, inspect.at("/payload/lookalikes").size());
 
@@ -147,7 +159,7 @@ class NativeHostTest {
         NativeHost restarted = new NativeHost(new DataDirectory(dataDir));
         TargetIdentity reloaded = restarted.session().targets().get(targetId).orElseThrow();
         assertNotNull(reloaded.locators().primary().query());
-        assertEquals("ROW_CONTEXT", reloaded.locators().primary().strategy().name());
+        assertEquals("CONTEXTUAL", reloaded.locators().primary().strategy().name());
 
         JsonNode verify = call("locators.verify", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\",\"checks\":[{\"semantic\":"
                 + mapper.writeValueAsString(inspect.at("/payload/locators/primary/semantic").asText())

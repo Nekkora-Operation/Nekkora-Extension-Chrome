@@ -51,6 +51,8 @@
       "js": [
         "src/shared/tokens.js",
         "src/shared/privacy.js",
+        "src/shared/ui-vocabulary.js",
+        "src/shared/capture-policy.js",
         "src/content/ns.js",
         "src/shared/interaction-normalizer.js",
         "src/content/node-registry.js",

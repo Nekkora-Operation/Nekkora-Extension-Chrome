@@ -13,6 +13,8 @@
  *   studio-recording gravação técnica controlada pelo Studio (consumidor próprio, concessão, sem exportação)
  */
 import '../shared/privacy.js';
+import '../shared/ui-vocabulary.js';
+import '../shared/capture-policy.js';
 import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, assertAllowed, errorInfo, HostError } from './runtime.js';
 import * as policy from './access-policy.js';
 import * as injection from './injection.js';

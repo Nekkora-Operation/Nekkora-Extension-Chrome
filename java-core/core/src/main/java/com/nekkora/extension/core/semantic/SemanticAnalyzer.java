@@ -5,6 +5,7 @@ import com.nekkora.extension.core.snapshot.RawNode;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,6 +78,15 @@ public final class SemanticAnalyzer {
                 }
             }
             for (String attr : new String[]{"aria-labelledby", "aria-describedby", "for", "aria-controls"}) {
+                List<String> nodeRefs = n.refs().get(attr);
+                if (nodeRefs != null) {
+                    for (String ref : nodeRefs) {
+                        if (changed.contains(ref)) {
+                            out.add(n.id()); // relação resolvida na página: depende do NÓ referenciado
+                        }
+                    }
+                    continue;
+                }
                 String v = n.attr(attr);
                 if (v != null) {
                     for (String ref : v.trim().split("\\s+")) {
@@ -92,8 +102,8 @@ public final class SemanticAnalyzer {
         }
         // Controles rotulados por labels alterados (label[for] aponta para o controle).
         for (RawNode n : model.nodes()) {
-            if (n.tag().equals("label") && out.contains(n.id()) && n.attr("for") != null) {
-                model.byIdAttribute(n.scopeId(), n.attr("for")).forEach(t -> out.add(t.id()));
+            if (n.tag().equals("label") && out.contains(n.id()) && (n.attr("for") != null || n.refs().containsKey("for"))) {
+                model.refTargets(n, "for").forEach(g -> g.forEach(t -> out.add(t.id())));
             }
         }
         return out;
@@ -103,22 +113,17 @@ public final class SemanticAnalyzer {
         Set<String> describedBy = new HashSet<>();
         Set<String> errors = new HashSet<>();
         for (RawNode n : model.nodes()) {
-            String scope = n.scopeId();
-            String desc = n.attr("aria-describedby");
             boolean invalid = "true".equals(n.attr("aria-invalid"));
-            if (desc != null) {
-                for (String ref : desc.trim().split("\\s+")) {
-                    describedBy.add(scope + "|" + ref);
+            for (List<RawNode> g : model.refTargets(n, "aria-describedby")) {
+                for (RawNode t : g) {
+                    describedBy.add(t.id());
                     if (invalid) {
-                        errors.add(scope + "|" + ref);
+                        errors.add(t.id());
                     }
                 }
             }
-            String err = n.attr("aria-errormessage");
-            if (err != null) {
-                for (String ref : err.trim().split("\\s+")) {
-                    errors.add(scope + "|" + ref);
-                }
+            for (List<RawNode> g : model.refTargets(n, "aria-errormessage")) {
+                g.forEach(t -> errors.add(t.id()));
             }
         }
         return new SemanticClassifier.CrossReferences(describedBy, errors);

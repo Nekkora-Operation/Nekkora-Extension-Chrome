@@ -168,7 +168,7 @@
 
   const QUOTED = /'([^']*)'|"([^"]*)"/g;
   const CSS_TOKEN = /[#.](-?[A-Za-z_][A-Za-z0-9_-]*)/g;
-  const PAIR = /\b[A-Za-z][A-Za-z0-9-]*=([^\s,}\]"'()]+)/g;
+  const PAIR = /\b[A-Za-z][A-Za-z0-9-]*=([^\s,}\]"'()/[][^\s,}\]"'()]*)/g;
 
   function literalOk(v) {
     return v === '' || /^\d+$/.test(v) || v === HOLE || vocabularyOnly(v);

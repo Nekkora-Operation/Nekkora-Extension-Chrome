@@ -199,7 +199,8 @@ class FrameIntelligenceTest {
         assertEquals("SRCDOC", byId(g, "doc").documentKind());
         assertEquals("INITIAL_ABOUT_BLANK", byId(g, "lento").documentKind());
         assertEquals("LOADING", byId(g, "lento").status(), "carregamento pendente não é ausência");
-        assertEquals("http://127.0.0.1:8765/lento.html", byId(g, "lento").declaredSrc());
+        // CHROME-SECURITY-001 (nekkora-privacy/2): a URL declarada é um MODELO — segmento fora do vocabulário vira {…}
+        assertEquals("http://127.0.0.1:8765/" + com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE, byId(g, "lento").declaredSrc());
     }
 
     @Test

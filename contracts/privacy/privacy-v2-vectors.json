@@ -387,7 +387,7 @@
   },
   {
    "in": "https://app.exemplo/api/v2/clientes/483192",
-   "out": "https://app.exemplo/api/{…}/clientes/{…}"
+   "out": "https://app.exemplo/api/v2/clientes/{…}"
   },
   {
    "in": "https://app.exemplo/",
@@ -529,6 +529,14 @@
   },
   {
    "in": "a[href='/clientes/{…}']",
+   "out": false
+  },
+  {
+   "in": "//input[@id=//label[normalize-space(.)=\"Nome\"]/@for]",
+   "out": true
+  },
+  {
+   "in": "//input[@id=//label[normalize-space(.)=\"Nome do cliente João\"]/@for]",
    "out": false
   },
   {

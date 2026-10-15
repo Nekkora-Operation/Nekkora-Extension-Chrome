@@ -160,7 +160,7 @@ public final class IdentityFactory {
             return null;
         }
         try {
-            URI u = URI.create(doc.url());
+            URI u = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(doc.url()));
             return u.getScheme() + "://" + u.getAuthority() + (u.getPath() == null ? "" : u.getPath());
         } catch (IllegalArgumentException e) {
             return doc.url();

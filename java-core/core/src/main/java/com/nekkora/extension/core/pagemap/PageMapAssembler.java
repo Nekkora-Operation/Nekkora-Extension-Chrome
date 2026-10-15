@@ -140,7 +140,7 @@ public final class PageMapAssembler {
                 break;
             }
             Classification c = a.semantics().get(n.id());
-            if (!opts.includeContainers() && c.category() == ElementCategory.CONTAINER && n.ownText().isBlank()) {
+            if (!opts.includeContainers() && c.category() == ElementCategory.CONTAINER && !n.hasText()) {
                 continue;
             }
             selected.add(n);

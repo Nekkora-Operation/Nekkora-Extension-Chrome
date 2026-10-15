@@ -225,10 +225,10 @@ public final class ContextGraph {
     }
 
     private RawNode formOf(RawNode node, List<RawNode> ancestors) {
-        String formAttr = node.attr("form");
-        if (formAttr != null && !formAttr.isBlank()) {
-            RawNode f = model.resolveIdRef(node, formAttr).orElse(null);
-            if (f != null && f.tag().equals("form")) {
+        List<List<RawNode>> formRef = model.refTargets(node, "form");
+        if (!formRef.isEmpty() && formRef.get(0).size() == 1) {
+            RawNode f = formRef.get(0).get(0);
+            if (f.tag().equals("form")) {
                 return f;
             }
         }
@@ -346,12 +346,10 @@ public final class ContextGraph {
     }
 
     private ColumnContext columnContext(RawNode cell, RawNode row, RawNode table) {
-        String headers = cell.attr("headers");
-        if (headers != null && !headers.isBlank()) {
-            RawNode h = model.resolveIdRef(cell, headers.trim().split("\\s+")[0]).orElse(null);
-            if (h != null) {
-                return new ColumnContext(columnIndex(cell, row), model.visibleText(h), h.id(), "HEADERS_ATTRIBUTE");
-            }
+        List<List<RawNode>> headerRef = model.refTargets(cell, "headers");
+        if (!headerRef.isEmpty() && headerRef.get(0).size() == 1) {
+            RawNode h = headerRef.get(0).get(0);
+            return new ColumnContext(columnIndex(cell, row), model.visibleText(h), h.id(), "HEADERS_ATTRIBUTE");
         }
         int index = row == null ? -1 : columnIndex(cell, row);
         if (index < 0) {
@@ -506,7 +504,7 @@ public final class ContextGraph {
                     continue;
                 }
                 Classification c = semantics.get(d.id());
-                if (c.category() == ElementCategory.TEXT && !d.ownText().isBlank()) {
+                if (c.category() == ElementCategory.TEXT && !d.ownText().isBlank()) { // só texto que atravessou serve de contexto
                     String t = model.visibleText(d);
                     if (!t.isEmpty() && !t.equals(own)) {
                         out.add(TextNormalizer.truncate(t, 80));
@@ -556,10 +554,12 @@ public final class ContextGraph {
         idRefs(n, "aria-errormessage", RelationType.ERROR_MESSAGE, Basis.ARIA_ATTRIBUTE, out);
         idRefs(n, "aria-labelledby", RelationType.LABELLED_BY, Basis.ARIA_ATTRIBUTE, out);
         idRefs(n, "form", RelationType.FORM_OWNER, Basis.HTML_ATTRIBUTE, out);
-        if (n.tag().equals("label") && n.attr("for") != null) {
-            for (RawNode t : model.resolveIdRefAll(n, n.attr("for"))) {
-                out.add(new ContextRelation(RelationType.LABELS, n.id(), t.id(), Basis.HTML_ATTRIBUTE, "for=" + n.attr("for")));
-                break; // label[for] associa somente o primeiro elemento com o id
+        if (n.tag().equals("label") && (n.attr("for") != null || n.refs().containsKey("for"))) {
+            List<List<RawNode>> groups = model.refTargets(n, "for");
+            if (!groups.isEmpty() && !groups.get(0).isEmpty()) {
+                // label[for] associa somente o primeiro elemento com o id
+                out.add(new ContextRelation(RelationType.LABELS, n.id(), groups.get(0).get(0).id(), Basis.HTML_ATTRIBUTE,
+                        PageModel.refLabel(n, "for", groups.get(0), 0)));
             }
         }
         Classification c = semantics.find(n.id()).orElse(null);
@@ -581,17 +581,15 @@ public final class ContextGraph {
     }
 
     private void idRefs(RawNode n, String attr, RelationType type, Basis basis, List<ContextRelation> out) {
-        String v = n.attr(attr);
-        if (v == null || v.isBlank()) {
-            return;
-        }
-        for (String ref : v.trim().split("\\s+")) {
-            List<RawNode> targets = model.resolveIdRefAll(n, ref);
+        List<List<RawNode>> groups = model.refTargets(n, attr);
+        for (int i = 0; i < groups.size(); i++) {
+            List<RawNode> targets = groups.get(i);
+            String label = PageModel.refLabel(n, attr, targets, i);
             if (targets.size() == 1) {
-                out.add(new ContextRelation(type, n.id(), targets.get(0).id(), basis, attr + "=" + ref));
+                out.add(new ContextRelation(type, n.id(), targets.get(0).id(), basis, label));
             } else if (targets.size() > 1) {
                 for (RawNode t : targets) {
-                    out.add(new ContextRelation(type, n.id(), t.id(), basis, attr + "=" + ref + " (IDREF ambíguo: " + targets.size() + " elementos com o mesmo id)"));
+                    out.add(new ContextRelation(type, n.id(), t.id(), basis, label + " (IDREF ambíguo: " + targets.size() + " elementos com o mesmo id)"));
                 }
             }
         }

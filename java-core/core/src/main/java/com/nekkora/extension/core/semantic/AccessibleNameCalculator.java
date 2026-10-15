@@ -46,9 +46,8 @@ public final class AccessibleNameCalculator {
         NameSource source = NameSource.NONE;
 
         // 2B — aria-labelledby (não seguido recursivamente a partir de um nó já referenciado)
-        String labelledBy = node.attr("aria-labelledby");
-        if (labelledBy != null && !labelledBy.isBlank()) {
-            String text = fromReferences(node, labelledBy, model, w, true);
+        if (node.hasAttr("aria-labelledby") || node.refs().containsKey("aria-labelledby")) {
+            String text = fromReferences(node, "aria-labelledby", model, w, true);
             if (!text.isEmpty()) {
                 name = text;
                 source = NameSource.ARIA_LABELLEDBY;
@@ -108,9 +107,8 @@ public final class AccessibleNameCalculator {
         Walk dw = new Walk();
         dw.visited.add(node.id());
         String description = "";
-        String describedBy = node.attr("aria-describedby");
-        if (describedBy != null && !describedBy.isBlank()) {
-            description = fromReferences(node, describedBy, model, dw, true);
+        if (node.hasAttr("aria-describedby") || node.refs().containsKey("aria-describedby")) {
+            description = fromReferences(node, "aria-describedby", model, dw, true);
         }
         if (description.isEmpty()) {
             description = TextNormalizer.normalize(node.attr("aria-description"));
@@ -134,10 +132,10 @@ public final class AccessibleNameCalculator {
     // ------------------------------------------------------------------------------ passos
 
     /** 2B: texto das referências (IDREFs), na ordem declarada; ocultos INCLUÍDOS por estarem referenciados. */
-    private String fromReferences(RawNode from, String refs, PageModel model, Walk w, boolean recordSources) {
+    private String fromReferences(RawNode from, String attribute, PageModel model, Walk w, boolean recordSources) {
         List<String> parts = new ArrayList<>();
-        for (String ref : refs.trim().split("\\s+")) {
-            RawNode target = model.resolveIdRef(from, ref).orElse(null);
+        for (List<RawNode> group : model.refTargets(from, attribute)) {
+            RawNode target = group.size() == 1 ? group.get(0) : null; // ausente ou ambíguo: não contribui
             if (target != null && target.id().equals(from.id())) {
                 // Autorreferência (ex.: aria-labelledby="eu outro" + aria-label): o próprio nó contribui com a
                 // alternativa textual SEM reaplicar o passo 2B — aria-label (2C), nativa ou conteúdo.
@@ -218,9 +216,8 @@ public final class AccessibleNameCalculator {
                 continue;
             }
             // 2B/2C dentro do conteúdo: aria-labelledby e aria-label do descendente prevalecem.
-            String lb = c.attr("aria-labelledby");
-            if (lb != null && !lb.isBlank()) {
-                String t = fromReferences(c, lb, model, w, false);
+            if (c.hasAttr("aria-labelledby") || c.refs().containsKey("aria-labelledby")) {
+                String t = fromReferences(c, "aria-labelledby", model, w, false);
                 if (!t.isEmpty()) {
                     sb.append(' ').append(t);
                     continue;

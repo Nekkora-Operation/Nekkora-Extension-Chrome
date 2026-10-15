@@ -21,13 +21,13 @@ public final class UrlContextParser {
     public NavigationContext parse(String href, String title) {
         URI uri;
         try {
-            uri = URI.create(href);
+            uri = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(href));
         } catch (IllegalArgumentException | NullPointerException e) {
             return new NavigationContext(new NavigationContext.Observed(href, null, null, null, null, null, null, null,
                     Map.of(), null, title), new NavigationContext.Inferred(null, Map.of(), Map.of(), Map.of(),
                     List.of("URL não interpretável"), CAVEAT));
         }
-        String rawQuery = uri.getRawQuery();
+        String rawQuery = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.fromUri(uri.getRawQuery());
         Map<String, List<String>> query = parseQuery(rawQuery);
         String port = uri.getPort() < 0 ? "" : Integer.toString(uri.getPort());
         String host = uri.getHost() == null ? null : uri.getHost() + (port.isEmpty() ? "" : ":" + port);
@@ -75,6 +75,11 @@ public final class UrlContextParser {
             basis.add("tela: último segmento não numérico do caminho");
             return s;
         }
+        if (path.contains(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE)) {
+            // CHROME-SECURITY-001: os segmentos foram omitidos pela política — a tela não é inventada
+            basis.add("tela: não determinada (segmentos do caminho omitidos pela política de privacidade)");
+            return null;
+        }
         basis.add("tela: caminho raiz");
         return "root";
     }
@@ -83,7 +88,7 @@ public final class UrlContextParser {
         String[] parts = path.split("/");
         for (int i = parts.length - 1; i >= 0; i--) {
             String p = parts[i];
-            if (p.isBlank() || p.matches("\\d+") || p.matches("[0-9a-fA-F-]{16,}")) {
+            if (p.isBlank() || p.contains(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE) || p.matches("\\d+") || p.matches("[0-9a-fA-F-]{16,}")) {
                 continue;
             }
             return p.replaceAll("\\.html?$", "");
