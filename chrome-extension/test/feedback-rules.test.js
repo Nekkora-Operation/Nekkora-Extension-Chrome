@@ -92,3 +92,26 @@ test('S005-018 — valores de estado normalizados para o contrato', () => {
   assert.equal(F.stateValue(''), 'true', 'atributo booleano presente');
   assert.equal(F.stateValue('qualquer'), 'absent');
 });
+
+// ------------------------------------------------------------------------------------------- revisão PR #6 — P1-a
+
+test('REV-P1a — valor digitado que JÁ NÃO está no campo (limpo/removido/shadow) continua impedindo o texto: impressão digital do valor', () => {
+  const fp = F.createFingerprints();
+  fp.add('Kq7Segredo');
+  fp.add('joana prado');
+  // o campo foi limpo/removido: a lista de valores atuais está vazia, mas a impressão digital continua
+  assert.equal(F.messagePolicy('O código Kq7Segredo expirou.', [], fp).availability, 'SUPPRESSED');
+  assert.equal(F.messagePolicy('Olá, Joana Prado!', [], fp).availability, 'SUPPRESSED');
+  assert.equal(F.messagePolicy('olá, JOANA!', [], fp).availability, 'SUPPRESSED', 'parte do valor (palavra de 4+ letras)');
+  assert.equal(F.messagePolicy('Usuário ou senha inválidos.', [], fp).availability, 'AVAILABLE');
+  assert.ok(!JSON.stringify(fp).includes('Kq7Segredo') && !JSON.stringify(fp).toLowerCase().includes('joana'), 'só impressões, nunca o valor');
+});
+
+test('REV-P1a — fail-closed por forma: palavra com letras e dígitos, palavra com maiúscula interna e nome próprio fora do início são omitidos', () => {
+  for (const unsafe of ['O código Kq7Segredo expirou.', 'Olá, JoanaPrado!', 'Cliente Maria Souza já possui cadastro.', 'Atendente Carlos indisponível.']) {
+    assert.equal(F.messagePolicy(unsafe, []).availability, 'SUPPRESSED', unsafe);
+  }
+  for (const ok of ['Usuário ou senha inválidos.', 'Pedido registrado com sucesso.', '3 resultados encontrados.', 'Informe o CEP.', 'Senha incorreta.', 'Atualização concluída.']) {
+    assert.equal(F.messagePolicy(ok, []).availability, 'AVAILABLE', ok);
+  }
+});

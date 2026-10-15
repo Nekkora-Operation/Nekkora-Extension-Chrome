@@ -34,7 +34,9 @@ class EvidencePrivacyTest {
                 "Sessão eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U expirada",
                 "Authorization: Bearer abcdef1234567890ghij",
                 "Conta 98765432 bloqueada",
-                "Senha Senha2026Teste incorreta para token=a1b2c3d4e5f6a7b8c9d0e1f2")) {
+                "Senha Senha2026Teste incorreta para token=a1b2c3d4e5f6a7b8c9d0e1f2",
+                // revisão do PR #6: valor que a página repetiu depois de limpar o campo e dado de terceiro
+                "O código Kq7Segredo expirou.", "Olá, JoanaPrado!", "Cliente Maria Souza já possui cadastro.")) {
             ObjectNode p = evidence();
             ((ObjectNode) p.at("/details/message")).put("text", unsafe);
             EvidencePrivacy.reapply(p);
@@ -60,6 +62,14 @@ class EvidencePrivacyTest {
             assertFalse(json.contains(secret), secret + " em " + json);
         }
         assertTrue(inContract(p));
+    }
+
+    @Test
+    void mensagensComunsContinuamLiberadas() {
+        for (String ok : List.of("Usuário ou senha inválidos.", "Pedido registrado com sucesso.", "3 resultados encontrados.", "Informe o CEP.",
+                "Senha incorreta.", "Atualização concluída.")) {
+            assertTrue(EvidencePrivacy.safeMessage(ok), ok);
+        }
     }
 
     @Test

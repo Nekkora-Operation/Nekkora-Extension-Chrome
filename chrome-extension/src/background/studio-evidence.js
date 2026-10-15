@@ -103,8 +103,44 @@ export function createEvidencePipeline(deps) {
       m.delete(m.keys().next().value);
     }
     if (interact && WINDOW_ACTIONS.has(link.action)) {
-      r.evidence.open[key] = { frameId: entry.frameId, at: entry.receivedAt };
+      // vínculo técnico MÍNIMO persistido com a janela (revisão do PR #6): sobrevive a um reinício do service worker
+      r.evidence.open[key] = { frameId: entry.frameId, at: entry.receivedAt, eventId: entry.eventId, sequence: entry.sequence, action: link.action,
+        emitted: false };
+      deps.persist && deps.persist(r); // a janela aberta sobrevive a um reinício (e a perda, se houver, é declarada)
     }
+  }
+
+  /**
+   * Vínculo da interação: o da memória ou, depois de um reinício do service worker (memória vazia), o reconstruído do
+   * registro PERSISTIDO da janela — só se a etapa já tinha sido emitida (marcado na emissão, nunca deduzido por
+   * sequência ou por proximidade temporal). Etapa não emitida antes do reinício não existe mais: {lost: true}.
+   */
+  function linkFor(r, key) {
+    const m = linksOf(r);
+    const known = m.get(key);
+    if (known) {
+      return known;
+    }
+    const w = r.evidence.open[key];
+    if (!w || typeof w.eventId !== 'string') {
+      return null;
+    }
+    if (!w.emitted) {
+      return { lost: true };
+    }
+    const link = { key, frameId: w.frameId, action: w.action, interact: true, receivedAt: w.at, url: null, title: null, eventId: w.eventId,
+      sequence: w.sequence, emitted: true, queue: [], formSent: true, navKinds: [], restored: true };
+    m.set(key, link);
+    return link;
+  }
+
+  /** Observação de uma interação cuja etapa se perdeu num reinício: perda DECLARADA, nada é emitido sem etapa. */
+  function declareLost(r, key, closing) {
+    r.evidence.lost++;
+    if (closing) {
+      delete r.evidence.open[key];
+    }
+    deps.persist && deps.persist(r);
   }
 
   /** A etapa saiu: as evidências que esperavam por ela saem agora, em ordem. */
@@ -113,6 +149,10 @@ export function createEvidencePipeline(deps) {
       return;
     }
     const link = linksOf(r).get(key);
+    if (r.evidence.open[key]) {
+      r.evidence.open[key].emitted = true; // a etapa existe para o Studio: o vínculo pode ser reconstruído depois de um reinício
+      deps.persist && deps.persist(r);
+    }
     if (!link) {
       return;
     }
@@ -212,7 +252,11 @@ export function createEvidencePipeline(deps) {
       if (!e.open[key]) {
         return { ok: false, error: 'WINDOW_NOT_OPEN' }; // já encerrada (ex.: pelo próprio service worker) — exatamente uma vez
       }
-      const link = linksOf(r).get(key) || null;
+      const link = linkFor(r, key);
+      if (!link || link.lost) {
+        declareLost(r, key, true); // etapa perdida no reinício (ou desconhecida): a observação não é emitida sem vínculo
+        return { ok: false, error: 'LINK_LOST' };
+      }
       closeWindow(r, key, link, data.kind === 'complete' ? null : 'page', {
         at, signalsObserved: Math.max(0, Math.min(50, Number(data.signalsObserved) || 0)), limitations: clean(data.limitations, LIMITATIONS, 8),
         document: docOf(link || { frameId }, data.document),
@@ -224,7 +268,11 @@ export function createEvidencePipeline(deps) {
       return { ok: false, error: 'BAD_EVIDENCE' };
     }
     const ambiguous = data.localSeq == null || data.type === 'AMBIGUOUS_FEEDBACK';
-    const link = ambiguous ? null : linksOf(r).get(fkey + '|' + data.localSeq);
+    const link = ambiguous ? null : linkFor(r, fkey + '|' + data.localSeq);
+    if (!ambiguous && link && link.lost) {
+      declareLost(r, fkey + '|' + data.localSeq, false);
+      return { ok: false, error: 'LINK_LOST' };
+    }
     if (!ambiguous && (!link || !link.interact)) {
       e.dropped++; // interação desconhecida (recusada, retenção) ou não executada (CAPTURE_ONLY/PROPOSED): sem consequência
       return { ok: false, error: link ? 'NOT_INTERACT' : 'UNKNOWN_STEP' };
@@ -294,7 +342,12 @@ export function createEvidencePipeline(deps) {
     let n = 0;
     for (const key of Object.keys(r.evidence.open)) {
       if (frameId == null || r.evidence.open[key].frameId === frameId) {
-        closeWindow(r, key, linksOf(r).get(key) || null, limitation, { at: now(), signalsObserved: 0, limitations: [] });
+        const link = linkFor(r, key);
+        if (!link || link.lost) {
+          declareLost(r, key, true);
+        } else {
+          closeWindow(r, key, link, limitation, { at: now(), signalsObserved: 0, limitations: [] });
+        }
         n++;
       }
     }
@@ -352,6 +405,10 @@ export function createEvidencePipeline(deps) {
   function emit(r, link, f) {
     const e = r.evidence;
     if (e.halted) {
+      return;
+    }
+    if (!link && f.type !== 'AMBIGUOUS_FEEDBACK') {
+      e.lost++; // invariante do contrato: só a ambígua sai sem etapa — qualquer outra é perda declarada, nunca evento inválido
       return;
     }
     if (e.outbox.length >= MAX_EVIDENCE_PENDING) {

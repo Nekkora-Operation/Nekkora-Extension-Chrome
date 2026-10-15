@@ -545,6 +545,79 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
+    @DisplayName("REV-P1a — S005-047/048: valor digitado que some antes da mensagem (campo limpo, removido, em Shadow DOM) e dado de terceiro não saem")
+    void s005SensitiveFieldGone() throws Exception {
+        Page p = open(BASE + "sensivel.html");
+        String rid = id("rec");
+        start(rid, p);
+        type(p, By.id("token-temp"), "Kq7Segredo");
+        type(p, By.id("apelido"), "zorbalino");
+        WebDriver d = lab.driver();
+        WebElement palavra = d.findElement(By.id("caixa-segredo")).getShadowRoot().findElement(By.cssSelector("#palavra"));
+        new Actions(d).moveToElement(palavra).click().perform();
+        palavra.sendKeys("pirilampo");
+        List<String> buttons = List.of("limpa", "remove", "terceiro");
+        for (String b : buttons) {
+            click(p, By.id(b));
+            Thread.sleep(QUIET_MS);
+        }
+        WebElement enviar = d.findElement(By.id("caixa-segredo")).getShadowRoot().findElement(By.cssSelector("#enviar-palavra"));
+        new Actions(d).moveToElement(enviar).click().perform();
+        Thread.sleep(QUIET_MS);
+        List<JsonNode> s = awaitSteps(rid, 7);
+        for (JsonNode st : s) {
+            awaitWindowEnd(rid, st);
+        }
+        assertEquals("", lab.js(p, "return document.getElementById('token-temp').value"), "a página limpou o campo antes da mensagem");
+        assertEquals(0L, lab.js(p, "return document.querySelectorAll('#apelido').length"), "a página removeu o campo antes da mensagem");
+        List<JsonNode> msgs = evidences(rid).stream().filter(e -> type("VISIBLE_ERROR_MESSAGE").test(e)).toList();
+        assertEquals(4, msgs.size(), brief(evidences(rid)).toString());
+        for (JsonNode m : msgs) {
+            assertEquals("SUPPRESSED", m.at("/details/message/availability").asText(), "texto omitido: " + m);
+        }
+        assertNoSecretInEvidenceChannel("Kq7Segredo", "zorbalino", "pirilampo", "Maria Souza");
+        ackAll(rid);
+        op("studio.recording.finish", rid);
+    }
+
+    @Test
+    @DisplayName("REV-P1b — reinício REAL do service worker com a janela aberta: evidências com vínculo válido (nunca eventId nulo fora da ambígua), entrega reconciliada")
+    void s005ServiceWorkerRestartDuringWindow() throws Exception {
+        Page p = open(BASE + "tardia.html");
+        String rid = id("rec");
+        start(rid, p);
+        int before = studio.connections.get();
+        click(p, By.id("enviar")); // a mensagem aparece 1 s depois do clique
+        JsonNode enviar = awaitSteps(rid, 1).get(0); // a etapa já chegou ao Studio
+        Chrome002LifecycleIT.stopServiceWorker(); // reinício no meio da janela de observação (mesmo mecanismo da S002-020)
+        lab.call("studio.link.get", Map.of()); // acorda o service worker
+        BrowserLab.waitUntil(Duration.ofSeconds(60), () -> studio.connections.get() > before && studio.connected(), "host reconectado depois do reinício");
+        BrowserLab.waitUntil(Duration.ofSeconds(30), () -> {
+            JsonNode st = studio.call("studio.recording.status", studio.obj().put("recordingId", rid));
+            return st.at("/payload/recordings/0/evidence/lastSequence").asInt() >= 1;
+        }, "evidências produzidas depois do reinício");
+        JsonNode sync = studio.call("studio.recording.evidence.sync", studio.obj().put("recordingId", rid).put("afterSequence", 0));
+        assertTrue(sync.path("ok").asBoolean(), sync.toString()); // o que foi emitido sem Studio conectado volta pela reconciliação
+        JsonNode end = awaitWindowEnd(rid, enviar);
+        for (JsonNode e : evidences(rid)) {
+            assertTrue(!e.path("eventId").isNull() || "AMBIGUOUS_FEEDBACK".equals(e.path("type").asText()), "vínculo válido: " + e);
+            if (!e.path("eventId").isNull()) {
+                assertEquals(enviar.path("eventId").asText(), e.path("eventId").asText(), "vínculo exato, nunca por proximidade");
+            }
+        }
+        // o reinício reativa os sensores numa época nova: a janela antiga termina CONCLUÍDA ou INCOMPLETA COM o motivo declarado
+        assertTrue("OBSERVATION_COMPLETE".equals(end.path("type").asText())
+                || ("OBSERVATION_INCOMPLETE".equals(end.path("type").asText()) && end.path("limitations").size() > 0), brief(evidences(rid)).toString());
+        assertEquals(1, evidences(rid).stream().filter(e -> e.path("type").asText().startsWith("OBSERVATION_")).count(), "a janela termina exatamente uma vez");
+        ackAll(rid);
+        JsonNode st = studio.call("studio.recording.status", studio.obj().put("recordingId", rid));
+        assertEquals(0, st.at("/payload/recordings/0/evidence/pending").asInt(), "fila reconciliada: " + st);
+        lab.writeEvidence("S005-rev-sw-restart.json", M.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("step", enviar, "evidence", evidences(rid),
+                "status", st.at("/payload/recordings/0/evidence"))));
+        op("studio.recording.finish", rid);
+    }
+
+    @Test
     @DisplayName("S005-037/038 — pausa com observação aberta: INCOMPLETA (WINDOW_CUT_BY_PAUSE); a mensagem depois da pausa não é evidência")
     void s005PauseCutsWindow() throws Exception {
         Page p = open(BASE + "tardia.html");

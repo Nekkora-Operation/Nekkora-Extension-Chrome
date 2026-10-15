@@ -21,6 +21,15 @@
     <button id="longo" type="button">Termos</button>
     <button id="marcacao" type="button">Marcação</button>
   </p>
+  <h2>Campos que somem antes da mensagem (revisão do PR #6)</h2>
+  <p><label for="token-temp">Código temporário</label> <input id="token-temp" type="password">
+    <label for="apelido">Apelido</label> <input id="apelido" type="text"></p>
+  <p>
+    <button id="limpa" type="button">Expirar código (limpa o campo)</button>
+    <button id="remove" type="button">Saudar (remove o campo)</button>
+    <button id="terceiro" type="button">Consultar cliente</button>
+  </p>
+  <caixa-segredo id="caixa-segredo"></caixa-segredo>
   <div id="alerta" role="alert" class="alerta-erro"></div>
   <script>
     const alerta = document.getElementById('alerta');
@@ -31,6 +40,32 @@
     document.getElementById('eco').addEventListener('click', () => mostra('Olá, ' + document.getElementById('nome').value + '!'));
     document.getElementById('senha').addEventListener('click', () => mostra('O código ' + document.getElementById('codigo').value + ' expirou.'));
     document.getElementById('longo').addEventListener('click', () => mostra('Ao continuar você concorda com os termos de uso, a política de privacidade e o tratamento de dados descritos no contrato de prestação de serviços vigente nesta data.'));
+    // o campo é LIMPO antes da mensagem que repete o valor
+    document.getElementById('limpa').addEventListener('click', () => {
+      const c = document.getElementById('token-temp');
+      const v = c.value;
+      c.value = '';
+      mostra('O código ' + v + ' expirou.');
+    });
+    // o campo é REMOVIDO da página antes da mensagem
+    document.getElementById('remove').addEventListener('click', () => {
+      const c = document.getElementById('apelido');
+      const v = c.value;
+      c.remove();
+      mostra('Até logo, ' + v + '.');
+    });
+    // dado pessoal de terceiro que nunca foi digitado
+    document.getElementById('terceiro').addEventListener('click', () => mostra('Cliente Maria Souza já possui cadastro.'));
+    // campo dentro de Shadow DOM aberto; a mensagem repete o valor
+    class CaixaSegredo extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<label for="palavra">Palavra-chave</label> <input id="palavra" type="text"> <button id="enviar-palavra" type="button">Enviar palavra</button>';
+        root.getElementById('enviar-palavra').addEventListener('click', () => mostra('Palavra ' + root.getElementById('palavra').value + ' recusada.'));
+      }
+    }
+    customElements.define('caixa-segredo', CaixaSegredo);
     document.getElementById('marcacao').addEventListener('click', () => { alerta.innerHTML = 'Senha <b>incorreta</b>.'; });
   </script>
 </body>

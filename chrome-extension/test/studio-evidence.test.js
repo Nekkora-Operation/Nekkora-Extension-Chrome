@@ -632,3 +632,62 @@ test('S005-041/046 — degradação (captura encerrada ou permissão revogada): 
     assertContract(ev);
   }
 });
+
+// ------------------------------------------------------------------------------------------- revisão PR #6 — P1-b
+
+/** "Reinicia" o service worker: instância nova sobre o MESMO storage.session (e a mesma página/sensor), como o Chrome faz. */
+async function restartServiceWorker() {
+  const client = { post: async (m) => { posted.push(JSON.parse(JSON.stringify(m))); }, onHostMessage: () => {} };
+  recorder = createStudioRecorder({
+    client, broadcast: () => {}, withLock: withLock(), capture, policy, now: () => clock,
+    sleep: (ms) => (ms >= 1000 ? new Promise(() => {}) : (clock += ms, Promise.resolve())),
+    toContent: fakeContent, host: fakeHost, tabKey: (t) => 'tab-' + t, frameOfNode: () => 0,
+    errorInfo: (e) => ({ code: (e && e.code) || 'ERROR', message: String(e && e.message || e), reason: e && e.reason }),
+  });
+  recorder.init(Promise.resolve());
+  await recorder.restore();
+}
+
+test('REV-P1b — reinício do service worker com janela aberta e etapa JÁ emitida: a conclusão sai vinculada à etapa (nunca eventId nulo fora da ambígua)', async () => {
+  await start();
+  const { localSeq: s1 } = interact('CLICK');
+  await settle();
+  const [step] = steps();
+  assert.ok(step, 'etapa emitida antes do reinício');
+  await restartServiceWorker();
+  const r = feedback({ kind: 'complete', localSeq: s1, signalsObserved: 0, limitations: [] });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  await settle();
+  const ev = evidences();
+  assert.deepEqual(ev.map((e) => [e.type, e.eventId]), [['OBSERVATION_COMPLETE', step.eventId]], 'vínculo técnico persistido, sem proximidade temporal');
+  assertContract(ev);
+});
+
+test('REV-P1b — reinício com janela aberta e etapa NÃO emitida (perdida no reinício): perda declarada, nenhum evento inválido, fila segue', async () => {
+  await start();
+  hostDelay = new Promise(() => {}); // a correlação da etapa nunca termina neste processo
+  const { localSeq: s1 } = interact('CLICK');
+  await settle();
+  assert.equal(steps().length, 0);
+  hostDelay = null;
+  await restartServiceWorker();
+  feedback({ kind: 'evidence', localSeq: s1, type: 'VISIBLE_ALERT', confidence: 'TEMPORALLY_ASSOCIATED', region: 'alerta', message: { availability: 'NONE', text: null },
+    signals: ['ROLE_ALERT'], limitations: [] });
+  feedback({ kind: 'complete', localSeq: s1, signalsObserved: 1, limitations: [] });
+  await settle();
+  assert.equal(evidences().length, 0, 'nada é emitido sem etapa (e nada inválido entra na outbox)');
+  const st = await send('studio.recording.status', { recordingId: 'rec-5' });
+  assert.ok(st.payload.recordings[0].evidence.lost >= 2, 'perda declarada: ' + JSON.stringify(st.payload.recordings[0].evidence));
+  assert.equal(st.payload.recordings[0].evidence.pending, 0, 'outbox sem item inválido');
+  // a entrega continua: nova interação depois do reinício gera evidência normal
+  const { localSeq: s2 } = interact('CLICK', 'n4');
+  await settle();
+  feedback({ kind: 'complete', localSeq: s2, signalsObserved: 0, limitations: [] });
+  await settle();
+  const ev = evidences();
+  assert.equal(ev.length, 1);
+  assert.equal(ev[0].eventId, steps()[0].eventId);
+  assertContract(ev);
+  const fin = await send('studio.recording.finish', { recordingId: 'rec-5', operationId: 'op-f' });
+  assert.ok(fin.payload.summary.limitations.includes('EVIDENCE_LOST'));
+});

@@ -103,26 +103,82 @@
     }
   }
 
-  /** Valores presentes nos campos do documento — só para a comparação local da política de mensagem. */
-  function fieldValues(doc) {
+  /** Valor de um campo de texto (ou editável), ou null — lido só para a comparação local da política de mensagem. */
+  function valueOf(f) {
+    if (!f || f.nodeType !== 1) {
+      return null;
+    }
+    const tag = f.tagName;
+    if (tag === 'INPUT' && !VALUE_TYPES.has((f.getAttribute('type') || '').toLowerCase())) {
+      return null;
+    }
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      return String(f.value || '').slice(0, 200);
+    }
+    const ce = f.getAttribute && f.getAttribute('contenteditable');
+    return ce === '' || ce === 'true' || ce === 'plaintext-only' ? String(f.textContent || '').slice(0, 200) : null;
+  }
+
+  /**
+   * Valores presentes AGORA nos campos de todas as raízes observáveis (documento, iframes de mesma origem e shadow roots
+   * abertos — revisão do PR #6: antes só o documento) — só para a comparação local da política de mensagem.
+   */
+  function fieldValues() {
     const out = [];
-    try {
-      for (const f of doc.querySelectorAll('input, textarea')) {
-        if (out.length >= 50) {
-          break;
+    for (const r of roots()) {
+      try {
+        for (const f of r.querySelectorAll('input, textarea, [contenteditable]')) {
+          if (out.length >= 80) {
+            return out;
+          }
+          const v = valueOf(f);
+          if (v && v.length >= 3) {
+            out.push(v);
+          }
         }
-        if (f.tagName === 'INPUT' && !VALUE_TYPES.has((f.getAttribute('type') || '').toLowerCase())) {
-          continue;
-        }
-        const v = String(f.value || '');
-        if (v.length >= 3) {
-          out.push(v.slice(0, 200));
-        }
+      } catch (e) {
+        // raiz inacessível: a política continua valendo para o resto
       }
-    } catch (e) {
-      // documento inacessível: sem valores, a política continua valendo para o resto
     }
     return out;
+  }
+
+  /**
+   * Revisão do PR #6 (P1): impressões digitais (hashes salgados, nunca os valores) dos valores digitados, tiradas ANTES de
+   * a página poder limpar ou remover o campo: em cada interação entregue e quando um campo perde o foco (captura, antes
+   * dos manipuladores da página). Vivem só na memória deste documento (somem com ele) e servem só para OMITIR texto.
+   */
+  let prints = null;
+
+  function fingerprints() {
+    if (!prints && root.NekkoraFeedback) {
+      prints = FB().createFingerprints(300);
+    }
+    return prints;
+  }
+
+  function rememberValues() {
+    const fp = fingerprints();
+    if (fp) {
+      for (const v of fieldValues()) {
+        fp.add(v);
+      }
+    }
+  }
+
+  function onBlur(event) {
+    if (!st) {
+      return;
+    }
+    const el = event.composedPath ? event.composedPath()[0] : event.target;
+    const v = valueOf(el);
+    if (v && v.length >= 3 && fingerprints()) {
+      fingerprints().add(v);
+    }
+  }
+
+  function policy(raw) {
+    return FB().messagePolicy(raw, fieldValues(), fingerprints());
   }
 
   function masked(s, max) {
@@ -297,7 +353,7 @@
     }
     emit(fresh, {
       type: 'VALIDATION_FEEDBACK', classification: 'VALIDATION_INDICATOR', confidence: own ? 'DIRECTLY_OBSERVED' : 'TEMPORALLY_ASSOCIATED',
-      region: regionLabel(el, 'campo'), field: accessibleName(el), signals, message: FB().messagePolicy(rawMessage, fieldValues(doc)),
+      region: regionLabel(el, 'campo'), field: accessibleName(el), signals, message: policy(rawMessage),
     }, el, at);
   }
 
@@ -357,7 +413,7 @@
     }
     const word = cls.type === 'VISIBLE_ERROR_MESSAGE' ? 'mensagem de erro' : cls.type === 'VISIBLE_STATUS_MESSAGE' ? 'status' : 'alerta';
     emit(fresh, { type: cls.type, classification: cls.classification, region: regionLabel(el, word), signals: cls.signals,
-      message: FB().messagePolicy(text(el), fieldValues(doc)) }, el, at);
+      message: policy(text(el)) }, el, at);
   }
 
   function stateChanges(w, at) {
@@ -537,6 +593,7 @@
       regionIds = new WeakMap();
       for (const w of windowsOf()) {
         w.addEventListener('invalid', onInvalid, { capture: true, passive: true });
+        w.addEventListener('blur', onBlur, { capture: true, passive: true });
         st.listeners.push(w);
       }
       return true;
@@ -549,6 +606,7 @@
       if (!st || !FB().opensWindow(i.action, 'CAPTURE_AND_INTERACT') || i.observation === 'PROPOSED') {
         return;
       }
+      rememberValues(); // antes de a página reagir à ação (pode limpar ou remover o campo)
       scan(st.windows.length > 0); // registra a linha de base (e entrega o que mudou para as janelas já abertas)
       if (st.windows.length >= MAX_WINDOWS) {
         close(st.windows[0], 'EVIDENCE_LIMIT_REACHED');
@@ -589,6 +647,7 @@
       disconnect();
       for (const w of st.listeners) {
         w.removeEventListener('invalid', onInvalid, { capture: true, passive: true });
+        w.removeEventListener('blur', onBlur, { capture: true, passive: true });
       }
       st = null;
       return lastInEpoch;
