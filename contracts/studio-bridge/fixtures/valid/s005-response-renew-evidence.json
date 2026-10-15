@@ -1,0 +1,28 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.recording.renew",
+  "id": "c-50",
+  "seq": 71,
+  "ok": true,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "state": "RECORDING",
+    "expiresInMs": 30000,
+    "steps": {
+      "enabled": true,
+      "lastSequence": 3,
+      "ackedSequence": 3,
+      "pending": 0,
+      "lost": 0
+    },
+    "evidence": {
+      "enabled": true,
+      "lastSequence": 6,
+      "ackedSequence": 4,
+      "pending": 2,
+      "lost": 0
+    }
+  },
+  "error": null
+}
