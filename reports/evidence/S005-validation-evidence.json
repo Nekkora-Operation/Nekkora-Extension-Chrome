@@ -1,10 +1,10 @@
 {
   "steps" : [ {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
     "sequence" : 1,
-    "routeRef" : "route-71befa",
-    "observedAt" : "2026-10-15T19:59:21.947Z",
+    "routeRef" : "route-a0cc04",
+    "observedAt" : "2026-10-15T20:44:54.063Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -82,9 +82,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-acd0338f-5f4d-400d-9e08-924c28401b79",
+        "targetId" : "tgt-3714e2c2-4907-4dbb-8f8b-4cf083791540",
         "nodeId" : "n15",
-        "captureId" : "cap-ps-mv9ypmzq-ftby5h-2",
+        "captureId" : "cap-ps-mva0c744-t5wr6z-2",
         "documentId" : "doc:f0"
       }
     },
@@ -102,11 +102,11 @@
     "notes" : [ ],
     "events" : 5
   }, {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
     "sequence" : 2,
-    "routeRef" : "route-71befa",
-    "observedAt" : "2026-10-15T19:59:21.951Z",
+    "routeRef" : "route-a0cc04",
+    "observedAt" : "2026-10-15T20:44:54.067Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -184,9 +184,9 @@
       } ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-a9854cb5-19ec-4b8f-bcd1-13e5a4d96ea2",
+        "targetId" : "tgt-109cb2be-c785-4a63-9b4d-f446b1dc79f7",
         "nodeId" : "n17",
-        "captureId" : "cap-ps-mv9ypmzq-ftby5h-2",
+        "captureId" : "cap-ps-mva0c744-t5wr6z-2",
         "documentId" : "doc:f0"
       }
     },
@@ -205,12 +205,12 @@
     "events" : 1
   } ],
   "evidence" : [ {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-1",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-1",
     "evidenceSequence" : 1,
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:59:21.951Z",
+    "observedAt" : "2026-10-15T20:44:54.067Z",
     "type" : "VALIDATION_FEEDBACK",
     "source" : "FORM_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -219,16 +219,16 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
     },
     "details" : {
-      "region" : "campo do formulário cadastro",
+      "region" : "região de validação",
       "message" : {
         "availability" : "SUPPRESSED",
         "text" : null
       },
-      "field" : "CEP",
+      "field" : "campo de texto",
       "state" : null,
       "navigation" : null,
       "signals" : [ "ARIA_INVALID", "ARIA_ERRORMESSAGE" ],
@@ -237,12 +237,12 @@
     },
     "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-2",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-2",
     "evidenceSequence" : 2,
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:21.952Z",
+    "observedAt" : "2026-10-15T20:44:54.068Z",
     "type" : "VALIDATION_FEEDBACK",
     "source" : "FORM_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -251,16 +251,16 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
     },
     "details" : {
-      "region" : "campo do formulário cadastro",
+      "region" : "região de validação",
       "message" : {
         "availability" : "SUPPRESSED",
         "text" : null
       },
-      "field" : "E-mail",
+      "field" : "campo de e-mail",
       "state" : null,
       "navigation" : null,
       "signals" : [ "NATIVE_INVALID" ],
@@ -269,12 +269,12 @@
     },
     "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-3",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-3",
     "evidenceSequence" : 3,
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-1",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:59:24.950Z",
+    "observedAt" : "2026-10-15T20:44:57.065Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -283,7 +283,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
     },
     "details" : {
@@ -301,12 +301,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-05c8b67a-a950-4957-a9e7-e1e39071befa",
-    "evidenceId" : "evd-0-4957-a9e7-e1e39071befa-4",
+    "recordingId" : "rec-4ed0523e-244f-4252-a894-47fac7a0cc04",
+    "evidenceId" : "evd-f-4252-a894-47fac7a0cc04-4",
     "evidenceSequence" : 4,
-    "eventId" : "ev-0-4957-a9e7-e1e39071befa-2",
+    "eventId" : "ev-f-4252-a894-47fac7a0cc04-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:24.954Z",
+    "observedAt" : "2026-10-15T20:44:57.070Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -315,7 +315,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Validação (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/validacao.html"
     },
     "details" : {

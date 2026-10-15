@@ -692,3 +692,28 @@ test('REV-P1b — reinício com janela aberta e etapa NÃO emitida (perdida no r
   const fin = await send('studio.recording.finish', { recordingId: 'rec-5', operationId: 'op-f' });
   assert.ok(fin.payload.summary.limitations.includes('EVIDENCE_LOST'));
 });
+
+// ------------------------------------------------------------------------------------------- revisão final — metadados
+
+test('REV-final P1 — 2ª barreira: região, campo e título com texto da página não seguem (só descrições controladas)', async () => {
+  await start();
+  const { localSeq: s1 } = interact('CLICK');
+  feedback({ kind: 'evidence', localSeq: s1, type: 'VISIBLE_ERROR_MESSAGE', classification: 'ERROR_INDICATOR', confidence: 'TEMPORALLY_ASSOCIATED',
+    region: 'mensagem de erro o cliente joão já existe', field: 'telefone do cliente joão', message: { availability: 'SUPPRESSED', text: null },
+    document: { childFrame: false, inShadow: false, title: 'o cliente joão já existe', url: 'http://127.0.0.1:18765/lab/studio005/metadados.html' },
+    signals: ['ROLE_ALERT'], limitations: [] });
+  feedback({ kind: 'evidence', localSeq: s1, type: 'VALIDATION_FEEDBACK', classification: 'VALIDATION_INDICATOR', confidence: 'TEMPORALLY_ASSOCIATED',
+    region: 'região de validação', field: 'campo de telefone', message: { availability: 'NONE', text: null }, signals: ['ARIA_INVALID'], limitations: [] });
+  await settle();
+  const ev = evidences();
+  assert.equal(ev.length, 2);
+  for (const e of ev) {
+    assert.ok(!JSON.stringify(e).includes('joão') && !JSON.stringify(e).includes('cliente'), JSON.stringify(e));
+    assert.equal(e.document.title, null, 'título da página não segue');
+  }
+  assert.equal(ev[0].details.region, null, 'região poluída com texto da página é descartada (a descrição controlada nasce na origem)');
+  assert.equal(ev[0].details.field, null, 'nome livre de campo não segue');
+  assert.equal(ev[1].details.region, 'região de validação');
+  assert.equal(ev[1].details.field, 'campo de telefone', 'descrição controlada do tipo de campo');
+  assertContract(ev);
+});

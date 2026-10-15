@@ -9,7 +9,8 @@ import com.nekkora.extension.core.privacy.Privacy;
  * Terceira barreira de privacidade das EVIDÊNCIAS observadas (STUDIO-005), no host, antes de sair para o Studio. O host
  * não confia na sanitização do content script nem na do service worker:
  * <ul>
- *   <li>título, região e campo passam pela política Java ({@link Privacy#maskText});</li>
+ *   <li>METADADOS (revisão final do PR #6): região e campo só seguem se forem uma DESCRIÇÃO CONTROLADA do vocabulário
+ *       ({@link #REGION_LABELS}, {@link #FIELD_LABELS}); o título do documento nunca segue — tudo isso é texto da página;</li>
  *   <li>URLs são sanitizadas de novo;</li>
  *   <li>MODO ESTRITO (revisão final do PR #6): o texto livre de uma mensagem da página NUNCA segue — havendo texto, ele
  *       é removido (availability=SUPPRESSED, text=null) com a limitação MESSAGE_SUPPRESSED, qualquer que seja o conteúdo.
@@ -20,6 +21,13 @@ import com.nekkora.extension.core.privacy.Privacy;
  */
 final class EvidencePrivacy {
     static final int MESSAGE_MAX = 160;
+    /** Descrições controladas de região (as mesmas da extensão e do Studio). */
+    static final java.util.Set<String> REGION_LABELS = java.util.Set.of("mensagem de erro", "mensagem de status", "alerta", "região de validação",
+            "indicador de carregamento", "região de conteúdo", "elemento acionado", "formulário");
+    /** Descrições controladas do TIPO de campo (nunca o rótulo). */
+    static final java.util.Set<String> FIELD_LABELS = java.util.Set.of("campo de texto", "campo de e-mail", "campo de senha", "campo de telefone",
+            "campo numérico", "campo de pesquisa", "campo de endereço", "campo de data e hora", "caixa de seleção", "opção de escolha", "lista de seleção",
+            "área de texto", "campo editável", "campo");
 
     private EvidencePrivacy() {
     }
@@ -29,12 +37,14 @@ final class EvidencePrivacy {
             return;
         }
         if (p.path("document") instanceof ObjectNode d) {
-            mask(d, "title");
+            if (d.has("title")) {
+                d.putNull("title"); // texto da página: nunca segue
+            }
             url(d, "url");
         }
         if (p.path("details") instanceof ObjectNode det) {
-            mask(det, "region");
-            mask(det, "field");
+            controlled(det, "region", REGION_LABELS);
+            controlled(det, "field", FIELD_LABELS);
             if (det.path("navigation") instanceof ObjectNode n) {
                 url(n, "url");
             }
@@ -60,10 +70,10 @@ final class EvidencePrivacy {
         return false;
     }
 
-    private static void mask(ObjectNode o, String field) {
+    private static void controlled(ObjectNode o, String field, java.util.Set<String> allowed) {
         JsonNode v = o.get(field);
-        if (v != null && v.isTextual()) {
-            o.put(field, Privacy.maskText(v.asText()));
+        if (v != null && !v.isNull() && !(v.isTextual() && allowed.contains(v.asText()))) {
+            o.putNull(field); // fora do vocabulário = texto da página
         }
     }
 

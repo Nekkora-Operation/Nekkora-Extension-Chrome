@@ -23,8 +23,8 @@ validação nativa), nunca do texto e nunca só de classe CSS.
 ## Validação
 
 - **Da aplicação**: o campo passou a `aria-invalid=true`. A mensagem vem do elemento indicado por `aria-errormessage`,
-  quando visível, ou de `validationMessage`, sempre pela política de mensagem. O campo é identificado pelo nome acessível
-  (`aria-label`, `aria-labelledby`, `<label>`, `placeholder` ou `title`, mascarado).
+  quando visível, ou de `validationMessage`, sempre pela política de mensagem. O campo é descrito só pelo **tipo** do controle
+  (ex.: `campo de telefone`, vocabulário controlado da revisão 3); rótulo, `placeholder` e nome acessível não são lidos.
 - **Nativa**: o evento `invalid` que o **próprio navegador** dispara quando recusa o envio. É escutado na captura, e
   nada é disparado pela extensão: nada de `reportValidity()` ou `checkValidity()`. Limitação: o `invalid` não atravessa
   shadow roots.

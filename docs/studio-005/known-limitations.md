@@ -29,3 +29,7 @@
     são associadas a ações anteriores ao reinício (os candidatos ficam só na memória). A persistência definitiva é da STUDIO-006.
 12. **Ordem entre documentos**: a sequência das evidências é a ordem de emissão no service worker (técnica), não a
     ordem absoluta entre iframes.
+13. **Metadados controlados (revisão 3):** região e campo são descrições genéricas do vocabulário (ex.: "mensagem de erro",
+    "campo de telefone"); o Studio não sabe *qual* campo foi validado pelo rótulo. O título da página não é enviado.
+14. **Canal de etapas e caminho das URLs:** fora do canal de evidências, o evento de etapa (STUDIO-003) ainda leva o nome
+    acessível do elemento, e o caminho de uma URL sanitizada pode conter texto. Registrados para a CHROME-SECURITY-001.

@@ -79,6 +79,25 @@ class EvidencePrivacyTest {
     }
 
     @Test
+    void revisaoFinalMetadadosComTextoDaPaginaNaoAtravessamOHost() throws Exception {
+        ObjectNode p = evidence();
+        ((ObjectNode) p.get("details")).put("region", "mensagem de erro o cliente joão já existe").put("field", "telefone do cliente joão");
+        ((ObjectNode) p.get("document")).put("title", "o cliente joão já existe");
+        EvidencePrivacy.reapply(p);
+        String json = p.toString();
+        assertFalse(json.contains("joão") || json.contains("cliente"), json);
+        assertTrue(p.at("/document/title").isNull());
+        assertTrue(p.at("/details/region").isNull(), "rótulo fora das descrições controladas não segue");
+        assertTrue(p.at("/details/field").isNull());
+        assertTrue(inContract(p));
+        ObjectNode ok = evidence();
+        ((ObjectNode) ok.get("details")).put("region", "mensagem de erro").put("field", "campo de telefone");
+        EvidencePrivacy.reapply(ok);
+        assertEquals("mensagem de erro", ok.at("/details/region").asText(), "descrição controlada segue");
+        assertEquals("campo de telefone", ok.at("/details/field").asText());
+    }
+
+    @Test
     void reaplicarEIdempotenteEMensagemSemTextoContinuaSemTexto() throws Exception {
         ObjectNode p = evidence();
         EvidencePrivacy.reapply(p);

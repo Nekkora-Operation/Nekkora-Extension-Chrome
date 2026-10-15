@@ -1,17 +1,10 @@
 {
-  "status" : {
-    "enabled" : true,
-    "lastSequence" : 2,
-    "ackedSequence" : 2,
-    "pending" : 0,
-    "lost" : 0
-  },
   "step" : {
-    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
-    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
     "sequence" : 1,
-    "routeRef" : "route-43bb99",
-    "observedAt" : "2026-10-15T19:59:19.596Z",
+    "routeRef" : "route-244e04",
+    "observedAt" : "2026-10-15T20:44:51.711Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -76,9 +69,9 @@
       "context" : [ ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-44db954f-d771-454b-a72f-ff52195d02e0",
+        "targetId" : "tgt-d1b35a0d-37cb-42a7-92ad-f52db657efb1",
         "nodeId" : "n9",
-        "captureId" : "cap-ps-mv9yplaw-ft4oyi-1",
+        "captureId" : "cap-ps-mva0c5ei-inwve8-1",
         "documentId" : "doc:f0"
       }
     },
@@ -97,12 +90,12 @@
     "events" : 1
   },
   "evidence" : [ {
-    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
-    "evidenceId" : "evd-5-4de8-aa8c-d553ab43bb99-1",
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "evidenceId" : "evd-e-4242-8ca4-21ba56244e04-1",
     "evidenceSequence" : 1,
-    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:59:20.717Z",
+    "observedAt" : "2026-10-15T20:44:52.828Z",
     "type" : "VISIBLE_STATUS_MESSAGE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -111,11 +104,11 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Mensagem tardia (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/tardia.html"
     },
     "details" : {
-      "region" : "status",
+      "region" : "mensagem de status",
       "message" : {
         "availability" : "SUPPRESSED",
         "text" : null
@@ -129,12 +122,12 @@
     },
     "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-15a61d13-1cc5-4de8-aa8c-d553ab43bb99",
-    "evidenceId" : "evd-5-4de8-aa8c-d553ab43bb99-2",
+    "recordingId" : "rec-d17e6f01-178e-4242-8ca4-21ba56244e04",
+    "evidenceId" : "evd-e-4242-8ca4-21ba56244e04-2",
     "evidenceSequence" : 2,
-    "eventId" : "ev-5-4de8-aa8c-d553ab43bb99-1",
+    "eventId" : "ev-e-4242-8ca4-21ba56244e04-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:59:20.905Z",
+    "observedAt" : "2026-10-15T20:44:53.086Z",
     "type" : "OBSERVATION_INCOMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -143,7 +136,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Mensagem tardia (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/tardia.html"
     },
     "details" : {
@@ -160,5 +153,12 @@
       "signalsObserved" : 1
     },
     "limitations" : [ "PARTIAL_COVERAGE" ]
-  } ]
+  } ],
+  "status" : {
+    "enabled" : true,
+    "lastSequence" : 2,
+    "ackedSequence" : 2,
+    "pending" : 0,
+    "lost" : 0
+  }
 }

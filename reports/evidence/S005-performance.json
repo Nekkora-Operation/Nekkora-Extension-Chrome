@@ -1,19 +1,19 @@
 {
   "withoutEvidence" : {
     "clickToStepMs" : {
-      "max" : 836,
-      "p50" : 814,
-      "p95" : 827
+      "p95" : 839,
+      "max" : 915,
+      "p50" : 809
     }
   },
   "withEvidence" : {
     "clickToStepMs" : {
-      "max" : 832,
-      "p50" : 812,
-      "p95" : 818
+      "p95" : 820,
+      "max" : 842,
+      "p50" : 810
     },
     "evidenceEvents" : 16,
-    "evidenceBytesMax" : 709,
+    "evidenceBytesMax" : 695,
     "pipeline" : {
       "byType" : {
         "AMBIGUOUS_FEEDBACK" : 1,
@@ -27,7 +27,7 @@
         "samples" : 16
       },
       "incomplete" : 0,
-      "lastObservedAt" : "2026-10-15T20:00:01.494Z",
+      "lastObservedAt" : "2026-10-15T20:45:33.704Z",
       "lost" : 0,
       "openWindows" : 0,
       "pending" : 16,

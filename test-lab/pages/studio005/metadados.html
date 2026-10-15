@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Metadados das mensagens (STUDIO-005)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Metadados das mensagens (STUDIO-005)</h1>
+  <p class="muted">Revisão final do PR #6: o texto da página pode chegar por outros campos da evidência além do texto da
+    mensagem — rótulo da região (aria-label / aria-labelledby), nome do campo validado e título do documento. Dado
+    fictício de terceiro, só em minúsculas, nunca digitado: "o cliente joão já existe".</p>
+  <p>
+    <button id="rotulo" type="button">Verificar (aria-label)</button>
+    <button id="rotulo-ref" type="button">Verificar (aria-labelledby)</button>
+    <button id="titulo" type="button">Verificar (título)</button>
+  </p>
+  <p><label for="fone">telefone do cliente joão</label> <input id="fone" type="tel"
+    aria-errormessage="fone-erro"> <span id="fone-erro" hidden>telefone inválido</span>
+    <button id="validar-fone" type="button">Validar telefone</button></p>
+  <span id="texto-ref" hidden>o cliente joão já existe</span>
+  <div id="area"></div>
+  <p id="status-titulo" role="status"></p>
+  <script>
+    const area = document.getElementById('area');
+    function alerta(attrs) {
+      area.innerHTML = '';
+      const d = document.createElement('div');
+      d.setAttribute('role', 'alert');
+      d.className = 'error';
+      for (const [k, v] of Object.entries(attrs)) d.setAttribute(k, v);
+      d.textContent = 'o cliente joão já existe';
+      area.appendChild(d);
+    }
+    document.getElementById('rotulo').addEventListener('click', () => alerta({ 'aria-label': 'o cliente joão já existe' }));
+    document.getElementById('rotulo-ref').addEventListener('click', () => alerta({ 'aria-labelledby': 'texto-ref' }));
+    document.getElementById('validar-fone').addEventListener('click', () => {
+      const f = document.getElementById('fone');
+      f.setAttribute('aria-invalid', 'true');
+      document.getElementById('fone-erro').hidden = false;
+    });
+    document.getElementById('titulo').addEventListener('click', () => {
+      document.title = 'o cliente joão já existe';
+      document.getElementById('status-titulo').textContent = 'verificado';
+    });
+  </script>
+</body>
+</html>

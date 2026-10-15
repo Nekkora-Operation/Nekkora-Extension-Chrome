@@ -1,10 +1,10 @@
 {
   "steps" : [ {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-1",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-1",
     "sequence" : 1,
-    "routeRef" : "route-fa96c3",
-    "observedAt" : "2026-10-15T19:59:10.787Z",
+    "routeRef" : "route-a16db8",
+    "observedAt" : "2026-10-15T20:44:42.997Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "FILL",
@@ -78,9 +78,9 @@
       "context" : [ ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-16138687-10e0-4b07-8fd1-86a60c21bb62",
+        "targetId" : "tgt-9648353c-f6f7-41e3-84a3-c9ed5b3d5b94",
         "nodeId" : "n12",
-        "captureId" : "cap-ps-mv9ypedx-yi1za8-1",
+        "captureId" : "cap-ps-mva0byl9-hhnnqb-1",
         "documentId" : "doc:f0"
       }
     },
@@ -98,11 +98,11 @@
     "notes" : [ ],
     "events" : 10
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "sequence" : 2,
-    "routeRef" : "route-fa96c3",
-    "observedAt" : "2026-10-15T19:59:10.789Z",
+    "routeRef" : "route-a16db8",
+    "observedAt" : "2026-10-15T20:44:42.999Z",
     "mode" : "CAPTURE_AND_INTERACT",
     "observation" : "INTERACTION_OBSERVED",
     "action" : "CLICK",
@@ -167,9 +167,9 @@
       "context" : [ ],
       "lookalikes" : 0,
       "correlation" : {
-        "targetId" : "tgt-00e5c5f4-815c-487f-8e63-0fd8cbcf7ae1",
+        "targetId" : "tgt-5759687d-0fd6-49e9-8b32-7a7d2a01b9dd",
         "nodeId" : "n13",
-        "captureId" : "cap-ps-mv9ypedx-yi1za8-2",
+        "captureId" : "cap-ps-mva0byl9-hhnnqb-2",
         "documentId" : "doc:f0"
       }
     },
@@ -188,12 +188,12 @@
     "events" : 1
   } ],
   "evidence" : [ {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-1",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-1",
     "evidenceSequence" : 1,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:10.895Z",
+    "observedAt" : "2026-10-15T20:44:43.103Z",
     "type" : "LOADING_INDICATOR",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -202,11 +202,11 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
-      "region" : "indicador de carregamento Carregando resultados",
+      "region" : "indicador de carregamento",
       "message" : {
         "availability" : "NONE",
         "text" : null
@@ -220,12 +220,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-2",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-2",
     "evidenceSequence" : 2,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:10.895Z",
+    "observedAt" : "2026-10-15T20:44:43.103Z",
     "type" : "LOADING_INDICATOR",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -234,7 +234,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
@@ -252,12 +252,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-3",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-3",
     "evidenceSequence" : 3,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:12.102Z",
+    "observedAt" : "2026-10-15T20:44:44.311Z",
     "type" : "LOADING_FINISHED",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -266,11 +266,11 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
-      "region" : "indicador de carregamento Carregando resultados",
+      "region" : "indicador de carregamento",
       "message" : {
         "availability" : "NONE",
         "text" : null
@@ -284,12 +284,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-4",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-4",
     "evidenceSequence" : 4,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:12.102Z",
+    "observedAt" : "2026-10-15T20:44:44.311Z",
     "type" : "LOADING_FINISHED",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -298,7 +298,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
@@ -316,12 +316,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-5",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-5",
     "evidenceSequence" : 5,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:12.102Z",
+    "observedAt" : "2026-10-15T20:44:44.311Z",
     "type" : "CONTENT_CHANGED",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -330,11 +330,11 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
-      "region" : "região",
+      "region" : "região de conteúdo",
       "message" : {
         "availability" : "NONE",
         "text" : null
@@ -348,12 +348,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-6",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-6",
     "evidenceSequence" : 6,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:12.102Z",
+    "observedAt" : "2026-10-15T20:44:44.311Z",
     "type" : "VISIBLE_STATUS_MESSAGE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -362,11 +362,11 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
-      "region" : "status",
+      "region" : "mensagem de status",
       "message" : {
         "availability" : "SUPPRESSED",
         "text" : null
@@ -380,12 +380,12 @@
     },
     "limitations" : [ "MESSAGE_SUPPRESSED" ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-7",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-7",
     "evidenceSequence" : 7,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-1",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-1",
     "stepSequence" : 1,
-    "observedAt" : "2026-10-15T19:59:13.802Z",
+    "observedAt" : "2026-10-15T20:44:46.001Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -394,7 +394,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {
@@ -412,12 +412,12 @@
     },
     "limitations" : [ ]
   }, {
-    "recordingId" : "rec-9e3ee482-f8f6-47e7-b7ea-92a9e8fa96c3",
-    "evidenceId" : "evd-6-47e7-b7ea-92a9e8fa96c3-8",
+    "recordingId" : "rec-34e12034-2161-4358-bd16-42d198a16db8",
+    "evidenceId" : "evd-1-4358-bd16-42d198a16db8-8",
     "evidenceSequence" : 8,
-    "eventId" : "ev-6-47e7-b7ea-92a9e8fa96c3-2",
+    "eventId" : "ev-1-4358-bd16-42d198a16db8-2",
     "stepSequence" : 2,
-    "observedAt" : "2026-10-15T19:59:13.896Z",
+    "observedAt" : "2026-10-15T20:44:46.111Z",
     "type" : "OBSERVATION_COMPLETE",
     "source" : "FEEDBACK_OBSERVER",
     "relation" : "AFTER_ACTION",
@@ -426,7 +426,7 @@
     "document" : {
       "frame" : "MAIN",
       "inShadow" : false,
-      "title" : "Pesquisa com carregamento (STUDIO-005)",
+      "title" : null,
       "url" : "http://127.0.0.1:18765/lab/studio005/pesquisa.html"
     },
     "details" : {

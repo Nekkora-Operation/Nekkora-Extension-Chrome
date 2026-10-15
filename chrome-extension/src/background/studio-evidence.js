@@ -186,20 +186,19 @@ export function createEvidencePipeline(deps) {
 
   // ------------------------------------------------------------------------- 2ª barreira
 
-  function none() {
-    return { availability: 'NONE', text: null };
+  /** Metadados textuais: só o vocabulário controlado segue (revisão final do PR #6). */
+  function controlledRegion(v) {
+    const r = globalThis.NekkoraFeedback;
+    return r ? r.controlledRegion(v) : null;
   }
 
-  function mask(v, max) {
-    if (v == null || v === '') {
-      return null;
-    }
-    const s = String(v).replace(/\s+/g, ' ').trim().slice(0, max);
-    const p = privacy();
-    if (!s || (p && p.looksSecret(s))) {
-      return null;
-    }
-    return p ? p.maskText(s).slice(0, max) : s;
+  function controlledField(v) {
+    const r = globalThis.NekkoraFeedback;
+    return r ? r.controlledField(v) : null;
+  }
+
+  function none() {
+    return { availability: 'NONE', text: null };
   }
 
   function url(v) {
@@ -223,7 +222,7 @@ export function createEvidencePipeline(deps) {
     return {
       frame: link && link.frameId === 0 && !child ? 'MAIN' : (link || child ? 'FRAME' : 'MAIN'),
       inShadow: !!(d && d.inShadow),
-      title: mask(d ? d.title : link && link.title, 120),
+      title: null, // texto da página (revisão final do PR #6): não segue
       url: url(d ? d.url : link && link.url),
     };
   }
@@ -296,9 +295,9 @@ export function createEvidencePipeline(deps) {
       confidence: ambiguous ? 'AMBIGUOUS' : (CONFIDENCE.has(data.confidence) && data.confidence !== 'AMBIGUOUS' && data.confidence !== 'INCOMPLETE' ? data.confidence : 'TEMPORALLY_ASSOCIATED'),
       classification: CLASSIFICATION.has(data.classification) ? data.classification : (ambiguous ? 'UNKNOWN_FEEDBACK' : null),
       document: docOf(link || { frameId }, data.document),
-      region: mask(data.region, 120),
+      region: controlledRegion(data.region),
       message: msg,
-      field: mask(data.field, 120),
+      field: controlledField(data.field),
       state: st,
       navigation: null,
       signals: clean(data.signals, SIGNALS, 8),

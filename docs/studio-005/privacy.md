@@ -14,7 +14,7 @@ apresentou**. O texto livre de uma mensagem da página **nunca atravessa o Bridg
 | a região não tem texto | `{availability: "NONE", text: null}` |
 
 O que continua sendo evidência: o tipo (erro, alerta, status, validação, carregamento…), a classificação, os sinais
-(`role=alert`, `aria-invalid`, `invalid` nativo…), a região segura, o campo validado (nome acessível mascarado), o
+(`role=alert`, `aria-invalid`, `invalid` nativo…), a **descrição controlada** da região e do tipo de campo, o
 documento (principal/iframe/Shadow DOM), o horário real, a confiança e a correlação com a etapa. O Studio mostra, por
 exemplo: *depois de "Entrar", uma mensagem com indicador de erro foi observada (texto omitido por privacidade);
 resultado de negócio: não validado*.
@@ -30,14 +30,49 @@ própria.
 **Contrato:** o schema `evidence/1` continua aceitando `AVAILABLE` + trecho de até 160 caracteres, porque o contrato não
 foi alterado. Nenhuma das quatro barreiras produz ou deixa passar esse caso.
 
+## Modo estrito dos metadados (revisão 3 do PR #6)
+
+A revisão encontrou um segundo caminho para o texto da página: `details.region` era montado com `aria-label` /
+`aria-labelledby` da região (e `field` com o nome acessível do campo; `document.title` com o título). Uma região
+`aria-label="o cliente joão já existe"` saía como `region: "mensagem de erro o cliente joão já existe"`, reproduzido no
+Chrome real (`Studio005EvidenceIT.s005MetadataStrict`, falhando antes da correção).
+
+Agora os metadados textuais são **vocabulário fechado**, igual nas quatro barreiras:
+
+| Campo | Valores possíveis |
+|---|---|
+| `details.region` | `mensagem de erro`, `mensagem de status`, `alerta`, `região de validação`, `indicador de carregamento`, `região de conteúdo`, `elemento acionado`, `formulário` — ou `null` |
+| `details.field` | o **tipo** do controle: `campo de texto`, `campo de e-mail`, `campo de senha`, `campo de telefone`, `campo numérico`, `campo de pesquisa`, `campo de endereço`, `campo de data e hora`, `caixa de seleção`, `opção de escolha`, `lista de seleção`, `área de texto`, `campo editável`, `campo` — ou `null` |
+| `document.title` | sempre `null` (o documento é identificado por frame, Shadow DOM e URL sanitizada) |
+
+Qualquer valor fora do vocabulário é descartado (`null`) no service worker, no Native Host e no Studio, mesmo que a
+origem seja adulterada. O observador não lê mais `aria-label`, `aria-labelledby`, rótulos, `placeholder`, nome de
+formulário nem o título.
+
+Resultado na página `test-lab/pages/studio005/metadados.html`: região com `aria-label` e com `aria-labelledby` contendo
+`o cliente joão já existe` → `region: "mensagem de erro"`, `message: SUPPRESSED/null`, limitação `MESSAGE_SUPPRESSED`;
+campo com rótulo `telefone do cliente joão` → `field: "campo de telefone"`; título trocado para o texto → `title: null`.
+O texto não aparece em nenhum ponto dos eventos de evidência, do `storage.session` da gravação, do Native Host
+(`EvidencePrivacyTest.revisaoFinalMetadadosComTextoDaPaginaNaoAtravessamOHost`) nem do Studio
+(`RecorderEvidenceTest.revFinalMetadadosComTextoDaPaginaNaoEntramNoStudio`, `EvidenceDomainTest`).
+
+**Fora do canal de evidências (registrado para a CHROME-SECURITY-001):**
+
+- **Canal de ETAPAS (STUDIO-003):** o mesmo teste mostrou que o evento de etapa leva o nome acessível do elemento
+  (`element.name`), aqui `"telefone do cliente joão"` — guardado em `reports/evidence/S005-metadata-strict.json`
+  (`stepChannelElementNames`). Esse canal não foi alterado nesta revisão (fora do escopo da STUDIO-005) e entra na
+  avaliação de todos os canais da CHROME-SECURITY-001.
+- **URLs sanitizadas** removem consulta e fragmento sensíveis, mas o **caminho** da URL pode conter texto (ex.:
+  `/clientes/joao-silva`). Também fica para a CHROME-SECURITY-001.
+
 ## As quatro barreiras
 
 | # | Onde | O quê |
 |---|---|---|
-| 1 | content script (`NekkoraFeedback.messagePolicy`, origem) | qualquer texto → `SUPPRESSED`; o texto lido (`textContent`) serve só ao hash local que detecta a mudança e nunca sai; **nenhum valor de campo é lido**; região, campo e título mascarados (`maskText`; `looksSecret` → omitido); URL via `sanitizeUrl` |
-| 2 | service worker (`studio-evidence.js`) | revalida todo o payload: tipos, fontes, sinais e limitações fechados (o desconhecido é descartado); qualquer texto de mensagem recebido é removido; região, campo e título mascarados; URLs sanitizadas; campos não previstos (HTML, `value`, `pageMap`) nunca são copiados |
-| 3 | Native Host (`EvidencePrivacy.reapply`) | qualquer texto de mensagem é removido (`SUPPRESSED` + `MESSAGE_SUPPRESSED`); título, região e campo pela política Java; URLs sanitizadas; depois, validação estrita do schema |
-| 4 | Studio (`RecordedEvidence` → `Message.of`) | qualquer texto vira `SUPPRESSED`; rótulos inseguros viram `null` (`DisplaySafety`) |
+| 1 | content script (`NekkoraFeedback.messagePolicy`, origem) | qualquer texto → `SUPPRESSED`; o texto lido (`textContent`) serve só ao hash local que detecta a mudança e nunca sai; **nenhum valor de campo é lido**; região e campo só do vocabulário controlado (nada de `aria-label`, rótulos ou nome acessível); título `null`; URL via `sanitizeUrl` |
+| 2 | service worker (`studio-evidence.js`) | revalida todo o payload: tipos, fontes, sinais e limitações fechados (o desconhecido é descartado); qualquer texto de mensagem recebido é removido; região e campo fora do vocabulário → `null`; título → `null`; URLs sanitizadas; campos não previstos (HTML, `value`, `pageMap`) nunca são copiados |
+| 3 | Native Host (`EvidencePrivacy.reapply`) | qualquer texto de mensagem é removido (`SUPPRESSED` + `MESSAGE_SUPPRESSED`); região e campo só do vocabulário (`REGION_LABELS`, `FIELD_LABELS`); título → `null`; URLs sanitizadas; depois, validação estrita do schema |
+| 4 | Studio (`RecordedEvidence` → `Message.of`, `ObservedEvidence`) | qualquer texto vira `SUPPRESSED`; o construtor público de `Message` recusa `AVAILABLE`; região e campo fora do vocabulário (`EvidenceVocabulary`) viram `null`; título sempre `null` |
 
 ## Nunca capturado
 

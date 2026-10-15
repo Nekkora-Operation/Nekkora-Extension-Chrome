@@ -220,6 +220,25 @@ class Studio005EvidenceIT extends SessionIT {
         assertNoSecret(false, secrets);
     }
 
+    /**
+     * Só a gravação sob teste: os eventos dela (etapas e evidências) e o registro dela no armazenamento da extensão — o
+     * "Studio" de laboratório e o storage.session são compartilhados entre os testes da classe.
+     */
+    private void assertNoSecretInRecording(String rid, String... secrets) throws IOException {
+        StringBuilder events = new StringBuilder();
+        for (JsonNode e : studio.allEvents) {
+            if (rid.equals(e.at("/payload/recordingId").asText())) {
+                events.append(e);
+            }
+        }
+        JsonNode storage = M.readTree(storageDump());
+        String mine = String.valueOf(storage.get("nk.srec." + rid));
+        for (String secret : secrets) {
+            assertFalse(events.toString().contains(secret), "dado sensível nos eventos desta gravação enviados ao Studio: " + secret);
+            assertFalse(mine.contains(secret), "dado sensível no armazenamento temporário desta gravação: " + secret);
+        }
+    }
+
     private void assertNoSecret(boolean includeTechnicalCapture, String... secrets) throws IOException {
         String events = studio.allEvents.toString();
         String storage = storageDump();
@@ -401,11 +420,11 @@ class Studio005EvidenceIT extends SessionIT {
         assertEquals("FILL", fill.path("action").asText(), names(s).toString());
         JsonNode cep = awaitEvidence(rid, "validação do CEP", of(fill, "VALIDATION_FEEDBACK"));
         assertEquals("DIRECTLY_OBSERVED", cep.path("confidence").asText(), "o próprio campo preenchido ficou inválido");
-        assertEquals("CEP", cep.at("/details/field").asText());
+        assertEquals("campo de texto", cep.at("/details/field").asText(), "tipo do controle, nunca o rótulo");
         assertTextWithheld(cep);
         assertTrue(cep.at("/details/signals").toString().contains("ARIA_INVALID"));
         JsonNode nat = awaitEvidence(rid, "validação nativa do e-mail", of(send, "VALIDATION_FEEDBACK"));
-        assertEquals("E-mail", nat.at("/details/field").asText());
+        assertEquals("campo de e-mail", nat.at("/details/field").asText(), "tipo do controle, nunca o rótulo");
         assertTrue(nat.at("/details/signals").toString().contains("NATIVE_INVALID"), nat.toString());
         assertEquals("FORM_OBSERVER", nat.path("source").asText());
         assertTrue(evidences(rid).stream().noneMatch(of(send, "FORM_SUBMITTED")), "formulário não foi enviado");
@@ -578,9 +597,51 @@ class Studio005EvidenceIT extends SessionIT {
         List<JsonNode> msgs = evidences(rid).stream().filter(e -> type("VISIBLE_ERROR_MESSAGE").test(e)).toList();
         assertEquals(5, msgs.size(), brief(evidences(rid)).toString());
         msgs.forEach(Studio005EvidenceIT::assertTextWithheld);
-        assertNoSecretInEvidenceChannel("Kq7Segredo", "zorbalino", "pirilampo", "Maria Souza", "o cliente joão", "joão");
+        assertNoSecretInEvidenceChannel("Kq7Segredo", "zorbalino", "pirilampo", "Maria Souza");
+        assertNoSecretInRecording(rid, "o cliente joão", "joão");
         ackAll(rid);
         op("studio.recording.finish", rid);
+    }
+
+    @Test
+    @DisplayName("REV-final P1 — modo estrito também nos METADADOS: aria-label, aria-labelledby, nome do campo e título do documento não levam o texto da página")
+    void s005MetadataStrict() throws Exception {
+        Page p = open(BASE + "metadados.html");
+        String rid = id("rec");
+        start(rid, p);
+        click(p, By.id("rotulo"));
+        Thread.sleep(QUIET_MS);
+        click(p, By.id("rotulo-ref"));
+        Thread.sleep(QUIET_MS);
+        type(p, By.id("fone"), "11");
+        click(p, By.id("validar-fone"));
+        Thread.sleep(QUIET_MS);
+        click(p, By.id("titulo"));
+        Thread.sleep(QUIET_MS);
+        List<JsonNode> s = awaitSteps(rid, 5);
+        for (JsonNode st : s) {
+            awaitWindowEnd(rid, st);
+        }
+        List<JsonNode> ev = evidences(rid);
+        assertEquals(2, ev.stream().filter(type("VISIBLE_ERROR_MESSAGE")).count(), brief(ev).toString());
+        assertTrue(ev.stream().anyMatch(type("VALIDATION_FEEDBACK")), brief(ev).toString());
+        assertTrue(ev.stream().anyMatch(type("VISIBLE_STATUS_MESSAGE")), brief(ev).toString());
+        // o evento INTEIRO (como chegou ao "Studio" de laboratório, depois do Native Host), não só message.text
+        for (JsonNode e : ev) {
+            String json = e.toString();
+            assertFalse(json.contains("joão") || json.contains("jo\\u00e3o") || json.contains("cliente"), "texto da página no evento: " + json);
+        }
+        for (JsonNode e : ev.stream().filter(type("VISIBLE_ERROR_MESSAGE")).toList()) {
+            assertEquals("mensagem de erro", e.at("/details/region").asText(), e.toString());
+            assertTextWithheld(e);
+        }
+        ackAll(rid);
+        op("studio.recording.finish", rid);
+        // achado registrado (canal de ETAPAS, STUDIO-003, fora do escopo desta correção): a etapa leva o nome acessível do
+        // elemento — aqui o rótulo "telefone do cliente joão". Evidência guardada para a CHROME-SECURITY-001.
+        List<String> stepNames = steps(rid).stream().map(x -> x.at("/element/name").asText()).toList();
+        lab.writeEvidence("S005-metadata-strict.json", M.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("evidence", ev,
+                "stepChannelElementNames", stepNames)));
     }
 
     @Test

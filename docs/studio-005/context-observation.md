@@ -26,7 +26,7 @@ Cada evidência leva `document`:
 |---|---|
 | `frame` | `MAIN` (documento principal do frame 0) ou `FRAME` (iframe acompanhado, ou documento filho de mesma origem observado pelo frame 0) |
 | `inShadow` | a região estava num shadow root aberto. Homologado com o componente `caixa-confirmacao` |
-| `title` | título do documento, mascarado, até 120 caracteres, ou `null` |
+| `title` | sempre `null` (revisão 3: o título é texto da página; o campo segue no contrato) |
 | `url` | URL sanitizada pela política (`sanitizeUrl`), ou `null` |
 
 Documento filho de mesma origem observado pelo frame 0: a evidência leva a limitação `CROSS_DOCUMENT_NOT_ATTRIBUTED`

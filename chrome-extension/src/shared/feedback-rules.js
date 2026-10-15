@@ -35,6 +35,44 @@
   }
 
   /**
+   * Revisão final do PR #6 (modo estrito dos METADADOS): região e campo só levam DESCRIÇÕES CONTROLADAS — nunca
+   * aria-label, aria-labelledby, rótulo, placeholder, nome de formulário ou título da página. O que estiver fora destes
+   * vocabulários é descartado (null) em todas as barreiras.
+   */
+  const REGION_LABELS = new Set(['mensagem de erro', 'mensagem de status', 'alerta', 'região de validação', 'indicador de carregamento',
+    'região de conteúdo', 'elemento acionado', 'formulário']);
+  const FIELD_LABELS = new Set(['campo de texto', 'campo de e-mail', 'campo de senha', 'campo de telefone', 'campo numérico', 'campo de pesquisa',
+    'campo de endereço', 'campo de data e hora', 'caixa de seleção', 'opção de escolha', 'lista de seleção', 'área de texto', 'campo editável', 'campo']);
+
+  /** Descrição controlada do TIPO de campo (tag/type/role) — nunca o texto do rótulo. */
+  function fieldKind(tag, type, role) {
+    const t = String(tag || '').toLowerCase();
+    const ty = String(type || '').toLowerCase();
+    if (t === 'input') {
+      const byType = { '': 'campo de texto', text: 'campo de texto', email: 'campo de e-mail', password: 'campo de senha', tel: 'campo de telefone',
+        number: 'campo numérico', search: 'campo de pesquisa', url: 'campo de endereço', date: 'campo de data e hora', 'datetime-local': 'campo de data e hora',
+        month: 'campo de data e hora', time: 'campo de data e hora', week: 'campo de data e hora', checkbox: 'caixa de seleção', radio: 'opção de escolha' };
+      return byType[ty] || 'campo';
+    }
+    if (t === 'select') {
+      return 'lista de seleção';
+    }
+    if (t === 'textarea') {
+      return 'área de texto';
+    }
+    return ['textbox', 'searchbox', 'combobox', 'spinbutton'].includes(String(role || '').toLowerCase()) ? 'campo editável' : 'campo';
+  }
+
+  /** Só descrições do vocabulário passam (as demais viram null). */
+  function controlledRegion(v) {
+    return typeof v === 'string' && REGION_LABELS.has(v) ? v : null;
+  }
+
+  function controlledField(v) {
+    return typeof v === 'string' && FIELD_LABELS.has(v) ? v : null;
+  }
+
+  /**
    * Classificação de uma região de aviso pelos sinais presentes:
    *  role=alert/alertdialog ou aria-live=assertive  → VISIBLE_ALERT (UNKNOWN_FEEDBACK);
    *    + indício de erro (ERROR_HINT em classe/id/data-*) ou referenciada por aria-errormessage → VISIBLE_ERROR_MESSAGE (ERROR_INDICATOR);
@@ -122,5 +160,6 @@
     return s === 'true' || s === 'false' || s === 'mixed' ? s : s === '' ? 'true' : 'absent';
   }
 
-  root.NekkoraFeedback = { MESSAGE_MAX, OPERATIONS, messagePolicy, classifyRegion, hasErrorHint, correlate, opensWindow, stateValue, normalize };
+  root.NekkoraFeedback = { MESSAGE_MAX, OPERATIONS, messagePolicy, classifyRegion, hasErrorHint, correlate, opensWindow, stateValue, normalize,
+    REGION_LABELS, FIELD_LABELS, fieldKind, controlledRegion, controlledField };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -107,50 +107,23 @@
     return FB().messagePolicy(raw);
   }
 
-  function masked(s, max) {
-    const t = FB().normalize(s).slice(0, max);
-    if (!t) {
-      return null;
-    }
-    const p = root.NekkoraPrivacy;
-    if (p && p.looksSecret(t)) {
-      return null;
-    }
-    return p ? p.maskText(t).slice(0, max) : t;
-  }
-
   function byIds(el, attrName) {
     const ids = (el.getAttribute(attrName) || '').split(/\s+/).filter(Boolean).slice(0, 4);
     const scope = el.getRootNode();
     return ids.map((id) => (scope.getElementById ? scope.getElementById(id) : null)).filter(Boolean);
   }
 
-  function accessibleName(el) {
-    let name = el.getAttribute('aria-label') || '';
-    if (!name) {
-      name = byIds(el, 'aria-labelledby').map((n) => n.textContent).join(' ');
-    }
-    if (!name && el.labels && el.labels.length) {
-      name = el.labels[0].textContent;
-    }
-    if (!name) {
-      name = el.getAttribute('placeholder') || el.getAttribute('title') || '';
-    }
-    return masked(name, 80);
+  /**
+   * Descrição controlada da região (revisão final do PR #6): só a palavra do vocabulário. aria-label, aria-labelledby e o
+   * nome do formulário são TEXTO DA PÁGINA e não entram na evidência.
+   */
+  function regionLabel(word) {
+    return FB().controlledRegion(word);
   }
 
-  function regionLabel(el, word) {
-    const name = el.getAttribute('aria-label') || byIds(el, 'aria-labelledby').map((n) => n.textContent).join(' ');
-    const own = masked(name, 80);
-    if (own) {
-      return (word + ' ' + own).slice(0, 120);
-    }
-    const form = el.closest && el.closest('form');
-    if (form) {
-      const fname = masked(form.getAttribute('aria-label') || form.getAttribute('name') || form.id || '', 60);
-      return (word + ' do formulário' + (fname ? ' ' + fname : '')).slice(0, 120);
-    }
-    return word;
+  /** Descrição controlada do campo validado: o TIPO do controle, nunca o rótulo, placeholder ou nome acessível. */
+  function fieldLabel(el) {
+    return FB().controlledField(FB().fieldKind(el.tagName, el.getAttribute('type'), el.getAttribute('role')));
   }
 
   /** Elementos que apontam para esta região como mensagem de erro (aria-errormessage). */
@@ -184,7 +157,8 @@
     } catch (e) {
       url = null;
     }
-    return { childFrame: doc !== document, inShadow: el.getRootNode() instanceof ShadowRoot, title: masked(doc.title || '', 120), url };
+    // o título é texto da página: não entra (o documento é identificado por frame, Shadow DOM e URL sanitizada)
+    return { childFrame: doc !== document, inShadow: el.getRootNode() instanceof ShadowRoot, title: null, url };
   }
 
   // ------------------------------------------------------------------------------------- envio
@@ -279,7 +253,7 @@
     }
     emit(fresh, {
       type: 'VALIDATION_FEEDBACK', classification: 'VALIDATION_INDICATOR', confidence: own ? 'DIRECTLY_OBSERVED' : 'TEMPORALLY_ASSOCIATED',
-      region: regionLabel(el, 'campo'), field: accessibleName(el), signals, message: policy(rawMessage),
+      region: regionLabel('região de validação'), field: fieldLabel(el), signals, message: policy(rawMessage),
     }, el, at);
   }
 
@@ -303,7 +277,7 @@
         reschedule(w);
       }
       st.busyStart.set(el, cur.hash);
-      emit(fresh, { type: 'LOADING_INDICATOR', region: regionLabel(el, 'indicador de carregamento'), signals: [cur.busy ? 'ARIA_BUSY' : 'ROLE_PROGRESSBAR'] }, el, at);
+      emit(fresh, { type: 'LOADING_INDICATOR', region: regionLabel('indicador de carregamento'), signals: [cur.busy ? 'ARIA_BUSY' : 'ROLE_PROGRESSBAR'] }, el, at);
       return;
     }
     if (!loadingNow && loadingBefore) {
@@ -313,12 +287,12 @@
         w.closesAt = Math.min(w.openedAt + MAX_WINDOW_MS, Math.max(w.closesAt, at + 1000)); // vê a mensagem que costuma seguir o carregamento
         reschedule(w);
       }
-      emit(onceAll(cands, 'loaded|' + regionId(el) + '|' + at), { type: 'LOADING_FINISHED', region: regionLabel(el, 'indicador de carregamento'),
+      emit(onceAll(cands, 'loaded|' + regionId(el) + '|' + at), { type: 'LOADING_FINISHED', region: regionLabel('indicador de carregamento'),
         signals: [prev.busy ? 'ARIA_BUSY' : 'ROLE_PROGRESSBAR'] }, el, at);
       const startHash = st.busyStart.get(el);
       st.busyStart.delete(el);
       if (prev.busy && startHash !== undefined && startHash !== cur.hash) {
-        emit(onceAll(cands, 'content|' + regionId(el) + '|' + cur.hash), { type: 'CONTENT_CHANGED', region: regionLabel(el, 'região'), signals: ['ARIA_BUSY'] }, el, at);
+        emit(onceAll(cands, 'content|' + regionId(el) + '|' + cur.hash), { type: 'CONTENT_CHANGED', region: regionLabel('região de conteúdo'), signals: ['ARIA_BUSY'] }, el, at);
       }
       return;
     }
@@ -337,8 +311,8 @@
     if (!fresh.length) {
       return;
     }
-    const word = cls.type === 'VISIBLE_ERROR_MESSAGE' ? 'mensagem de erro' : cls.type === 'VISIBLE_STATUS_MESSAGE' ? 'status' : 'alerta';
-    emit(fresh, { type: cls.type, classification: cls.classification, region: regionLabel(el, word), signals: cls.signals,
+    const word = cls.type === 'VISIBLE_ERROR_MESSAGE' ? 'mensagem de erro' : cls.type === 'VISIBLE_STATUS_MESSAGE' ? 'mensagem de status' : 'alerta';
+    emit(fresh, { type: cls.type, classification: cls.classification, region: regionLabel(word), signals: cls.signals,
       message: policy(text(el)) }, el, at);
   }
 
@@ -354,7 +328,7 @@
         if (w.count < MAX_PER_WINDOW) {
           w.count++;
           post({ kind: 'evidence', localSeq: w.localSeq, candidates: 0, at, type: 'ELEMENT_STATE_CHANGED', classification: null, confidence: 'DIRECTLY_OBSERVED',
-            document: documentInfo(w.target), region: regionLabel(w.target, 'elemento'), message: { availability: 'NONE', text: null }, field: null,
+            document: documentInfo(w.target), region: regionLabel('elemento acionado'), message: { availability: 'NONE', text: null }, field: null,
             state: { attribute: a, from: before, to: now }, signals: ['TARGET_ATTRIBUTE'], limitations: [] });
         } else {
           w.limited = true;

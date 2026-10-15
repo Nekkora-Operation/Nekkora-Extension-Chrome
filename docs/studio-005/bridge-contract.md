@@ -26,7 +26,7 @@ existente mudou de significado.
 ## `EvidenceEventPayload` (todos os campos obrigatórios; `additionalProperties: false` em todos os níveis)
 
 `recordingId`, `evidenceId`, `evidenceSequence`, `eventId` (null = ambígua), `stepSequence`, `observedAt`, `type`,
-`source`, `relation`, `confidence`, `classification`, `document {frame, inShadow, title ≤ 120, url ≤ 2000}`,
+`source`, `relation`, `confidence`, `classification`, `document {frame, inShadow, title ≤ 120 (sempre `null` desde a revisão 3), url ≤ 2000}`,
 `details {region ≤ 120, message {availability, text ≤ 160}, field ≤ 120, state, navigation, signals ≤ 8, candidates,
 signalsObserved}` e `limitations ≤ 8`.
 
