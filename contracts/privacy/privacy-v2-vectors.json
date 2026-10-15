@@ -1,0 +1,920 @@
+{
+ "policy": "nekkora-privacy/2",
+ "vocabulary": "nekkora-ui-vocabulary/1",
+ "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4).",
+ "interfaceText": [
+  {
+   "in": "Entrar",
+   "out": "Entrar"
+  },
+  {
+   "in": "Salvar",
+   "out": "Salvar"
+  },
+  {
+   "in": "Pesquisar",
+   "out": "Pesquisar"
+  },
+  {
+   "in": "Usuário",
+   "out": "Usuário"
+  },
+  {
+   "in": "Senha",
+   "out": "Senha"
+  },
+  {
+   "in": "E-mail",
+   "out": "E-mail"
+  },
+  {
+   "in": "Nome completo",
+   "out": "Nome completo"
+  },
+  {
+   "in": "Data de nascimento",
+   "out": "Data de nascimento"
+  },
+  {
+   "in": "Carregar mais",
+   "out": "Carregar mais"
+  },
+  {
+   "in": "Item 12",
+   "out": "Item 12"
+  },
+  {
+   "in": "Item 123",
+   "out": null
+  },
+  {
+   "in": "Consultar",
+   "out": "Consultar"
+  },
+  {
+   "in": "Consultar cliente",
+   "out": "Consultar cliente"
+  },
+  {
+   "in": "Consultar cliente Bartolomeu Quixadá",
+   "out": null
+  },
+  {
+   "in": "o cliente joão já existe",
+   "out": null
+  },
+  {
+   "in": "telefone do cliente joão",
+   "out": null
+  },
+  {
+   "in": "Pedido de Maria Souza aprovado",
+   "out": null
+  },
+  {
+   "in": "Contrato 4831",
+   "out": null
+  },
+  {
+   "in": "Ximena",
+   "out": null
+  },
+  {
+   "in": "Costa",
+   "out": null
+  },
+  {
+   "in": "Campos obrigatórios",
+   "out": null
+  },
+  {
+   "in": "Últimos 30 dias",
+   "out": null
+  },
+  {
+   "in": "SALVAR",
+   "out": "SALVAR"
+  },
+  {
+   "in": "  Salvar   alteração  ",
+   "out": "Salvar alteração"
+  },
+  {
+   "in": "Sal​var",
+   "out": null
+  },
+  {
+   "in": "Salvar\u0000",
+   "out": null
+  },
+  {
+   "in": "Ｓａｌｖａｒ",
+   "out": null
+  },
+  {
+   "in": "Salvár",
+   "out": "Salvár"
+  },
+  {
+   "in": "Salvár",
+   "out": "Salvár"
+  },
+  {
+   "in": "joão",
+   "out": null
+  },
+  {
+   "in": "João",
+   "out": null
+  },
+  {
+   "in": "João",
+   "out": null
+  },
+  {
+   "in": "<b>Salvar</b>",
+   "out": null
+  },
+  {
+   "in": "Salvar & sair",
+   "out": null
+  },
+  {
+   "in": "Salvar; sair",
+   "out": null
+  },
+  {
+   "in": "salvar@sair",
+   "out": null
+  },
+  {
+   "in": "Привет",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": "   ",
+   "out": null
+  },
+  {
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "out": null
+  },
+  {
+   "in": "Salvar sair voltar fechar abrir editar excluir novo",
+   "out": "Salvar sair voltar fechar abrir editar excluir novo"
+  },
+  {
+   "in": "Salvar sair voltar fechar abrir editar excluir novo item",
+   "out": null
+  },
+  {
+   "in": "Ver detalhes (2)",
+   "out": "Ver detalhes (2)"
+  },
+  {
+   "in": "Próxima página",
+   "out": "Próxima página"
+  },
+  {
+   "in": "próximo →",
+   "out": null
+  },
+  {
+   "in": "Sim",
+   "out": "Sim"
+  },
+  {
+   "in": "Não",
+   "out": "Não"
+  },
+  {
+   "in": "OK",
+   "out": "OK"
+  },
+  {
+   "in": "Cancelar",
+   "out": "Cancelar"
+  },
+  {
+   "in": "Rua",
+   "out": "Rua"
+  },
+  {
+   "in": "Endereço de entrega",
+   "out": null
+  },
+  {
+   "in": "Ativo",
+   "out": "Ativo"
+  }
+ ],
+ "identifiers": [
+  {
+   "in": "username",
+   "out": "username"
+  },
+  {
+   "in": "password",
+   "out": "password"
+  },
+  {
+   "in": "btn-pesquisar",
+   "out": "btn-pesquisar"
+  },
+  {
+   "in": "btnPesquisar",
+   "out": "btnPesquisar"
+  },
+  {
+   "in": "searchInput",
+   "out": "searchInput"
+  },
+  {
+   "in": "cliente-anacleto-prudencio",
+   "out": null
+  },
+  {
+   "in": "usuario_hermengarda",
+   "out": null
+  },
+  {
+   "in": "pedido_483192",
+   "out": null
+  },
+  {
+   "in": "pedido_12",
+   "out": "pedido_12"
+  },
+  {
+   "in": "estado",
+   "out": "estado"
+  },
+  {
+   "in": "cidade",
+   "out": "cidade"
+  },
+  {
+   "in": "cep",
+   "out": "cep"
+  },
+  {
+   "in": "q",
+   "out": "q"
+  },
+  {
+   "in": "nk:menu.item-2",
+   "out": null
+  },
+  {
+   "in": "menu item",
+   "out": null
+  },
+  {
+   "in": "user@host",
+   "out": null
+  },
+  {
+   "in": "Nome",
+   "out": "Nome"
+  },
+  {
+   "in": "nome",
+   "out": "nome"
+  },
+  {
+   "in": "consultar",
+   "out": "consultar"
+  },
+  {
+   "in": "r-consultar",
+   "out": null
+  },
+  {
+   "in": "s-campo",
+   "out": null
+  },
+  {
+   "in": "rot-fone",
+   "out": null
+  },
+  {
+   "in": "fone",
+   "out": "fone"
+  },
+  {
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": "ação",
+   "out": null
+  },
+  {
+   "in": "login-form",
+   "out": "login-form"
+  },
+  {
+   "in": "loginForm",
+   "out": "loginForm"
+  },
+  {
+   "in": "submitBtn",
+   "out": "submitBtn"
+  }
+ ],
+ "classes": [
+  {
+   "in": "btn btn-primary cliente-rosamunda-teixeira",
+   "out": "btn btn-primary"
+  },
+  {
+   "in": "cartao",
+   "out": null
+  },
+  {
+   "in": "ver",
+   "out": "ver"
+  },
+  {
+   "in": "hidden  active",
+   "out": "hidden active"
+  },
+  {
+   "in": "xyz123 abc",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  }
+ ],
+ "urls": [
+  {
+   "in": "https://sistema.exemplo/clientes/joao",
+   "out": "https://sistema.exemplo/clientes/{…}"
+  },
+  {
+   "in": "https://sistema.exemplo/clientes/joao-oliveira#aba-bonifacio",
+   "out": "https://sistema.exemplo/clientes/{…}"
+  },
+  {
+   "in": "http://127.0.0.1:18765/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo#ficha-ataulfo",
+   "out": "http://127.0.0.1:18765/{…}/{…}/clientes/{…}?cliente={…}"
+  },
+  {
+   "in": "http://127.0.0.1:18765/lab/chrome-security-001/urls.html",
+   "out": "http://127.0.0.1:18765/{…}/{…}/{…}"
+  },
+  {
+   "in": "https://app.exemplo/clientes/consulta?status=ativo&nome=Ana",
+   "out": "https://app.exemplo/clientes/consulta?status={…}&nome={…}"
+  },
+  {
+   "in": "https://user:pass@App.Exemplo:8443/pedidos/index.html?page=2",
+   "out": "https://app.exemplo:8443/pedidos/index.html?page={…}"
+  },
+  {
+   "in": "https://app.exemplo/relat%C3%B3rio/2024",
+   "out": "https://app.exemplo/relat%C3%B3rio/{…}"
+  },
+  {
+   "in": "https://app.exemplo/api/v2/clientes/483192",
+   "out": "https://app.exemplo/api/{…}/clientes/{…}"
+  },
+  {
+   "in": "https://app.exemplo/",
+   "out": "https://app.exemplo/"
+  },
+  {
+   "in": "https://app.exemplo",
+   "out": "https://app.exemplo"
+  },
+  {
+   "in": "/api/clientes/sinfronio-lacerda?nome=Sinfronio",
+   "out": "/api/clientes/{…}?nome={…}"
+  },
+  {
+   "in": "/clientes?nome=ana&status=ativo",
+   "out": "/clientes?nome={…}&status={…}"
+  },
+  {
+   "in": "#/clientes/benvinda-guaraciaba",
+   "out": null
+  },
+  {
+   "in": "about:blank",
+   "out": "about:blank"
+  },
+  {
+   "in": "about:srcdoc",
+   "out": "about:srcdoc"
+  },
+  {
+   "in": "mailto:ana@exemplo.com",
+   "out": "mailto:{…}"
+  },
+  {
+   "in": "javascript:void(0)",
+   "out": "javascript:{…}"
+  },
+  {
+   "in": "data:text/html,oi",
+   "out": "data:{…}"
+  },
+  {
+   "in": "blob:https://x/1",
+   "out": "blob:{…}"
+  },
+  {
+   "in": "//cdn.exemplo/js/app.js",
+   "out": "//cdn.exemplo/js/app.js"
+  },
+  {
+   "in": "https://app.exemplo/a%2Fb/pedidos",
+   "out": "https://app.exemplo/{…}/pedidos"
+  },
+  {
+   "in": "https://app.exemplo/%E0%A4%A/x",
+   "out": "https://app.exemplo/{…}/{…}"
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": null,
+   "out": null
+  },
+  {
+   "in": "https://app.exemplo/login?redirect=https%3A%2F%2Fx&token=abc&lang=pt",
+   "out": "https://app.exemplo/login?token={…}"
+  }
+ ],
+ "expressions": [
+  {
+   "in": "button[aria-label='Consultar']",
+   "out": true
+  },
+  {
+   "in": "button[aria-label='Consultar cliente Bartolomeu Quixadá']",
+   "out": false
+  },
+  {
+   "in": "#pesquisar",
+   "out": true
+  },
+  {
+   "in": "#cliente-anacleto-prudencio",
+   "out": false
+  },
+  {
+   "in": "input[name=\"usuario_hermengarda\"]",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space()='Salvar']",
+   "out": true
+  },
+  {
+   "in": "//button[text()='Consultar João Oliveira']",
+   "out": false
+  },
+  {
+   "in": "[data-customer='joao-oliveira']",
+   "out": false
+  },
+  {
+   "in": "form > p:nth-of-type(3) > input",
+   "out": true
+  },
+  {
+   "in": "/html/body/main/form[1]/p[12]/input",
+   "out": true
+  },
+  {
+   "in": "button {name=\"Consultar\"}",
+   "out": true
+  },
+  {
+   "in": "section {has child <h2> \"ficha de luciola assumpcao\"} >> input {id=rua}",
+   "out": false
+  },
+  {
+   "in": "input {id=rua}",
+   "out": true
+  },
+  {
+   "in": "tr {row: \"Wenceslau Barbacena\"} >> button",
+   "out": false
+  },
+  {
+   "in": "input[type=submit]",
+   "out": true
+  },
+  {
+   "in": ".btn.btn-primary",
+   "out": true
+  },
+  {
+   "in": ".cliente-rosamunda-teixeira",
+   "out": false
+  },
+  {
+   "in": "a[href='/clientes/{…}']",
+   "out": false
+  },
+  {
+   "in": "",
+   "out": true
+  },
+  {
+   "in": null,
+   "out": true
+  }
+ ],
+ "attributes": [
+  {
+   "name": "id",
+   "value": "pesquisar",
+   "tag": "input",
+   "type": "search",
+   "out": "pesquisar"
+  },
+  {
+   "name": "id",
+   "value": "cliente-anacleto-prudencio",
+   "tag": "button",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "name",
+   "value": "q",
+   "tag": "input",
+   "type": "search",
+   "out": "q"
+  },
+  {
+   "name": "name",
+   "value": "usuario_hermengarda",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "class",
+   "value": "btn cliente-rosamunda-teixeira",
+   "tag": "button",
+   "type": null,
+   "out": "btn"
+  },
+  {
+   "name": "type",
+   "value": "password",
+   "tag": "input",
+   "type": "password",
+   "out": "password"
+  },
+  {
+   "name": "role",
+   "value": "button",
+   "tag": "div",
+   "type": null,
+   "out": "button"
+  },
+  {
+   "name": "aria-expanded",
+   "value": "true",
+   "tag": "button",
+   "type": null,
+   "out": "true"
+  },
+  {
+   "name": "aria-valuenow",
+   "value": "3",
+   "tag": "span",
+   "type": null,
+   "out": "3"
+  },
+  {
+   "name": "tabindex",
+   "value": "0",
+   "tag": "span",
+   "type": null,
+   "out": "0"
+  },
+  {
+   "name": "autocomplete",
+   "value": "current-password",
+   "tag": "input",
+   "type": "password",
+   "out": "current-password"
+  },
+  {
+   "name": "type",
+   "value": "texto livre do cliente joão",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-label",
+   "value": "Pesquisar",
+   "tag": "button",
+   "type": null,
+   "out": "Pesquisar"
+  },
+  {
+   "name": "aria-label",
+   "value": "Consultar cliente Bartolomeu Quixadá",
+   "tag": "button",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "title",
+   "value": "Observação sobre Teodolinda Vasconi",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "placeholder",
+   "value": "ex.: Filomena Zanatta",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "placeholder",
+   "value": "Pesquisar",
+   "tag": "input",
+   "type": "search",
+   "out": "Pesquisar"
+  },
+  {
+   "name": "alt",
+   "value": "Foto de Cremilda Bastião",
+   "tag": "img",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "aria-description",
+   "value": "Conta",
+   "tag": "button",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "aria-valuetext",
+   "value": "Limite de Hortência Malaquias",
+   "tag": "span",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "value",
+   "value": "Entrar",
+   "tag": "input",
+   "type": "submit",
+   "out": "Entrar"
+  },
+  {
+   "name": "value",
+   "value": "Leocádia",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "value",
+   "value": "t1",
+   "tag": "option",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "aria-labelledby",
+   "value": "rot-fone",
+   "tag": "input",
+   "type": "tel",
+   "out": ""
+  },
+  {
+   "name": "for",
+   "value": "nome",
+   "tag": "label",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-controls",
+   "value": "lista",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "href",
+   "value": "/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "src",
+   "value": "frames/ficha-gervasio-barros.html",
+   "tag": "iframe",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "action",
+   "value": "/api/clientes/sinfronio-lacerda",
+   "tag": "form",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "onclick",
+   "value": "abrir(\"joão\")",
+   "tag": "button",
+   "type": null,
+   "out": "[manipulador declarado]"
+  },
+  {
+   "name": "style",
+   "value": "color:red",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-cliente",
+   "value": "Eustáquio Marangoni",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "x-titular",
+   "value": "Clodomiro Ventania",
+   "tag": "span",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-testid",
+   "value": "btn-salvar",
+   "tag": "button",
+   "type": null,
+   "out": "btn-salvar"
+  },
+  {
+   "name": "data-testid",
+   "value": "linha-55821",
+   "tag": "tr",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-sitekey",
+   "value": "6Lc_abc",
+   "tag": "div",
+   "type": null,
+   "out": "[redacted]"
+  },
+  {
+   "name": "data-joao",
+   "value": "x",
+   "tag": "div",
+   "type": null,
+   "out": null
+  }
+ ],
+ "carriers": [
+  {
+   "tag": "button",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "a",
+   "role": null,
+   "hasHref": true,
+   "out": true
+  },
+  {
+   "tag": "a",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "label",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "legend",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "summary",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "div",
+   "role": "button",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "span",
+   "role": "link",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "li",
+   "role": "menuitem",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "div",
+   "role": "tab",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "td",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "th",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "p",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "h2",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "option",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "option",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "alert",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "li",
+   "role": "option",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "BUTTON extra",
+   "hasHref": false,
+   "out": true
+  }
+ ]
+}
