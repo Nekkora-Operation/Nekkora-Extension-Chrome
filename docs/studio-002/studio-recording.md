@@ -42,6 +42,11 @@ finish ─► COMPLETED     cancel ─► CANCELLED     concessão vencida ─�
 - **Concessão** (D-STUDIO-002-07): definida no início (`leaseMs` entre 5 s e 300 s; o Studio usa 30 s e renova a cada
   10 s). Sem renovação, a gravação vai para `EXPIRED` e o consumidor é liberado, inclusive com o Studio travado ou
   derrubado. Isso é verificado por temporizador e, se o service worker reiniciar, pelo alarme `nekkora.studio.lease`.
+  O prazo é **absoluto**. Uma renovação que chega depois do vencimento é recusada com `RECORDING_ENDED` e motivo
+  `LEASE_EXPIRED`, sem prolongar o prazo, mesmo que o temporizador ainda não tenha rodado. Ela também é recusada
+  enquanto a expiração está em andamento (marca `expiring`, definida dentro da fila antes de liberar o consumidor). A
+  rotina de expiração encerra a gravação uma única vez e libera o consumidor. A renovação continua fora da fila e
+  responde na hora. Ao receber a recusa, o Studio consulta o estado real.
 - **Degradação** sem operação do Studio (evento com `operationId: null`): `TAB_CLOSED`, `PERMISSION_REVOKED`,
   `ORIGIN_NOT_ALLOWED` (navegou para fora), `CAPTURE_ERROR`, `CAPTURE_ENDED`. Uma gravação degradada nunca fica
   "gravando" sem consumidor.
@@ -68,6 +73,6 @@ concede acesso a sites: a autorização continua no próprio painel ("Autorizar 
 
 | Nível | Arquivo | Cobertura |
 |---|---|---|
-| Node (12) | `test/studio-recording.test.js` | lista de abas sanitizada, recusa sem autorização, consumidor próprio e idempotência, coexistência, modo, finalizar × cancelar, controlador, lista explícita, concessão, aba fechada, permissão revogada, reinício do service worker |
+| Node (14) | `test/studio-recording.test.js` | lista de abas sanitizada, recusa sem autorização, consumidor próprio e idempotência, coexistência, modo, finalizar × cancelar, controlador, lista explícita, concessão, aba fechada, permissão revogada, reinício do service worker, concessão vencida (renovação atrasada e renovação concorrente com a expiração) |
 | Node (4) | `test/native-client-studio.test.js` | roteamento por tipo, nunca confundido com resposta, descarte de desconhecidos, remontagem de fragmentos, `post` e ouvintes de reconexão |
 | Chrome (11) | `integration-tests/.../Studio002BridgeIT.java` | cadeia completa Studio de laboratório ⇄ host real ⇄ extensão ⇄ CaptureSession, em S002-002/003/006/007/008/009/010/011/012/013/014/016/017/018/020/022/027/028 |

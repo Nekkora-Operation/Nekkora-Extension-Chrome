@@ -599,11 +599,19 @@ export function createStudioRecorder(deps) {
     return { recordings: await Promise.all(mine.map(view)) };
   }
 
-  /** Renovação da concessão (fora da fila: só atualiza o prazo, nunca espera outra operação). */
+  /**
+   * Renovação da concessão (fora da fila: só atualiza o prazo, nunca espera outra operação). O prazo é ABSOLUTO: uma
+   * concessão vencida não volta a valer, mesmo que o temporizador de expiração ainda não tenha rodado ou esteja no
+   * meio do encerramento. Nesse caso a renovação é recusada e a rotina de expiração (na fila) libera o consumidor.
+   */
   async function renew(p, controller) {
     assertOnly(p, ['recordingId']);
     assertId(p.recordingId, 'recordingId');
     const r = owned(p.recordingId, controller);
+    if (!TERMINAL.has(r.state) && (r.expiring || now() >= r.leaseExpiresAt)) {
+      expireIfDue(r.recordingId).catch(() => {}); // o desfecho chega pelo evento studio.recording.expired
+      throw fail('RECORDING_ENDED', 'A concessão expirou; a gravação está sendo encerrada.', { reason: 'LEASE_EXPIRED' });
+    }
     if (!TERMINAL.has(r.state)) {
       r.leaseExpiresAt = now() + r.leaseMs;
       persist(r);
@@ -639,10 +647,11 @@ export function createStudioRecorder(deps) {
       if (!r || TERMINAL.has(r.state)) {
         return;
       }
-      if (now() < r.leaseExpiresAt) {
+      if (!r.expiring && now() < r.leaseExpiresAt) {
         armLease(r); // renovada nesse meio-tempo
         return;
       }
+      r.expiring = true; // a partir daqui nenhuma renovação reativa a concessão
       await end(r, 'EXPIRED', 'LEASE_EXPIRED', null, 'expire', 'studio.recording.expired');
     });
   }

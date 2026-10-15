@@ -323,6 +323,63 @@ test('concessão: sem renovação a gravação expira e o consumidor é liberado
   assert.ok(posted.some((m) => m.event === 'studio.recording.expired' && m.payload.operationId === null));
 });
 
+test('concessão vencida: renovação atrasada (temporizador ainda não executou) não reativa a gravação', async () => {
+  const ref = await refOf((t) => t.access === 'LAB');
+  await send('studio.recording.start', { recordingId: 'rec-1', operationId: 'op-1', tabRef: ref, mode: 'CAPTURE_ONLY', leaseMs: 10000 });
+  const deadline = recorder.recordings.get('rec-1').leaseExpiresAt;
+  clock += 9999;
+  const inTime = await send('studio.recording.renew', { recordingId: 'rec-1' });
+  assert.equal(inTime.ok, true, 'renovação dentro do prazo continua valendo');
+  const renewedDeadline = recorder.recordings.get('rec-1').leaseExpiresAt;
+  assert.equal(renewedDeadline, deadline + 9999);
+  clock = renewedDeadline + 1; // 10.001 ms depois da última renovação; nenhum checkLeases/temporizador executado
+  assert.equal(recorder.recordings.get('rec-1').state, 'RECORDING', 'pré-condição: a expiração ainda não rodou');
+  const late = await send('studio.recording.renew', { recordingId: 'rec-1' });
+  assert.equal(late.ok, false, 'concessão vencida não é renovada');
+  assert.equal(late.error.code, 'RECORDING_ENDED');
+  assert.equal(late.error.reason, 'LEASE_EXPIRED');
+  assert.equal(recorder.recordings.get('rec-1').leaseExpiresAt, renewedDeadline, 'prazo não prolongado');
+  await settle();
+  const r = recorder.recordings.get('rec-1');
+  assert.equal(r.state, 'EXPIRED', 'encerrada pela rotina de expiração');
+  assert.equal(r.reason, 'LEASE_EXPIRED');
+  assert.equal(capture.get(1), null, 'consumidor liberado');
+  assert.equal(capture.released.filter((x) => x.consumer === 'studio-recorder:rec-1').length, 1, 'liberado uma única vez');
+  assert.equal(posted.filter((m) => m.event === 'studio.recording.expired').length, 1, 'um único evento de expiração');
+  const after = await send('studio.recording.renew', { recordingId: 'rec-1' });
+  assert.equal(after.payload.state, 'EXPIRED');
+  assert.equal(after.payload.expiresInMs, 0);
+});
+
+test('concessão vencida: renovação concorrente com a expiração já em andamento é recusada', async () => {
+  const ref = await refOf((t) => t.access === 'LAB');
+  await send('studio.recording.start', { recordingId: 'rec-1', operationId: 'op-1', tabRef: ref, mode: 'CAPTURE_ONLY', leaseMs: 10000 });
+  const deadline = recorder.recordings.get('rec-1').leaseExpiresAt;
+  // a liberação do consumidor fica presa: a expiração começa e não termina até liberarmos
+  let unblock;
+  const blocked = new Promise((r) => { unblock = r; });
+  const realRelease = capture.release.bind(capture);
+  capture.release = async (...args) => { await blocked; return realRelease(...args); };
+  clock = deadline + 1;
+  recorder.checkLeases(); // expiração agendada e em andamento (dentro da fila)
+  await settle();
+  assert.equal(recorder.recordings.get('rec-1').state, 'RECORDING', 'pré-condição: expiração ainda em curso');
+  const t0 = Date.now();
+  const racing = await send('studio.recording.renew', { recordingId: 'rec-1' });
+  assert.ok(Date.now() - t0 < 50, 'a renovação responde na hora, sem esperar a expiração');
+  assert.equal(racing.ok, false, 'não reativa a concessão que está expirando');
+  assert.equal(racing.error.code, 'RECORDING_ENDED');
+  assert.equal(racing.error.reason, 'LEASE_EXPIRED');
+  assert.equal(recorder.recordings.get('rec-1').leaseExpiresAt, deadline, 'prazo não prolongado');
+  unblock();
+  await settle();
+  await settle();
+  const r = recorder.recordings.get('rec-1');
+  assert.equal(r.state, 'EXPIRED');
+  assert.equal(capture.get(1), null, 'consumidor liberado');
+  assert.equal(posted.filter((m) => m.event === 'studio.recording.expired').length, 1, 'um único desfecho');
+});
+
 test('aba fechada: DEGRADED sem operação do Studio; finalizar registra a interrupção', async () => {
   const ref = await refOf((t) => t.access === 'LAB');
   await send('studio.recording.start', { recordingId: 'rec-1', operationId: 'op-1', tabRef: ref, mode: 'CAPTURE_ONLY', leaseMs: 30000 });
