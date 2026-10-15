@@ -1,0 +1,12 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.recording.pause",
+  "id": "c-4",
+  "seq": 6,
+  "ok": false,
+  "payload": null,
+  "error": {
+    "message": "falhou"
+  }
+}

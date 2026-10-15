@@ -1,0 +1,65 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.recording.finish",
+  "id": "c-6",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "recording": {
+      "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+      "state": "COMPLETED",
+      "mode": "CAPTURE_AND_INTERACT",
+      "tab": {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "Sistema de testes",
+        "host": "127.0.0.1"
+      },
+      "capture": {
+        "recorderAttached": false,
+        "otherConsumers": 1,
+        "captureStatus": "ACTIVE"
+      },
+      "coverage": {
+        "state": "COMPLETE",
+        "framesAttached": 0,
+        "framesUnavailable": 0
+      },
+      "counters": {
+        "segments": 1,
+        "technicalCaptures": 1,
+        "synchronizations": 4,
+        "recoveries": 0
+      },
+      "lease": {
+        "leaseMs": 30000,
+        "expiresInMs": 0
+      },
+      "startedAt": "2026-10-15T12:00:00.000Z",
+      "updatedAt": "2026-10-15T12:00:05.000Z",
+      "reason": "USER_FINISHED"
+    },
+    "summary": {
+      "state": "COMPLETED",
+      "durationMs": 42000,
+      "counters": {
+        "segments": 2,
+        "technicalCaptures": 2,
+        "synchronizations": 9,
+        "recoveries": 0
+      },
+      "coverage": {
+        "state": "COMPLETE",
+        "framesAttached": 0,
+        "framesUnavailable": 0
+      },
+      "pageMapExported": true,
+      "actionCapture": "NOT_AVAILABLE",
+      "limitations": [
+        "ACTION_CAPTURE_NOT_AVAILABLE"
+      ]
+    },
+    "duplicate": false
+  },
+  "error": null
+}

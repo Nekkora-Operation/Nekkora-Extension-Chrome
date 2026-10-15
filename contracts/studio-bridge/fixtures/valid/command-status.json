@@ -1,0 +1,8 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "bridge.status",
+  "id": "c-1",
+  "seq": 3,
+  "payload": {}
+}

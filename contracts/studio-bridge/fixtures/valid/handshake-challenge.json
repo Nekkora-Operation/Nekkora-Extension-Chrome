@@ -1,0 +1,16 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "handshake",
+  "type": "bridge.challenge",
+  "seq": 1,
+  "payload": {
+    "instanceId": "studio-7c1d",
+    "serverNonce": "PnJVC_lmilCtE-hDm65lXLOkE2k3gWqUdcPOL-SFZzI",
+    "accepts": [
+      "nekkora-bridge/1"
+    ],
+    "studio": {
+      "version": "1.0.0-SNAPSHOT"
+    }
+  }
+}

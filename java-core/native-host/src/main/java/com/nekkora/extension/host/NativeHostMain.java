@@ -1,7 +1,11 @@
 package com.nekkora.extension.host;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nekkora.extension.host.bridge.BridgeDiscovery;
+import com.nekkora.extension.host.bridge.StudioLink;
 import com.nekkora.extension.host.persistence.DataDirectory;
 import com.nekkora.extension.host.protocol.NativeMessageCodec;
+import com.nekkora.extension.host.runtime.HostRuntime;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -45,25 +48,15 @@ public final class NativeHostMain {
         NativeHost host = new NativeHost(dataDir);
         NativeMessageCodec codec = new NativeMessageCodec(new BufferedInputStream(System.in, 1 << 16),
                 new BufferedOutputStream(protocolOut, 1 << 16));
-        int handled = 0;
-        while (true) {
-            String raw;
-            try {
-                raw = codec.read();
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Fluxo de entrada inválido; encerrando", e);
-                break;
-            }
-            if (raw == null) {
-                LOG.info("Chrome encerrou a conexão após " + handled + " mensagem(ns)");
-                break;
-            }
-            List<String> frames = host.processor().process(raw);
-            for (String f : frames) {
-                codec.write(f);
-            }
-            handled++;
-        }
+        // Leitor, motor, controle e escritor separados (STUDIO-002): o canal do Studio nunca bloqueia o motor nem o
+        // contrário, e cada resposta fragmentada sai inteira antes de qualquer outro envelope.
+        ObjectMapper mapper = new ObjectMapper();
+        HostRuntime runtime = new HostRuntime(codec, host.processor(), mapper);
+        Path bridgeDir = BridgeDiscovery.defaultDirectory();
+        runtime.attachStudio(new StudioLink(mapper, host.processor(), runtime::sendToExtension, () -> runtime.engineBusy(1000),
+                new BridgeDiscovery(bridgeDir, mapper), 1000));
+        runtime.run();
+        LOG.info("Host encerrado.");
     }
 
     private static void configureLogging(DataDirectory dataDir) {

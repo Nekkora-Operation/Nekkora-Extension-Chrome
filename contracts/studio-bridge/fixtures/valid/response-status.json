@@ -1,0 +1,20 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "bridge.status",
+  "id": "c-1",
+  "seq": 2,
+  "ok": true,
+  "payload": {
+    "link": "CONNECTED",
+    "extension": {
+      "version": "0.4.0",
+      "buildMode": "DEV"
+    },
+    "host": {
+      "version": "0.2.0",
+      "engineBusy": false
+    }
+  },
+  "error": null
+}

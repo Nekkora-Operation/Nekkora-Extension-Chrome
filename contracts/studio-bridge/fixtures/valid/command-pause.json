@@ -1,0 +1,11 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.recording.pause",
+  "id": "c-4",
+  "seq": 6,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "operationId": "op-pause-1"
+  }
+}

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://nekkora.dev/contracts/native-protocol/1",
   "title": "Nekkora Native Messaging envelope (nekkora-nm/1)",
-  "description": "Mensagens trocadas entre a extensão e o host Java. Cada mensagem é enquadrada pelo Chrome (32 bits little-endian + JSON UTF-8). Saída do host <= 1 MiB por mensagem; mensagens maiores usam envelopes 'chunk'. CHROME-002: comandos capture.session.* (sessão de captura sequenciada), capture.pin, export.session e host.memory; códigos de recusa de delta. Mudança aditiva: nenhuma mensagem anterior deixou de ser válida.",
+  "description": "Mensagens trocadas entre a extensão e o host Java. Cada mensagem é enquadrada pelo Chrome (32 bits little-endian + JSON UTF-8). Saída do host <= 1 MiB por mensagem; mensagens maiores usam envelopes 'chunk'. CHROME-002: comandos capture.session.* (sessão de captura sequenciada), capture.pin, export.session e host.memory; códigos de recusa de delta. Mudança aditiva: nenhuma mensagem anterior deixou de ser válida. STUDIO-002 (aditivo): requisições studio.link.configure/studio.link.status e host.hold (operação longa controlada para testes de responsividade); mensagens iniciadas pelo HOST (studio.command, studio.link) e mensagens da extensão que não são requisições (studio.reply, studio.event) — roteadas pelo tipo, nunca confundidas com respostas.",
   "oneOf": [
     {
       "$ref": "#/$defs/Request"
@@ -12,6 +12,18 @@
     },
     {
       "$ref": "#/$defs/Chunk"
+    },
+    {
+      "$ref": "#/$defs/StudioCommand"
+    },
+    {
+      "$ref": "#/$defs/StudioReply"
+    },
+    {
+      "$ref": "#/$defs/StudioEvent"
+    },
+    {
+      "$ref": "#/$defs/StudioLink"
     }
   ],
   "$defs": {
@@ -64,7 +76,10 @@
             "element.accessPath",
             "protection.assess",
             "diagnostics.readiness",
-            "page.diagnose"
+            "page.diagnose",
+            "host.hold",
+            "studio.link.configure",
+            "studio.link.status"
           ]
         },
         "payload": {
@@ -190,6 +205,219 @@
         },
         "data": {
           "type": "string"
+        }
+      }
+    },
+    "StudioCommand": {
+      "description": "Host → extensão: comando do Studio já validado pelo contrato nekkora-bridge/1 e pela lista explícita do host. A extensão responde com studio.reply (mesmo id). Não é uma resposta: o NativeClient o roteia pelo tipo.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "type",
+        "id",
+        "command",
+        "payload",
+        "controller"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "nekkora-nm/1"
+        },
+        "type": {
+          "const": "studio.command"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sc-[0-9]{1,18}$"
+        },
+        "command": {
+          "enum": [
+            "browser.tabs.list",
+            "studio.recording.start",
+            "studio.recording.pause",
+            "studio.recording.resume",
+            "studio.recording.mode",
+            "studio.recording.finish",
+            "studio.recording.cancel",
+            "studio.recording.status",
+            "studio.recording.renew"
+          ]
+        },
+        "payload": {
+          "type": "object"
+        },
+        "controller": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "instanceId"
+          ],
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$"
+            }
+          }
+        }
+      }
+    },
+    "StudioReply": {
+      "description": "Extensão → host: resultado de um studio.command (ok + payload, ou ok=false + error com código estável do nekkora-bridge/1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "type",
+        "id",
+        "ok",
+        "payload",
+        "error"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "nekkora-nm/1"
+        },
+        "type": {
+          "const": "studio.reply"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^sc-[0-9]{1,18}$"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "payload": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "error": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "StudioEvent": {
+      "description": "Extensão → host: evento de uma gravação do Studio (studio.recording.*) para o controlador indicado. O host só repassa eventos da lista e dentro do contrato nekkora-bridge/1.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "type",
+        "event",
+        "payload",
+        "controller"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "nekkora-nm/1"
+        },
+        "type": {
+          "const": "studio.event"
+        },
+        "event": {
+          "type": "string",
+          "pattern": "^studio\\.recording\\.[A-Za-z]+$"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "controller": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "instanceId"
+          ],
+          "properties": {
+            "instanceId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$"
+            }
+          }
+        }
+      }
+    },
+    "StudioLink": {
+      "description": "Host → extensão: estado do canal com o Studio (exibido no painel).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "type",
+        "state",
+        "detail",
+        "controller"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "nekkora-nm/1"
+        },
+        "type": {
+          "const": "studio.link"
+        },
+        "state": {
+          "enum": [
+            "DISABLED",
+            "SEARCHING",
+            "CONNECTING",
+            "CONNECTED",
+            "INSECURE",
+            "INCOMPATIBLE",
+            "AUTH_FAILED"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 60
+        },
+        "controller": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "instanceId"
+              ],
+              "properties": {
+                "instanceId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._:-]{1,80}$"
+                }
+              }
+            }
+          ]
         }
       }
     }

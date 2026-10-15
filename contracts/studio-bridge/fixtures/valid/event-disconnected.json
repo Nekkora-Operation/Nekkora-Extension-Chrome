@@ -1,0 +1,9 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "bridge.disconnected",
+  "seq": 11,
+  "payload": {
+    "reason": "CHROME_DISCONNECTED"
+  }
+}

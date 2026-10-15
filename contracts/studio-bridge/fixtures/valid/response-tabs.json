@@ -1,0 +1,46 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "browser.tabs.list",
+  "id": "c-2",
+  "seq": 4,
+  "ok": true,
+  "payload": {
+    "tabs": [
+      {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "Sistema de testes",
+        "host": "127.0.0.1",
+        "access": "LAB",
+        "active": true,
+        "recording": false
+      },
+      {
+        "tabRef": "t-Hh28sKq0aaPz",
+        "title": "Wikipedia, a enciclopédia livre",
+        "host": "pt.wikipedia.org",
+        "access": "AUTHORIZED",
+        "active": false,
+        "recording": false
+      },
+      {
+        "tabRef": "t-Zz11Aa22Bb33",
+        "title": null,
+        "host": "portal.exemplo.com",
+        "access": "PERMISSION_REQUIRED",
+        "active": false,
+        "recording": false
+      },
+      {
+        "tabRef": "t-Yy99Xx88Ww77",
+        "title": null,
+        "host": null,
+        "access": "BROWSER_INTERNAL",
+        "active": false,
+        "recording": false
+      }
+    ],
+    "truncated": false
+  },
+  "error": null
+}
