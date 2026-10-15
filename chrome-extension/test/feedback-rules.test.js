@@ -12,13 +12,13 @@ new Function(readFileSync(path.join(here, '../src/shared/privacy.js'), 'utf8'))(
 new Function(readFileSync(path.join(here, '../src/shared/feedback-rules.js'), 'utf8'))();
 const F = globalThis.NekkoraFeedback;
 
-test('S005-041 — mensagem curta e sem dado sensível sai; vazia é NONE', () => {
+test('S005-047 — mensagem curta e sem dado sensível sai; vazia é NONE', () => {
   assert.deepEqual(F.messagePolicy('  Usuário ou   senha inválidos. ', []), { availability: 'AVAILABLE', text: 'Usuário ou senha inválidos.' });
   assert.deepEqual(F.messagePolicy('   ', []), { availability: 'NONE', text: null });
   assert.deepEqual(F.messagePolicy(null, []), { availability: 'NONE', text: null });
 });
 
-test('S005-042/047 — em caso de dúvida o texto é omitido (SUPPRESSED): CPF, e-mail, token, URL, números longos, segredo, tamanho', () => {
+test('S005-047/048/049 — em caso de dúvida o texto é omitido (SUPPRESSED): CPF, e-mail, token, URL, números longos, segredo, tamanho', () => {
   for (const unsafe of [
     'CPF 123.456.789-09 já cadastrado',
     'Enviamos o código para ana.souza@exemplo.com',
@@ -34,13 +34,13 @@ test('S005-042/047 — em caso de dúvida o texto é omitido (SUPPRESSED): CPF, 
   }
 });
 
-test('S005-043 — mensagem que repete um valor digitado na página é suprimida (comparação local, valor nunca sai)', () => {
+test('S005-047/048 — mensagem que repete um valor digitado na página é suprimida (comparação local, valor nunca sai)', () => {
   assert.equal(F.messagePolicy('Usuário anateste não encontrado', ['anateste']).availability, 'SUPPRESSED');
   assert.equal(F.messagePolicy('Usuário ANATESTE não encontrado', ['anateste']).availability, 'SUPPRESSED', 'sem diferenciar maiúsculas');
   assert.equal(F.messagePolicy('Usuário não encontrado', ['ab']).availability, 'AVAILABLE', 'valores curtos (<3) não suprimem tudo');
 });
 
-test('S005-021/022 — classificação pelos SINAIS: alert, alertdialog, status, aria-live; classe "error" só reforça', () => {
+test('S005-011/013/014 — classificação pelos SINAIS: alert, alertdialog, status, aria-live; classe "error" só reforça', () => {
   assert.deepEqual(F.classifyRegion({ role: 'alert' }), { type: 'VISIBLE_ALERT', classification: 'UNKNOWN_FEEDBACK', signals: ['ROLE_ALERT'] });
   assert.deepEqual(F.classifyRegion({ role: 'alert', errorHint: true }),
     { type: 'VISIBLE_ERROR_MESSAGE', classification: 'ERROR_INDICATOR', signals: ['ROLE_ALERT', 'ERROR_HINT'] });
@@ -56,7 +56,7 @@ test('S005-021/022 — classificação pelos SINAIS: alert, alertdialog, status,
   assert.deepEqual(viaRef.signals, ['ARIA_ERRORMESSAGE']);
 });
 
-test('S005-022 — indício de erro em classe/id/data-*: palavras inteiras, não substrings', () => {
+test('S005-011 — indício de erro em classe/id/data-*: palavras inteiras, não substrings', () => {
   assert.equal(F.hasErrorHint(['msg', 'alert-danger']), true);
   assert.equal(F.hasErrorHint(['erro-login']), true);
   assert.equal(F.hasErrorHint(['form-errors']), true);
@@ -64,7 +64,7 @@ test('S005-022 — indício de erro em classe/id/data-*: palavras inteiras, não
   assert.equal(F.hasErrorHint([]), false);
 });
 
-test('S005-011/012/013 — correlação: uma candidata = associada; várias = AMBÍGUA; outro documento ou FILL não concorrem', () => {
+test('S005-021/042 — correlação: uma candidata = associada; várias = AMBÍGUA; outro documento ou FILL não concorrem', () => {
   const main = {};
   const frame = {};
   const w = (localSeq, action, doc, openedAt, closesAt) => ({ localSeq, action, doc, openedAt, closesAt });
@@ -77,14 +77,14 @@ test('S005-011/012/013 — correlação: uma candidata = associada; várias = AM
   assert.equal(F.correlate([], 1, main), null);
 });
 
-test('S005-058 — janela de observação só em CAPTURE_AND_INTERACT', () => {
+test('S005-035/036 — janela de observação só em CAPTURE_AND_INTERACT', () => {
   assert.equal(F.opensWindow('CLICK', 'CAPTURE_AND_INTERACT'), true);
   assert.equal(F.opensWindow('FILL', 'CAPTURE_AND_INTERACT'), true);
   assert.equal(F.opensWindow('CLICK', 'CAPTURE_ONLY'), false);
   assert.equal(F.opensWindow('NAVIGATE', 'CAPTURE_AND_INTERACT'), false);
 });
 
-test('S005-026 — valores de estado normalizados para o contrato', () => {
+test('S005-018 — valores de estado normalizados para o contrato', () => {
   assert.equal(F.stateValue(null), 'absent');
   assert.equal(F.stateValue('TRUE'), 'true');
   assert.equal(F.stateValue('false'), 'false');

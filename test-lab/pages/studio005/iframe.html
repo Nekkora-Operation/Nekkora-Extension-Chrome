@@ -11,12 +11,14 @@
   <h1>Iframe com mensagens (STUDIO-005)</h1>
   <p class="muted">Cenário 7: mensagens dentro de um iframe autorizado são da ação feita no iframe; a mensagem que o
     documento principal escreve dentro do iframe NÃO é atribuída à ação do documento principal. O iframe de outra origem
-    sem permissão não é observado.</p>
+    sem permissão não é observado. O componente com Shadow DOM aberto também é observado (região dentro do shadow root).</p>
   <p>
     <button id="principal" type="button">Atualizar painel</button>
     <button id="principal-no-quadro" type="button">Avisar no quadro</button>
   </p>
   <p id="status-principal" role="status"></p>
+  <h2>Componente (Shadow DOM aberto)</h2>
+  <caixa-confirmacao id="caixa"></caixa-confirmacao>
   <iframe id="quadro" title="Rascunho" src="/lab/studio005/quadro.html"></iframe>
   <iframe id="externo" title="Parceiro sem permissão"></iframe>
   <script>
@@ -29,6 +31,17 @@
       a.textContent = 'Aviso escrito pelo painel.';
       a.hidden = false;
     });
+    class CaixaConfirmacao extends HTMLElement {
+      constructor() {
+        super();
+        const root = this.attachShadow({ mode: 'open' });
+        root.innerHTML = '<button id="confirmar" type="button">Confirmar envio</button> <p id="estado" role="status"></p>';
+        root.getElementById('confirmar').addEventListener('click', () => {
+          root.getElementById('estado').textContent = 'Envio confirmado no componente.';
+        });
+      }
+    }
+    customElements.define('caixa-confirmacao', CaixaConfirmacao);
     const ext = new URLSearchParams(location.search).get('externo');
     if (ext) {
       document.getElementById('externo').src = ext;

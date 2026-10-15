@@ -269,7 +269,7 @@ class Studio005EvidenceIT extends SessionIT {
     // ------------------------------------------------------------------------------------------ cenários
 
     @Test
-    @DisplayName("S005-010/021/023/031/041/043 — Cenário 1 (login com erro): alerta vinculado ao clique; mensagem antiga e classe CSS sozinha não contam")
+    @DisplayName("S005-006/009/010/011/012/019/020/047 — Cenário 1 (login com erro): alerta vinculado ao clique; mensagem antiga e classe CSS sozinha não contam")
     void s005LoginError() throws Exception {
         Page p = open(BASE + "login-erro.html");
         String rid = id("rec");
@@ -327,7 +327,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-014/015/017/059 — Cenário 2 (mensagem tardia): confirmação 1 s depois é associada; fora da janela não é; observadores desligam")
+    @DisplayName("S005-014/022/036 — Cenário 2 (mensagem tardia): confirmação 1 s depois é associada; fora da janela não é; observadores desligam")
     void s005LateMessage() throws Exception {
         Page p = open(BASE + "tardia.html");
         String rid = id("rec");
@@ -357,7 +357,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-012 — Cenário 3 (ambígua): um aviso depois de dois cliques seguidos não é atribuído a nenhuma etapa")
+    @DisplayName("S005-021 — Cenário 3 (ambígua): um aviso depois de dois cliques seguidos não é atribuído a nenhuma etapa")
     void s005Ambiguous() throws Exception {
         Page p = open(BASE + "ambigua.html");
         String rid = id("rec");
@@ -381,7 +381,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-024/025 — Cenário 4 (validação): aria-invalid ao sair do campo e validação nativa no envio, sem reportValidity")
+    @DisplayName("S005-015 — Cenário 4 (validação): aria-invalid ao sair do campo e validação nativa no envio, sem reportValidity")
     void s005Validation() throws Exception {
         Page p = open(BASE + "validacao.html");
         String rid = id("rec");
@@ -410,7 +410,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-027/028/029 — Cenário 5 (pesquisa): carregamento, fim do carregamento, conteúdo atualizado e contagem — sem concluir sucesso")
+    @DisplayName("S005-013/016/017/034 — Cenário 5 (pesquisa): carregamento, fim do carregamento, conteúdo atualizado e contagem — sem concluir sucesso")
     void s005SearchLoading() throws Exception {
         Page p = open(BASE + "pesquisa.html");
         String rid = id("rec");
@@ -436,7 +436,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-008/009/019/026 — Cenário 6 (SPA): rota trocada, painel aberto (aria-expanded) e novo documento (janela cortada pela navegação)")
+    @DisplayName("S005-007/008/018/045 — Cenário 6 (SPA): rota trocada, painel aberto (aria-expanded) e novo documento (janela cortada pela navegação)")
     void s005Spa() throws Exception {
         Page p = open(BASE + "spa.html");
         String rid = id("rec");
@@ -467,7 +467,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-032/033/034 — Cenário 7 (iframe): mensagem do iframe é da ação no iframe; escrita pelo principal no iframe não é atribuída; sem permissão não é observado")
+    @DisplayName("S005-042/043/044 — Cenário 7 (iframe e Shadow DOM): mensagem do iframe é da ação no iframe; escrita pelo principal no iframe não é atribuída; sem permissão não é observado; região no shadow root observada")
     void s005Frames() throws Exception {
         Page p = open(BASE + "iframe.html?externo=" + java.net.URLEncoder.encode(lab.externalUrl(BrowserLab.SITE_X, "/lab/studio005/quadro.html"),
                 java.nio.charset.StandardCharsets.UTF_8));
@@ -497,13 +497,22 @@ class Studio005EvidenceIT extends SessionIT {
         assertEquals(0, end.at("/details/signalsObserved").asInt(), "aviso em OUTRO documento não é consequência atribuída: " + brief(evidences(rid)));
         assertTrue(evidences(rid).stream().noneMatch(e -> e.toString().contains("Aviso escrito pelo painel")), brief(evidences(rid)).toString());
         assertEquals(3, steps(rid).size(), "nenhuma etapa do iframe sem permissão: " + names(steps(rid)));
+        // Shadow DOM aberto: a região de status dentro do shadow root é observada e associada ao clique no componente
+        Thread.sleep(QUIET_MS);
+        WebElement confirmar = d.findElement(By.id("caixa")).getShadowRoot().findElement(By.cssSelector("#confirmar"));
+        new Actions(d).moveToElement(confirmar).click().perform();
+        JsonNode comp = awaitSteps(rid, 4).get(3);
+        JsonNode inShadow = awaitEvidence(rid, "status no shadow root", of(comp, "VISIBLE_STATUS_MESSAGE"));
+        assertTrue(inShadow.at("/document/inShadow").asBoolean(), inShadow.toString());
+        assertEquals("MAIN", inShadow.at("/document/frame").asText());
+        assertEquals("Envio confirmado no componente.", inShadow.at("/details/message/text").asText());
         ackAll(rid);
         JsonNode fin = op("studio.recording.finish", rid);
         assertTrue(fin.at("/payload/summary/limitations").toString().contains("PARTIAL_COVERAGE"), "cobertura parcial declarada: " + fin);
     }
 
     @Test
-    @DisplayName("S005-042/044/045/046/047/048 — Cenário 8 (dados sensíveis): CPF, e-mail, token, valor digitado, senha, texto longo e HTML nunca saem da página")
+    @DisplayName("S005-047/048/049/051 — Cenário 8 (dados sensíveis): CPF, e-mail, token, valor digitado, senha, texto longo e HTML nunca saem da página")
     void s005Sensitive() throws Exception {
         Page p = open(BASE + "sensivel.html");
         String rid = id("rec");
@@ -536,7 +545,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-018/055 — pausa com observação aberta: INCOMPLETA (WINDOW_CUT_BY_PAUSE); a mensagem depois da pausa não é evidência")
+    @DisplayName("S005-037/038 — pausa com observação aberta: INCOMPLETA (WINDOW_CUT_BY_PAUSE); a mensagem depois da pausa não é evidência")
     void s005PauseCutsWindow() throws Exception {
         Page p = open(BASE + "tardia.html");
         String rid = id("rec");
@@ -558,7 +567,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-058 — CAPTURE_ONLY: a ação não é executada, nenhum observador e nenhuma evidência de consequência")
+    @DisplayName("S005-035 — CAPTURE_ONLY: a ação não é executada, nenhum observador e nenhuma evidência de consequência")
     void s005CaptureOnly() throws Exception {
         Page p = open(BASE + "login-erro.html");
         String rid = id("rec");
@@ -574,7 +583,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-002/CA — Studio sem evidence/1 (STUDIO-003/004): observador desligado e nenhum evento novo")
+    @DisplayName("S005-004 — Studio sem evidence/1 (STUDIO-003/004): observador desligado e nenhum evento novo")
     void s005Compat() throws Exception {
         Page p = open(BASE + "login-erro.html");
         String rid = id("rec");
@@ -591,7 +600,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-035/036 — reconexão: evidências não confirmadas são reemitidas com a mesma identidade e não duplicam")
+    @DisplayName("S005-024/025 — reconexão: evidências não confirmadas são reemitidas com a mesma identidade e não duplicam")
     void s005Reconnect() throws Exception {
         Page p = open(BASE + "login-erro.html");
         String rid = id("rec");
@@ -618,7 +627,7 @@ class Studio005EvidenceIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S005-060/061 (desempenho) — cliques consecutivos com e sem evidence/1: latência até a etapa, custo das evidências, observadores ociosos")
+    @DisplayName("Desempenho (S005-063) — cliques consecutivos com e sem evidence/1: latência até a etapa, custo das evidências, observadores ociosos")
     void s005Performance() throws Exception {
         Map<String, Object> out = new LinkedHashMap<>();
         for (boolean ev : new boolean[] {false, true}) {

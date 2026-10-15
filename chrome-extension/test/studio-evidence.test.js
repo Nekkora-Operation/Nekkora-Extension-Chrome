@@ -208,7 +208,7 @@ function assertContract(list) {
 
 // ------------------------------------------------------------------------------------------- capacidade
 
-test('S005-001/002 — evidence/1 negociada: o sensor recebe evidence=true; sem a capacidade nada muda (Studio antigo)', async () => {
+test('S005-003/004 — evidence/1 negociada: o sensor recebe evidence=true; sem a capacidade nada muda (Studio antigo)', async () => {
   const r = await start();
   assert.equal(r.ok, true, JSON.stringify(r));
   assert.equal(contentCalls.find((c) => c.cmd === 'cs.recorder.start').args.evidence, true);
@@ -238,7 +238,7 @@ test('S005-003 — evidence/1 sem steps/1 e capacidade desconhecida são recusad
 
 // ------------------------------------------------------------------------------------------- vínculo e ordem
 
-test('S005-010/031 — mensagem de erro depois do clique: evidência vinculada à etapa (eventId, stepSequence), emitida DEPOIS dela', async () => {
+test('S005-010/023/027 — mensagem de erro depois do clique: evidência vinculada à etapa (eventId, stepSequence), emitida DEPOIS dela', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   hostDelay = new Promise((res) => setTimeout(res, 5)); // a etapa ainda está em correlação quando a evidência chega
@@ -266,7 +266,7 @@ test('S005-010/031 — mensagem de erro depois do clique: evidência vinculada �
   assertContract(ev);
 });
 
-test('S005-012 — feedback ambíguo (duas interações candidatas): AMBIGUOUS_FEEDBACK sem etapa, contado como não atribuído', async () => {
+test('S005-021 — feedback ambíguo (duas interações candidatas): AMBIGUOUS_FEEDBACK sem etapa, contado como não atribuído', async () => {
   await start();
   interact('CLICK');
   interact('CLICK', 'n4');
@@ -284,7 +284,7 @@ test('S005-012 — feedback ambíguo (duas interações candidatas): AMBIGUOUS_F
   assert.equal(fin.payload.summary.evidence.unattributed, 1);
 });
 
-test('S005-033 — evidência de iframe não é atribuída à ação do documento principal', async () => {
+test('S005-042 — evidência de iframe não é atribuída à ação do documento principal', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   const r = errorMessage(s1, 'Erro no quadro', {}); // mesma seq local, mas vinda de OUTRO documento (frame 3)
@@ -297,7 +297,7 @@ test('S005-033 — evidência de iframe não é atribuída à ação do document
   assert.deepEqual(evidences().map((e) => e.details.message.text), ['Erro no quadro']);
 });
 
-test('S005-034 — documento filho: frame=FRAME e limitação CROSS_DOCUMENT_NOT_ATTRIBUTED preservada', async () => {
+test('S005-042/044 — documento filho: frame=FRAME e limitação CROSS_DOCUMENT_NOT_ATTRIBUTED preservada', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK', 'n3', {}, 2);
   recorder.onSensor(1, 2, 'feedback', { epoch: sensor.epoch, fseq: 1, at: clock, kind: 'evidence', localSeq: s1, type: 'VISIBLE_STATUS_MESSAGE',
@@ -314,7 +314,7 @@ test('S005-034 — documento filho: frame=FRAME e limitação CROSS_DOCUMENT_NOT
 
 // ------------------------------------------------------------------------------------------- privacidade
 
-test('S005-047/048 — 2ª barreira: mensagem sensível suprimida, região/campo mascarados, campos extras e sinais desconhecidos descartados', async () => {
+test('S005-047/051/052 — 2ª barreira: mensagem sensível suprimida, região/campo mascarados, campos extras e sinais desconhecidos descartados', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   feedback({ kind: 'evidence', localSeq: s1, type: 'VISIBLE_ERROR_MESSAGE', classification: 'ERROR_INDICATOR', confidence: 'TEMPORALLY_ASSOCIATED',
@@ -333,7 +333,7 @@ test('S005-047/048 — 2ª barreira: mensagem sensível suprimida, região/campo
   assertContract([ev]);
 });
 
-test('S005-049 — tipo desconhecido, tipo reservado ao service worker e estado inválido são recusados', async () => {
+test('S005-064 — tipo desconhecido, tipo reservado ao service worker e estado inválido são recusados', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   for (const type of ['BUSINESS_SUCCESS', 'FORM_SUBMITTED', 'OBSERVATION_COMPLETE', 'DOCUMENT_CHANGED']) {
@@ -351,7 +351,7 @@ test('S005-049 — tipo desconhecido, tipo reservado ao service worker e estado 
 
 // ------------------------------------------------------------------------------------------- CAPTURE_ONLY
 
-test('S005-058 — CAPTURE_ONLY (etapa proposta): nenhuma evidência de consequência é aceita', async () => {
+test('S005-035 — CAPTURE_ONLY (etapa proposta): nenhuma evidência de consequência é aceita', async () => {
   await start(['steps/1', 'evidence/1'], 'CAPTURE_ONLY');
   const { localSeq: s1 } = interact('CLICK');
   const r = errorMessage(s1);
@@ -367,7 +367,7 @@ test('S005-058 — CAPTURE_ONLY (etapa proposta): nenhuma evidência de consequ�
 
 // ------------------------------------------------------------------------------------------- janelas
 
-test('S005-015/016 — janela termina exatamente uma vez: COMPLETE com sinais observados; repetição recusada', async () => {
+test('S005-019/024 — janela termina exatamente uma vez: COMPLETE com sinais observados; repetição recusada', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   errorMessage(s1);
@@ -382,7 +382,7 @@ test('S005-015/016 — janela termina exatamente uma vez: COMPLETE com sinais ob
   assertContract(ev);
 });
 
-test('S005-017 — janela sem nenhum sinal: OBSERVATION_COMPLETE com 0 sinais (ausência observada ≠ observação indisponível)', async () => {
+test('S005-036 — janela sem nenhum sinal: OBSERVATION_COMPLETE com 0 sinais (ausência observada ≠ observação indisponível)', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   feedback({ kind: 'complete', localSeq: s1, signalsObserved: 0, limitations: [] });
@@ -391,7 +391,7 @@ test('S005-017 — janela sem nenhum sinal: OBSERVATION_COMPLETE com 0 sinais (a
   assert.deepEqual(ev.map((e) => [e.type, e.details.signalsObserved]), [['OBSERVATION_COMPLETE', 0]]);
 });
 
-test('S005-018/055 — pausa com janela aberta: OBSERVATION_INCOMPLETE (RECORDER, WINDOW_CUT_BY_PAUSE); depois da pausa nada é aceito', async () => {
+test('S005-037 — pausa com janela aberta: OBSERVATION_INCOMPLETE (RECORDER, WINDOW_CUT_BY_PAUSE); depois da pausa nada é aceito', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   await settle();
@@ -410,7 +410,7 @@ test('S005-018/055 — pausa com janela aberta: OBSERVATION_INCOMPLETE (RECORDER
   assertContract(ev);
 });
 
-test('S005-009/019 — documento substituído com janela aberta: DOCUMENT_CHANGED e INCOMPLETE (WINDOW_CUT_BY_NAVIGATION); a conclusão tardia da página é recusada', async () => {
+test('S005-007/045 — documento substituído com janela aberta: DOCUMENT_CHANGED e INCOMPLETE (WINDOW_CUT_BY_NAVIGATION); a conclusão tardia da página é recusada', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   await settle();
@@ -428,7 +428,7 @@ test('S005-009/019 — documento substituído com janela aberta: DOCUMENT_CHANGE
   assertContract(ev);
 });
 
-test('S005-020 — corte informado pela página (pagehide) vira INCOMPLETE com o motivo da página', async () => {
+test('S005-045 — corte informado pela página (pagehide) vira INCOMPLETE com o motivo da página', async () => {
   await start();
   const { localSeq: s1 } = interact('FILL', 'n1');
   feedback({ kind: 'incomplete', localSeq: s1, signalsObserved: 0, limitations: ['WINDOW_CUT_BY_NAVIGATION'] });
@@ -439,7 +439,7 @@ test('S005-020 — corte informado pela página (pagehide) vira INCOMPLETE com o
 
 // ------------------------------------------------------------------------------------------- formulário e navegação
 
-test('S005-006/007 — FORM_SUBMITTED estruturado (DIRECTLY_OBSERVED, AT_ACTION), também quando o envio chega depois da etapa', async () => {
+test('S005-006/022 — FORM_SUBMITTED estruturado (DIRECTLY_OBSERVED, AT_ACTION), também quando o envio chega depois da etapa', async () => {
   await start();
   interact('CLICK', 'n3', { evidence: ['FORM_SUBMITTED'] });
   await settle();
@@ -457,7 +457,7 @@ test('S005-006/007 — FORM_SUBMITTED estruturado (DIRECTLY_OBSERVED, AT_ACTION)
   assertContract(ev);
 });
 
-test('S005-008/009 — navegação depois do clique: ROUTE_CHANGED (SPA) e DOCUMENT_CHANGED, URL sanitizada; duas candidatas = ambígua', async () => {
+test('S005-007/008/021 — navegação depois do clique: ROUTE_CHANGED (SPA) e DOCUMENT_CHANGED, URL sanitizada; duas candidatas = ambígua', async () => {
   await start();
   interact('CLICK');
   await settle();
@@ -487,7 +487,7 @@ test('S005-008/009 — navegação depois do clique: ROUTE_CHANGED (SPA) e DOCUM
   assertContract(ev);
 });
 
-test('S005-008b — navegação sem nenhuma ação recente não é evidência de etapa nenhuma', async () => {
+test('S005-008 — navegação sem nenhuma ação recente não é evidência de etapa nenhuma', async () => {
   await start();
   interact('CLICK');
   await settle();
@@ -499,7 +499,7 @@ test('S005-008b — navegação sem nenhuma ação recente não é evidência de
 
 // ------------------------------------------------------------------------------------------- entrega
 
-test('S005-035/036/037 — ACK cumulativo, sync reemite a MESMA identidade, renew informa o estado', async () => {
+test('S005-024/025/026 — ACK cumulativo, sync reemite a MESMA identidade, renew informa o estado', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   errorMessage(s1);
@@ -522,7 +522,7 @@ test('S005-035/036/037 — ACK cumulativo, sync reemite a MESMA identidade, rene
   assert.equal(bad.error.code, 'BAD_REQUEST');
 });
 
-test('S005-038 — ack/sync de evidências numa gravação sem evidence/1: BAD_REQUEST', async () => {
+test('S005-004 — ack/sync de evidências numa gravação sem evidence/1: BAD_REQUEST', async () => {
   await start(['steps/1']);
   const a = await send('studio.recording.evidence.ack', { recordingId: 'rec-5', upToSequence: 0 });
   assert.equal(a.error.code, 'BAD_REQUEST');
@@ -530,7 +530,7 @@ test('S005-038 — ack/sync de evidências numa gravação sem evidence/1: BAD_R
   assert.equal(s.error.code, 'BAD_REQUEST');
 });
 
-test('S005-039/052 — limite de pendentes: perda DECLARADA (lost, EVIDENCE_LOST) sem degradar a gravação', async () => {
+test('S005-053/054 — limite de pendentes: perda DECLARADA (lost, EVIDENCE_LOST) sem degradar a gravação', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   await settle();
@@ -555,7 +555,7 @@ test('S005-039/052 — limite de pendentes: perda DECLARADA (lost, EVIDENCE_LOST
 
 // ------------------------------------------------------------------------------------------- ciclo de vida
 
-test('S005-056 — cancelamento: evidências retidas e as que esperavam a etapa deixam de existir', async () => {
+test('S005-040 — cancelamento: evidências retidas e as que esperavam a etapa deixam de existir', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   hostDelay = new Promise((res) => setTimeout(res, 20)); // a etapa ainda em correlação quando o cancelamento chega
@@ -567,7 +567,7 @@ test('S005-056 — cancelamento: evidências retidas e as que esperavam a etapa 
   assert.equal(c.payload.summary.evidence.unacknowledged, 0);
 });
 
-test('S005-057 — finalização: janelas abertas declaradas (WINDOW_CUT_BY_STOP), resumo com as contagens e no contrato', async () => {
+test('S005-039 — finalização: janelas abertas declaradas (WINDOW_CUT_BY_STOP), resumo com as contagens e no contrato', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   errorMessage(s1);
@@ -582,7 +582,7 @@ test('S005-057 — finalização: janelas abertas declaradas (WINDOW_CUT_BY_STOP
   assertContract(ev);
 });
 
-test('S005-054 — retomada: nova época com evidence=true; observações da época anterior são recusadas', async () => {
+test('S005-038 — retomada: nova época com evidence=true; observações da época anterior são recusadas', async () => {
   await start();
   const old = sensor.epoch;
   await send('studio.recording.pause', { recordingId: 'rec-5', operationId: 'op-p' });
@@ -596,7 +596,7 @@ test('S005-054 — retomada: nova época com evidence=true; observações da ép
   assert.equal(res.error, 'STALE_EPOCH');
 });
 
-test('S005-061 — métricas do pipeline: contagens por tipo e latência, sem conteúdo', async () => {
+test('Desempenho (S005-063) — métricas do pipeline: contagens por tipo e latência, sem conteúdo', async () => {
   await start();
   const { localSeq: s1 } = interact('CLICK');
   errorMessage(s1);
@@ -606,4 +606,29 @@ test('S005-061 — métricas do pipeline: contagens por tipo e latência, sem co
   assert.equal(m.byType.VISIBLE_ERROR_MESSAGE, 1);
   assert.equal(m.openWindows, 1);
   assert.ok(!JSON.stringify(m).includes('inválidos'), 'métricas sem texto de mensagem');
+});
+
+test('S005-041/046 — degradação (captura encerrada ou permissão revogada): sensores parados, janelas declaradas e observações posteriores recusadas', async () => {
+  for (const reason of ['CAPTURE_ENDED', 'PERMISSION_REVOKED']) {
+    build();
+    await start();
+    const { localSeq: s1 } = interact('CLICK');
+    await settle();
+    const rec = capture.get(1);
+    rec.status = 'COMPLETED';
+    rec.reason = reason === 'CAPTURE_ENDED' ? null : reason;
+    for (const fn of capture.hooks.onStatus) {
+      fn(rec);
+    }
+    for (let i = 0; i < 5; i++) {
+      await settle();
+    }
+    const view = await send('studio.recording.status', { recordingId: 'rec-5' });
+    assert.equal(view.payload.recordings[0].state, 'DEGRADED', reason);
+    assert.ok(contentCalls.some((c) => c.cmd === 'cs.recorder.stop'), 'sensores (e observador) desligados');
+    const ev = evidences();
+    assert.deepEqual(ev.map((e) => [e.type, e.source, e.limitations.join()]), [['OBSERVATION_INCOMPLETE', 'RECORDER', 'WINDOW_CUT_BY_STOP']], reason);
+    assert.equal(errorMessage(s1).error, 'STALE_EPOCH', 'nada observado depois da degradação');
+    assertContract(ev);
+  }
 });
