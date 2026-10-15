@@ -449,7 +449,7 @@ class Chrome003FrameIT extends FrameIT {
     void pageMap() throws Exception {
         Page p = openActive(FRAMES, 9);
         JsonNode map = exportMap(p);
-        assertEquals("0.2.0", map.get("version").asText());
+        assertEquals("0.3.0", map.get("version").asText()); // CHROME-SECURITY-001
         Contracts.assertValid("page-map.schema.json", map);
         for (String k : List.of("snapshot", "elements", "frameGraph", "accessPaths", "protection", "readiness")) {
             assertTrue(map.has(k), k);

@@ -14,10 +14,11 @@
  *   - origem sem permissão ⇒ não há content script; permanece declarado como inacessível pelo pai.
  */
 import '../shared/privacy.js';
+import '../shared/ui-vocabulary.js';
+import '../shared/capture-policy.js';
 import { host, toContent, isAllowedUrl, broadcast, errorInfo, withLock, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
 
-const P = globalThis.NekkoraPrivacy;
 
 const MAX_FRAMES_PER_TAB = 20;
 
@@ -61,7 +62,8 @@ export async function attach(rec, frameId, info) {
   if (existing && existing.epoch === rec.epoch && existing.status === 'ATTACHED' && (!info || !info.documentId || existing.documentId === info.documentId)) {
     return existing;
   }
-  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null, url: info && P.sanitizeUrl(info.url), reason: null,
+  const entry = { frameId, source: src, status: 'PENDING', epoch: rec.epoch, hostNodeId: null,
+    url: info && globalThis.NekkoraCapturePolicy ? globalThis.NekkoraCapturePolicy.urlTemplate(info.url) : null, reason: null,
     documentId: info && info.documentId, parentFrameId: info && info.parentFrameId != null ? info.parentFrameId : 0 };
   rec.frames[src] = entry;
   try {

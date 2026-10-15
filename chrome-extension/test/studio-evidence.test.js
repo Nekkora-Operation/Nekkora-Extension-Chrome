@@ -11,6 +11,8 @@ import { check } from './helpers/mini-schema.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 // eslint-disable-next-line no-new-func
 new Function(readFileSync(path.join(here, '../src/shared/privacy.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/ui-vocabulary.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/capture-policy.js'), 'utf8'))();
 
 let store;
 let clock;

@@ -18,8 +18,8 @@
     "document": {
       "frame": "MAIN",
       "inShadow": false,
-      "title": "Login de teste",
-      "url": "http://127.0.0.1:18765/lab/studio005/login-erro.html"
+      "title": "Login",
+      "url": "http://127.0.0.1:18765/{…}/{…}/{…}"
     },
     "details": {
       "region": null,
@@ -31,7 +31,7 @@
       "state": null,
       "navigation": {
         "kind": "SAME_DOCUMENT",
-        "url": "http://127.0.0.1:18765/lab/studio005/spa.html#/clientes"
+        "url": "http://127.0.0.1:18765/{…}/{…}/{…}"
       },
       "signals": [
         "HISTORY_API"

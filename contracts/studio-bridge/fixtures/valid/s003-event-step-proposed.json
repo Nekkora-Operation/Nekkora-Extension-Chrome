@@ -47,7 +47,7 @@
       "accessPath": [
         {
           "type": "MAIN_DOCUMENT",
-          "label": "Login de teste",
+          "label": "Login",
           "locator": null,
           "restriction": null
         },

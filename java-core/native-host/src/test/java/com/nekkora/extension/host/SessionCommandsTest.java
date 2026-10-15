@@ -109,7 +109,7 @@ class SessionCommandsTest {
         assertTrue(r.get("ok").asBoolean(), r.toString());
         JsonNode e = r.at("/payload/export");
         assertEquals("EXPORTED", e.get("status").asText(), e.toString());
-        assertEquals("0.2.0", e.get("schemaVersion").asText());
+        assertEquals("0.3.0", e.get("schemaVersion").asText()); // CHROME-SECURITY-001
         assertTrue(e.at("/validation/valid").asBoolean());
         assertTrue(e.get("complete").asBoolean());
         Path file = Path.of(e.get("path").asText());

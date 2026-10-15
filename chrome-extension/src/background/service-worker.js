@@ -176,6 +176,8 @@ const commands = {
   'studio.link.get': async () => studioLink.describe(),
   'studio.link.set': async (a) => studioLink.setEnabled(!!a.enabled),
   'studio.recordings': async () => studioRecording.list(),
+  // DEV (testes): referência opaca da aba para o Studio — o título deixou de identificar a aba (CHROME-SECURITY-001, D4)
+  'studio.tabRef': async (a) => ({ tabRef: studioRecording.tabRef(a.tabId) }),
   /** Medições do pipeline de etapas (harness/diagnóstico): contagens e latências, sem conteúdo da página. */
   'studio.steps.metrics': async (a) => studioRecording.stepMetrics(a.recordingId),
   'studio.evidence.metrics': async (a) => studioRecording.evidenceMetrics(a.recordingId),

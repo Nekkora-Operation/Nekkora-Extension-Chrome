@@ -14,7 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Identidades lógicas registradas, persistidas em {@code targets/registry.json}.
+ * Identidades lógicas registradas, persistidas em {@code targets/registry-v2.json} (CHROME-SECURITY-001: conteúdo sob
+ * {@code nekkora-privacy/2}). O {@code targets/registry.json} de versões anteriores — que podia conter texto da página —
+ * NÃO é lido nem apagado: a limpeza é um procedimento explícito do usuário (docs/chrome-security-001/storage-and-retention.md).
  *
  * <p>Cada alvo tem um DONO (aba e, quando havia, sessão de captura em que foi registrado). Exportações e
  * reencontros automáticos consideram somente os alvos do próprio contexto: duas abas na mesma URL (ex.:
@@ -33,6 +35,9 @@ public final class TargetRegistry {
     public record Owner(String tabKey, String sessionId) {
     }
 
+    /** Arquivo do registro sob a política vigente; o antigo ({@code registry}) nunca é lido. */
+    static final String FILE = "registry-v2";
+
     private final Map<String, TargetIdentity> targets = new LinkedHashMap<>();
     private final Map<String, Owner> owners = new LinkedHashMap<>();
     private final JsonFileStore store;
@@ -47,7 +52,7 @@ public final class TargetRegistry {
             return;
         }
         try {
-            store.read("targets", "registry", Persisted.class).ifPresent(p -> {
+            store.read("targets", FILE, Persisted.class).ifPresent(p -> {
                 if (p.targets() != null) {
                     p.targets().forEach(t -> targets.put(t.targetId(), t));
                 }
@@ -146,7 +151,7 @@ public final class TargetRegistry {
                     }
                 }
             }
-            store.write("targets", "registry", new Persisted(TargetIdentity.SCHEMA_VERSION, lab, labOwners));
+            store.write("targets", FILE, new Persisted(TargetIdentity.SCHEMA_VERSION, lab, labOwners));
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Falha ao persistir registro de alvos", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
         }

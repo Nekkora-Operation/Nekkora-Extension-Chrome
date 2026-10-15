@@ -13,7 +13,8 @@ let override = null;
 let loaded = false;
 
 /** Comandos expostos somente em DEV. */
-export const DEV_ONLY = new Set(['page.capture', 'session.forceFull', 'page.compare', 'target.resolve', 'pagemap.export', 'page.rawSnapshot', 'session.debug', 'page.highlightFrame']);
+export const DEV_ONLY = new Set(['page.capture', 'session.forceFull', 'page.compare', 'target.resolve', 'pagemap.export', 'page.rawSnapshot', 'session.debug', 'page.highlightFrame',
+  'studio.tabRef']);
 
 export async function loadConfig() {
   if (loaded) {

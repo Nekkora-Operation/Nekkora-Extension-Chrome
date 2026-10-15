@@ -53,11 +53,29 @@ public record PageMap(
         com.nekkora.extension.core.frames.FrameGraph frameGraph,
         List<com.nekkora.extension.core.frames.ElementAccessPath> accessPaths,
         com.nekkora.extension.core.protection.ProtectionReport protection,
-        com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness) {
+        com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness,
+        String privacy) {
 
     public static final String SCHEMA = "nekkora.pagemap";
-    /** 0.2.0 (CHROME-003): frameGraph, accessPaths, protection, readiness; documentId nos elementos. */
-    public static final String VERSION = "0.2.0";
+    /**
+     * 0.2.0 (CHROME-003): frameGraph, accessPaths, protection, readiness; documentId nos elementos. 0.3.0
+     * (CHROME-SECURITY-001): conteúdo sob {@code nekkora-privacy/2}, declarado em {@code privacy}; texto retido marcado.
+     */
+    public static final String VERSION = "0.3.0";
+
+    /** Construtor CHROME-003 (a política é sempre a vigente: nekkora-privacy/2). */
+    public PageMap(String schema, String version, String generatedAt, Map<String, String> generator, PageSnapshot snapshot,
+                   DocumentContext document, CoverageReport coverage, List<ElementDescriptor> elements, List<ContextRelation> relations,
+                   List<OptionSet> optionSets, List<TargetIdentity> targets, List<ResolutionResult> resolutions,
+                   List<MutationRecord> mutations, List<InspectionEvidence> evidence, Map<String, Double> metrics,
+                   com.nekkora.extension.core.frames.FrameGraph frameGraph,
+                   List<com.nekkora.extension.core.frames.ElementAccessPath> accessPaths,
+                   com.nekkora.extension.core.protection.ProtectionReport protection,
+                   com.nekkora.extension.core.diagnostics.AutomationReadinessAssessment readiness) {
+        this(schema, version, generatedAt, generator, snapshot, document, coverage, elements, relations, optionSets, targets, resolutions,
+                mutations, evidence, metrics, frameGraph, accessPaths, protection, readiness,
+                com.nekkora.extension.core.privacy.CapturePrivacyPolicy.VERSION);
+    }
 
     /**
      * Estado da página no momento da observação.

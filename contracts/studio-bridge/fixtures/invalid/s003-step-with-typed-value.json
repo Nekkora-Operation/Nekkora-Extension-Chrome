@@ -37,7 +37,7 @@
       "accessPath": [
         {
           "type": "MAIN_DOCUMENT",
-          "label": "Login de teste",
+          "label": "Login",
           "locator": null,
           "restriction": null
         },
@@ -63,8 +63,8 @@
       "key": null
     },
     "context": {
-      "url": "http://127.0.0.1:18765/lab/studio003/login.html",
-      "title": "Login de teste",
+      "url": "http://127.0.0.1:18765/{…}/{…}/login.html",
+      "title": "Login",
       "frame": "MAIN"
     },
     "evidence": [

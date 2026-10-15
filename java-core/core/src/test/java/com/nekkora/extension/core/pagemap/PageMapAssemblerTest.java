@@ -59,7 +59,9 @@ class PageMapAssemblerTest {
                 <iframe id=ext data-fixture-frame=x></iframe>""").frame("x", "<p>x</p>", false, "CROSS_ORIGIN");
         PageMap map = assemble(h);
         assertEquals("nekkora.pagemap", map.schema());
-        assertEquals("0.2.0", map.version()); // CHROME-003: contrato ampliado (0.1.0 arquivado em contracts/v0.1.0)
+        // CHROME-SECURITY-001: 0.3.0 (0.1.0 e 0.2.0 arquivados em contracts/v0.1.0 e contracts/v0.2.0); a política é declarada
+        assertEquals("0.3.0", map.version());
+        assertEquals("nekkora-privacy/2", map.privacy());
         assertNotNull(map.frameGraph(), "grafo documental presente");
         assertTrue(map.frameGraph().frames().stream().anyMatch(f -> "PERMISSION_DENIED".equals(f.status())), "iframe inacessível declarado no grafo");
         assertNotNull(map.document().navigation());

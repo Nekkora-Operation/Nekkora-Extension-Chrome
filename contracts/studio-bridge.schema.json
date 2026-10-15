@@ -268,6 +268,7 @@
           "properties": {
             "hostVersion": { "$ref": "#/$defs/Version" },
             "nativeProtocol": { "const": "nekkora-nm/1" },
+            "privacy": { "enum": ["nekkora-privacy/2"], "description": "CHROME-SECURITY-001: política aplicada a tudo que a extensão envia por esta conexão. Ausente = extensão anterior à política; o Studio não deve tratar o conteúdo como produzido pela nekkora-privacy/2 (degrada nomes, localizadores e URLs)." },
             "extension": {
               "type": "object",
               "additionalProperties": false,
@@ -629,7 +630,7 @@
           "additionalProperties": false,
           "required": ["url", "title", "frame"],
           "properties": {
-            "url": { "type": ["string", "null"], "maxLength": 2000, "description": "URL do documento sanitizada pela política nekkora-privacy/1." },
+            "url": { "type": ["string", "null"], "maxLength": 2000, "description": "URL do documento como MODELO (nekkora-privacy/2): origem + segmentos do vocabulário controlado; os demais segmentos e todo valor de parâmetro viram {…}; sem fragmento. Não executável." },
             "title": { "type": ["string", "null"], "maxLength": 120 },
             "frame": { "enum": ["MAIN", "FRAME"] },
             "after": {
@@ -654,7 +655,8 @@
           "maxItems": 12,
           "uniqueItems": true,
           "items": { "enum": ["AMBIGUOUS_TARGET", "OPTION_NOT_IDENTIFIED", "OPTION_NOT_CHOSEN", "OPTION_WITHOUT_PROVEN_COMBOBOX", "ELEMENT_UNRESOLVED",
-            "NO_UNIQUE_LOCATOR", "INDISTINGUISHABLE_LOOKALIKES", "ACCESS_RESTRICTED", "LIVE_CHECK_UNAVAILABLE", "CROSS_FRAME_ORDER_BY_RECEPTION", "RESENT"] }
+            "NO_UNIQUE_LOCATOR", "INDISTINGUISHABLE_LOOKALIKES", "ACCESS_RESTRICTED", "LIVE_CHECK_UNAVAILABLE", "CROSS_FRAME_ORDER_BY_RECEPTION", "RESENT",
+            "OPTION_WITHHELD", "LOCATORS_WITHHELD", "SAFE_LOCATOR_UNAVAILABLE"] }
         },
         "events": { "type": "integer", "minimum": 1, "maximum": 100000, "description": "Eventos do navegador consolidados nesta etapa." }
       }

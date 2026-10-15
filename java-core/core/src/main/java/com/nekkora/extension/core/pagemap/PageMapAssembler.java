@@ -207,7 +207,7 @@ public final class PageMapAssembler {
         ElementDescriptor.ElementText text = new ElementDescriptor.ElementText(
                 TextNormalizer.truncate(n.ownText(), 160), emptyToNull(descendant), c.name().name(),
                 c.name().source().name(), emptyToNull(c.name().description()),
-                family == null ? List.of() : family.contextualTexts());
+                family == null ? List.of() : family.contextualTexts(), Boolean.TRUE.equals(n.textSuppressed()) ? Boolean.TRUE : null);
         return new ElementDescriptor(n.id(), n.tag(), n.scopeId(), n.frameId(), n.parentId(), c.kind().name(),
                 c.category().name(), c.role(), c.nativeSemantics(), c.confidence().name(), text,
                 exportableAttributes(n, c), c.conditions(), c.sensitive(), n.rect(), family, locators, c.evidence(),

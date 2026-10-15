@@ -154,7 +154,7 @@ class NativeHostTest {
         assertEquals("n16", res.at("/payload/result/resolvedNodeId").asText());
 
         // A identidade persistida é relida (polimorfismo de predicados preservado).
-        Path registry = dataDir.resolve("targets").resolve("registry.json");
+        Path registry = dataDir.resolve("targets").resolve("registry-v2.json"); // CHROME-SECURITY-001
         assertTrue(Files.exists(registry));
         NativeHost restarted = new NativeHost(new DataDirectory(dataDir));
         TargetIdentity reloaded = restarted.session().targets().get(targetId).orElseThrow();
@@ -172,6 +172,21 @@ class NativeHostTest {
         assertTrue(Files.exists(Path.of(export.at("/payload/path").asText())));
         assertEquals(1, export.at("/payload/pageMap/targets").size());
         assertTrue(export.at("/payload/pageMap/evidence").size() >= 3);
+    }
+
+    @Test
+    void sec001RegistroAntigoNaoELidoNemApagado() throws Exception {
+        // CHROME-SECURITY-001 (SEC001-073): registro de versão anterior, com texto da página, fica no disco intocado e fora da memória
+        Path legacy = dataDir.resolve("targets").resolve("registry.json");
+        Files.createDirectories(legacy.getParent());
+        String old = "{\"schemaVersion\":\"0.1.0\",\"targets\":[{\"targetId\":\"tgt-antigo\",\"signature\":{\"contextTexts\":"
+                + "[\"Cliente Ulisses Paranhos\"]}}],\"owners\":{}}";
+        Files.writeString(legacy, old);
+        NativeHost h = new NativeHost(new DataDirectory(dataDir));
+        assertTrue(h.session().targets().all().isEmpty(), "nada do registro antigo entra na memória do host");
+        assertEquals(old, Files.readString(legacy), "o arquivo do usuário não é apagado nem reescrito");
+        JsonNode list = call("target.list", "{}");
+        assertFalse(list.toString().contains("Paranhos"), list.toString());
     }
 
     @Test

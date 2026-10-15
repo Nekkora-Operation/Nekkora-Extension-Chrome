@@ -8,6 +8,8 @@ import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
 // eslint-disable-next-line no-new-func
 new Function(readFileSync(path.join(here, '../src/shared/privacy.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/ui-vocabulary.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/capture-policy.js'), 'utf8'))();
 
 let store;
 let clock;
@@ -132,13 +134,24 @@ function fakeHost(type, payload) {
     return Promise.reject(new HostError('UNKNOWN_NODE', 'nó inexistente'));
   }
   if (type === 'recorder.element.describe') {
-    const names = { n1: 'Usuário', n2: 'Senha', n3: 'Entrar', n4: 'Contato ana@exemplo.com' };
+    const names = { n1: 'Usuário', n2: 'Senha', n3: 'Entrar', n4: 'Contato ana@exemplo.com', n5: 'Consultar cliente Bartolomeu Quixadá' };
+    // motor sob nekkora-privacy/2: ids e localizadores com literais do vocabulário; n5 simula uma saída INDEVIDA
+    // (texto da página no localizador) para provar que a 2ª barreira a descarta
+    const ids = { n1: 'usuario', n2: 'senha', n3: 'entrar', n4: 'contato', n5: 'consultar' };
+    const id = ids[payload.nodeId] || 'campo';
+    const locators = payload.nodeId === 'n5'
+      ? [{ strategy: 'ROLE_NAME', description: 'button {name="Consultar cliente Bartolomeu Quixadá"}', css: null,
+        xpath: "//button[normalize-space()='Consultar cliente Bartolomeu Quixadá']", matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
+      { strategy: 'ID', description: 'id "cliente-anacleto-prudencio"', css: '#cliente-anacleto-prudencio', xpath: null, matchCount: 1, matchesTarget: true,
+        stability: 'HEURISTIC_STABLE' }]
+      : [{ strategy: 'ID', description: 'id "' + id + '"', css: '#' + id, xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }];
     return Promise.resolve({
       resolution: 'RESOLVED', captureId: 'cap-2', nodeId: payload.nodeId, targetId: 'tgt-' + payload.nodeId, documentId: 'doc:0',
       kind: payload.nodeId === 'n3' ? 'BUTTON' : payload.nodeId === 'n2' ? 'PASSWORD_INPUT' : 'TEXT_INPUT', role: 'textbox',
       name: names[payload.nodeId] || 'Campo', tag: payload.nodeId === 'n3' ? 'button' : 'input',
-      htmlId: payload.nodeId === 'n2' ? 'senha' : 'usuario', htmlName: null, sensitive: payload.nodeId === 'n2',
-      locators: [{ strategy: 'ID', description: 'id "x"', css: '#x', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }],
+      htmlId: payload.nodeId === 'n5' ? 'cliente-anacleto-prudencio' : payload.nodeId === 'n2' ? 'senha' : 'usuario', htmlName: null,
+      sensitive: payload.nodeId === 'n2',
+      locators,
       preferredLocator: 0, accessPath: [{ type: 'MAIN_DOCUMENT', label: 'Documento', locator: null, restriction: null }], context: [], lookalikes: 0,
       notes: [], verification: { primary: { semantic: 's0', css: '#x' }, fallbacks: [] },
     });
@@ -271,7 +284,26 @@ test('S003-013/037 — senha e dados pessoais: sem valor, sem id HTML sensível,
   assert.ok(!raw.includes('123.456.789-09'), 'CPF da URL redigido');
   assert.ok(!raw.includes('ana@exemplo.com'), 'e-mail no nome mascarado');
   assert.ok(!/"value"\s*:\s*"[^"]/.test(raw), 'nenhum valor digitado');
-  assert.match(contato.element.name, /Contato/);
+  // CHROME-SECURITY-001: o nome só sai se o valor INTEIRO for do vocabulário — sem supressão parcial (antes: "Contato [e-mail]")
+  assert.equal(contato.element.name, '');
+  assert.ok(!raw.includes('ana@'), 'nada do e-mail');
+});
+
+test('SEC001-002/041/042/043/047 — 2ª barreira: nome com dado de pessoa vira vazio; localizador com literal fora da política é descartado e a limitação declarada', async () => {
+  await startRecording();
+  interact('CLICK', 'n5');
+  await settle();
+  const e = steps()[0];
+  assert.equal(e.element.name, '', 'nome com dado de pessoa não sai');
+  assert.equal(e.element.htmlId, null, 'id do desenvolvedor fora do vocabulário não sai');
+  assert.equal(e.element.locators.length, 0, 'nenhum localizador com texto da página atravessa: ' + JSON.stringify(e.element.locators));
+  assert.equal(e.element.preferredLocator, -1);
+  assert.ok(e.notes.includes('LOCATORS_WITHHELD'), 'descarte declarado: ' + e.notes);
+  assert.ok(e.notes.includes('SAFE_LOCATOR_UNAVAILABLE'), 'falta de localizador seguro declarada (não inventada): ' + e.notes);
+  const raw = JSON.stringify(e);
+  for (const s of ['Quixad', 'Bartolomeu', 'anacleto', 'prudencio']) {
+    assert.ok(!raw.includes(s), s);
+  }
 });
 
 test('S003-045 — nenhum PageMap trafega: evento compacto (poucos KB) sem snapshot nem nós', async () => {

@@ -32,7 +32,9 @@ const ACTIONS = new Set(['CLICK', 'FILL', 'SELECT_OPTION', 'CHECK', 'UNCHECK', '
 const EVIDENCE = new Set(['FORM_SUBMITTED', 'DOUBLE_CLICK', 'VIA_KEYBOARD', 'VIA_LABEL', 'FOCUS_CLICK_ABSORBED', 'CUSTOM_COMBOBOX', 'NAVIGATION_FOLLOWED',
   'LOCATORS_VERIFIED_LIVE']);
 const NOTES = new Set(['AMBIGUOUS_TARGET', 'OPTION_NOT_IDENTIFIED', 'OPTION_NOT_CHOSEN', 'OPTION_WITHOUT_PROVEN_COMBOBOX', 'ELEMENT_UNRESOLVED', 'NO_UNIQUE_LOCATOR',
-  'INDISTINGUISHABLE_LOOKALIKES', 'ACCESS_RESTRICTED', 'LIVE_CHECK_UNAVAILABLE', 'CROSS_FRAME_ORDER_BY_RECEPTION', 'RESENT']);
+  'INDISTINGUISHABLE_LOOKALIKES', 'ACCESS_RESTRICTED', 'LIVE_CHECK_UNAVAILABLE', 'CROSS_FRAME_ORDER_BY_RECEPTION', 'RESENT',
+  // CHROME-SECURITY-001: limitações declaradas da política nekkora-privacy/2
+  'OPTION_WITHHELD', 'LOCATORS_WITHHELD', 'SAFE_LOCATOR_UNAVAILABLE']);
 const STRATEGIES = new Set(['TEST_ATTRIBUTE', 'ID', 'NAME', 'LABEL', 'ROLE_NAME', 'CONTEXTUAL', 'ROW_CONTEXT', 'ATTRIBUTE', 'TEXT', 'XPATH_RELATIVE', 'POSITIONAL']);
 const STABILITY = new Set(['OBSERVED_STABLE', 'HEURISTIC_STABLE', 'UNKNOWN', 'HEURISTIC_UNSTABLE', 'OBSERVED_UNSTABLE']);
 const PATH_TYPES = new Set(['MAIN_DOCUMENT', 'IFRAME', 'SHADOW_ROOT', 'ELEMENT']);
@@ -51,7 +53,6 @@ export function createStepPipeline(deps) {
   const { capture, toContent, host, tabKey, frameOfNode } = deps;
   const now = deps.now || (() => Date.now());
   const sleep = deps.sleep || ((ms) => new Promise((r) => setTimeout(r, ms)));
-  const privacy = () => deps.privacy || globalThis.NekkoraPrivacy;
   const chains = new Map(); // recordingId -> Promise (fila de correlação; não persistida)
   const pendingEvidence = new Map(); // `${epoch}|${frameId}|${localSeq}` -> entrada ainda não emitida
   const ev = deps.evidence || null;
@@ -455,32 +456,39 @@ export function createStepPipeline(deps) {
 
   // -------------------------------------------------------------------------- montagem (2ª barreira)
 
-  function mask(v, max) {
-    if (v == null) {
-      return null;
-    }
-    const s = String(v).replace(/\s+/g, ' ').trim();
-    const m = privacy() ? privacy().maskText(s) : s;
-    return m.slice(0, max);
+  /**
+   * 2ª barreira (CHROME-SECURITY-001, nekkora-privacy/2): reaplica a política a tudo que vai ao Studio, mesmo que o
+   * motor ou o content script tenham falhado. Sem a política carregada, nada textual sai.
+   */
+  function policy() {
+    return globalThis.NekkoraCapturePolicy || null;
+  }
+
+  /** Nome/rótulo de interface: só se o valor inteiro for do vocabulário controlado; senão ''. */
+  function name(v) {
+    const p = policy();
+    return (p && v != null && p.interfaceText(v)) || '';
   }
 
   function safeAttr(v, sensitive) {
-    if (sensitive || v == null || v === '') {
-      return null;
-    }
-    const s = String(v);
-    if (s.length > 120 || (privacy() && (privacy().looksSecret(s) || privacy().maskText(s) !== s))) {
-      return null;
-    }
-    return s;
+    const p = policy();
+    return sensitive || v == null || v === '' || !p ? null : p.identifier(String(v));
   }
 
   function url(v) {
-    if (!v) {
-      return null;
-    }
-    const s = privacy() ? privacy().sanitizeUrl(String(v)) : null;
-    return s ? s.slice(0, 2000) : null;
+    const p = policy();
+    return v && p ? p.urlTemplate(String(v)) : null;
+  }
+
+  function title(v) {
+    const p = policy();
+    return v && p ? p.title(String(v)) : null;
+  }
+
+  /** Expressão de localizador transportável (todos os literais pela política). */
+  function expressionOk(v) {
+    const p = policy();
+    return !!p && p.expressionSafe(v == null ? '' : String(v));
   }
 
   function id(v) {
@@ -495,7 +503,7 @@ export function createStepPipeline(deps) {
         resolution: 'UNRESOLVED',
         kind: 'UNKNOWN',
         role: desc.role ? String(desc.role).slice(0, 40) : null,
-        name: mask(desc.name, 120) || '',
+        name: name(desc.name),
         tag: TAG.test(desc.tag || '') ? desc.tag : 'unknown',
         htmlId: safeAttr(desc.htmlId, sensitive),
         htmlName: safeAttr(desc.htmlName, sensitive),
@@ -509,9 +517,16 @@ export function createStepPipeline(deps) {
     }
     const d = c.d;
     const sensitive = !!d.sensitive || !!entry.interaction.sensitive;
-    const locators = (d.locators || []).slice(0, 5).map((l, i) => ({
+    // Um localizador só vai ao Studio se TODA a expressão (CSS, XPath e descrição) tiver só literais da política;
+    // senão é descartado e a limitação é declarada — nunca reescrito nem "consertado".
+    const offered = (d.locators || []).slice(0, 5).map((l, i) => ({ l, i }));
+    const kept = offered.filter(({ l }) => expressionOk(l.css) && expressionOk(l.xpath) && expressionOk(l.description));
+    if (kept.length < offered.length) {
+      c.notes.push('LOCATORS_WITHHELD');
+    }
+    const locators = kept.map(({ l, i }) => ({
       strategy: STRATEGIES.has(l.strategy) ? l.strategy : 'ATTRIBUTE',
-      description: mask(l.description, 200) || '',
+      description: l.description ? String(l.description).slice(0, 200) : '',
       css: l.css ? String(l.css).slice(0, 500) : null,
       xpath: l.xpath ? String(l.xpath).slice(0, 500) : null,
       matchCount: Math.max(0, Number(l.matchCount) || 0),
@@ -519,7 +534,11 @@ export function createStepPipeline(deps) {
       stability: STABILITY.has(l.stability) ? l.stability : 'UNKNOWN',
       validation: c.validation[i] || 'NONE',
     }));
-    let preferred = Number.isInteger(d.preferredLocator) && d.preferredLocator >= 0 && d.preferredLocator < locators.length ? d.preferredLocator : -1;
+    if (!locators.some((l) => l.matchCount === 1 && l.matchesTarget)) {
+      c.notes.push('SAFE_LOCATOR_UNAVAILABLE'); // sem localizador seguro e único: declarado, não inventado
+    }
+    const pref = kept.findIndex(({ i }) => i === d.preferredLocator);
+    let preferred = pref >= 0 ? pref : -1;
     const live = locators.findIndex((l) => l.validation === 'LIVE');
     if (live >= 0) {
       preferred = live; // o primeiro validado na DOM real tem precedência
@@ -534,7 +553,7 @@ export function createStepPipeline(deps) {
       resolution: 'RESOLVED',
       kind: KIND.test(d.kind || '') ? d.kind : 'UNKNOWN',
       role: d.role ? String(d.role).slice(0, 40) : null,
-      name: mask(d.name, 120) || '',
+      name: name(d.name),
       tag: TAG.test(d.tag || '') ? d.tag : 'unknown',
       htmlId: safeAttr(d.htmlId, sensitive),
       htmlName: safeAttr(d.htmlName, sensitive),
@@ -542,10 +561,10 @@ export function createStepPipeline(deps) {
       locators,
       preferredLocator: preferred,
       accessPath: (d.accessPath || []).filter((s) => PATH_TYPES.has(s.type)).slice(0, 12).map((s) => ({
-        type: s.type, label: mask(s.label, 120) || '', locator: s.locator ? String(s.locator).slice(0, 500) : null,
+        type: s.type, label: name(s.label), locator: s.locator && expressionOk(s.locator) ? String(s.locator).slice(0, 500) : null,
         restriction: s.restriction ? String(s.restriction).slice(0, 40) : null })),
       context: (d.context || []).filter((a) => RELATIONS.has(a.relation)).slice(0, 4).map((a) => ({
-        relation: a.relation, kind: KIND.test(a.kind || '') ? a.kind : 'UNKNOWN', name: mask(a.name, 120) || '' })),
+        relation: a.relation, kind: KIND.test(a.kind || '') ? a.kind : 'UNKNOWN', name: name(a.name) })),
       lookalikes: Math.max(0, Number(d.lookalikes) || 0),
       correlation,
     };
@@ -558,11 +577,17 @@ export function createStepPipeline(deps) {
       notes.add('CROSS_FRAME_ORDER_BY_RECEPTION');
     }
     const element = elementRef(entry, c);
-    let option = null;
-    if (i.action === 'SELECT_OPTION' && i.option && !element.sensitive) {
-      option = { label: mask(i.option.label, 120) || '', value: mask(i.option.value, 120) || '' };
+    for (const n of c.notes || []) {
+      if (NOTES.has(n)) {
+        notes.add(n); // limitações declaradas pela 2ª barreira (localizadores retidos, sem localizador seguro)
+      }
     }
-    const context = { url: url(entry.url), title: mask(entry.title, 120), frame: entry.frameId === 0 ? 'MAIN' : 'FRAME' };
+    // A opção escolhida é valor do usuário / conteúdo de negócio: nunca vai ao Studio (CHROME-SECURITY-001).
+    const option = null;
+    if (i.action === 'SELECT_OPTION' && i.option) {
+      notes.add('OPTION_WITHHELD');
+    }
+    const context = { url: url(entry.url), title: title(entry.title), frame: entry.frameId === 0 ? 'MAIN' : 'FRAME' };
     const nav = r.steps.lastNav;
     if (nav && nav.at >= entry.receivedAt - 50 && (i.action === 'CLICK' || i.action === 'PRESS_KEY')) {
       context.after = { navigation: nav.kind === 'NEW_DOCUMENT' ? 'NEW_DOCUMENT' : 'SAME_DOCUMENT', url: url(nav.url) };

@@ -82,13 +82,17 @@ class Studio005EvidenceIT extends SessionIT {
         return prefix + "-" + UUID.randomUUID();
     }
 
+    /**
+     * Referência opaca da aba no Studio. CHROME-SECURITY-001 (D4): o título só segue se for do vocabulário, então a aba
+     * não é mais identificada pelo título — o teste pede a referência exata (comando DEV) e confere que ela aparece na
+     * listagem que o Studio recebe.
+     */
     private String refOf(Page p) {
+        String ref = lab.call("studio.tabRef", p).path("tabRef").asText();
         JsonNode r = studio.call("browser.tabs.list", null);
-        String title = (String) lab.js(p, "return document.title");
-        String host = java.net.URI.create(p.url()).getHost();
         for (JsonNode t : r.at("/payload/tabs")) {
-            if (host.equals(t.path("host").asText()) && title.equals(t.path("title").asText())) {
-                return t.path("tabRef").asText();
+            if (ref.equals(t.path("tabRef").asText())) {
+                return ref;
             }
         }
         throw new AssertionError("aba não listada: " + p.url() + " em " + r);

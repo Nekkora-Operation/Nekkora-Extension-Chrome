@@ -23,4 +23,9 @@ package com.nekkora.extension.core.frames;
 public record BrowserFrameMetadata(Integer browserFrameId, String browserDocumentId, Integer parentBrowserFrameId,
                                    String parentDocumentId, String url, String frameType, String documentLifecycle,
                                    String hostNodeId, String mapping, String inspection, String source, String reason) {
+
+    /** CHROME-SECURITY-001 (3ª barreira): a URL que o navegador informa entra no motor só como MODELO (nekkora-privacy/2). */
+    public BrowserFrameMetadata {
+        url = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.urlTemplate(url);
+    }
 }
