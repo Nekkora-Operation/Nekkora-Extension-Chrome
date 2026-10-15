@@ -266,3 +266,38 @@ Regressão: Java 237/237, Node 133/133, navegador 226/226, Studio 337/337 (Windo
 
 O achado da captura técnica antiga **não** é resolvido pelo modo estrito. Ele segue para a missão CHROME-SECURITY-001,
 antes da STUDIO-006, e o Recorder não deve ser usado com dados reais até lá.
+
+## Anexo 3 — revisão 3: metadados controlados (P1) e `Message` sem `AVAILABLE` (P2)
+
+**P1 (bloqueante).** O texto da página ainda atravessava por `details.region`: o observador montava a região com
+`aria-label`/`aria-labelledby` (e o campo com o nome acessível; o documento com o título). Procedimento: reprodução
+primeiro, correção, regressão.
+
+| Onde | Antes (reproduzido) | Depois |
+|---|---|---|
+| Node (`studio-evidence.test.js`, `REV-final P1`) | `region` com o `aria-label`, `field` com o rótulo, `title` com o título | só vocabulário; título `null` |
+| Native Host (`EvidencePrivacyTest.revisaoFinalMetadadosComTextoDaPaginaNaoAtravessamOHost`) | metadados mascarados, texto passava | fora do vocabulário → `null` |
+| Studio (`RecorderEvidenceTest.revFinalMetadadosComTextoDaPaginaNaoEntramNoStudio`) | região/campo/título "seguros" passavam | fora do vocabulário → `null`; título `null` |
+| Chrome real (`Studio005EvidenceIT.s005MetadataStrict`, lab `metadados.html`) | `"region":"mensagem de erro o cliente joão já existe"` | `region: "mensagem de erro"`, `SUPPRESSED`/`null`, `MESSAGE_SUPPRESSED`; campo `"campo de telefone"`; título `null` |
+
+**Correção (`8efbf13`):** região e campo passaram a ser **descrições controladas** (`REGION_LABELS`; `FIELD_LABELS` pelo
+tipo do controle), o título é sempre `null`, e qualquer valor fora do vocabulário vira `null` na origem, no service
+worker e no Native Host. O observador não lê mais `aria-label`, `aria-labelledby`, rótulos, `placeholder` nem o título.
+O texto `o cliente joão já existe` é procurado no **evento inteiro**, no `storage.session` da gravação, nos arquivos do
+host e no Studio, e não aparece.
+
+**P2** (Studio): o construtor público de `ObservedEvidence.Message` recusa `AVAILABLE`.
+
+**Novo achado, relatado e não corrigido aqui (CHROME-SECURITY-001):**
+- o canal de **etapas** (STUDIO-003) leva o nome acessível do elemento. No mesmo teste, a etapa saiu com
+  `element.name = "telefone do cliente joão"` (guardado em `reports/evidence/S005-metadata-strict.json`,
+  `stepChannelElementNames`). Por isso `s005SensitiveFieldGone` passou a verificar só a gravação sob teste: o "Studio"
+  de laboratório é compartilhado entre os testes da classe, e a etapa do teste de metadados contaminava a verificação;
+- o caminho de URLs sanitizadas pode conter texto.
+
+A restrição continua: **o Recorder não deve ser usado com dados reais de clientes** até a CHROME-SECURITY-001.
+
+**Regressão:** Java 238/238 (host +1), Node 134/134 (+1), navegador **227/227** (34 + 55 + 47 + 23 + 27 + 41; +1
+`s005MetadataStrict`), Studio 338/338 no Windows e 338/338 no Linux (contra `8efbf13`), homologação real **50/0**. Nos
+7 arquivos `reports/evidence/S005-*.json` há 47 mensagens, nenhuma com texto. Todas as regiões e campos estão no
+vocabulário, e todos os títulos são `null`.
