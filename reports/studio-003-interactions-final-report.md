@@ -185,5 +185,15 @@ da correção, os 28 testes de `studio-steps.test.js` passam.
 Contrato `nekkora-bridge/1` sem mudança: `CAPTURE_FAILED` e o campo `reason` já existiam, e `SENSOR_NOT_CONFIRMED`
 é um motivo (texto livre do contrato). As fixtures não mudaram.
 
-Resultados depois da revisão: ver a seção "Testes depois da revisão" no PR #5.
+Resultados depois da revisão (`scripts/run-tests.ps1 -Suite all`):
+
+| Suíte | Antes da revisão | Depois |
+|---|---|---|
+| Java (core 175, host 51, laboratório 4, IT unidade 2) | 232 | **232**, 0 falhas (sem mudança em Java) |
+| Node | 86 | **96**, 0 falhas |
+| Navegador (Chrome for Testing real, inclui `Studio003InteractionsIT` 14/14) | 211 | **211**, 0 falhas |
+
+A homologação real com o Studio, repetida depois das correções, também passou: 29 verificações, 0 falhas
+(evidência no repositório do Studio). As evidências `reports/evidence/S003-*.json` foram regeneradas pela suíte com o
+código corrigido.
 
