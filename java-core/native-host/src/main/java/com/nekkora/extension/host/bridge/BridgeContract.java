@@ -25,11 +25,15 @@ public final class BridgeContract {
     /** Comandos repassados à extensão (lista EXPLÍCITA: não há repasse genérico). */
     public static final Set<String> FORWARDED_COMMANDS = Set.of("browser.tabs.list", "studio.recording.start", "studio.recording.pause",
             "studio.recording.resume", "studio.recording.mode", "studio.recording.finish", "studio.recording.cancel",
-            "studio.recording.status", "studio.recording.renew");
+            "studio.recording.status", "studio.recording.renew",
+            // STUDIO-003: entrega confiável das etapas gravadas e rota de sessão lógica
+            "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route");
     /** Eventos da extensão que podem ser repassados ao Studio. */
     public static final Set<String> FORWARDED_EVENTS = Set.of("studio.recording.started", "studio.recording.paused", "studio.recording.resumed",
             "studio.recording.modeChanged", "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded",
-            "studio.recording.recovered", "studio.recording.failed", "studio.recording.expired");
+            "studio.recording.recovered", "studio.recording.failed", "studio.recording.expired",
+            // STUDIO-003: etapa gravada (validada contra o schema estrito antes de sair do host)
+            "studio.recording.step");
 
     private BridgeContract() {
     }

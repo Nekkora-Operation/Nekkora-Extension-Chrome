@@ -1,0 +1,76 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.recording.step",
+  "seq": 60,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "eventId": "ev-1-2",
+    "sequence": 2,
+    "routeRef": "route-1",
+    "observedAt": "2026-10-15T12:00:07.000Z",
+    "mode": "CAPTURE_AND_INTERACT",
+    "observation": "INTERACTION_OBSERVED",
+    "action": "FILL",
+    "element": {
+      "resolution": "RESOLVED",
+      "kind": "PASSWORD_INPUT",
+      "role": "textbox",
+      "name": "Senha",
+      "tag": "input",
+      "htmlId": null,
+      "htmlName": null,
+      "sensitive": true,
+      "locators": [
+        {
+          "strategy": "LABEL",
+          "description": "campo \"Senha\"",
+          "css": null,
+          "xpath": "//input[@type='password']",
+          "matchCount": 1,
+          "matchesTarget": true,
+          "stability": "HEURISTIC_STABLE",
+          "validation": "SNAPSHOT"
+        }
+      ],
+      "preferredLocator": 0,
+      "accessPath": [
+        {
+          "type": "MAIN_DOCUMENT",
+          "label": "Login de teste",
+          "locator": null,
+          "restriction": null
+        },
+        {
+          "type": "ELEMENT",
+          "label": "Entrar",
+          "locator": "#entrar",
+          "restriction": null
+        }
+      ],
+      "context": [],
+      "lookalikes": 0,
+      "correlation": {
+        "targetId": "tgt-7f3a91c2",
+        "nodeId": "n8",
+        "captureId": "cap-12",
+        "documentId": "doc:f0"
+      }
+    },
+    "parameters": {
+      "valueCaptured": true,
+      "option": null,
+      "key": null
+    },
+    "context": {
+      "url": "http://127.0.0.1:18765/lab/studio003/login.html",
+      "title": "Login de teste",
+      "frame": "MAIN"
+    },
+    "evidence": [
+      "FOCUS_CLICK_ABSORBED"
+    ],
+    "notes": [],
+    "events": 9
+  }
+}

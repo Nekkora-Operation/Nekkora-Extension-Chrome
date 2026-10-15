@@ -31,6 +31,7 @@ public final class NativeHost {
                 .install(new TargetCommands(services))
                 .install(new ExportCommands(services))
                 .install(new com.nekkora.extension.host.commands.FrameCommands(services))
+                .install(new com.nekkora.extension.host.commands.RecorderCommands(services))
                 .install(new com.nekkora.extension.host.commands.SessionCommands(services,
                         new com.nekkora.extension.host.capture.ExportService(session, dataDir, json, services::diagnosticsInput)));
         this.processor = new MessageProcessor(router, json);

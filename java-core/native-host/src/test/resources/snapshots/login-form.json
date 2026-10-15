@@ -1,0 +1,440 @@
+{
+ "captureId": "cap-login-1",
+ "capturedAt": "2026-10-15T12:00:00Z",
+ "document": {
+  "url": "http://127.0.0.1:8765/lab/studio003/login.html",
+  "title": "Login de teste",
+  "readyState": "complete",
+  "viewport": {
+   "width": 1280,
+   "height": 800,
+   "scrollX": 0,
+   "scrollY": 0,
+   "devicePixelRatio": 1
+  },
+  "navigationKind": "INITIAL",
+  "pageSessionId": "ps-login-1"
+ },
+ "frames": [
+  {
+   "frameId": "f0",
+   "parentFrameId": null,
+   "hostNodeId": null,
+   "url": "http://127.0.0.1:8765/lab/studio003/login.html",
+   "accessible": true,
+   "reason": null
+  }
+ ],
+ "shadowRoots": [],
+ "nodes": [
+  {
+   "id": "n1",
+   "parentId": null,
+   "childIds": [
+    "n2"
+   ],
+   "tag": "html",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {},
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n2",
+   "parentId": "n1",
+   "childIds": [
+    "n3",
+    "n9",
+    "n10"
+   ],
+   "tag": "body",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {},
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n3",
+   "parentId": "n2",
+   "childIds": [
+    "n4",
+    "n5",
+    "n6",
+    "n7",
+    "n8"
+   ],
+   "tag": "form",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "id": "login",
+    "action": "/lab/studio003/consulta.html"
+   },
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n4",
+   "parentId": "n3",
+   "childIds": [],
+   "tag": "label",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "for": "usuario"
+   },
+   "ownText": "Usuário",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n5",
+   "parentId": "n3",
+   "childIds": [],
+   "tag": "input",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "id": "usuario",
+    "name": "usuario",
+    "type": "text"
+   },
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": true,
+    "focusable": true,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": false,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": {
+    "x": 10,
+    "y": 40,
+    "width": 200,
+    "height": 24
+   },
+   "labelIds": [
+    "n4"
+   ],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n6",
+   "parentId": "n3",
+   "childIds": [],
+   "tag": "label",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "for": "senha"
+   },
+   "ownText": "Senha",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n7",
+   "parentId": "n3",
+   "childIds": [],
+   "tag": "input",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "id": "senha",
+    "name": "senha",
+    "type": "password"
+   },
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": true,
+    "focusable": true,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": false,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": {
+    "x": 10,
+    "y": 80,
+    "width": 200,
+    "height": 24
+   },
+   "labelIds": [
+    "n6"
+   ],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n8",
+   "parentId": "n3",
+   "childIds": [],
+   "tag": "button",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "id": "entrar",
+    "type": "submit"
+   },
+   "ownText": "Entrar",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": false,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": true,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": {
+    "x": 10,
+    "y": 120,
+    "width": 80,
+    "height": 28
+   },
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n9",
+   "parentId": "n2",
+   "childIds": [],
+   "tag": "label",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "for": "email-contato"
+   },
+   "ownText": "Contato ana.souza@exemplo.com",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": null,
+    "focusable": null,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": null,
+   "labelIds": [],
+   "scroll": null,
+   "exposedValue": null
+  },
+  {
+   "id": "n10",
+   "parentId": "n2",
+   "childIds": [],
+   "tag": "input",
+   "frameId": "f0",
+   "scopeId": "doc:f0",
+   "attributes": {
+    "id": "email-contato",
+    "type": "email"
+   },
+   "ownText": "",
+   "state": {
+    "visible": true,
+    "hiddenReason": null,
+    "inViewport": null,
+    "zeroSize": null,
+    "disabled": null,
+    "readOnly": null,
+    "required": null,
+    "checked": null,
+    "selected": null,
+    "editable": true,
+    "focusable": true,
+    "cursorPointer": null,
+    "boxed": null,
+    "hasValue": null,
+    "valueLength": null,
+    "open": null,
+    "modal": null,
+    "inert": null
+   },
+   "rect": {
+    "x": 10,
+    "y": 170,
+    "width": 200,
+    "height": 24
+   },
+   "labelIds": [
+    "n9"
+   ],
+   "scroll": null,
+   "exposedValue": null
+  }
+ ],
+ "requests": [],
+ "stats": {
+  "elementsVisited": 10,
+  "nodesEmitted": 10,
+  "durationMs": 1.0,
+  "truncated": false,
+  "maxNodes": 20000
+ }
+}

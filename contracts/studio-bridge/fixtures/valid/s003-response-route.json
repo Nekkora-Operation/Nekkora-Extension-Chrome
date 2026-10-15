@@ -1,0 +1,53 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.recording.route",
+  "id": "c-33",
+  "seq": 43,
+  "ok": true,
+  "payload": {
+    "recording": {
+      "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+      "state": "RECORDING",
+      "mode": "CAPTURE_AND_INTERACT",
+      "tab": {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "Sistema de testes",
+        "host": "127.0.0.1"
+      },
+      "capture": {
+        "recorderAttached": true,
+        "otherConsumers": 1,
+        "captureStatus": "ACTIVE"
+      },
+      "coverage": {
+        "state": "COMPLETE",
+        "framesAttached": 0,
+        "framesUnavailable": 0
+      },
+      "counters": {
+        "segments": 1,
+        "technicalCaptures": 1,
+        "synchronizations": 4,
+        "recoveries": 0
+      },
+      "lease": {
+        "leaseMs": 30000,
+        "expiresInMs": 29500
+      },
+      "startedAt": "2026-10-15T12:00:00.000Z",
+      "updatedAt": "2026-10-15T12:00:05.000Z",
+      "reason": null,
+      "steps": {
+        "enabled": true,
+        "lastSequence": 3,
+        "ackedSequence": 2,
+        "pending": 1,
+        "lost": 0
+      }
+    },
+    "boundarySequence": 3,
+    "duplicate": false
+  },
+  "error": null
+}

@@ -144,6 +144,116 @@ fixtures_invalid = {
                              "payload": {"recordingId": REC, "operationId": "op-pause-1", "recording": dict(paused, state="PAUSING")}},
 }
 
+# ------------------------------------------------------------------------------------------- STUDIO-003 (aditivo)
+STEPS_STATE = {"enabled": True, "lastSequence": 3, "ackedSequence": 2, "pending": 1, "lost": 0}
+recording_steps = dict(recording, steps=STEPS_STATE)
+element_button = {
+    "resolution": "RESOLVED", "kind": "BUTTON", "role": "button", "name": "Entrar", "tag": "button", "htmlId": "entrar", "htmlName": None,
+    "sensitive": False,
+    "locators": [
+        {"strategy": "ID", "description": "id \"entrar\"", "css": "#entrar", "xpath": "//*[@id='entrar']", "matchCount": 1, "matchesTarget": True,
+         "stability": "HEURISTIC_STABLE", "validation": "LIVE"},
+        {"strategy": "ROLE_NAME", "description": "botão \"Entrar\"", "css": None, "xpath": "//button[normalize-space()='Entrar']", "matchCount": 1,
+         "matchesTarget": True, "stability": "HEURISTIC_STABLE", "validation": "SNAPSHOT"}],
+    "preferredLocator": 0,
+    "accessPath": [{"type": "MAIN_DOCUMENT", "label": "Login de teste", "locator": None, "restriction": None},
+                   {"type": "ELEMENT", "label": "Entrar", "locator": "#entrar", "restriction": None}],
+    "context": [{"relation": "IN_FORM", "kind": "FORM", "name": "login"}],
+    "lookalikes": 0,
+    "correlation": {"targetId": "tgt-7f3a91c2", "nodeId": "n8", "captureId": "cap-12", "documentId": "doc:f0"},
+}
+element_password = dict(element_button, kind="PASSWORD_INPUT", role="textbox", name="Senha", tag="input", htmlId=None, sensitive=True,
+                        locators=[{"strategy": "LABEL", "description": "campo \"Senha\"", "css": None, "xpath": "//input[@type='password']",
+                                   "matchCount": 1, "matchesTarget": True, "stability": "HEURISTIC_STABLE", "validation": "SNAPSHOT"}],
+                        context=[])
+step_click = {
+    "recordingId": REC, "eventId": "ev-1-3", "sequence": 3, "routeRef": "route-1", "observedAt": "2026-10-15T12:00:07.000Z",
+    "mode": "CAPTURE_AND_INTERACT", "observation": "INTERACTION_OBSERVED", "action": "CLICK", "element": element_button,
+    "parameters": {"valueCaptured": False, "option": None, "key": None},
+    "context": {"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN",
+                "after": {"navigation": "NEW_DOCUMENT", "url": "http://127.0.0.1:18765/lab/studio003/consulta.html"}},
+    "evidence": ["FORM_SUBMITTED", "NAVIGATION_FOLLOWED", "LOCATORS_VERIFIED_LIVE"], "notes": [], "events": 4,
+}
+step_fill_password = dict(step_click, eventId="ev-1-2", sequence=2, action="FILL", element=element_password, evidence=["FOCUS_CLICK_ABSORBED"],
+                          events=9, context={"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN"})
+step_select = dict(step_click, eventId="ev-1-5", sequence=5, routeRef="route-2", action="SELECT_OPTION",
+                   element=dict(element_button, kind="SELECT", role="combobox", name="Estado", tag="select", htmlId="estado", context=[]),
+                   parameters={"valueCaptured": False, "option": {"label": "São Paulo", "value": "SP"}, "key": None}, evidence=[], events=2,
+                   context={"url": "http://127.0.0.1:18765/lab/studio003/consulta.html", "title": "Consulta", "frame": "MAIN"})
+step_proposed = dict(step_click, eventId="ev-1-6", sequence=6, mode="CAPTURE_ONLY", observation="PROPOSED", evidence=[], events=1,
+                     context={"url": None, "title": None, "frame": "FRAME"})
+step_unresolved = dict(step_click, eventId="ev-1-7", sequence=7, action="UNKNOWN", evidence=[], notes=["AMBIGUOUS_TARGET", "ELEMENT_UNRESOLVED"],
+                       element={"resolution": "UNRESOLVED", "kind": "UNKNOWN", "role": None, "name": "Ícone", "tag": "span", "htmlId": None,
+                                "htmlName": None, "sensitive": False, "locators": [], "preferredLocator": -1, "accessPath": [], "context": [],
+                                "lookalikes": 0},
+                       context={"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN"})
+summary_available = dict(summary, actionCapture="AVAILABLE", limitations=[],
+                         steps={"produced": 3, "acknowledged": 3, "rejected": 0, "unacknowledged": 0, "lost": 0,
+                                "discarded": {"UNTRUSTED": 0, "NON_INTERACTIVE": 2, "FOCUS_ONLY": 1, "PROGRAMMATIC_SUBMIT": 0, "ABSORBED": 3,
+                                              "AFTER_STOP": 0, "STALE_EPOCH": 0, "NOT_RECORDING": 0}})
+summary_partial = dict(summary_available, actionCapture="PARTIAL", limitations=["STEPS_UNCONFIRMED", "INTERACTIONS_LOST"],
+                       steps=dict(summary_available["steps"], acknowledged=2, unacknowledged=1, lost=1))
+
+fixtures_valid.update({
+    "s003-command-start-steps": {"protocol": P, "kind": "command", "type": "studio.recording.start", "id": "c-30", "seq": 30,
+                                 "payload": {"recordingId": REC, "operationId": "op-start-3", "tabRef": TAB, "mode": "CAPTURE_AND_INTERACT",
+                                             "leaseMs": 30000, "capabilities": ["steps/1"], "routeRef": "route-1"}},
+    "s003-command-ack": {"protocol": P, "kind": "command", "type": "studio.recording.steps.ack", "id": "c-31", "seq": 31,
+                         "payload": {"recordingId": REC, "upToSequence": 3, "rejected": [3]}},
+    "s003-command-sync": {"protocol": P, "kind": "command", "type": "studio.recording.steps.sync", "id": "c-32", "seq": 32,
+                          "payload": {"recordingId": REC, "afterSequence": 2}},
+    "s003-command-route": {"protocol": P, "kind": "command", "type": "studio.recording.route", "id": "c-33", "seq": 33,
+                           "payload": {"recordingId": REC, "operationId": "op-route-1", "routeRef": "route-2"}},
+    "s003-response-start-steps": {"protocol": P, "kind": "response", "type": "studio.recording.start", "id": "c-30", "seq": 40, "ok": True,
+                                  "payload": {"recording": dict(recording_steps, steps={"enabled": True, "lastSequence": 0, "ackedSequence": 0, "pending": 0, "lost": 0}),
+                                              "duplicate": False}, "error": None},
+    "s003-response-ack": {"protocol": P, "kind": "response", "type": "studio.recording.steps.ack", "id": "c-31", "seq": 41, "ok": True,
+                          "payload": {"recordingId": REC, "steps": STEPS_STATE}, "error": None},
+    "s003-response-sync": {"protocol": P, "kind": "response", "type": "studio.recording.steps.sync", "id": "c-32", "seq": 42, "ok": True,
+                           "payload": {"recordingId": REC, "resent": 1, "steps": STEPS_STATE}, "error": None},
+    "s003-response-route": {"protocol": P, "kind": "response", "type": "studio.recording.route", "id": "c-33", "seq": 43, "ok": True,
+                            "payload": {"recording": recording_steps, "boundarySequence": 3, "duplicate": False}, "error": None},
+    "s003-response-renew-steps": {"protocol": P, "kind": "response", "type": "studio.recording.renew", "id": "c-34", "seq": 44, "ok": True,
+                                  "payload": {"recordingId": REC, "state": "RECORDING", "expiresInMs": 30000, "steps": STEPS_STATE}, "error": None},
+    "s003-response-finish-available": {"protocol": P, "kind": "response", "type": "studio.recording.finish", "id": "c-35", "seq": 45, "ok": True,
+                                       "payload": {"recording": dict(completed, steps=dict(STEPS_STATE, ackedSequence=3, pending=0)),
+                                                   "summary": summary_available, "duplicate": False}, "error": None},
+    "s003-event-finished-partial": {"protocol": P, "kind": "event", "type": "studio.recording.finished", "seq": 46,
+                                    "payload": {"recordingId": REC, "operationId": None, "recording": completed, "summary": summary_partial}},
+    "s003-event-step-click": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 47, "payload": step_click},
+    "s003-event-step-fill-password": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 48, "payload": step_fill_password},
+    "s003-event-step-select": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 49, "payload": step_select},
+    "s003-event-step-proposed": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 50, "payload": step_proposed},
+    "s003-event-step-unresolved": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 51, "payload": step_unresolved},
+})
+
+fixtures_invalid.update({
+    # valor digitado nunca trafega
+    "s003-step-with-typed-value": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 60,
+                                   "payload": dict(step_fill_password, parameters={"valueCaptured": True, "option": None, "key": None})},
+    "s003-step-with-value-field": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 61,
+                                   "payload": dict(step_fill_password, parameters={"valueCaptured": False, "option": None, "key": None, "value": "s3nh@"})},
+    # PageMap/snapshot nunca vai junto da etapa
+    "s003-step-with-pagemap": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 62,
+                               "payload": dict(step_click, pageMap={"schemaVersion": "0.2.0", "elements": []})},
+    "s003-step-element-with-nodes": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 63,
+                                     "payload": dict(step_click, element=dict(element_button, nodes=[{"id": "n1"}]))},
+    "s003-step-unknown-action": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 64,
+                                 "payload": dict(step_click, action="NAVIGATE")},
+    "s003-step-without-sequence": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 65,
+                                   "payload": {k: v for k, v in step_click.items() if k != "sequence"}},
+    "s003-step-as-lifecycle-payload": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 66,
+                                       "payload": {"recordingId": REC, "operationId": None, "recording": recording}},
+    "s003-ack-negative": {"protocol": P, "kind": "command", "type": "studio.recording.steps.ack", "id": "c-36", "seq": 67,
+                          "payload": {"recordingId": REC, "upToSequence": -1}},
+    "s003-start-unknown-capability": {"protocol": P, "kind": "command", "type": "studio.recording.start", "id": "c-37", "seq": 68,
+                                      "payload": {"recordingId": REC, "operationId": "op-x", "tabRef": TAB, "mode": "CAPTURE_ONLY", "leaseMs": 30000,
+                                                  "capabilities": ["eval/1"]}},
+    "s003-summary-unknown-action-capture": {"protocol": P, "kind": "event", "type": "studio.recording.finished", "seq": 69,
+                                            "payload": {"recordingId": REC, "operationId": None, "recording": completed,
+                                                        "summary": dict(summary_available, actionCapture="COMPLETE")}},
+})
+
 for name, body in fixtures_valid.items():
     with open(os.path.join(valid, name + ".json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(body, f, ensure_ascii=False, indent=2)
