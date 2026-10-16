@@ -228,8 +228,11 @@ A extensão interpreta páginas http/https **autorizadas por você**, além do l
 3. Navegar **não** inicia captura: clique em **Ativar inspeção**.
 4. **Revogar acesso** (no painel ou em `chrome://extensions` › Acesso ao site) encerra a inspeção e a sessão na hora.
 
-Privacidade: URLs, textos e atributos passam pela política `nekkora-privacy/1` antes de sair da página e de novo no
-motor; nada de sites externos é gravado em disco sem exportação explícita. Detalhes:
+Privacidade: política `nekkora-privacy/2` (CHROME-SECURITY-001) aplicada na página, no service worker, no motor e no
+Studio. Nenhum texto arbitrário da página sai; atravessam só a estrutura, metadados de interface do vocabulário
+controlado e URLs como modelo (`/clientes/{…}`). Nada de sites externos é gravado em disco sem exportação explícita.
+**O Recorder não está liberado para dados reais de clientes** (critérios no relatório da CHROME-SECURITY-001). Detalhes:
+[política](docs/chrome-security-001/privacy-policy.md) ·
 [acesso a sites](docs/real-001/site-access.md) · [privacidade](docs/real-001/privacy.md) ·
 [limitações](docs/real-001/known-limitations.md).
 
@@ -476,8 +479,9 @@ seus iframes. Nenhuma permissão de cookies, histórico, credenciais ou intercep
   `name` de pesquisa); senhas/cartões/documentos são marcados como sensíveis e nunca exportados (T033).
 - O service worker revalida a origem de toda mensagem de content script com a política central; o content script
   só roda em documentos http/https (defesa em profundidade).
-- Política de privacidade `nekkora-privacy/1` (navegador + motor): tokens, sessões, credenciais e dados pessoais
-  reconhecíveis em URLs, textos e atributos são redigidos/mascarados (`docs/real-001/privacy.md`).
+- Política de privacidade `nekkora-privacy/2` (CHROME-SECURITY-001; substitui a `nekkora-privacy/1` heurística): só
+  estrutura, metadados de interface do vocabulário controlado e URLs como modelo atravessam
+  (`docs/chrome-security-001/privacy-policy.md`).
 - Funções da página só são lidas se a página declarar `window.nekkoraTestHooks.__nekkoraLab === true`
   e apenas os nomes da lista permitida; funções fora da lista nunca são chamadas (T038).
 - `stdout` do host é exclusivo do protocolo; logs vão para `%LOCALAPPDATA%\Nekkora\ExtensionChrome\logs`.

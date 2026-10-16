@@ -152,7 +152,8 @@ flowchart LR
 ## Persistência
 
 Arquivos JSON locais (`%LOCALAPPDATA%\Nekkora\ExtensionChrome` ou `NEKKORA_DATA_DIR`):
-`targets/registry.json`, `pagemaps/<captura>.json` (exportação manual) e
+`targets/registry-v2.json` (CHROME-SECURITY-001; o antigo `targets/registry.json` não é lido nem apagado — limpeza
+em `docs/chrome-security-001/storage-and-retention.md`), `pagemaps/<captura>.json` (exportação manual) e
 `pagemaps/<sessão>-<operação>.json` (exportação da gravação, escrita atômica), `logs/native-host-*.log`. PostgreSQL não é usado
 (decisão D-006).
 

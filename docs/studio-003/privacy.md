@@ -1,5 +1,7 @@
 # STUDIO-003 — Privacidade das etapas gravadas
 
+> **Substituído pela CHROME-SECURITY-001.** A política descrita neste documento (`nekkora-privacy/1`, máscaras por formato como `maskText`) **não é garantia de privacidade**: detecção heurística deixa passar texto livre. A política vigente é `nekkora-privacy/2` (vocabulário controlado, URL como modelo, nada de texto arbitrário da página): ver [docs/chrome-security-001/privacy-policy.md](../chrome-security-001/privacy-policy.md). Este texto fica como registro histórico da missão.
+
 Regra central: o Recorder registra **que** houve um preenchimento, nunca **o que** foi digitado. Não existe, no
 contrato, campo para valor digitado (`parameters.valueCaptured` é a constante `false`).
 

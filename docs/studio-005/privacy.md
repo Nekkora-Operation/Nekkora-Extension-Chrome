@@ -1,5 +1,7 @@
 # STUDIO-005 — Privacidade das evidências
 
+> **Substituído pela CHROME-SECURITY-001.** A política descrita neste documento (`nekkora-privacy/1`, máscaras por formato como `maskText`) **não é garantia de privacidade**: detecção heurística deixa passar texto livre. A política vigente é `nekkora-privacy/2` (vocabulário controlado, URL como modelo, nada de texto arbitrário da página): ver [docs/chrome-security-001/privacy-policy.md](../chrome-security-001/privacy-policy.md). Este texto fica como registro histórico da missão.
+
 Os campos novos (mensagem, região, campo, título, URL de navegação) **não** foram considerados protegidos pela proteção
 existente dos parâmetros. Cada um tem a sua regra, aplicada em **quatro barreiras**.
 

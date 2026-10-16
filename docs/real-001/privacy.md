@@ -1,5 +1,7 @@
 # Privacidade para páginas reais (NEKKORA-REAL-001)
 
+> **Substituído pela CHROME-SECURITY-001.** A política descrita neste documento (`nekkora-privacy/1`, máscaras por formato como `maskText`) **não é garantia de privacidade**: detecção heurística deixa passar texto livre. A política vigente é `nekkora-privacy/2` (vocabulário controlado, URL como modelo, nada de texto arbitrário da página): ver [docs/chrome-security-001/privacy-policy.md](../chrome-security-001/privacy-policy.md). Este texto fica como registro histórico da missão.
+
 Política `nekkora-privacy/1`, implementada **duas vezes** e verificada contra os mesmos vetores
 (`contracts/privacy/privacy-vectors.json`):
 

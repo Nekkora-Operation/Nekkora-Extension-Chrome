@@ -22,14 +22,14 @@ Nenhum número foi fixado como meta: a comparação é com a linha de base medid
 |---|---:|---:|---|
 | Elementos classificados | 925 | 925 | a classificação estrutural é a mesma |
 | Interativos | 359 | 359 | |
-| Com nome legível | 350 | **182** | o nome sai só se for do vocabulário |
+| Com nome legível | 350 | **181** | o nome sai só se for do vocabulário |
 | Localizador principal único | 359 | 351 | 8 passam a ter o principal declarado `AMBIGUOUS_MATCH` |
 | Localizador principal verificável (CSS ou XPath) | 297 | **330** | menos estratégias só do motor (`ROLE_NAME` por texto) |
 | Não verificáveis (principal só do motor) | 62 | 29 | |
 | Sem nenhum localizador único (ambíguos) | 0 | 0 | sempre há ao menos um único, mesmo que posicional e instável |
 | **Alvos resolvidos na página inalterada** | **355** | **178** | 143 `AMBIGUOUS` e 38 `INSUFFICIENT_EVIDENCE` (antes: 4 `AMBIGUOUS`). Nenhum resolvido para outro elemento |
 | Tempo de captura (mediana das páginas, ms) | 9,1 | 9,9 | soma das medianas: 337 → 349 ms |
-| Tamanho do snapshot (soma, bytes) | 678 798 | 694 551 | +2,3% (`textPresent`, `textSuppressed`, `textRevision`, `refs`) |
+| Tamanho do snapshot (soma, bytes) | 678 798 | 694 973 | +2,4% (`textPresent`, `textSuppressed`, `textRevision`, `refs`) |
 | Tamanho do PageMap (soma, bytes) | 4 057 282 | 3 253 591 | −19,8% |
 
 ### A queda de reidentificação (178 de 359)

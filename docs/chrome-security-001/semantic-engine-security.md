@@ -9,6 +9,7 @@ O motor Java continua decidindo classificação, família, localizadores e resol
 | Presença de texto | `!ownText.isBlank()` | `RawNode.hasText()` = texto que atravessou **ou** `textPresent` (texto retido continua sendo texto: TEXT × contêiner, inclusão no PageMap, dicas de mensagem) |
 | Relações (`for`, `aria-*`, `form`, `headers`) | resolvidas pelo valor do `id` | `PageModel.refTargets()`: `refs` (ids de nó resolvidos na página); valor do atributo só para entradas antigas e testes |
 | Nome acessível | composto de qualquer texto | composto só do que atravessou; se alguma fonte teve texto retido, o nome **inteiro** é retido (as fontes continuam) |
+| Nome acessível com fonte retida | caía para uma fonte de prioridade menor (o conteúdo "Consultar" de um botão cujo `aria-label` é privado), produzindo um nome que **não é** o nome real | a fonte retida (`{…}`, rótulo com texto retido) encerra o cálculo: nome vazio com a fonte declarada (`SEC001-087`, achado na homologação real) |
 | Família | rótulos a partir das fontes do nome | rótulos também de `labelIds` e de `aria-labelledby`, mesmo com o nome retido |
 | Referências cruzadas (`aria-describedby`/`aria-errormessage`) | por `escopo|id` | por id de nó |
 | URL (tela, filtros, paginação) | caminho real | modelo; segmento omitido nunca vira nome de tela |

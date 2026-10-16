@@ -140,7 +140,8 @@ detectar divergência entre código e contrato).
 
 ## NEKKORA-REAL-001 (aditivo; PageMap continua 0.2.0)
 
-- **Semântica de privacidade** (`nekkora-privacy/1`, [docs/real-001/privacy.md](real-001/privacy.md)): URLs do
+- **Semântica de privacidade** (`nekkora-privacy/1`, [docs/real-001/privacy.md](real-001/privacy.md); **substituída** por
+  `nekkora-privacy/2` e PageMap 0.3.0 na CHROME-SECURITY-001 — ver [docs/chrome-security-001/compatibility.md](chrome-security-001/compatibility.md)): URLs do
   documento, de frames (`document.frames[].url`, antes completa), requisições, recursos e atributos de URL trazem
   valores sensíveis como `REDACTED` / `:redacted`; textos e atributos de texto livre trazem `[email]`, `[cpf]`,
   `[cnpj]`, `[cartão]`, `[telefone]`, `[token]`. A estrutura do PageMap não muda.

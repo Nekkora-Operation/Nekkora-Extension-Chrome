@@ -1,5 +1,7 @@
 # STUDIO-002 — Gravação técnica controlada pelo Studio (lado da extensão)
 
+> **Substituído pela CHROME-SECURITY-001.** A política descrita neste documento (`nekkora-privacy/1`, máscaras por formato como `maskText`) **não é garantia de privacidade**: detecção heurística deixa passar texto livre. A política vigente é `nekkora-privacy/2` (vocabulário controlado, URL como modelo, nada de texto arbitrário da página): ver [docs/chrome-security-001/privacy-policy.md](../chrome-security-001/privacy-policy.md). Este texto fica como registro histórico da missão.
+
 Código: `chrome-extension/src/background/studio-recording.js` (fábrica testável), `studio-recorder.js` (instância com as
 dependências reais), `studio-link.js` (canal) e ligações em `service-worker.js`.
 

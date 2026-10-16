@@ -40,6 +40,16 @@ O vocabulário só se aplica a **metadado de interface elegível**. Conteúdo de
 
 O texto do portador é verificado **inteiro**, sem as subárvores de valor (`select`, `option`, `textarea`, contenteditable). Se a verificação falhar, nenhum pedaço dele sai. O mesmo vale para o nome acessível composto de várias fontes: se alguma fonte teve texto retido, o nome inteiro é retido e as fontes (estrutura) continuam.
 
+### Fonte de nome retida
+
+Quando um atributo de nome (`aria-label`, `title`, `placeholder`, `alt`, `aria-roledescription`, `aria-placeholder`,
+`value` de botão) existe mas o valor não passa, ele atravessa só como **presença marcada**: o valor vira `{…}`, o mesmo
+sinal de lacuna usado nas URLs. Um valor vazio continua vazio (`alt=""` decorativo é semântica legítima). A marca
+existe para o motor **não inventar um nome**: sem ela, um botão `aria-label="Consultar cliente Bartolomeu Quixadá"` com
+o conteúdo "Consultar" seria nomeado "Consultar" por uma fonte de prioridade menor, e esse não é o nome acessível real.
+Com a marca, o nome fica retido inteiro (fonte `ARIA_LABEL`, texto vazio). O mesmo vale para rótulos (`<label>`,
+`aria-labelledby`) cujo texto foi retido. A marca nunca vira literal de localizador nem título de frame.
+
 ## Relações entre elementos
 
 `for`, `aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-owns`, `aria-activedescendant`, `aria-errormessage`, `list`, `form`, `headers`: a página resolve a relação em **ids temporários de nó** (`refs`). O valor do atributo (ids da página) não atravessa, e o atributo fica presente com valor vazio. Não há hash nem pseudônimo.

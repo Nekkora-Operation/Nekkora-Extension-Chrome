@@ -2,9 +2,9 @@
   "rotulo" : "depois",
   "paginas" : 34,
   "totais" : {
-    "bytesPageMap" : 3253591,
-    "bytesSnapshot" : 694551,
-    "comNome" : 182,
+    "bytesPageMap" : 3253551,
+    "bytesSnapshot" : 694973,
+    "comNome" : 181,
     "elementosClassificados" : 925,
     "interativos" : 359,
     "principalUnico" : 351,
@@ -16,8 +16,8 @@
     "INSUFFICIENT_EVIDENCE" : 38,
     "RESOLVED" : 178
   },
-  "capturaMsMedianaDasPaginas" : 9.8714,
-  "capturaMsSomaDasMedianas" : 349,
+  "capturaMsMedianaDasPaginas" : 12.3602,
+  "capturaMsSomaDasMedianas" : 444,
   "porPagina" : {
     "/lab/simple/form-basics.html" : {
       "elementosClassificados" : 55,
@@ -31,9 +31,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 13
       },
-      "capturaMsMediana" : 26.2,
-      "bytesSnapshot" : 40897,
-      "bytesPageMap" : 247704
+      "capturaMsMediana" : 42.4,
+      "bytesSnapshot" : 40919,
+      "bytesPageMap" : 247773
     },
     "/lab/intermediate/forms-groups.html" : {
       "elementosClassificados" : 34,
@@ -47,9 +47,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 11.7,
+      "capturaMsMediana" : 14.0,
       "bytesSnapshot" : 25694,
-      "bytesPageMap" : 155715
+      "bytesPageMap" : 155713
     },
     "/lab/intermediate/tables.html" : {
       "elementosClassificados" : 51,
@@ -62,9 +62,9 @@
         "AMBIGUOUS" : 8,
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 11.3,
+      "capturaMsMediana" : 17.1,
       "bytesSnapshot" : 31252,
-      "bytesPageMap" : 141161
+      "bytesPageMap" : 141171
     },
     "/lab/intermediate/widgets.html" : {
       "elementosClassificados" : 43,
@@ -78,9 +78,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 10
       },
-      "capturaMsMediana" : 11.8,
-      "bytesSnapshot" : 31989,
-      "bytesPageMap" : 140647
+      "capturaMsMediana" : 15.9,
+      "bytesSnapshot" : 32006,
+      "bytesPageMap" : 140705
     },
     "/lab/complex/dropdowns.html" : {
       "elementosClassificados" : 42,
@@ -94,9 +94,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 6
       },
-      "capturaMsMediana" : 12.5,
+      "capturaMsMediana" : 13.1,
       "bytesSnapshot" : 32240,
-      "bytesPageMap" : 192959
+      "bytesPageMap" : 192970
     },
     "/lab/complex/duplicated-ids.html" : {
       "elementosClassificados" : 57,
@@ -110,9 +110,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 2
       },
-      "capturaMsMediana" : 11.3,
+      "capturaMsMediana" : 15.9,
       "bytesSnapshot" : 39474,
-      "bytesPageMap" : 154649
+      "bytesPageMap" : 154647
     },
     "/lab/complex/dynamic-ids.html" : {
       "elementosClassificados" : 17,
@@ -126,9 +126,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 10.5,
-      "bytesSnapshot" : 14449,
-      "bytesPageMap" : 52919
+      "capturaMsMediana" : 13.9,
+      "bytesSnapshot" : 14453,
+      "bytesPageMap" : 52930
     },
     "/lab/complex/rerender.html" : {
       "elementosClassificados" : 20,
@@ -142,9 +142,9 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 8.7,
-      "bytesSnapshot" : 17339,
-      "bytesPageMap" : 57544
+      "capturaMsMediana" : 12.6,
+      "bytesSnapshot" : 17335,
+      "bytesPageMap" : 57550
     },
     "/lab/complex/responsive.html" : {
       "elementosClassificados" : 12,
@@ -157,9 +157,9 @@
         "AMBIGUOUS" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.9,
+      "capturaMsMediana" : 11.7,
       "bytesSnapshot" : 11513,
-      "bytesPageMap" : 32850
+      "bytesPageMap" : 32852
     },
     "/lab/complex/shadow-iframes.html" : {
       "elementosClassificados" : 19,
@@ -172,9 +172,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 10.5,
-      "bytesSnapshot" : 19984,
-      "bytesPageMap" : 66790
+      "capturaMsMediana" : 14.1,
+      "bytesSnapshot" : 20012,
+      "bytesPageMap" : 66833
     },
     "/lab/chrome002/accessible-names.html" : {
       "elementosClassificados" : 54,
@@ -188,9 +188,9 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 9
       },
-      "capturaMsMediana" : 11.3,
-      "bytesSnapshot" : 36294,
-      "bytesPageMap" : 139434
+      "capturaMsMediana" : 15.7,
+      "bytesSnapshot" : 36345,
+      "bytesPageMap" : 139521
     },
     "/lab/chrome002/continuous.html" : {
       "elementosClassificados" : 33,
@@ -204,9 +204,9 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 9
       },
-      "capturaMsMediana" : 9.9,
-      "bytesSnapshot" : 26152,
-      "bytesPageMap" : 112819
+      "capturaMsMediana" : 12.4,
+      "bytesSnapshot" : 26156,
+      "bytesPageMap" : 112818
     },
     "/lab/chrome002/iframes.html" : {
       "elementosClassificados" : 22,
@@ -220,9 +220,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 11.1,
-      "bytesSnapshot" : 19317,
-      "bytesPageMap" : 74542
+      "capturaMsMediana" : 12.4,
+      "bytesSnapshot" : 19397,
+      "bytesPageMap" : 74636
     },
     "/lab/chrome002/recording.html" : {
       "elementosClassificados" : 22,
@@ -235,9 +235,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 8.7,
+      "capturaMsMediana" : 11.0,
       "bytesSnapshot" : 15043,
-      "bytesPageMap" : 67636
+      "bytesPageMap" : 67634
     },
     "/lab/chrome002/shadow-dynamic.html" : {
       "elementosClassificados" : 14,
@@ -251,9 +251,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 9.5,
+      "capturaMsMediana" : 10.8,
       "bytesSnapshot" : 14070,
-      "bytesPageMap" : 37646
+      "bytesPageMap" : 37645
     },
     "/lab/chrome003/contas.html" : {
       "elementosClassificados" : 7,
@@ -265,9 +265,9 @@
       "resolucao" : {
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 7.8,
+      "capturaMsMediana" : 10.1,
       "bytesSnapshot" : 5940,
-      "bytesPageMap" : 35788
+      "bytesPageMap" : 35784
     },
     "/lab/chrome003/filial.html" : {
       "elementosClassificados" : 2,
@@ -279,9 +279,9 @@
       "resolucao" : {
         "RESOLVED" : 1
       },
-      "capturaMsMediana" : 7.1,
+      "capturaMsMediana" : 9.2,
       "bytesSnapshot" : 2999,
-      "bytesPageMap" : 9319
+      "bytesPageMap" : 9326
     },
     "/lab/chrome003/financeiro.html" : {
       "elementosClassificados" : 18,
@@ -293,9 +293,9 @@
       "resolucao" : {
         "RESOLVED" : 7
       },
-      "capturaMsMediana" : 11.1,
-      "bytesSnapshot" : 15990,
-      "bytesPageMap" : 91480
+      "capturaMsMediana" : 11.9,
+      "bytesSnapshot" : 15986,
+      "bytesPageMap" : 91470
     },
     "/lab/chrome003/frames.html" : {
       "elementosClassificados" : 66,
@@ -309,9 +309,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 13
       },
-      "capturaMsMediana" : 14.5,
-      "bytesSnapshot" : 57459,
-      "bytesPageMap" : 262376
+      "capturaMsMediana" : 15.4,
+      "bytesSnapshot" : 57491,
+      "bytesPageMap" : 262462
     },
     "/lab/chrome003/pagamentos.html" : {
       "elementosClassificados" : 7,
@@ -323,7 +323,7 @@
       "resolucao" : {
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.4,
+      "capturaMsMediana" : 9.4,
       "bytesSnapshot" : 6618,
       "bytesPageMap" : 31339
     },
@@ -337,9 +337,9 @@
       "resolucao" : {
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 6.9,
+      "capturaMsMediana" : 8.3,
       "bytesSnapshot" : 3005,
-      "bytesPageMap" : 7895
+      "bytesPageMap" : 7898
     },
     "/lab/chrome003/relatorios.html" : {
       "elementosClassificados" : 6,
@@ -352,9 +352,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 1
       },
-      "capturaMsMediana" : 8.3,
-      "bytesSnapshot" : 7936,
-      "bytesPageMap" : 21041
+      "capturaMsMediana" : 10.8,
+      "bytesSnapshot" : 7952,
+      "bytesPageMap" : 21058
     },
     "/lab/studio003/consulta.html" : {
       "elementosClassificados" : 52,
@@ -367,9 +367,9 @@
         "AMBIGUOUS" : 9,
         "RESOLVED" : 12
       },
-      "capturaMsMediana" : 10.4,
-      "bytesSnapshot" : 34008,
-      "bytesPageMap" : 189047
+      "capturaMsMediana" : 12.6,
+      "bytesSnapshot" : 34029,
+      "bytesPageMap" : 189101
     },
     "/lab/studio003/login.html" : {
       "elementosClassificados" : 21,
@@ -382,9 +382,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 8.6,
+      "capturaMsMediana" : 9.8,
       "bytesSnapshot" : 14120,
-      "bytesPageMap" : 76273
+      "bytesPageMap" : 76274
     },
     "/lab/studio003/frames.html" : {
       "elementosClassificados" : 19,
@@ -397,9 +397,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 8.9,
-      "bytesSnapshot" : 16178,
-      "bytesPageMap" : 63781
+      "capturaMsMediana" : 15.7,
+      "bytesSnapshot" : 16197,
+      "bytesPageMap" : 63814
     },
     "/lab/studio005/login-erro.html" : {
       "elementosClassificados" : 17,
@@ -412,9 +412,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 10.7,
-      "bytesSnapshot" : 12497,
-      "bytesPageMap" : 65600
+      "capturaMsMediana" : 10.1,
+      "bytesSnapshot" : 12501,
+      "bytesPageMap" : 65601
     },
     "/lab/studio005/pesquisa.html" : {
       "elementosClassificados" : 11,
@@ -427,7 +427,7 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 2
       },
-      "capturaMsMediana" : 7.7,
+      "capturaMsMediana" : 10.1,
       "bytesSnapshot" : 8479,
       "bytesPageMap" : 27383
     },
@@ -442,9 +442,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.6,
+      "capturaMsMediana" : 11.3,
       "bytesSnapshot" : 10750,
-      "bytesPageMap" : 52247
+      "bytesPageMap" : 52249
     },
     "/lab/chrome-security-001/formularios.html" : {
       "elementosClassificados" : 49,
@@ -458,14 +458,14 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 15
       },
-      "capturaMsMediana" : 9.9,
+      "capturaMsMediana" : 12.6,
       "bytesSnapshot" : 30147,
-      "bytesPageMap" : 227772
+      "bytesPageMap" : 227770
     },
     "/lab/chrome-security-001/elementos.html" : {
       "elementosClassificados" : 18,
       "interativos" : 7,
-      "comNome" : 1,
+      "comNome" : 0,
       "principalUnico" : 7,
       "principalVerificavel" : 7,
       "semNenhumUnico" : 0,
@@ -473,9 +473,9 @@
         "AMBIGUOUS" : 2,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 8.7,
-      "bytesSnapshot" : 12223,
-      "bytesPageMap" : 44312
+      "capturaMsMediana" : 9.9,
+      "bytesSnapshot" : 12282,
+      "bytesPageMap" : 43607
     },
     "/lab/chrome-security-001/atributos.html" : {
       "elementosClassificados" : 23,
@@ -489,9 +489,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 6
       },
-      "capturaMsMediana" : 9.5,
-      "bytesSnapshot" : 15568,
-      "bytesPageMap" : 56126
+      "capturaMsMediana" : 10.9,
+      "bytesSnapshot" : 15582,
+      "bytesPageMap" : 56143
     },
     "/lab/chrome-security-001/tabela.html" : {
       "elementosClassificados" : 23,
@@ -504,9 +504,9 @@
         "AMBIGUOUS" : 2,
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 8.9,
+      "capturaMsMediana" : 10.4,
       "bytesSnapshot" : 15097,
-      "bytesPageMap" : 49158
+      "bytesPageMap" : 49156
     },
     "/lab/chrome-security-001/exportacao.html" : {
       "elementosClassificados" : 16,
@@ -519,9 +519,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.3,
-      "bytesSnapshot" : 11313,
-      "bytesPageMap" : 43485
+      "capturaMsMediana" : 10.3,
+      "bytesSnapshot" : 11354,
+      "bytesPageMap" : 43539
     },
     "/clientes?nome=ana&status=ativo" : {
       "elementosClassificados" : 58,
@@ -535,9 +535,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 11
       },
-      "capturaMsMediana" : 11.3,
-      "bytesSnapshot" : 38517,
-      "bytesPageMap" : 224154
+      "capturaMsMediana" : 13.0,
+      "bytesSnapshot" : 38535,
+      "bytesPageMap" : 224179
     }
   }
 }

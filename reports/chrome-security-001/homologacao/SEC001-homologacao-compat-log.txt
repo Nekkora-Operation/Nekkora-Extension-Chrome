@@ -1,0 +1,18 @@
+Tela: java.awt.Rectangle[x=0,y=0,width=1920,height=1032] · java 21.0.12
+Modo: COMPATIBILIDADE (extensão e host da linha de base, Studio novo)
+Canários verificados: 60
+Native Host instalado pelo script oficial (install-host.ps1)
+Chrome for Testing: 155.0.8059.39
+OK    Conexão autenticada Studio ⇄ host ⇄ extensão
+  status com a extensão antiga: Navegador: conectado (Nekkora Extension 0.4.0) — extensão sem a política de privacidade atual; o Studio revalida nomes, localizadores e endereços
+OK    Cenário 8b: extensão sem a política atual → aviso visível, nenhum downgrade silencioso
+  etapas: [Clicar no botão, Preencher campo, Clicar no botão, Clicar no link]
+    CLICK «Clicar no botão» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=ID, description=button {id=consultar}, expression=button#consultar, stability=HEURISTIC_STABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único, Localizadores com texto da página descartados (privacidade)] política=nekkora-privacy/2
+    FILL «Preencher campo» tipo=TEL_INPUT tag=input preferido=LocatorCandidate[strategy=ID, description=input {id=fone}, expression=input#fone, stability=HEURISTIC_STABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único, Localizadores com texto da página descartados (privacidade)] política=nekkora-privacy/2
+    CLICK «Clicar no botão» tipo=BUTTON tag=button preferido=nenhum trajetória=2 passo(s) notas=[Localizadores com texto da página descartados (privacidade)] política=nekkora-privacy/2
+    CLICK «Clicar no link» tipo=LINK tag=a preferido=nenhum trajetória=2 passo(s) notas=[Localizadores com texto da página descartados (privacidade)] política=nekkora-privacy/2
+OK    Cenário 8b: o nome privado enviado pela extensão antiga é revalidado pelo Studio (sem 'Bartolomeu Quixadá')
+OK    Cenário 8b: referências marcadas com a política antiga não exibidas como seguras
+captura SEC001-compat-08b-compatibilidade.png (1920x1000)
+OK    Cenário 8b: domínio da automação e tela do Studio sem dados da página nem valores digitados
+RESULTADO: 5 verificações, 0 falha(s)

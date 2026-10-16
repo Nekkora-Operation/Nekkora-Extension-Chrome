@@ -55,7 +55,7 @@ Em resumo: **12/12** cenários com exposição; o Studio recebia nome privado em
 
 ## 5. Testes executados antes das correções
 
-- `ChromeSecurity001IT`: 12 cenários ponta a ponta com 70 marcadores fictícios (`PrivacyCanaries`), buscados com
+- `ChromeSecurity001IT`: 12 cenários ponta a ponta com 52 marcadores fictícios (`PrivacyCanaries`), buscados com
   transformações (sem acento, minúsculas, hífen, `%20`, entidades HTML, escapes JSON/Unicode e trechos de 5+
   caracteres). Resultado na base: 12 falhas por exposição (evidência `SEC001-exposure-baseline.json`). Depois das
   correções evidentes da fase 1 (`6293dc7`), o resultado foi registrado em `SEC001-exposure-fase1.json`.
@@ -74,7 +74,7 @@ Em resumo: **12/12** cenários com exposição; o Studio recebia nome privado em
 | `979599c` | captura na origem, `SnapshotPrivacy` no host, motor com relações por id de nó, URL como modelo |
 | `fb297f2` | etapas (SW e host), títulos (D4), frames, Bridge `client.privacy`, PageMap 0.3.0, `registry-v2` |
 | `b1d10b7` | identidade sem invenção (característica do próprio elemento obrigatória), nome nunca parcial, ajustes da 1ª regressão |
-| ⟨commits finais⟩ | categorias de atributos (frames, mídia, `slot`/`part`/`is`, `srcdoc`), `textRevision`, rótulos estruturais, opções por posição, hooks de teste só em DEV, `render` no vocabulário, deduplicação de relações, adaptação da regressão, medições e documentação |
+| `68816db`, `afeaa38` e seguintes | categorias de atributos (frames, mídia, `slot`/`part`/`is`, `srcdoc`), `textRevision`, rótulos estruturais, opções por posição, hooks de teste só em DEV, `render` no vocabulário, deduplicação de relações, adaptação da regressão, medições e documentação |
 
 Studio (`feat/chrome-security-001-studio-guards`): `CapturePrivacy` (cópia gerada da política Java, verificada pelos
 mesmos vetores e por teste de sincronia), `RecordedStep.guard`, título da aba, URLs de evidência como modelo,
@@ -103,9 +103,38 @@ controlado; D3: origem + modelo do caminho; D4: título só do vocabulário; D5:
 Medição real, mesmo corpus (34 páginas do laboratório), mesmos comandos, build da base × build da missão
 (`CapabilityMeasureIT`; detalhes em `performance.md`):
 
-⟨tabela antes × depois⟩
+| Métrica | Antes | Depois |
+|---|---:|---:|
+| Elementos classificados | 925 | 925 |
+| Interativos | 359 | 359 |
+| Com nome legível | 350 | 181 |
+| Localizador principal único | 359 | 351 |
+| Localizador principal verificável (CSS/XPath) | 297 | 330 |
+| Localizadores não verificáveis (só do motor) | 62 | 29 |
+| Elementos sem nenhum localizador único | 0 | 0 |
+| **Alvos resolvidos na página inalterada** | **355** | **178** (143 `AMBIGUOUS`, 38 `INSUFFICIENT_EVIDENCE`; nenhum resolvido para outro elemento) |
+| Tempo de captura (mediana por página) | 9,1 ms | 9,9 ms |
+| Tamanho do snapshot (soma) | 678 798 B | 694 973 B (+2,4%) |
+| Tamanho do PageMap (soma) | 4 057 282 B | 3 253 591 B (−19,8%) |
 
-O que se perdeu, e por quê: ⟨análise⟩. Nenhuma informação privada foi recuperada para melhorar as métricas.
+**O que se perdeu, e por quê.** A classificação estrutural ficou intacta. Perdeu-se o nome legível onde o nome não é
+do vocabulário (169 elementos) e, principalmente, a **reidentificação lógica** de alvos que só se distinguiam por
+texto: opções e itens de lista, botões repetidos em linhas, campos sem id do vocabulário. Por desenho anterior
+(`NegativeCasesIT.caseA`), o motor recusa escolher entre elementos indistinguíveis, mesmo com a página inalterada. As
+maiores perdas estão em `dropdowns` (33 → 6), `widgets` (24 → 10), `form-basics` (26 → 13), `forms-groups` (16 → 4),
+`duplicated-ids` (14 → 2) e `tables` (9 → 0). A gravação de etapas continua utilizável: cada etapa leva os localizadores
+verificados no momento do clique (351/359 com principal único), e a homologação real gravou o processo completo
+(§21). O que fica mais fraco é reencontrar alvos depois de mudanças na página.
+
+**Alternativa para decisão da revisão (não implementada):** aceitar a continuidade técnica do nó (id temporário
+monotônico, nunca reutilizado na sessão) como evidência de identidade dentro da mesma sessão de página. Isso não usa
+texto, mas muda a semântica hoje testada ("indistinguível ⇒ AMBIGUOUS").
+
+Também foi corrigido um defeito do motor achado na homologação real (SEC001-087): com o `aria-label` retido, o nome
+acessível caía para o conteúdo do botão ("Consultar") e produzia um nome que não é o real. Agora a fonte retida fica
+marcada (`{…}`) e o nome é retido inteiro.
+
+Nenhuma informação privada foi recuperada para melhorar as métricas.
 
 ## 9. Tratamento dos localizadores
 
@@ -191,15 +220,65 @@ Não há downgrade silencioso: uma política ausente ou desconhecida nunca vale 
 
 ## 20. Testes de regressão
 
-⟨tabela final⟩
+Plano e regras em `docs/chrome-security-001/regression-plan.md`. Resultado final (4ª rodada completa, com todas as
+mudanças; nenhum teste removido):
+
+| Suíte | Base | Final | Falhas |
+|---|---:|---:|---:|
+| Java núcleo + host (`run-tests.ps1 -Suite unit`) | 238 | 254 (193 + 61) | 0 |
+| Node (`npm test`) | 134 | 140 | 0 |
+| Chrome real, 7 grupos (+ `PageMapContractTest` por grupo) | 227 | 241 | 0 |
+| Studio Windows (`./mvnw clean verify`) | 338 | 342 | 0 (nenhum ignorado) |
+| Studio Linux (`tools/golden-linux.sh verify`) | 338 | 342 | 0 |
+
+Rodadas anteriores (registro honesto): 1ª rodada do Chrome real com 78 falhas em 240; 2ª, com 48; 3ª, com 1 (relações
+`LABELLED_BY` duplicadas em sentidos opostos, corrigido). As adaptações exigem o resultado exato da política e uma
+verificação estrutural equivalente. Onde o texto era o único diferencial, o teste exige o resultado honesto
+(`AMBIGUOUS`/`INSUFFICIENT_EVIDENCE`/`IDENTITY_MISMATCH`) e nunca o elemento errado. Os golden screenshots não foram
+regenerados. Defeitos achados pela regressão e pela homologação e corrigidos: hooks de teste legíveis em PRD,
+duplicação de relações, `Json.NULL` tratado como expressão insegura no Studio (descartava localizadores válidos),
+nome acessível por fonte de prioridade menor (SEC001-087) e degradação de captura (memória de decisões só no content
+script).
 
 ## 21. Homologação real
 
-⟨resultado dos 8 cenários⟩
+Windows 11, Chrome for Testing 155.0.8059.39, extensão real (DEV), Native Host instalado pelo script oficial, Studio
+desta branch, mouse e teclado do sistema operacional (Robot) e só páginas fictícias. Em cada cenário, o domínio da
+automação, a tela do Studio, `chrome.storage` (session e local), o log de eventos do SW e os logs e arquivos do host
+foram varridos por 60 canários fictícios (os 52 da matriz e 8 das páginas usadas) (sem acento, minúsculas, separadores normalizados) e pelos
+valores digitados. Evidências em `reports/chrome-security-001/homologacao/`.
+
+| Cenário | Resultado |
+|---|---|
+| 1. Processo completo | Autenticação = [Preencher campo Usuário, Preencher campo Senha, Clicar no botão Entrar]; Consulta = [Clicar no link Clientes, Preencher campo Pesquisa, Selecionar opção no campo Estado, Clicar no botão Pesquisar]. Tipos corretos, senha sensível sem valor, opção não registrada (o Studio avisa para configurar). Nenhum valor digitado nem "São Paulo" em lugar algum |
+| 2. Nome acessível sensível | botão `aria-label="Consultar cliente Bartolomeu Quixadá"` → "Clicar no botão" (nome retido inteiro, fonte declarada); campo rotulado por "telefone de …" → "Preencher campo" |
+| 3. URLs sensíveis | rota History API, fragmento e novo documento chegam como `http://127.0.0.1:18765/{…}/{…}/clientes/{…}` e `…?cliente={…}`; aba identificada pelo host |
+| 4. Captura técnica | captura completa + deltas de texto e atributo: snapshot, resposta, eventLog, estado de depuração e host sem os textos dinâmicos ("Ulisses Paranhos", "Firmino Laranjeira"); política `nekkora-privacy/2` declarada |
+| 5. Exportação | PageMap 0.3.0 exportado (100 176 caracteres) examinado inteiro: nenhum canário |
+| 6. Recuperação | service worker encerrado (id do worker trocou) e Native Host desconectado/reconectado durante a gravação: 4 etapas exatas, sem duplicação nem reenvio; storage e eventLog limpos |
+| 7. Elementos difíceis | iframe autorizado (trajetória com IFRAME, nome privado retido), Shadow DOM (SHADOW_ROOT, posicional instável declarado), tabela (2ª linha; posicional, nenhum localizador com titular/pedido), componente dinâmico; todo preferido validado na página real |
+| 8. Compatibilidade | (a) extensão nova declara `nekkora-privacy/2` e o Studio aceita sem aviso; (b) extensão e host da **linha de base** com o Studio novo: aviso "extensão sem a política de privacidade atual…", nome privado revalidado, localizadores com texto descartados, domínio e tela limpos (5/5); (c) Studio da base com a extensão nova: os 56 eventos válidos do contrato novo validam no schema do Bridge da base, e o `hello` da base é lido por chave (campo novo ignorado) |
+
+Resultado: **38 verificações, 0 falhas** (completo) e **5 verificações, 0 falhas** (compatibilidade). A primeira
+execução falhou em 2 verificações e revelou o defeito SEC001-087 (§8) e a falta de aviso visível da opção retida; os
+dois foram corrigidos antes da execução final.
 
 ## 22. Resultados de desempenho
 
-⟨resumo; detalhes em performance.md⟩
+Detalhes em `docs/chrome-security-001/performance.md` (mesmas classes nos dois builds, mesma máquina).
+
+- **Captura:** a primeira medição mostrou até +30% (a política avaliada para cada nó e atributo). Isso foi
+  investigado e resolvido com memória de decisões **só no content script** (no SW e no host não há cache de texto).
+  Depois disso: 10 mil elementos em 399 → 378 ms; captura cooperativa de 18,7 mil nós em 346 → 343 ms, com fatias
+  < 11 ms. A captura síncrona dos maiores casos ficou até 12% mais lenta.
+- **Motor na base (host):** 105 → 143 ms com 9,3 mil nós. É a reaplicação da política no host (defesa em
+  profundidade), sem cache de propósito.
+- **Seleção:** mais rápida (10 mil: fria 114,5 → 77,1 ms; aquecida 87,1 → 52,1 ms).
+- **Exportação:** 35% menor e até 2× mais rápida.
+- **Etapas:** clique → etapa no Studio p50 815 → 818 ms (dominado pela janela de silêncio); eventos 13% menores; 0
+  perdas.
+- **Normalização (JS, sem cache):** 1,5 a 4,2 µs por chamada.
+- **Heap do host** na sessão contínua: 90/376 MB (antes 110/428 MB).
 
 ## 23. Limitações conhecidas
 
@@ -250,3 +329,36 @@ revisão:
 7. avaliação de aceitação dos impactos funcionais (§8 e §23) pelos usuários do Recorder;
 8. decisão explícita registrada sobre os riscos residuais da §24;
 9. só depois disso, um piloto controlado e com escopo definido, com monitoramento dos artefatos gerados.
+
+## Apêndice: critérios de aceite
+
+| Critério | Exigência | Evidência |
+|---|---|---|
+| CA-001 | Captura técnica não transmite textos arbitrários proibidos | `ChromeSecurity001IT` 12/12 sem exposição (SNAP, MOTOR); homologação cenário 4 |
+| CA-002 | Deltas não expõem valores privados | página 9 (dinâmica) e cenário 4: deltas sem texto, `textRevision` |
+| CA-003 | MutationRecord não revela conteúdos proibidos | `[omitido]`, nome do atributo; `SnapshotComparator` e LOG-SW limpos |
+| CA-004 | Registro de alvos respeita a política | destino REG limpo; `registry-v2.json` |
+| CA-005 | Etapas não recebem nomes acessíveis privados | cenários 1, 2 e 8b; destino STUDIO limpo |
+| CA-006 | Localizadores não incluem textos privados | `expressionSafe` nas três implementações; `LOCATORS_WITHHELD` |
+| CA-007 | URLs são minimizadas | origem + modelo `{…}`; cenário 3 |
+| CA-008 | Logs não revelam conteúdos da página | `LogSafety`; LOG-HOST limpo em todos os cenários |
+| CA-009 | Diagnósticos respeitam a política | lista fechada no `eventLog`; diagnósticos crus só em DEV |
+| CA-010 | Chrome Storage não retém informações proibidas | SES/LOC limpos; cenário 6 |
+| CA-011 | Native Host aplica defesa em profundidade | `SnapshotPrivacy`/`StepPrivacy` reaplicam a v2; testes de host |
+| CA-012 | Studio rejeita dados incompatíveis | `RecordedStep.guard`; cenário 8b (extensão antiga) |
+| CA-013 | PageMap exportado respeita a política | cenário 5; destino PM limpo |
+| CA-014 | Nenhum valor digitado é exportado automaticamente | `exposedValue` eliminado; valores digitados ausentes em todos os destinos |
+| CA-015 | Shadow DOM e iframe permanecem protegidos | páginas 7 e 8; cenário 7 |
+| CA-016 | Reenvios não recuperam conteúdos privados | cenário 6 (SW reiniciado, host reconectado) |
+| CA-017 | A classificação estrutural continua funcional | 925/925 classificados, mesma classificação (§8) |
+| CA-018 | Localizadores inseguros são rejeitados ou degradados | `SAFE_LOCATOR_UNAVAILABLE`, `LOCATORS_WITHHELD`, posicional declarado instável |
+| CA-019 | Nenhuma validação técnica é inventada | identidade exige característica própria; SEC001-087; resultados `AMBIGUOUS`/`INSUFFICIENT_EVIDENCE` honestos |
+| CA-020 | A STUDIO-003 continua funcionando | `Studio003InteractionsIT` 14/14; cenário 1 |
+| CA-021 | A STUDIO-004 continua funcionando | suíte do Studio (editor) aprovada no Windows e no Linux |
+| CA-022 | A STUDIO-005 continua funcionando | `Studio005EvidenceIT` 16/16; modo estrito preservado |
+| CA-023 | Os contratos são versionados corretamente | `nekkora-privacy/2`, PageMap 0.3.0, aditivos no RawSnapshot e no Bridge (§19) |
+| CA-024 | As suítes existentes permanecem aprovadas | §20 (nenhum teste removido) |
+| CA-025 | A matriz SEC001 passa integralmente | `ChromeSecurity001IT`, `CapturePrivacyPolicyTest`, `SnapshotPrivacyTest`, `capture-policy.test.js`, `CapturePrivacyTest` (Studio) |
+| CA-026 | A homologação real é aprovada | §21: 38/38 e 5/5 |
+| CA-027 | Os riscos residuais são documentados | §24 |
+| CA-028 | Os PRs são entregues sem merge | PRs abertos para revisão, sem merge |
