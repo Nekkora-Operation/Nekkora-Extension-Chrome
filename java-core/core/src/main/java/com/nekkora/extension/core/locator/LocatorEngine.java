@@ -129,6 +129,9 @@ public final class LocatorEngine {
 
         private LocatorDescriptor describe(LocatorCandidate c, RawNode node, LocatorScope scope, ExpectedTarget expected,
                                            StabilityObservations observations) {
+            if (!LocatorPrivacy.transportable(c.query())) {
+                return null; // P1-02: predicado com valor fora da política não vira localizador (posição continua)
+            }
             List<RawNode> matches = evaluator.evaluate(c.query(), node.scopeId(), eval);
             boolean matchesTarget = matches.stream().anyMatch(n -> n.id().equals(node.id()));
             if (!matchesTarget) {

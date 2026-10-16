@@ -491,6 +491,12 @@ export function createStepPipeline(deps) {
     return !!p && p.expressionSafe(v == null ? '' : String(v));
   }
 
+  /** Papel ARIA: só valores da regra fechada do atributo role (P1-01); senão nada. */
+  function roleOk(v) {
+    const p = policy();
+    return v && p ? p.attribute('role', String(v), {}) || null : null;
+  }
+
   function id(v) {
     return typeof v === 'string' && ID.test(v) ? v : undefined;
   }
@@ -502,7 +508,7 @@ export function createStepPipeline(deps) {
       return {
         resolution: 'UNRESOLVED',
         kind: 'UNKNOWN',
-        role: desc.role ? String(desc.role).slice(0, 40) : null,
+        role: roleOk(desc.role),
         name: name(desc.name),
         tag: TAG.test(desc.tag || '') ? desc.tag : 'unknown',
         htmlId: safeAttr(desc.htmlId, sensitive),
@@ -552,7 +558,7 @@ export function createStepPipeline(deps) {
     return {
       resolution: 'RESOLVED',
       kind: KIND.test(d.kind || '') ? d.kind : 'UNKNOWN',
-      role: d.role ? String(d.role).slice(0, 40) : null,
+      role: roleOk(d.role),
       name: name(d.name),
       tag: TAG.test(d.tag || '') ? d.tag : 'unknown',
       htmlId: safeAttr(d.htmlId, sensitive),

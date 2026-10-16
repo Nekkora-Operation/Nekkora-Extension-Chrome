@@ -237,7 +237,7 @@
     return {
       tag: el.tagName.toLowerCase(),
       type: el.tagName === 'INPUT' ? inputType(el) || 'text' : null,
-      role: role ? role.slice(0, 40) : null,
+      role: role && CP ? CP.attribute('role', role, { tag: el.tagName }) || null : null, // P1-01: regra fechada do role
       htmlId: ident(el.id),
       htmlName: ident(el.getAttribute('name')),
       name: CP ? CP.interfaceText(name) : null,

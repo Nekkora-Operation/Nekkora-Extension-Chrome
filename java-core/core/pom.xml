@@ -43,6 +43,7 @@
         <targetPath>contracts/privacy</targetPath>
         <includes>
           <include>ui-vocabulary.json</include>
+          <include>structural-attributes.json</include>
         </includes>
       </resource>
     </resources>

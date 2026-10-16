@@ -40,6 +40,9 @@ const urls = [
   'https://app.exemplo/login?redirect=https%3A%2F%2Fx&token=abc&lang=pt',
 ];
 const expressions = [
+  // P1-02 (revisão dos PRs #7): valor numérico longo não; posição estrutural sim
+  "//button[@data-customer='12345678900']", 'input[type="48291736455"]', '[data-customer=12345678900]', 'button:nth-child(12)',
+  '//html/body/div[123]/button[1]', 'html >> body >> div {nth-of-type 123}', "input[maxlength='12']",
   "button[aria-label='Consultar']", "button[aria-label='Consultar cliente Bartolomeu Quixadá']", '#pesquisar',
   '#cliente-anacleto-prudencio', 'input[name="usuario_hermengarda"]', "//button[normalize-space()='Salvar']",
   "//button[text()='Consultar João Oliveira']", "[data-customer='joao-oliveira']", 'form > p:nth-of-type(3) > input',
@@ -59,6 +62,12 @@ const attrs = [
   ['aria-description', 'Conta', 'button', null], ['aria-valuetext', 'Limite de Hortência Malaquias', 'span', null],
   ['value', 'Entrar', 'input', 'submit'], ['value', 'Leocádia', 'input', 'text'], ['value', 't1', 'option', null],
   ['value', 'Pagar Leocádia', 'input', 'submit'], ['alt', '', 'img', null], ['aria-label', '', 'button', null],
+  // P1-01 (revisão dos PRs #7): regra fechada por atributo estrutural
+  ['role', 'cliente-joao', 'div', null], ['role', 'button', 'div', null], ['autocomplete', 'joao oliveira', 'input', 'text'],
+  ['autocomplete', 'shipping street-address', 'input', 'text'], ['type', '48291736455', 'input', null], ['tabindex', '48291736455', 'div', null],
+  ['tabindex', '-1', 'div', null], ['target', 'gumercindo_tavares', 'a', null], ['target', '_blank', 'a', null], ['lang', 'gumercindo-tavares', 'p', null],
+  ['lang', 'pt-BR', 'p', null], ['aria-current', 'gumercindo', 'a', null], ['aria-current', 'page', 'a', null], ['disabled', 'gumercindo', 'button', null],
+  ['width', '120px', 'img', null], ['allow', 'camera https://gumercindo.exemplo', 'iframe', null], ['scope', 'gumercindo', 'th', null],
   ['aria-labelledby', 'rot-fone', 'input', 'tel'], ['for', 'nome', 'label', null], ['aria-controls', 'lista', 'input', null],
   ['href', '/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo', 'a', null], ['src', 'frames/ficha-gervasio-barros.html', 'iframe', null],
   ['action', '/api/clientes/sinfronio-lacerda', 'form', null], ['onclick', 'abrir("joão")', 'button', null], ['style', 'color:red', 'div', null],

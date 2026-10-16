@@ -196,8 +196,13 @@
   const CSS_TOKEN = /[#.](-?[A-Za-z_][A-Za-z0-9_-]*)/g;
   const PAIR = /\b[A-Za-z][A-Za-z0-9-]*=([^\s,}\]"'()/[][^\s,}\]"'()]*)/g;
 
+  /*
+   * Literal de localizador (texto entre aspas, valor de atributo, id/classe CSS). P1-02 (revisão dos PRs #7): número
+   * longo NÃO é estrutural quando é VALOR (//button[@data-customer='12345678900']) — só até 2 dígitos, como no texto.
+   * Posições (nth-of-type(12), [12] do XPath, {nth-of-type 12}) não são literais: ficam fora desta verificação.
+   */
   function literalOk(v) {
-    return v === '' || /^\d+$/.test(v) || v === HOLE || vocabularyOnly(v);
+    return v === '' || /^\d{1,2}$/.test(v) || v === HOLE || vocabularyOnly(v);
   }
 
   /** Uma expressão de localizador (CSS, XPath ou descrição) só é transportável se TODO literal passar na política. */
@@ -224,16 +229,76 @@
     return lits.every(literalOk);
   }
 
-  /** Atributos de vocabulário fechado, numéricos ou de estado (valor fica se tiver forma técnica). */
-  const STRUCTURAL = new Set(['type', 'role', 'tabindex', 'disabled', 'checked', 'readonly', 'required', 'hidden', 'open', 'multiple',
-    'selected', 'contenteditable', 'autocomplete', 'inputmode', 'method', 'target', 'scope', 'colspan', 'rowspan', 'draggable',
-    'spellcheck', 'dir', 'lang', 'popover', 'maxlength', 'minlength', 'min', 'max', 'step', 'size', 'rows', 'cols',
-    'aria-expanded', 'aria-pressed', 'aria-checked', 'aria-selected', 'aria-disabled', 'aria-hidden', 'aria-invalid', 'aria-required',
-    'aria-readonly', 'aria-busy', 'aria-modal', 'aria-haspopup', 'aria-live', 'aria-current', 'aria-level', 'aria-multiselectable',
-    'aria-orientation', 'aria-sort', 'aria-autocomplete', 'aria-atomic', 'aria-relevant', 'aria-valuenow', 'aria-valuemin',
-    'aria-valuemax', 'aria-colcount', 'aria-rowcount', 'aria-colindex', 'aria-rowindex', 'aria-posinset', 'aria-setsize',
-    'sandbox', 'loading', 'referrerpolicy', 'crossorigin', 'charset', 'rel', 'accept', 'enctype', 'novalidate', 'autofocus', 'wrap', 'width', 'height', 'translate', 'autocapitalize', 'enterkeyhint', 'decoding', 'fetchpriority', 'async', 'defer', 'nomodule', 'frameborder', 'scrolling', 'allowfullscreen', 'allow', 'controls', 'autoplay', 'loop', 'muted', 'playsinline', 'preload', 'reversed', 'start', 'span', 'shape', 'kind', 'hreflang', 'srclang']);
-  const STRUCTURAL_VALUE = /^[A-Za-z0-9\-_. ]{0,80}$/;
+  /*
+   * Atributos estruturais (CHROME-SECURITY-001, revisão dos PRs #7, P1-01): cada um tem uma regra FECHADA no contrato
+   * contracts/privacy/structural-attributes.json (embutido em ui-vocabulary.js). Valor fora da regra => só a PRESENÇA.
+   * A forma técnica do valor NÃO basta: role="cliente-joao" ou autocomplete="joao oliveira" não atravessam.
+   */
+  function structuralSpec() {
+    const v = root.NekkoraVocabulary;
+    return v && v.structural ? v.structural : { rules: {}, languages: [], scripts: [] };
+  }
+  const STRUCTURAL = { has: (n) => Object.prototype.hasOwnProperty.call(structuralSpec().rules, n) };
+
+  function inList(list, value) {
+    const words = list.split(' ');
+    return words.includes(value) || words.some((w) => w.toLowerCase() === value.toLowerCase());
+  }
+
+  function langOk(s, spec) {
+    const parts = s.split('-');
+    if (parts.length > 3 || !spec.languages.includes(parts[0].toLowerCase())) {
+      return false;
+    }
+    let k = 1;
+    if (k < parts.length && spec.scripts.some((x) => x.toLowerCase() === parts[k].toLowerCase())) {
+      k++;
+    }
+    if (k < parts.length && /^([A-Za-z]{2}|\d{3})$/.test(parts[k])) {
+      k++;
+    }
+    return k === parts.length;
+  }
+
+  function ruleOk(kind, arg, s, name, spec) {
+    switch (kind) {
+      case 'boolean':
+        return s === '' || ['true', 'false', name].includes(s.toLowerCase());
+      case 'enum':
+        return s !== '' && inList(arg, s);
+      case 'tokens': {
+        const t = s.split(/[\s,]+/).filter(Boolean);
+        return t.length > 0 && t.every((x) => inList(arg, x));
+      }
+      case 'integer':
+        return new RegExp('^-?\\d{1,' + Number(arg) + '}$').test(s);
+      case 'decimal':
+        return new RegExp('^-?\\d{1,' + Number(arg) + '}(\\.\\d{1,4})?$').test(s);
+      case 'dimension':
+        return new RegExp('^\\d{1,' + Number(arg) + '}(px|%)?$').test(s);
+      case 'lang':
+        return langOk(s, spec);
+      default:
+        return false; // presence e regras desconhecidas: nunca o valor
+    }
+  }
+
+  /** Valor de atributo estrutural pela regra do atributo; fora dela, só a presença (""). */
+  function structuralValue(name, v) {
+    const spec = structuralSpec();
+    const rule = spec.rules[name];
+    const s = String(v).trim();
+    if (!rule || s.length > MAX_LEN * 4) {
+      return '';
+    }
+    for (const alt of rule.split(';')) {
+      const i = alt.indexOf(':');
+      if (ruleOk(i < 0 ? alt : alt.slice(0, i), i < 0 ? '' : alt.slice(i + 1), s, name, spec)) {
+        return s;
+      }
+    }
+    return '';
+  }
   /** Identificadores escritos pelo desenvolvedor. */
   const IDENTIFIERS = new Set(['id', 'name', 'data-testid', 'data-test', 'data-test-id', 'data-qa', 'data-cy', 'slot', 'part', 'is']);
   /** Referências entre elementos: o valor (ids) não sai; a relação vai como id temporário de nó (refs). */
@@ -265,7 +330,7 @@
       return '[manipulador declarado]';
     }
     if (STRUCTURAL.has(n)) {
-      return STRUCTURAL_VALUE.test(v) ? v : '';
+      return structuralValue(n, v);
     }
     if (IDENTIFIERS.has(n)) {
       return identifier(v);

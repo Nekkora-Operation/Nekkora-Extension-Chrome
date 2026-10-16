@@ -71,6 +71,9 @@ public final class PrivacyCanaries {
         c("merces", "SEC001-052 URL de recurso");
         c("gervasio", "SEC001-051 URL de iframe");
         c("furtado", "SEC001-026/027 conteúdo de iframe");
+        // página 13 — atributos estruturais (revisão dos PRs #7: P1-01 valores fora do vocabulário do atributo; P1-02 número longo)
+        c("gumercindo", "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)");
+        c("48291736455", "SEC001-089 número longo em atributo estrutural e em localizador");
         // página 6 — tabela
         c("sarmento", "SEC001-038 legenda/cabeçalho de tabela");
         c("barbacena", "SEC001-037 rowTexts");

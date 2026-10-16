@@ -139,6 +139,19 @@ function fakeHost(type, payload) {
     // (texto da página no localizador) para provar que a 2ª barreira a descarta
     const ids = { n1: 'usuario', n2: 'senha', n3: 'entrar', n4: 'contato', n5: 'consultar' };
     const id = ids[payload.nodeId] || 'campo';
+    // n6 (revisão dos PRs #7, P1-01/P1-02): papel arbitrário e número longo em VALOR de atributo no localizador
+    if (payload.nodeId === 'n6') {
+      return Promise.resolve({
+        resolution: 'RESOLVED', captureId: 'cap-2', nodeId: 'n6', targetId: 'tgt-n6', documentId: 'doc:0', kind: 'BUTTON', role: 'gumercindo-tavares',
+        name: 'Salvar', tag: 'button', htmlId: null, htmlName: null, sensitive: false,
+        locators: [{ strategy: 'ATTRIBUTE', description: 'button {data-customer=12345678900}', css: null,
+          xpath: "//button[@data-customer='12345678900']", matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
+        { strategy: 'POSITIONAL', description: 'html >> body >> div {nth-of-type 123} >> button {nth-of-type 1}',
+          css: 'html > body > div:nth-of-type(123) > button:nth-of-type(1)', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_UNSTABLE' }],
+        preferredLocator: 0, accessPath: [{ type: 'MAIN_DOCUMENT', label: 'Documento', locator: null, restriction: null }], context: [], lookalikes: 0,
+        notes: [], verification: { primary: { semantic: 's0', css: '#x' }, fallbacks: [] },
+      });
+    }
     const locators = payload.nodeId === 'n5'
       ? [{ strategy: 'ROLE_NAME', description: 'button {name="Consultar cliente Bartolomeu Quixadá"}', css: null,
         xpath: "//button[normalize-space()='Consultar cliente Bartolomeu Quixadá']", matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
@@ -304,6 +317,21 @@ test('SEC001-002/041/042/043/047 — 2ª barreira: nome com dado de pessoa vira 
   for (const s of ['Quixad', 'Bartolomeu', 'anacleto', 'prudencio']) {
     assert.ok(!raw.includes(s), s);
   }
+});
+
+test('SEC001-088/089 (P1) — 2ª barreira: papel fora da regra do role e localizador com número longo em valor de atributo não atravessam; posição sim', async () => {
+  await startRecording();
+  interact('CLICK', 'n6');
+  await settle();
+  const e = steps()[0];
+  assert.equal(e.element.role, null, 'role arbitrário não sai');
+  const raw = JSON.stringify(e);
+  for (const s of ['gumercindo', '12345678900']) {
+    assert.ok(!raw.includes(s), s + ' em ' + raw);
+  }
+  assert.equal(e.element.locators.length, 1, 'o posicional (números de posição) continua: ' + JSON.stringify(e.element.locators));
+  assert.ok(e.element.locators[0].css.includes('div:nth-of-type(123)'));
+  assert.ok(e.notes.includes('LOCATORS_WITHHELD'), 'descarte declarado: ' + e.notes);
 });
 
 test('S003-045 — nenhum PageMap trafega: evento compacto (poucos KB) sem snapshot nem nós', async () => {

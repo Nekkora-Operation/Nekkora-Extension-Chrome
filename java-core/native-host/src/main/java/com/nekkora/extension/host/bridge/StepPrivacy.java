@@ -35,6 +35,15 @@ final class StepPrivacy {
         Set<String> notes = new LinkedHashSet<>();
         if (p.path("element") instanceof ObjectNode e) {
             name(e, "name");
+            // P1-01 (revisão dos PRs #7): papel ARIA só pela regra fechada do atributo role
+            if (e.path("role").isTextual()) {
+                String r = CapturePrivacyPolicy.attribute("role", e.path("role").asText(), null, null);
+                if (r == null || r.isEmpty()) {
+                    e.putNull("role");
+                } else {
+                    e.put("role", r);
+                }
+            }
             if (e.path("sensitive").asBoolean(false)) {
                 e.putNull("htmlId");
                 e.putNull("htmlName");

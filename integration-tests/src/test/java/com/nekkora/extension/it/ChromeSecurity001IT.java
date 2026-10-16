@@ -331,6 +331,23 @@ class ChromeSecurity001IT extends SessionIT {
     }
 
     @Test
+    @DisplayName("SEC001-088/089 — Página 13: valores fora do vocabulário em atributos estruturais e números longos não saem (nem em localizadores)")
+    void sec001Estruturais() throws Exception {
+        long since = System.currentTimeMillis();
+        Page p = open(BASE + "estruturais.html");
+        String rid = start(p);
+        click(p, By.id("abrir-painel"));
+        type(p, By.id("campo-auto"), "x");
+        type(p, By.id("campo-tipo"), "y");
+        click(p, By.id("na-linha"));
+        awaitSteps(rid, 2); // as etapas que chegarem são varridas; o foco do cenário são snapshot, motor, PageMap e localizadores
+        Map<String, String> engine = inspectAndExport(p, "#painel", "#abrir-painel", "#campo-auto", "#campo-tipo", "#link-alvo", "#cab",
+                "#na-linha", "#lista");
+        finish(rid);
+        assertClean("Página 13 — atributos estruturais", scan("Página 13 — atributos estruturais", p, rid, since, engine));
+    }
+
+    @Test
     @DisplayName("SEC001-003/049..053 — Página 5: caminho de rota, novo documento, iframe, recurso e requisição não levam o nome")
     void sec001Urls() throws Exception {
         long since = System.currentTimeMillis();

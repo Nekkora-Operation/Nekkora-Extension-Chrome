@@ -55,15 +55,16 @@ public final class CapturePrivacyPolicy {
      * Atributos cujos valores pertencem a um vocabulário fechado ou são numéricos (estado, tipo, papel): o valor fica
      * se tiver forma técnica. O VALOR de qualquer outro atributo segue a regra da sua categoria.
      */
-    public static final Set<String> STRUCTURAL_ATTRIBUTES = Set.of("type", "role", "tabindex", "disabled", "checked", "readonly",
-            "required", "hidden", "open", "multiple", "selected", "contenteditable", "autocomplete", "inputmode", "method", "target",
-            "scope", "colspan", "rowspan", "draggable", "spellcheck", "dir", "lang", "popover", "maxlength", "minlength", "min", "max",
-            "step", "size", "rows", "cols", "aria-expanded", "aria-pressed", "aria-checked", "aria-selected", "aria-disabled",
-            "aria-hidden", "aria-invalid", "aria-required", "aria-readonly", "aria-busy", "aria-modal", "aria-haspopup", "aria-live",
-            "aria-current", "aria-level", "aria-multiselectable", "aria-orientation", "aria-sort", "aria-autocomplete", "aria-atomic",
-            "aria-relevant", "aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-colcount", "aria-rowcount", "aria-colindex",
-            "aria-rowindex", "aria-posinset", "aria-setsize", "sandbox", "loading", "referrerpolicy", "crossorigin", "charset", "rel", "accept", "enctype", "novalidate", "autofocus", "wrap", "width", "height", "translate", "autocapitalize", "enterkeyhint", "decoding", "fetchpriority", "async", "defer", "nomodule", "frameborder", "scrolling", "allowfullscreen", "allow", "controls", "autoplay", "loop", "muted", "playsinline", "preload", "reversed", "start", "span", "shape", "kind", "hreflang", "srclang");
-    private static final Pattern STRUCTURAL_VALUE = Pattern.compile("^[A-Za-z0-9\\-_. ]{0,80}$");
+    public static final String STRUCTURAL_RESOURCE = "contracts/privacy/structural-attributes.json";
+    /**
+     * Revisão dos PRs #7, P1-01: regra FECHADA por atributo estrutural (fonte única {@value #STRUCTURAL_RESOURCE}, a mesma
+     * do JS). A forma técnica do valor não basta — role="cliente-joao" ou autocomplete="joao oliveira" vão só como presença.
+     */
+    private static final String STRUCTURAL_JSON = readResource(STRUCTURAL_RESOURCE);
+    private static final Map<String, String> STRUCTURAL_RULES = structuralRules(STRUCTURAL_JSON);
+    private static final List<String> LANGUAGES = jsonStrings(STRUCTURAL_JSON, "languages");
+    private static final List<String> SCRIPTS = jsonStrings(STRUCTURAL_JSON, "scripts");
+    public static final Set<String> STRUCTURAL_ATTRIBUTES = STRUCTURAL_RULES.keySet();
     /** Identificadores escritos pelo desenvolvedor. */
     public static final Set<String> IDENTIFIERS = Set.of("id", "name", "data-testid", "data-test", "data-test-id", "data-qa", "data-cy", "slot",
             "part", "is");
@@ -94,14 +95,125 @@ public final class CapturePrivacyPolicy {
     // ------------------------------------------------------------------------------------------ vocabulário
 
     private static String readVocabulary() {
-        try (InputStream in = CapturePrivacyPolicy.class.getClassLoader().getResourceAsStream(VOCABULARY_RESOURCE)) {
+        return readResource(VOCABULARY_RESOURCE);
+    }
+
+    private static String readResource(String name) {
+        try (InputStream in = CapturePrivacyPolicy.class.getClassLoader().getResourceAsStream(name)) {
             if (in == null) {
-                throw new IllegalStateException("vocabulário controlado ausente: " + VOCABULARY_RESOURCE);
+                throw new IllegalStateException("contrato da política ausente: " + name);
             }
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static Map<String, String> structuralRules(String json) {
+        int start = json.indexOf("\"rules\"");
+        int open = json.indexOf('{', start);
+        int close = json.indexOf('}', open);
+        if (start < 0 || open < 0 || close < 0) {
+            throw new IllegalStateException("regras dos atributos estruturais ilegíveis");
+        }
+        Map<String, String> out = new java.util.LinkedHashMap<>();
+        Matcher m = Pattern.compile("\"([a-z-]+)\"\\s*:\\s*\"([^\"]*)\"").matcher(json.substring(open, close));
+        while (m.find()) {
+            out.put(m.group(1), m.group(2));
+        }
+        return Collections.unmodifiableMap(out);
+    }
+
+    private static List<String> jsonStrings(String json, String key) {
+        int start = json.indexOf("\"" + key + "\"");
+        int open = json.indexOf('[', start);
+        int close = json.indexOf(']', open);
+        List<String> out = new ArrayList<>();
+        Matcher m = Pattern.compile("\"([^\"]+)\"").matcher(json.substring(open, close));
+        while (m.find()) {
+            out.add(m.group(1));
+        }
+        return List.copyOf(out);
+    }
+
+    // ------------------------------------------------------------------------------------------ atributos estruturais
+
+    private static boolean inList(String list, String value) {
+        for (String w : list.split(" ")) {
+            if (w.equals(value) || w.equalsIgnoreCase(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean langOk(String s) {
+        String[] parts = s.split("-", -1);
+        if (parts.length > 3 || !LANGUAGES.contains(parts[0].toLowerCase(Locale.ROOT))) {
+            return false;
+        }
+        int k = 1;
+        if (k < parts.length) {
+            String p = parts[k];
+            if (SCRIPTS.stream().anyMatch(x -> x.equalsIgnoreCase(p))) {
+                k++;
+            }
+        }
+        if (k < parts.length && parts[k].matches("[A-Za-z]{2}|\\d{3}")) {
+            k++;
+        }
+        return k == parts.length;
+    }
+
+    private static boolean ruleOk(String kind, String arg, String s, String name) {
+        return switch (kind) {
+            case "boolean" -> s.isEmpty() || s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false") || s.equalsIgnoreCase(name);
+            case "enum" -> !s.isEmpty() && inList(arg, s);
+            case "tokens" -> {
+                String[] t = s.trim().split("[\\s,]+");
+                boolean any = false;
+                boolean all = true;
+                for (String x : t) {
+                    if (x.isEmpty()) {
+                        continue;
+                    }
+                    any = true;
+                    all &= inList(arg, x);
+                }
+                yield any && all;
+            }
+            case "integer" -> s.matches("-?\\d{1," + Integer.parseInt(arg) + "}");
+            case "decimal" -> s.matches("-?\\d{1," + Integer.parseInt(arg) + "}(\\.\\d{1,4})?");
+            case "dimension" -> s.matches("\\d{1," + Integer.parseInt(arg) + "}(px|%)?");
+            case "lang" -> langOk(s);
+            default -> false; // presence e regra desconhecida: nunca o valor
+        };
+    }
+
+    /** Valor de atributo estrutural pela regra fechada do atributo; fora dela (ou atributo não estrutural), "". */
+    public static String structuralValueOf(String name, String value) {
+        return structuralValue(name, value);
+    }
+
+    /** Literal de localizador (valor, não posição) aceito pela política: vazio, até 2 dígitos, {…} ou vocabulário. */
+    public static boolean literalSafe(String v) {
+        return v != null && literalOk(v);
+    }
+
+    /** Valor de atributo estrutural pela regra fechada do atributo; fora dela, só a presença (""). */
+    static String structuralValue(String name, String value) {
+        String rule = STRUCTURAL_RULES.get(name);
+        String s = value == null ? "" : value.trim();
+        if (rule == null || s.length() > MAX_LEN * 4) {
+            return "";
+        }
+        for (String alt : rule.split(";")) {
+            int i = alt.indexOf(':');
+            if (ruleOk(i < 0 ? alt : alt.substring(0, i), i < 0 ? "" : alt.substring(i + 1), s, name)) {
+                return s;
+            }
+        }
+        return "";
     }
 
     /** A lista é lida uma vez e é imutável: não há expansão em execução. */
@@ -334,7 +446,8 @@ public final class CapturePrivacyPolicy {
     private static final Pattern QUOTED = Pattern.compile("'([^']*)'|\"([^\"]*)\"");
     private static final Pattern CSS_TOKEN = Pattern.compile("[#.](-?[A-Za-z_][A-Za-z0-9_-]*)");
     private static final Pattern PAIR = Pattern.compile("\\b[A-Za-z][A-Za-z0-9-]*=([^\\s,}\\]\"'()/\\[][^\\s,}\\]\"'()]*)");
-    private static final Pattern DIGITS = Pattern.compile("\\d+");
+    /** P1-02: número como VALOR (literal) só até 2 dígitos; posições (nth-of-type(12), [12], {nth-of-type 12}) não são literais. */
+    private static final Pattern DIGITS = Pattern.compile("\\d{1,2}");
 
     private static boolean literalOk(String v) {
         return v.isEmpty() || DIGITS.matcher(v).matches() || v.equals(HOLE) || vocabularyOnly(v);
@@ -382,7 +495,7 @@ public final class CapturePrivacyPolicy {
             return "[manipulador declarado]";
         }
         if (STRUCTURAL_ATTRIBUTES.contains(n)) {
-            return STRUCTURAL_VALUE.matcher(v).matches() ? v : "";
+            return structuralValue(n, v);
         }
         if (IDENTIFIERS.contains(n)) {
             return identifier(v);

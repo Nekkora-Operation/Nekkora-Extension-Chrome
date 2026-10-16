@@ -84,3 +84,57 @@ test('SEC001-065 — sem expansão automática: consultar a política não alter
   assert.equal(V.terms.size, before);
   assert.equal(V.terms.has('quixada'), false);
 });
+
+const structuralSource = JSON.parse(readFileSync(new URL('../../contracts/privacy/structural-attributes.json', import.meta.url), 'utf8'));
+
+test('SEC001-088 — regras dos atributos estruturais geradas idênticas à fonte única (structural-attributes.json)', () => {
+  const { NekkoraVocabulary } = load();
+  assert.equal(NekkoraVocabulary.structural.version, structuralSource.version);
+  assert.deepEqual({ ...NekkoraVocabulary.structural.rules }, structuralSource.rules, 'rode node scripts/gen-ui-vocabulary.mjs');
+});
+
+test('SEC001-088 (P1-01) — atributo estrutural só leva valor da regra FECHADA do atributo; forma técnica não basta', () => {
+  const CP = load().NekkoraCapturePolicy;
+  const a = (n, v, tag = 'div', type = null) => CP.attribute(n, v, { tag, type });
+  // reprodução da revisão: passavam pela expressão genérica /^[A-Za-z0-9\-_. ]{0,80}$/
+  assert.equal(a('role', 'cliente-joao'), '');
+  assert.equal(a('autocomplete', 'joao oliveira', 'input', 'text'), '');
+  assert.equal(a('type', '48291736455', 'input'), '');
+  assert.equal(a('tabindex', '48291736455'), '');
+  assert.equal(a('target', 'gumercindo_tavares', 'a'), '');
+  assert.equal(a('rel', 'gumercindo tavares', 'a'), '');
+  assert.equal(a('lang', 'gumercindo-tavares', 'p'), '');
+  assert.equal(a('aria-current', 'gumercindo'), '');
+  assert.equal(a('scope', 'gumercindo', 'th'), '');
+  // valores legítimos continuam
+  assert.equal(a('role', 'button'), 'button');
+  assert.equal(a('role', 'switch checkbox'), 'switch checkbox');
+  assert.equal(a('autocomplete', 'shipping street-address', 'input', 'text'), 'shipping street-address');
+  assert.equal(a('type', 'password', 'input'), 'password');
+  assert.equal(a('type', 'application/x-nekkora-inert', 'script'), 'application/x-nekkora-inert');
+  assert.equal(a('tabindex', '-1'), '-1');
+  assert.equal(a('aria-expanded', 'true'), 'true');
+  assert.equal(a('lang', 'pt-BR', 'p'), 'pt-BR');
+  assert.equal(a('disabled', 'disabled', 'button'), 'disabled');
+  assert.equal(a('disabled', 'gumercindo', 'button'), '', 'booleano com valor arbitrário: só presença');
+  assert.equal(a('width', '120px', 'img'), '120px');
+  assert.equal(a('sandbox', 'allow-scripts allow-forms', 'iframe'), 'allow-scripts allow-forms');
+  assert.equal(a('allow', 'camera https://gumercindo.exemplo', 'iframe'), '', 'allow: só presença');
+});
+
+test('SEC001-089 (P1-02) — número em localizador: posição estrutural passa; VALOR numérico longo não', () => {
+  const CP = load().NekkoraCapturePolicy;
+  // reprodução da revisão: literal só de dígitos era aceito em qualquer comprimento
+  assert.equal(CP.expressionSafe("//button[@data-customer='12345678900']"), false);
+  assert.equal(CP.expressionSafe('input[type="48291736455"]'), false);
+  assert.equal(CP.expressionSafe('[data-customer=12345678900]'), false);
+  assert.equal(CP.expressionSafe('//button[@data-customer=12345678900]'), false);
+  assert.equal(CP.expressionSafe('.c12345678900'), false);
+  // posições estruturais (não são literais) continuam
+  assert.equal(CP.expressionSafe('button:nth-child(12)'), true);
+  assert.equal(CP.expressionSafe('html > body > div:nth-of-type(123) > button:nth-of-type(1)'), true);
+  assert.equal(CP.expressionSafe('//html/body/div[123]/button[1]'), true);
+  assert.equal(CP.expressionSafe('html >> body >> div {nth-of-type 123} >> button {nth-of-type 1}'), true);
+  assert.equal(CP.expressionSafe("input[maxlength='12']"), true, 'número curto de atributo estrutural');
+  assert.equal(CP.expressionSafe("//li[normalize-space()='Item 12']"), true);
+});

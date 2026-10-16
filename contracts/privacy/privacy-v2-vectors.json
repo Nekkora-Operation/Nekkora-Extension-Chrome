@@ -460,6 +460,34 @@
  ],
  "expressions": [
   {
+   "in": "//button[@data-customer='12345678900']",
+   "out": false
+  },
+  {
+   "in": "input[type=\"48291736455\"]",
+   "out": false
+  },
+  {
+   "in": "[data-customer=12345678900]",
+   "out": false
+  },
+  {
+   "in": "button:nth-child(12)",
+   "out": true
+  },
+  {
+   "in": "//html/body/div[123]/button[1]",
+   "out": true
+  },
+  {
+   "in": "html >> body >> div {nth-of-type 123}",
+   "out": true
+  },
+  {
+   "in": "input[maxlength='12']",
+   "out": true
+  },
+  {
    "in": "button[aria-label='Consultar']",
    "out": true
   },
@@ -728,6 +756,125 @@
    "name": "aria-label",
    "value": "",
    "tag": "button",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "role",
+   "value": "cliente-joao",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "role",
+   "value": "button",
+   "tag": "div",
+   "type": null,
+   "out": "button"
+  },
+  {
+   "name": "autocomplete",
+   "value": "joao oliveira",
+   "tag": "input",
+   "type": "text",
+   "out": ""
+  },
+  {
+   "name": "autocomplete",
+   "value": "shipping street-address",
+   "tag": "input",
+   "type": "text",
+   "out": "shipping street-address"
+  },
+  {
+   "name": "type",
+   "value": "48291736455",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "tabindex",
+   "value": "48291736455",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "tabindex",
+   "value": "-1",
+   "tag": "div",
+   "type": null,
+   "out": "-1"
+  },
+  {
+   "name": "target",
+   "value": "gumercindo_tavares",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "target",
+   "value": "_blank",
+   "tag": "a",
+   "type": null,
+   "out": "_blank"
+  },
+  {
+   "name": "lang",
+   "value": "gumercindo-tavares",
+   "tag": "p",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "lang",
+   "value": "pt-BR",
+   "tag": "p",
+   "type": null,
+   "out": "pt-BR"
+  },
+  {
+   "name": "aria-current",
+   "value": "gumercindo",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-current",
+   "value": "page",
+   "tag": "a",
+   "type": null,
+   "out": "page"
+  },
+  {
+   "name": "disabled",
+   "value": "gumercindo",
+   "tag": "button",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "width",
+   "value": "120px",
+   "tag": "img",
+   "type": null,
+   "out": "120px"
+  },
+  {
+   "name": "allow",
+   "value": "camera https://gumercindo.exemplo",
+   "tag": "iframe",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "scope",
+   "value": "gumercindo",
+   "tag": "th",
    "type": null,
    "out": ""
   },

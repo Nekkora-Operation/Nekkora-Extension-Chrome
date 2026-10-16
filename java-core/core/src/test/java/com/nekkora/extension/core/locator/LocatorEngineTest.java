@@ -50,9 +50,20 @@ class LocatorEngineTest {
                 """);
         PageAnalysis a = Engine.analyze(h);
         LocatorSet s = a.locators().generate(h.idOf(h.dom().select("input").get(1)));
-        assertTrue(s.primary().unique(), s.primary().toString());
-        assertEquals(LocatorStrategyKind.CONTEXTUAL, s.primary().strategy());
-        assertTrue(s.primary().css().contains("#b"), s.primary().css());
+        // CHROME-SECURITY-001 (P1-02): "#b" não é identificador do vocabulário — o contêiner não pode ser citado pelo id;
+        // existe localizador ÚNICO só com o que a política permite; o principal ambíguo é DECLARADO (não inventado)
+        assertTrue(s.all().stream().anyMatch(LocatorDescriptor::unique), s.all().toString());
+        assertTrue(s.primary().unique() || s.primary().warnings().stream().anyMatch(w -> w.startsWith("AMBIGUOUS_MATCH")), s.primary().toString());
+        assertTrue(s.all().stream().noneMatch(d -> String.valueOf(d.css()).contains("#b")), s.all().toString());
+        // a estratégia CONTEXTUAL continua funcionando quando o contêiner tem identificador do vocabulário
+        HtmlSnapshot safe = HtmlSnapshot.of("""
+                <form id="cliente"><fieldset><legend>Cobrança</legend><input placeholder="Cidade"></fieldset></form>
+                <form id="pagamento"><fieldset><legend>Entrega</legend><input placeholder="Cidade"></fieldset></form>
+                """);
+        LocatorSet t = Engine.analyze(safe).locators().generate(safe.idOf(safe.dom().select("input").get(1)));
+        assertTrue(t.primary().unique(), t.primary().toString());
+        assertEquals(LocatorStrategyKind.CONTEXTUAL, t.primary().strategy());
+        assertTrue(t.primary().css().contains("#pagamento"), t.primary().css());
     }
 
     @Test
@@ -64,8 +75,10 @@ class LocatorEngineTest {
         assertEquals(2, byId.matchCount());
         assertTrue(byId.warnings().stream().anyMatch(w -> w.startsWith("DUPLICATE_ID")));
         assertTrue(s.primary().unique());
-        assertEquals(LocatorStrategyKind.ROW_CONTEXT, s.primary().strategy());
-        assertTrue(s.primary().css().contains("clientes-inativos") || s.primary().css().contains("202"), s.primary().css());
+        // CHROME-SECURITY-001 (P1-02): a chave "202" não é transportável; a família é distinguida pela tabela do vocabulário
+        assertTrue(java.util.Set.of(LocatorStrategyKind.ROW_CONTEXT, LocatorStrategyKind.CONTEXTUAL).contains(s.primary().strategy()),
+                s.primary().toString());
+        assertTrue(s.primary().css().contains("clientes-inativos") && !s.primary().css().contains("202"), s.primary().css());
         assertTrue(s.primary().score() > byId.score());
     }
 
@@ -74,9 +87,20 @@ class LocatorEngineTest {
         HtmlSnapshot h = HtmlSnapshot.of(Fixtures.SAME_TABLE_ROWS);
         PageAnalysis a = Engine.analyze(h);
         LocatorSet s = a.locators().generate(h.idOf(h.dom().select("button").get(1)));
-        assertEquals(LocatorStrategyKind.ROW_CONTEXT, s.primary().strategy());
-        assertEquals("table#clientes tr[data-client=\"202\"] button#excluir", s.primary().css());
+        // CHROME-SECURITY-001 (P1-02): VALOR numérico "202" da chave de linha não vira localizador; o resultado continua único
         assertEquals(1, s.primary().matchCount());
+        assertFalse(String.valueOf(s.primary().css()).contains("202") || String.valueOf(s.primary().xpath()).contains("202"), s.primary().toString());
+        // ROW_CONTEXT continua funcionando quando a chave da linha é um valor permitido pela política
+        HtmlSnapshot safe = HtmlSnapshot.of("""
+                <table id="clientes"><tbody>
+                <tr data-client="ativo"><td>A</td><td><button id="excluir">Excluir</button></td></tr>
+                <tr data-client="pendente"><td>B</td><td><button id="excluir">Excluir</button></td></tr>
+                </tbody></table>
+                """);
+        LocatorSet t = Engine.analyze(safe).locators().generate(safe.idOf(safe.dom().select("button").get(1)));
+        assertEquals(LocatorStrategyKind.ROW_CONTEXT, t.primary().strategy(), t.primary().toString());
+        assertEquals("table#clientes tr[data-client=\"pendente\"] button#excluir", t.primary().css());
+        assertEquals(1, t.primary().matchCount());
     }
 
     @Test
@@ -84,8 +108,8 @@ class LocatorEngineTest {
         HtmlSnapshot h = HtmlSnapshot.of(Fixtures.dynamicId("18731"));
         PageAnalysis a = Engine.analyze(h);
         LocatorSet s = a.locators().generate(h.idOf("input"));
-        LocatorDescriptor byId = s.all().stream().filter(d -> d.strategy() == LocatorStrategyKind.ID).findFirst().orElseThrow();
-        assertEquals(StabilityLevel.HEURISTIC_UNSTABLE, byId.stability());
+        // CHROME-SECURITY-001 (P1-02): id com sufixo numérico longo nem chega a ser localizador (valor não transportável)
+        assertTrue(s.all().stream().noneMatch(d -> d.strategy() == LocatorStrategyKind.ID), s.all().toString());
         assertNotEquals(LocatorStrategyKind.ID, s.primary().strategy(), "id instável não deve ser o principal");
     }
 
@@ -109,9 +133,17 @@ class LocatorEngineTest {
         LocatorSet s = a.locators().generate(h.idOf(h.dom().select("button").get(1)));
         LocatorDescriptor text = s.all().stream().filter(d -> d.strategy() == LocatorStrategyKind.TEXT).findFirst().orElseThrow();
         assertEquals(2, text.matchCount());
-        assertTrue(s.primary().unique());
-        assertNotNull(s.primary().xpath());
-        assertTrue(s.primary().xpath().contains("Cliente Maria"), s.primary().xpath());
+        // CHROME-SECURITY-001: "Cliente Maria" (título de cartão) não é metadado do vocabulário — não entra no localizador
+        assertTrue(s.all().stream().noneMatch(d -> (d.css() + " " + d.xpath() + " " + d.semantic()).contains("Maria")), s.all().toString());
+        // contextualização por texto continua quando o texto de contexto é do vocabulário
+        HtmlSnapshot safe = HtmlSnapshot.of("""
+                <div class="card"><h3>Clientes ativos</h3><button>Remover</button></div>
+                <div class="card"><h3>Clientes inativos</h3><button>Remover</button></div>
+                """);
+        LocatorSet t = Engine.analyze(safe).locators().generate(safe.idOf(safe.dom().select("button").get(1)));
+        assertTrue(t.primary().unique(), t.primary().toString());
+        assertNotNull(t.primary().xpath());
+        assertTrue(t.primary().xpath().contains("Clientes inativos"), t.primary().xpath());
     }
 
     @Test
@@ -145,11 +177,14 @@ class LocatorEngineTest {
         String sb = a.semantics().all().stream().filter(c -> c.name().name().equals("Interno")).findFirst().orElseThrow().nodeId();
         LocatorSet s = a.locators().generate(sb);
         assertEquals("SHADOW_ROOT", s.primary().scope().type());
-        assertEquals("nk-card#host", s.primary().scope().chain().get(0).css());
+        // CHROME-SECURITY-001: "host" não é identificador do vocabulário — o hospedeiro é citado só pelo que a política permite
+        assertFalse(s.primary().scope().chain().get(0).css().contains("#host"), s.primary().scope().chain().get(0).css());
+        assertTrue(s.primary().scope().chain().get(0).css().contains("nk-card"));
         assertEquals(null, s.primary().xpath(), "XPath não atravessa shadow root");
         String fb = a.semantics().all().stream().filter(c -> c.name().name().equals("No frame")).findFirst().orElseThrow().nodeId();
         LocatorSet f = a.locators().generate(fb);
         assertEquals("FRAME", f.primary().scope().type());
-        assertEquals("iframe#fr", f.primary().scope().chain().get(0).css());
+        assertTrue(f.primary().scope().chain().get(0).css().contains("iframe") && !f.primary().scope().chain().get(0).css().contains("#fr"),
+                f.primary().scope().chain().get(0).css());
     }
 }
