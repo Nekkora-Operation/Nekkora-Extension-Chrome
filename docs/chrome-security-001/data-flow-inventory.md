@@ -158,3 +158,7 @@ encontra só os marcadores plantados e as transformações conhecidas.
 | 40 | valores de atributos estruturais | regra fechada por atributo (`nekkora-structural-attributes/1`); fora dela, só presença |
 | 41 | números em localizadores | valor só até 2 dígitos; posição aceita; verificação também na representação estruturada (`LocatorPrivacy`) |
 | 42 | continuidade técnica (D7) | âncora sem texto (época do registro, frame, escopo, tipo, revisões); resultado separado da identidade lógica |
+
+| 43 | expressões de localizador nas barreiras (SW, host, Studio) | análise integral (CSS, XPath, notação semântica); construção não reconhecida recusada; sem corte (2ª revisão dos PRs #7) |
+| 44 | nome de elemento (`tag`) em snapshot, motor, PageMap, registro, etapas e Studio | catálogo `nekkora-html-elements/1` ou nome inteiro do vocabulário; senão `custom-element`; posição real `childPositions` (2ª revisão) |
+| 45 | `page.nodeInfo` | sem texto nem id cru; só DEV (2ª revisão) |

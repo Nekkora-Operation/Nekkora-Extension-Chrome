@@ -61,6 +61,22 @@ mesmo assim são texto arbitrário. Cada atributo estrutural tem uma regra **fec
 Fora da regra, o atributo vai **só como presença** (valor vazio). O papel ARIA das etapas (recorder, service worker,
 host e Studio) passa pela mesma regra do `role`. Antes, ele saía cru do descritor do recorder.
 
+### Nomes de elemento (2ª revisão dos PRs #7)
+
+O nome de um elemento personalizado (`<ficha-cliente-joao>`) ou desconhecido (`<joao>`) é escolhido pelo autor da
+página e pode carregar dado de negócio. Regra fechada, a mesma em JS, Java e Studio (`tagName`):
+
+| Nome | Sai |
+|---|---|
+| do catálogo `contracts/privacy/html-elements.json` (`nekkora-html-elements/1`, 235 nomes HTML, incluindo os obsoletos, SVG e MathML, gerado por `scripts/gen-html-elements.py`) | o nome, em minúsculas (só ASCII; sem dobra Unicode) |
+| personalizado (com `-`) cujo valor **inteiro** é identificador do vocabulário (`painel-cliente`) | o nome |
+| qualquer outro (`ficha-cliente-teodolinda`, `nk-open-card`, `eustaquio`, `custom-element`) | o marcador neutro `custom-element` |
+
+Aplicada na captura (1ª barreira), no descritor do recorder, nas etapas do service worker (2ª), no `SnapshotPrivacy` e
+no `StepPrivacy` do host (3ª) e no `RecordedStep.guard` do Studio (4ª). O motor continua sabendo que existe um elemento
+naquela posição. Shadow root, classificação e nome acessível não dependem do nome do componente. Os localizadores usam
+`*` e a posição real (`locator-security.md`).
+
 ### Fonte de nome retida
 
 Quando um atributo de nome (`aria-label`, `title`, `placeholder`, `alt`, `aria-roledescription`, `aria-placeholder`,

@@ -66,24 +66,30 @@ tags: fun√ß√£o de pol√≠tica de tag existe? undefined
 express√µes divergentes no Java (81ce410): 29
 
 == P1-B: nome de elemento personalizado/desconhecido (Chrome real, p√°gina 15, ChromeSecurity001IT.sec001Componentes)
-P·gina 15 ó componentes personalizados: 14 exposiÁ„o(ıes):
-  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento personalizado (tag) ? Ö,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"ficha cliente teodolinda"},{"attributes":{"type":"button"},"chilÖ
-  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento desconhecido (tag) ? Örequired":null,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"eustaquio"},{"attributes":{"type":"button"},"chilÖ
-  [resultado do motor para a inspeÁ„o (element.inspect/target.register)] SEC001-091 nome de elemento personalizado (tag) ? Öch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"ficha cliente teodolinda"},"attributehistory":{"id":[null],"nameÖ
-  [resultado do motor para a inspeÁ„o (element.inspect/target.register)] SEC001-091 nome de elemento desconhecido (tag) ? Ö","registryepoch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"eustaquio"},"attributehistory":{"id":[null],"nameÖ
-  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento personalizado (tag) ? Öxpectedcondition":"element present","frameidentity":null,"label":"salvar","locator":"acao teodolinda ramos {text=\"salvar\"}","locatorstrateÖ
-  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento desconhecido (tag) ? Ötereddocumentid":null,"expectedcondition":"element present","frameidentity":null,"label":"eustaquio","locator":"html > body > eustaquio:nthÖ
-  [registro de alvos (target.list)] SEC001-091 nome de elemento personalizado (tag) ? Ö"xpath":"//button[normalize space( )=\"consultar\"]"},{"css":"html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"Ö
-  [registro de alvos (target.list)] SEC001-091 nome de elemento desconhecido (tag) ? Öquivalente css/xpath; verificavel apenas pelo motor"],"xpath":null},{"css":"html > body > eustaquio:nth of type(1) > button:nth of type(1)"Ö
-  [eventos ao Studio (etapas/evidÍncias)] SEC001-091 nome de elemento personalizado (tag) ? Övalidation":"live"},{"strategy":"positional","description":"html >> body >> ficha cliente teodolinda {nth of type 1} >> button {nth of type Ö
-  [eventos ao Studio (etapas/evidÍncias)] SEC001-091 nome de elemento desconhecido (tag) ? Östic stable","validation":"none"},{"strategy":"positional","description":"html >> body >> eustaquio {nth of type 1} >> button {nth of type Ö
-  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento personalizado (tag) ? Ö 5 }, "family" : { "nodeid" : "n13", "parent" : { "nodeid" : "n6", "tag" : "ficha cliente teodolinda", "kind" : "generic container", "name" Ö
-  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento desconhecido (tag) ? Ö "height" : 34 5 }, "family" : { "nodeid" : "n15", "parent" : { "nodeid" : "n8", "tag" : "eustaquio", "kind" : "generic container", "name" Ö
-  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento personalizado (tag) ? Ö: [ ], "live" : null }, { "strategy" : "positional", "css" : "html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"Ö
-  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento desconhecido (tag) ? Öpenas pelo motor" ], "live" : null }, { "strategy" : "positional", "css" : "html > body > eustaquio:nth of type(1) > button:nth of type(1)"Ö
+P√°gina 15 ‚Äî componentes personalizados: 14 exposi√ß√£o(√µes):
+  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"ficha cliente teodolinda"},{"attributes":{"type":"button"},"chil‚Ä¶
+  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶required":null,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"eustaquio"},{"attributes":{"type":"button"},"chil‚Ä¶
+  [resultado do motor para a inspe√ß√£o (element.inspect/target.register)] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶ch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"ficha cliente teodolinda"},"attributehistory":{"id":[null],"name‚Ä¶
+  [resultado do motor para a inspe√ß√£o (element.inspect/target.register)] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶","registryepoch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"eustaquio"},"attributehistory":{"id":[null],"name‚Ä¶
+  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶xpectedcondition":"element present","frameidentity":null,"label":"salvar","locator":"acao teodolinda ramos {text=\"salvar\"}","locatorstrate‚Ä¶
+  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶tereddocumentid":null,"expectedcondition":"element present","frameidentity":null,"label":"eustaquio","locator":"html > body > eustaquio:nth‚Ä¶
+  [registro de alvos (target.list)] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶"xpath":"//button[normalize space( )=\"consultar\"]"},{"css":"html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"‚Ä¶
+  [registro de alvos (target.list)] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶quivalente css/xpath; verificavel apenas pelo motor"],"xpath":null},{"css":"html > body > eustaquio:nth of type(1) > button:nth of type(1)"‚Ä¶
+  [eventos ao Studio (etapas/evid√™ncias)] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶validation":"live"},{"strategy":"positional","description":"html >> body >> ficha cliente teodolinda {nth of type 1} >> button {nth of type ‚Ä¶
+  [eventos ao Studio (etapas/evid√™ncias)] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶stic stable","validation":"none"},{"strategy":"positional","description":"html >> body >> eustaquio {nth of type 1} >> button {nth of type ‚Ä¶
+  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶ 5 }, "family" : { "nodeid" : "n13", "parent" : { "nodeid" : "n6", "tag" : "ficha cliente teodolinda", "kind" : "generic container", "name" ‚Ä¶
+  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶ "height" : 34 5 }, "family" : { "nodeid" : "n15", "parent" : { "nodeid" : "n8", "tag" : "eustaquio", "kind" : "generic container", "name" ‚Ä¶
+  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento personalizado (tag) ? ‚Ä¶: [ ], "live" : null }, { "strategy" : "positional", "css" : "html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"‚Ä¶
+  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento desconhecido (tag) ? ‚Ä¶penas pelo motor" ], "live" : null }, { "strategy" : "positional", "css" : "html > body > eustaquio:nth of type(1) > button:nth of type(1)"‚Ä¶
 
 == Achado adicional (P2, mesma classe): page.nodeInfo devolvia textContent e id crus a p√°ginas da extens√£o, inclusive em PRD (n√£o estava em DEV_ONLY)
-Consulta de nÛ: 3 exposiÁ„o(ıes):
-  [consulta de nÛ (page.nodeInfo) #pedido] SEC001-001/022 texto prÛprio ? Öct":{"height":22 5,"left":24,"top":165 5,"width":1302},"tag":"p","text":"pedido de ximena tavolaro aprovado"}Ö
-  [consulta de nÛ (page.nodeInfo) #contrato] SEC001-023 texto descendente ? Ö":{"height":22 5,"left":24,"top":203,"width":1302},"tag":"div","text":"contrato de irineu calabouco"}Ö
-  [consulta de nÛ (page.nodeInfo) #misto] SEC001-024 segmentos de texto ? Ö":{"height":38 5,"left":24,"top":225 5,"width":1302},"tag":"div","text":"cliente severino pitanguy consultar ativo"}Ö
+Consulta de n√≥: 3 exposi√ß√£o(√µes):
+  [consulta de n√≥ (page.nodeInfo) #pedido] SEC001-001/022 texto pr√≥prio ? ‚Ä¶ct":{"height":22 5,"left":24,"top":165 5,"width":1302},"tag":"p","text":"pedido de ximena tavolaro aprovado"}‚Ä¶
+  [consulta de n√≥ (page.nodeInfo) #contrato] SEC001-023 texto descendente ? ‚Ä¶":{"height":22 5,"left":24,"top":203,"width":1302},"tag":"div","text":"contrato de irineu calabouco"}‚Ä¶
+  [consulta de n√≥ (page.nodeInfo) #misto] SEC001-024 segmentos de texto ? ‚Ä¶":{"height":38 5,"left":24,"top":225 5,"width":1302},"tag":"div","text":"cliente severino pitanguy consultar ativo"}‚Ä¶
+
+== Confer√™ncia com o conjunto FINAL de vetores (97 express√µes), executando cada implementa√ß√£o antiga
+  JS 81ce410: 29 aceitas indevidamente
+  Java 81ce410: 29 aceitas indevidamente (lista acima; a 29¬™ √© "* {nth-child joao}", vetor acrescentado com o predicado novo)
+  Studio ddc4705: 29 aceitas indevidamente (CapturePrivacy da ddc4705 compilado e executado)
+  Depois da corre√ß√£o (a240333 / 1391360): 0 aceitas indevidamente nas tr√™s implementa√ß√µes

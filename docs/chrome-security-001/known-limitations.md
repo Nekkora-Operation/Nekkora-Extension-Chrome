@@ -32,3 +32,13 @@
     versionada do contrato.
 23. **Números longos legítimos em localizadores.** Um atributo com número de mais de 2 dígitos como valor (por exemplo
     `[data-page='100']`) deixa de ser localizador transportável. Posições continuam.
+
+24. **Componentes com nome fora do vocabulário.** O nome de um componente de biblioteca (`mat-card`, `sl-button`,
+    `nk-open-card`) não atravessa: aparece como `custom-element`, e o localizador usa a posição real (`:nth-child`) em
+    vez do nome. Esse localizador é mais frágil e é declarado `HEURISTIC_UNSTABLE`. Para manter um nome de biblioteca, é
+    preciso uma revisão versionada do vocabulário. O vocabulário não se expande sozinho.
+25. **Localizadores de outros produtores.** A gramática aceita é a do motor. Um seletor escrito à mão com construções
+    fora dela (`:not(...)`, vírgula, `:has(...)`, funções XPath como `contains`) é recusado nas barreiras e declarado
+    (`LOCATORS_WITHHELD`), mesmo sem dado privado.
+26. **Descrição semântica longa.** Acima de 500 caracteres, a descrição do localizador vai vazia, e CSS ou XPath acima de
+    500 são descartados. Antes, eram cortados.

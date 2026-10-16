@@ -5,7 +5,58 @@
 > cumprimento dos critérios da §25. Risco zero não é declarado em nenhuma parte deste documento.
 
 Branches: extensão `feat/chrome-security-001` (base `main` `8f3326b`) e Studio `feat/chrome-security-001-studio-guards`
-(base `main` `250778f`). Documentação técnica em `docs/chrome-security-001/` (21 documentos).
+(base `main` `250778f`). Documentação técnica em `docs/chrome-security-001/` (21 documentos). HEADs desta entrega: extensão
+`a240333` + documentação, Studio `1391360` + roteiro de homologação.
+
+## 2ª revisão técnica dos PRs #7 (2026-10-16): expressões analisadas inteiras e nomes de componente
+
+A 2ª revisão aprovou P1-01, P1-02 e a D7 e apontou dois caminhos de exposição que a política ainda não fechava. A
+metodologia foi a mesma: reproduzir antes, corrigir nas quatro barreiras, testar adversarialmente, rodar a regressão
+completa e homologar. A D7, as regras dos 100 atributos e o vocabulário não foram alterados.
+
+| Item | Reprodução antes da correção (`81ce410`/`ddc4705`) | Correção (`a240333` extensão, `1391360` Studio) |
+|---|---|---|
+| **P1: validador textual de localizadores** | 29 expressões aceitas indevidamente, nas **três** implementações (JS, Java e Studio): `button[data-client^=joao-oliveira]` e os demais operadores (`~=`, `\|=`, `$=`, `*=`), escape CSS (`#\6a oao-oliveira`), valor sem aspas na notação semântica (`button {aria-label=Consultar Joao Oliveira}`), nome de atributo (`[data-joao-oliveira]`), nome de elemento (`ficha-cliente-joao > button`), comentário, vírgula, `:not`, `//a \| //b`, expressão incompleta (`SEC001-r2-reproducao.txt`) | `expressionSafe` **analisa a expressão inteira** (CSS completo de seletores simples e combinadores, o subconjunto de XPath do motor e a notação semântica). Escapes são decodificados antes do julgamento; nome de elemento, nome de atributo e cada literal passam pela política; **o que não é reconhecido é recusado**. Vetores: 97 expressões e 14 nomes; diferencial JS × Java com 200.007 entradas aleatórias: **0 divergências** |
+| **P1: nomes de componente** | Chrome real, página 15 do laboratório: **14 exposições** de `<ficha-cliente-teodolinda>`/`<eustaquio>` no snapshot, no motor, no PageMap, no registro, nos **eventos ao Studio** e nos arquivos do host (`SEC001-exposure-r2-reproducao.json`) | contrato `nekkora-html-elements/1` (235 nomes HTML, SVG e MathML). Fora dele, o nome só atravessa se for identificador **inteiro** do vocabulário; senão vai o marcador neutro `custom-element`, nas quatro barreiras. O motor nunca usa o marcador num localizador (`*`) e posiciona o elemento por `:nth-child`, com a posição real informada pela página (`childPositions`) |
+| Achado adicional (mesma classe) | `page.nodeInfo` devolvia `textContent` e `id` crus às páginas da extensão, **também em PRD**: 3 exposições na reprodução | sem texto, `id` só do vocabulário, `tag` pela regra; comando só DEV |
+
+**Impacto verificado antes de fechar a representação** (pedido da revisão):
+
+- **Shadow DOM:** o primeiro desenho, `*` sem posição, deixava o hospedeiro de um shadow root sem localizador único
+  (`LocatorEngineTest`: `html > body > *`, 2 correspondências). Isso quebraria os localizadores do conteúdo de
+  componentes reais (`mat-card`, `sl-button`). Por isso a posição passou a ser `:nth-child(k)`, com `k` vindo da página.
+  O motor não pode recalcular essa posição, porque a captura não descreve `script`/`style`. O hospedeiro voltou a ser
+  único (`html > body > :nth-child(1)`). Na página real, `ComplexComponentsIT.openShadow` concorda ao vivo e resolve;
+  na homologação, o cenário 10 mantém a trajetória `SHADOW_ROOT`.
+- **Localizadores e identificação semântica:** a medição dos 359 elementos não mudou. Seguem 351 com principal único,
+  330 verificáveis, 0 sem nenhum único, 178 `RESOLVED` e 359 `LIVE_NODE_CONTINUITY`. Classificação, papel e nome
+  acessível não dependem do nome do componente. O snapshot cresceu 1,5% (`childPositions`).
+- **Formato das descrições:** o analisador estrito recusa o formato `id "entrar"`, que só existia em *fixtures* de
+  teste. Nenhum produtor o emite: o motor gera `button {id=entrar}` desde a CHROME-001. Os *fixtures* passaram ao formato
+  real, sem mudar o que cada teste verifica.
+
+| Verificação | Commit | Resultado |
+|---|---|---|
+| Unidade Java (núcleo 207 + host 64) / Node | `a240333` | **271 / 148**, 0 falhas |
+| Chrome real, G1–G7 sequenciais | `a240333` | **251/251**: G1 34, G2 55, G3 47, G4 23, G5 27, G6 41, G7 24 |
+| Privacidade: 15 cenários (13 anteriores, página 15 e consulta de nó) × todos os destinos auditados | `a240333` | **0 exposições** |
+| Studio Windows `./mvnw clean verify` | `1391360` | **344/344**, BUILD SUCCESS |
+| Studio Linux `tools/golden-linux.sh verify` | `1391360` | **344/344**, golden screenshots preservados |
+| Homologação real (Studio, Chrome for Testing, Native Host, robô) | extensão `a240333`, Studio `1391360` + roteiro | **51/51** (cenário 10 novo, 9 verificações) e compatibilidade **5/5** |
+
+Na primeira execução do Studio no Windows, `RecorderStudioTest.s002001SemNavegador` falhou: o Chrome do usuário, aberto
+com a extensão instalada, conectou-se ao Studio do teste pelo diretório padrão da bridge. Nenhum processo do usuário foi
+encerrado. A suíte foi repetida com `NEKKORA_BRIDGE_DIR` isolado e passou inteira. A homologação também rodou com a
+bridge isolada.
+
+| Métrica (34 páginas, 359 interativos, página inalterada) | `81ce410` | `a240333` |
+|---|---:|---:|
+| Reidentificação lógica (`RESOLVED`) | 178 | **178** |
+| Continuidade técnica comprovada (`LIVE_NODE_CONTINUITY`) | 359 | **359** |
+| Continuidade interrompida / não comprovada | 0 / 0 | **0 / 0** |
+| Principal único / verificável | 351 / 330 | **351 / 330** |
+| Identificações incorretas | 0 | **0** |
+| Exposições nos destinos auditados | 0 | **0** |
 
 ## Revisão técnica dos PRs #7 (2026-10-16): correções e homologação
 
@@ -144,6 +195,7 @@ Em resumo: **12/12** cenários com exposição; o Studio recebia nome privado em
 | `b1d10b7` | identidade sem invenção (característica do próprio elemento obrigatória), nome nunca parcial, ajustes da 1ª regressão |
 | `7f2b0dc` | revisão dos PRs #7: P1-01 (regra fechada por atributo estrutural) e P1-02 (números em localizadores, `LocatorPrivacy`) |
 | `5db09c7` | revisão dos PRs #7: D7 (continuidade técnica do nó, separada da identidade lógica) e conversão legada do PageMap |
+| `a240333` | 2ª revisão dos PRs #7: expressão de localizador analisada inteira, nomes de componente (`nekkora-html-elements/1`, `childPositions`, `NTH_CHILD`), `page.nodeInfo` |
 | `68816db`, `afeaa38` e seguintes | categorias de atributos (frames, mídia, `slot`/`part`/`is`, `srcdoc`), `textRevision`, rótulos estruturais, opções por posição, hooks de teste só em DEV, `render` no vocabulário, deduplicação de relações, adaptação da regressão, medições e documentação |
 
 Studio (`feat/chrome-security-001-studio-guards`): `CapturePrivacy` (cópia gerada da política Java, verificada pelos
@@ -387,8 +439,12 @@ Nenhum destes riscos é zero:
 10. **Uso indevido da continuidade técnica:** um consumidor futuro que trate `LIVE_NODE_CONTINUITY` como alvo
     confirmado reabriria o caso da virtualização. Hoje nenhum componente consome o campo. Qualquer uso novo deve passar
     por revisão.
-11. **Nomes de elementos personalizados** (tags com hífen, como `ficha-cliente`) entram em localizadores como estrutura
-    e não passam pelo vocabulário. Um nome de componente montado com dado de negócio atravessaria.
+11. **Nomes de elementos personalizados:** corrigido na 2ª revisão. Fora do catálogo e do vocabulário, o nome vira
+    `custom-element`. Fica o risco do item 2: um nome de componente composto só de palavras do vocabulário atravessa.
+12. **Gramática fechada dos localizadores:** a análise integral protege as expressões que o motor produz. Ampliar a
+    gramática, por exemplo para aceitar `:not`, é decisão de segurança e exige vetores novos nas três implementações.
+13. **Posição como canal lateral:** `childPositions` e `:nth-child` expõem a posição de um elemento entre os irmãos.
+    É estrutura, como `nth-of-type` (item 3), sem conteúdo.
 
 ## 25. Critérios de liberação para dados reais
 
@@ -416,7 +472,7 @@ revisão:
 | CA-003 | MutationRecord não revela conteúdos proibidos | `[omitido]`, nome do atributo; `SnapshotComparator` e LOG-SW limpos |
 | CA-004 | Registro de alvos respeita a política | destino REG limpo; `registry-v2.json` |
 | CA-005 | Etapas não recebem nomes acessíveis privados | cenários 1, 2 e 8b; destino STUDIO limpo |
-| CA-006 | Localizadores não incluem textos privados | `expressionSafe` nas três implementações; `LOCATORS_WITHHELD` |
+| CA-006 | Localizadores não incluem textos privados | `expressionSafe` com análise integral nas três implementações (2ª revisão); `LOCATORS_WITHHELD` |
 | CA-007 | URLs são minimizadas | origem + modelo `{…}`; cenário 3 |
 | CA-008 | Logs não revelam conteúdos da página | `LogSafety`; LOG-HOST limpo em todos os cenários |
 | CA-009 | Diagnósticos respeitam a política | lista fechada no `eventLog`; diagnósticos crus só em DEV |
@@ -434,8 +490,8 @@ revisão:
 | CA-021 | A STUDIO-004 continua funcionando | suíte do Studio (editor) aprovada no Windows e no Linux |
 | CA-022 | A STUDIO-005 continua funcionando | `Studio005EvidenceIT` 16/16; modo estrito preservado |
 | CA-023 | Os contratos são versionados corretamente | `nekkora-privacy/2`, PageMap 0.3.0, aditivos no RawSnapshot e no Bridge (§19) |
-| CA-024 | As suítes existentes permanecem aprovadas | revisão dos PRs #7: Chrome 249/249, Java 268, Node 144, Studio 343/343 no Windows e no Linux (nenhum teste removido) |
-| CA-025 | A matriz SEC001 passa integralmente | `ChromeSecurity001IT` 13/13 (inclui a página 13: SEC001-088/089), `CapturePrivacyPolicyTest`, `SnapshotPrivacyTest`, `LocatorPrivacyTest`, `capture-policy.test.js`, `CapturePrivacyTest` (Studio) |
-| CA-026 | A homologação real é aprovada | revisão dos PRs #7: 42/42 (com o cenário 9 da D7) e 5/5 |
+| CA-024 | As suítes existentes permanecem aprovadas | 2ª revisão dos PRs #7: Chrome 251/251, Java 271, Node 148, Studio 344/344 no Windows e no Linux (nenhum teste removido) |
+| CA-025 | A matriz SEC001 passa integralmente | `ChromeSecurity001IT` 15/15 (inclui as páginas 13 e 15 e a consulta de nó: SEC001-088 a 092), `CapturePolicyVectorsTest`, `SnapshotPrivacyTest`, `LocatorPrivacyTest`, `StepPrivacyTest`, `capture-policy.test.js`, `studio-steps.test.js`, `CapturePrivacyTest` e `RecordedStepsTest` (Studio) |
+| CA-026 | A homologação real é aprovada | 2ª revisão dos PRs #7: 51/51 (com o cenário 9 da D7 e o cenário 10 dos nomes de componente) e 5/5 |
 | CA-027 | Os riscos residuais são documentados | §24 |
 | CA-028 | Os PRs são entregues sem merge | PRs abertos para revisão, sem merge |

@@ -52,3 +52,25 @@ medir o tempo. Depois de cada grupo, só o processo do Chrome for Testing é enc
 ## Resultado
 
 Preenchido em `performance.md` (métricas) e no relatório final (§20), com as contagens da 3ª rodada completa.
+
+## 2ª revisão dos PRs #7 (commit `a240333`)
+
+Mesma estratégia oficial: grupos sequenciais, em primeiro plano. Entre os grupos, só os processos de teste são encerrados
+(Chrome for Testing, chromedriver, JVMs do surefire e do Maven, Native Host aberto pela extensão de teste) e a memória é
+conferida (8,9 a 9,1 GB livres). O G7 inclui `TechnicalContinuityIT`.
+
+| Suíte | Resultado |
+|---|---|
+| Java (núcleo 207 + host 64) | 271/271 |
+| Node | 148/148 |
+| Chrome real, G1–G7 | 251/251 (34, 55, 47, 23, 27, 41, 24) |
+| Studio Windows (`1391360`) | 344/344 |
+| Studio Linux (`1391360`) | 344/344, golden screenshots preservados |
+
+Casos novos: SEC001-090 (operadores CSS e expressão não analisável, vetores e testes adversariais nas barreiras),
+SEC001-091 (página 15: nomes de componente, ponta a ponta) e SEC001-092 (`page.nodeInfo`). Asserções ajustadas ao
+resultado exato da nova política: `LocatorEngineTest.scopedLocatorsForShadowAndFrames` e `ComplexComponentsIT.openShadow`
+(o hospedeiro deixa de ser citado pelo nome `nk-card`/`nk-open-card` e passa a ser citado pela posição real, continuando
+único e concordante ao vivo). Fixtures de etapa com um formato de descrição que nenhum produtor emite (`id "entrar"`,
+`botão "Entrar"`, `campo "Senha"`, `texto`) passaram ao formato real do motor (`button {id=entrar}`,
+`* {role=button} {name="Entrar"}`, `input {label="Senha"}`, `button {text="Entrar"}`), sem mudar o que cada teste verifica.

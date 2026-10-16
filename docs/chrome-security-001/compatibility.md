@@ -18,6 +18,11 @@
 | `nekkora-bridge/1` | `client.privacy`; notas `OPTION_WITHHELD`, `LOCATORS_WITHHELD`, `SAFE_LOCATOR_UNAVAILABLE` | aditivo |
 | `nekkora-ui-vocabulary` | 1 (novo) | novo |
 | `nekkora-structural-attributes` | 1 (novo, revisão dos PRs #7): regra fechada por atributo estrutural | novo |
+| `nekkora-html-elements` | 1 (novo, 2ª revisão): catálogo fechado de nomes de elemento; fora dele e do vocabulário, `tag = "custom-element"` | novo |
+| RawSnapshot `nodes[].childPositions` | posição real de cada filho entre todos os filhos elemento (2ª revisão) | aditivo |
+| RawSnapshot/PageMap/etapas `tag` | marcador neutro `custom-element` quando o nome é retido | mesmo tipo e padrão |
+| PageMap 0.3.0 predicado `NTH_CHILD` | posição entre todos os irmãos, só em passo sem tag (2ª revisão) | aditivo (antes da integração da 0.3.0) |
+| `expressionSafe` | expressão analisada inteira; construção não reconhecida é recusada; descrição semântica inteira ou vazia | mais restritivo |
 | RawSnapshot `frames[].registryEpoch` | época do registro de nós (D7) | aditivo |
 | PageMap 0.3.0 `targets[].anchor`, `resolutions[].continuity`, `document.frames[].registryEpoch` | âncora técnica e continuidade técnica (D7), separadas da identidade lógica | aditivo (antes da integração da 0.3.0) |
 

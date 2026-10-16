@@ -2,8 +2,8 @@
   "rotulo" : "depois",
   "paginas" : 34,
   "totais" : {
-    "bytesPageMap" : 3255140,
-    "bytesSnapshot" : 696421,
+    "bytesPageMap" : 3253796,
+    "bytesSnapshot" : 706831,
     "comNome" : 181,
     "elementosClassificados" : 925,
     "interativos" : 359,
@@ -19,8 +19,8 @@
   "continuidadeTecnicaNaPaginaInalterada" : {
     "LIVE_NODE_CONTINUITY" : 359
   },
-  "capturaMsMedianaDasPaginas" : 9.9677,
-  "capturaMsSomaDasMedianas" : 364,
+  "capturaMsMedianaDasPaginas" : 11.3086,
+  "capturaMsSomaDasMedianas" : 390,
   "porPagina" : {
     "/lab/simple/form-basics.html" : {
       "elementosClassificados" : 55,
@@ -34,9 +34,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 13
       },
-      "capturaMsMediana" : 25.5,
-      "bytesSnapshot" : 40948,
-      "bytesPageMap" : 247808
+      "capturaMsMediana" : 28.9,
+      "bytesSnapshot" : 41543,
+      "bytesPageMap" : 247809
     },
     "/lab/intermediate/forms-groups.html" : {
       "elementosClassificados" : 34,
@@ -50,8 +50,8 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 11.4,
-      "bytesSnapshot" : 25719,
+      "capturaMsMediana" : 12.1,
+      "bytesSnapshot" : 26054,
       "bytesPageMap" : 155744
     },
     "/lab/intermediate/tables.html" : {
@@ -65,9 +65,9 @@
         "AMBIGUOUS" : 8,
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 12.7,
-      "bytesSnapshot" : 31281,
-      "bytesPageMap" : 141196
+      "capturaMsMediana" : 12.3,
+      "bytesSnapshot" : 31784,
+      "bytesPageMap" : 141199
     },
     "/lab/intermediate/widgets.html" : {
       "elementosClassificados" : 43,
@@ -81,8 +81,8 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 10
       },
-      "capturaMsMediana" : 12.2,
-      "bytesSnapshot" : 32039,
+      "capturaMsMediana" : 12.0,
+      "bytesSnapshot" : 32426,
       "bytesPageMap" : 140736
     },
     "/lab/complex/dropdowns.html" : {
@@ -97,8 +97,8 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 6
       },
-      "capturaMsMediana" : 12.8,
-      "bytesSnapshot" : 32269,
+      "capturaMsMediana" : 11.8,
+      "bytesSnapshot" : 32627,
       "bytesPageMap" : 193000
     },
     "/lab/complex/duplicated-ids.html" : {
@@ -113,8 +113,8 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 2
       },
-      "capturaMsMediana" : 10.4,
-      "bytesSnapshot" : 39503,
+      "capturaMsMediana" : 15.0,
+      "bytesSnapshot" : 40205,
       "bytesPageMap" : 154676
     },
     "/lab/complex/dynamic-ids.html" : {
@@ -129,9 +129,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 9.4,
-      "bytesSnapshot" : 14482,
-      "bytesPageMap" : 52959
+      "capturaMsMediana" : 13.3,
+      "bytesSnapshot" : 14678,
+      "bytesPageMap" : 52960
     },
     "/lab/complex/rerender.html" : {
       "elementosClassificados" : 20,
@@ -145,8 +145,8 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 9.3,
-      "bytesSnapshot" : 17368,
+      "capturaMsMediana" : 11.5,
+      "bytesSnapshot" : 17608,
       "bytesPageMap" : 57577
     },
     "/lab/complex/responsive.html" : {
@@ -160,9 +160,9 @@
         "AMBIGUOUS" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.8,
-      "bytesSnapshot" : 11542,
-      "bytesPageMap" : 32879
+      "capturaMsMediana" : 10.8,
+      "bytesSnapshot" : 11709,
+      "bytesPageMap" : 32881
     },
     "/lab/complex/shadow-iframes.html" : {
       "elementosClassificados" : 19,
@@ -175,9 +175,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 12.9,
-      "bytesSnapshot" : 20070,
-      "bytesPageMap" : 66924
+      "capturaMsMediana" : 12.2,
+      "bytesSnapshot" : 20383,
+      "bytesPageMap" : 66810
     },
     "/lab/chrome002/accessible-names.html" : {
       "elementosClassificados" : 54,
@@ -191,9 +191,9 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 9
       },
-      "capturaMsMediana" : 14.6,
-      "bytesSnapshot" : 36374,
-      "bytesPageMap" : 139548
+      "capturaMsMediana" : 13.9,
+      "bytesSnapshot" : 36898,
+      "bytesPageMap" : 139550
     },
     "/lab/chrome002/continuous.html" : {
       "elementosClassificados" : 33,
@@ -207,9 +207,9 @@
         "INSUFFICIENT_EVIDENCE" : 2,
         "RESOLVED" : 9
       },
-      "capturaMsMediana" : 11.0,
-      "bytesSnapshot" : 26185,
-      "bytesPageMap" : 112848
+      "capturaMsMediana" : 12.1,
+      "bytesSnapshot" : 26535,
+      "bytesPageMap" : 112839
     },
     "/lab/chrome002/iframes.html" : {
       "elementosClassificados" : 22,
@@ -223,9 +223,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 10.3,
-      "bytesSnapshot" : 19451,
-      "bytesPageMap" : 74776
+      "capturaMsMediana" : 11.3,
+      "bytesSnapshot" : 19702,
+      "bytesPageMap" : 74719
     },
     "/lab/chrome002/recording.html" : {
       "elementosClassificados" : 22,
@@ -238,9 +238,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 9.0,
-      "bytesSnapshot" : 15072,
-      "bytesPageMap" : 67662
+      "capturaMsMediana" : 9.8,
+      "bytesSnapshot" : 15266,
+      "bytesPageMap" : 67665
     },
     "/lab/chrome002/shadow-dynamic.html" : {
       "elementosClassificados" : 14,
@@ -254,9 +254,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 9.6,
-      "bytesSnapshot" : 14099,
-      "bytesPageMap" : 37675
+      "capturaMsMediana" : 10.3,
+      "bytesSnapshot" : 14281,
+      "bytesPageMap" : 37641
     },
     "/lab/chrome003/contas.html" : {
       "elementosClassificados" : 7,
@@ -268,9 +268,9 @@
       "resolucao" : {
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 9.0,
-      "bytesSnapshot" : 5969,
-      "bytesPageMap" : 35814
+      "capturaMsMediana" : 9.6,
+      "bytesSnapshot" : 6042,
+      "bytesPageMap" : 35813
     },
     "/lab/chrome003/filial.html" : {
       "elementosClassificados" : 2,
@@ -283,8 +283,8 @@
         "RESOLVED" : 1
       },
       "capturaMsMediana" : 8.5,
-      "bytesSnapshot" : 3028,
-      "bytesPageMap" : 9354
+      "bytesSnapshot" : 3072,
+      "bytesPageMap" : 9356
     },
     "/lab/chrome003/financeiro.html" : {
       "elementosClassificados" : 18,
@@ -296,9 +296,9 @@
       "resolucao" : {
         "RESOLVED" : 7
       },
-      "capturaMsMediana" : 11.3,
-      "bytesSnapshot" : 16073,
-      "bytesPageMap" : 91566
+      "capturaMsMediana" : 11.8,
+      "bytesSnapshot" : 16351,
+      "bytesPageMap" : 91263
     },
     "/lab/chrome003/frames.html" : {
       "elementosClassificados" : 66,
@@ -312,9 +312,9 @@
         "INSUFFICIENT_EVIDENCE" : 3,
         "RESOLVED" : 13
       },
-      "capturaMsMediana" : 15.9,
-      "bytesSnapshot" : 57781,
-      "bytesPageMap" : 262755
+      "capturaMsMediana" : 16.9,
+      "bytesSnapshot" : 58850,
+      "bytesPageMap" : 262253
     },
     "/lab/chrome003/pagamentos.html" : {
       "elementosClassificados" : 7,
@@ -326,9 +326,9 @@
       "resolucao" : {
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.1,
-      "bytesSnapshot" : 6647,
-      "bytesPageMap" : 31367
+      "capturaMsMediana" : 8.8,
+      "bytesSnapshot" : 6762,
+      "bytesPageMap" : 31067
     },
     "/lab/chrome003/painel.html" : {
       "elementosClassificados" : 2,
@@ -340,9 +340,9 @@
       "resolucao" : {
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 8.0,
-      "bytesSnapshot" : 3034,
-      "bytesPageMap" : 7928
+      "capturaMsMediana" : 8.1,
+      "bytesSnapshot" : 3078,
+      "bytesPageMap" : 7925
     },
     "/lab/chrome003/relatorios.html" : {
       "elementosClassificados" : 6,
@@ -355,9 +355,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 1
       },
-      "capturaMsMediana" : 9.2,
-      "bytesSnapshot" : 8010,
-      "bytesPageMap" : 21117
+      "capturaMsMediana" : 9.6,
+      "bytesSnapshot" : 8188,
+      "bytesPageMap" : 21090
     },
     "/lab/studio003/consulta.html" : {
       "elementosClassificados" : 52,
@@ -370,9 +370,9 @@
         "AMBIGUOUS" : 9,
         "RESOLVED" : 12
       },
-      "capturaMsMediana" : 10.4,
-      "bytesSnapshot" : 34058,
-      "bytesPageMap" : 189130
+      "capturaMsMediana" : 12.7,
+      "bytesSnapshot" : 34550,
+      "bytesPageMap" : 189129
     },
     "/lab/studio003/login.html" : {
       "elementosClassificados" : 21,
@@ -385,9 +385,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 8.9,
-      "bytesSnapshot" : 14149,
-      "bytesPageMap" : 76302
+      "capturaMsMediana" : 11.8,
+      "bytesSnapshot" : 14364,
+      "bytesPageMap" : 76291
     },
     "/lab/studio003/frames.html" : {
       "elementosClassificados" : 19,
@@ -400,9 +400,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 4
       },
-      "capturaMsMediana" : 10.0,
-      "bytesSnapshot" : 16284,
-      "bytesPageMap" : 63901
+      "capturaMsMediana" : 9.5,
+      "bytesSnapshot" : 16581,
+      "bytesPageMap" : 63900
     },
     "/lab/studio005/login-erro.html" : {
       "elementosClassificados" : 17,
@@ -415,9 +415,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 11.9,
-      "bytesSnapshot" : 12530,
-      "bytesPageMap" : 65630
+      "capturaMsMediana" : 9.1,
+      "bytesSnapshot" : 12701,
+      "bytesPageMap" : 65629
     },
     "/lab/studio005/pesquisa.html" : {
       "elementosClassificados" : 11,
@@ -430,9 +430,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 2
       },
-      "capturaMsMediana" : 8.9,
-      "bytesSnapshot" : 8508,
-      "bytesPageMap" : 27411
+      "capturaMsMediana" : 8.5,
+      "bytesSnapshot" : 8608,
+      "bytesPageMap" : 27412
     },
     "/lab/studio005/validacao.html" : {
       "elementosClassificados" : 15,
@@ -445,9 +445,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.9,
-      "bytesSnapshot" : 10779,
-      "bytesPageMap" : 52279
+      "capturaMsMediana" : 10.0,
+      "bytesSnapshot" : 10944,
+      "bytesPageMap" : 52278
     },
     "/lab/chrome-security-001/formularios.html" : {
       "elementosClassificados" : 49,
@@ -461,9 +461,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 15
       },
-      "capturaMsMediana" : 10.0,
-      "bytesSnapshot" : 30172,
-      "bytesPageMap" : 227801
+      "capturaMsMediana" : 10.5,
+      "bytesSnapshot" : 30623,
+      "bytesPageMap" : 227802
     },
     "/lab/chrome-security-001/elementos.html" : {
       "elementosClassificados" : 18,
@@ -476,8 +476,8 @@
         "AMBIGUOUS" : 2,
         "RESOLVED" : 5
       },
-      "capturaMsMediana" : 8.4,
-      "bytesSnapshot" : 12311,
+      "capturaMsMediana" : 8.6,
+      "bytesSnapshot" : 12520,
       "bytesPageMap" : 43637
     },
     "/lab/chrome-security-001/atributos.html" : {
@@ -492,9 +492,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 6
       },
-      "capturaMsMediana" : 8.8,
-      "bytesSnapshot" : 15611,
-      "bytesPageMap" : 56176
+      "capturaMsMediana" : 9.6,
+      "bytesSnapshot" : 15912,
+      "bytesPageMap" : 56173
     },
     "/lab/chrome-security-001/tabela.html" : {
       "elementosClassificados" : 23,
@@ -507,9 +507,9 @@
         "AMBIGUOUS" : 2,
         "INSUFFICIENT_EVIDENCE" : 1
       },
-      "capturaMsMediana" : 9.2,
-      "bytesSnapshot" : 15126,
-      "bytesPageMap" : 49180
+      "capturaMsMediana" : 8.5,
+      "bytesSnapshot" : 15383,
+      "bytesPageMap" : 49187
     },
     "/lab/chrome-security-001/exportacao.html" : {
       "elementosClassificados" : 16,
@@ -522,9 +522,9 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 3
       },
-      "capturaMsMediana" : 8.3,
-      "bytesSnapshot" : 11383,
-      "bytesPageMap" : 43576
+      "capturaMsMediana" : 8.8,
+      "bytesSnapshot" : 11550,
+      "bytesPageMap" : 43577
     },
     "/clientes?nome=ana&status=ativo" : {
       "elementosClassificados" : 58,
@@ -538,8 +538,8 @@
         "INSUFFICIENT_EVIDENCE" : 1,
         "RESOLVED" : 11
       },
-      "capturaMsMediana" : 10.6,
-      "bytesSnapshot" : 38566,
+      "capturaMsMediana" : 11.3,
+      "bytesSnapshot" : 39053,
       "bytesPageMap" : 224208
     }
   }
