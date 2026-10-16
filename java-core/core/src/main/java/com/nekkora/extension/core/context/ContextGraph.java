@@ -634,7 +634,9 @@ public final class ContextGraph {
             String k = e.getKey().toLowerCase(Locale.ROOT);
             if ((k.startsWith("data-") && !k.startsWith("data-nekkora")) || k.equals("name") || k.equals("aria-label")
                     || k.equals("role")) {
-                keys.put(e.getKey(), e.getValue());
+                if (!com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE.equals(e.getValue())) {
+                    keys.put(e.getKey(), e.getValue());
+                }
             }
         }
         return new NodeRef(n.id(), n.tag(), c.kind(), TextNormalizer.truncate(name, 80), n.attr("id"), keys);

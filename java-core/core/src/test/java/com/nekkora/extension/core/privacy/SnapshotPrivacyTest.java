@@ -83,7 +83,8 @@ class SnapshotPrivacyTest {
         RawSnapshot s = sanitized();
         assertEquals("Salvar", byAttr(s, "data-testid", "btn-salvar").ownText());
         assertEquals("Consultar", byAttr(s, "id", "consultar").ownText(), "o conteúdo do botão passa; o aria-label não");
-        assertNull(byAttr(s, "id", "consultar").attr("aria-label"));
+        // a fonte de nome retida fica PRESENTE e marcada (o valor nunca): o motor não pode recorrer ao conteúdo
+        assertEquals(CapturePrivacyPolicy.HOLE, byAttr(s, "id", "consultar").attr("aria-label"));
         assertEquals("", byAttr(s, "id", "perfil").ownText(), "link 'Perfil de Cassiano Bonfim'");
         assertEquals("Visualizar", first(s, n -> "ver".equals(n.attr("class"))).ownText(), "botão dentro de célula é controle");
         assertEquals("", first(s, n -> n.tag().equals("svg")).ownText(), "título de SVG com nome de pessoa");
@@ -105,12 +106,24 @@ class SnapshotPrivacyTest {
     }
 
     @Test
+    @DisplayName("SEC001-087 — fonte de nome retida não é substituída por uma fonte de prioridade menor (nome não inventado)")
+    void withheldNameSourceIsNotReplaced() {
+        RawSnapshot s = sanitized();
+        PageAnalysis a = new PageAnalyzer().analyze(s);
+        RawNode consultar = byAttr(s, "id", "consultar");
+        var name = a.semantics().get(consultar.id()).name();
+        // aria-label "Consultar cliente Bartolomeu Quixadá" (retido) é o nome real; o conteúdo "Consultar" NÃO é o nome
+        assertEquals("", name.name(), "nome retido inteiro: " + name);
+        assertEquals(com.nekkora.extension.core.semantic.NameSource.ARIA_LABEL, name.source());
+    }
+
+    @Test
     @DisplayName("SEC001-015..020/081 — atributos por categoria: ids, name, classes, data-*, placeholder; exposedValue nunca")
     void attributes() {
         RawSnapshot s = sanitized();
         RawNode nome = byAttr(s, "id", "nome");
         assertNull(nome.attr("name"), "usuario_hermengarda");
-        assertNull(nome.attr("placeholder"), "ex.: Filomena Zanatta");
+        assertEquals(CapturePrivacyPolicy.HOLE, nome.attr("placeholder"), "ex.: Filomena Zanatta (presença marcada, valor retido)");
         assertEquals("btn btn-primary", byAttr(s, "data-testid", "btn-salvar").attr("class"));
         RawNode linha = first(s, n -> n.tag().equals("tr"));
         assertEquals("", linha.attr("data-cliente"), "presença do atributo; valor nunca");

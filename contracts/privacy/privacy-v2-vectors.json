@@ -645,21 +645,21 @@
    "value": "Consultar cliente Bartolomeu Quixadá",
    "tag": "button",
    "type": null,
-   "out": null
+   "out": "{…}"
   },
   {
    "name": "title",
    "value": "Observação sobre Teodolinda Vasconi",
    "tag": "input",
    "type": "text",
-   "out": null
+   "out": "{…}"
   },
   {
    "name": "placeholder",
    "value": "ex.: Filomena Zanatta",
    "tag": "input",
    "type": "text",
-   "out": null
+   "out": "{…}"
   },
   {
    "name": "placeholder",
@@ -673,7 +673,7 @@
    "value": "Foto de Cremilda Bastião",
    "tag": "img",
    "type": null,
-   "out": null
+   "out": "{…}"
   },
   {
    "name": "aria-description",
@@ -709,6 +709,27 @@
    "tag": "option",
    "type": null,
    "out": null
+  },
+  {
+   "name": "value",
+   "value": "Pagar Leocádia",
+   "tag": "input",
+   "type": "submit",
+   "out": "{…}"
+  },
+  {
+   "name": "alt",
+   "value": "",
+   "tag": "img",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-label",
+   "value": "",
+   "tag": "button",
+   "type": null,
+   "out": ""
   },
   {
    "name": "aria-labelledby",

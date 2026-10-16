@@ -280,12 +280,20 @@
       return '';
     }
     if (NAMING.has(n)) {
-      return interfaceText(v);
+      // retido: a PRESENÇA da fonte de nome fica marcada ({…}) — sem ela o motor calcularia um nome por uma fonte de
+      // prioridade menor (ex.: o conteúdo "Consultar" de um botão cujo aria-label é privado) e inventaria um nome.
+      // Vazio continua vazio (alt="" de imagem decorativa é semântica legítima).
+      const t = interfaceText(v);
+      return t != null ? t : (String(v).trim() ? HOLE : '');
     }
     if (n === 'value') {
       const tag = String((ctx && ctx.tag) || '').toLowerCase();
       const type = String((ctx && ctx.type) || '').toLowerCase();
-      return tag === 'input' && BUTTON_TYPES.has(type) ? interfaceText(v) : null;
+      if (tag !== 'input' || !BUTTON_TYPES.has(type)) {
+        return null;
+      }
+      const text = interfaceText(v);
+      return text != null ? text : (String(v).trim() ? HOLE : ''); // retido: presença marcada (senão o nome viraria "Submit")
     }
     if (DESCRIPTIVE.has(n)) {
       return null;

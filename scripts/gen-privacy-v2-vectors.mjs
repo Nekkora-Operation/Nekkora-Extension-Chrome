@@ -58,6 +58,7 @@ const attrs = [
   ['placeholder', 'ex.: Filomena Zanatta', 'input', 'text'], ['placeholder', 'Pesquisar', 'input', 'search'], ['alt', 'Foto de Cremilda Bastião', 'img', null],
   ['aria-description', 'Conta', 'button', null], ['aria-valuetext', 'Limite de Hortência Malaquias', 'span', null],
   ['value', 'Entrar', 'input', 'submit'], ['value', 'Leocádia', 'input', 'text'], ['value', 't1', 'option', null],
+  ['value', 'Pagar Leocádia', 'input', 'submit'], ['alt', '', 'img', null], ['aria-label', '', 'button', null],
   ['aria-labelledby', 'rot-fone', 'input', 'tel'], ['for', 'nome', 'label', null], ['aria-controls', 'lista', 'input', null],
   ['href', '/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo', 'a', null], ['src', 'frames/ficha-gervasio-barros.html', 'iframe', null],
   ['action', '/api/clientes/sinfronio-lacerda', 'form', null], ['onclick', 'abrir("joão")', 'button', null], ['style', 'color:red', 'div', null],

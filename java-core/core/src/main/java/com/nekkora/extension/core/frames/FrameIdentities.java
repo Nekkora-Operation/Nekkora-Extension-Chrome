@@ -98,13 +98,18 @@ public final class FrameIdentities {
         Map<String, String> stable = new LinkedHashMap<>();
         for (String attr : STABLE_ATTRIBUTES) {
             String v = host.attr(attr);
-            if (v != null && !v.isBlank()) {
+            if (v != null && !v.isBlank() && !com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE.equals(v)) {
                 stable.put(attr, v);
             }
         }
-        String title = host.attr("title") != null ? host.attr("title") : host.attr("aria-label");
+        String title = shown(host.attr("title")) != null ? shown(host.attr("title")) : shown(host.attr("aria-label"));
         return new FrameIdentity(id, host.attr("name"), title, stable, container(g, host), UrlSanitizer.path(url), origin, depth,
                 parentKey, host.scopeId().startsWith("shadow:"));
+    }
+
+    /** Valor retido pela política ({…}) não é título. */
+    private static String shown(String v) {
+        return v == null || com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE.equals(v) ? null : v;
     }
 
     static String container(ContextGraph g, RawNode host) {

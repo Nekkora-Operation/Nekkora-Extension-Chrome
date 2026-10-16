@@ -133,6 +133,7 @@ public final class StepFactory {
      * ou mascarado não corresponde à página real).
      */
     static boolean nonBlank(String s) {
-        return s != null && !s.isBlank() && !com.nekkora.extension.core.privacy.Privacy.isMasked(s);
+        // CHROME-SECURITY-001: valor retido ({…}) nunca vira literal de localizador
+        return s != null && !s.isBlank() && !com.nekkora.extension.core.privacy.Privacy.isMasked(s) && !com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE.equals(s);
     }
 }

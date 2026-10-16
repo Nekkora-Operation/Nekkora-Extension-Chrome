@@ -178,7 +178,7 @@ public final class FrameGraphBuilder {
             int[] c = counts.getOrDefault(f.frameId(), new int[2]);
             frames.add(new FrameDescriptor(f.frameId(), documentId, f.parentFrameId(), parentDocumentId, f.hostNodeId(), depth,
                     declared, srcdoc, effective, origin, host == null ? null : host.attr("name"),
-                    host == null ? null : host.attr("title"), main ? (snap.document() == null ? null : snap.document().title()) : f.title(),
+                    host == null || com.nekkora.extension.core.privacy.CapturePrivacyPolicy.HOLE.equals(host.attr("title")) ? null : host.attr("title"), main ? (snap.document() == null ? null : snap.document().title()) : f.title(),
                     sandbox, kind, st[0], st[1], inspectedBy, host != null && host.scopeId().startsWith("shadow:"), identity, false,
                     locator, locatorStability, children.getOrDefault(f.frameId(), List.of()), c[0], c[1],
                     shadowsByFrame.getOrDefault(f.frameId(), 0), m));

@@ -398,12 +398,19 @@ public final class CapturePrivacyPolicy {
             return "";
         }
         if (NAMING.contains(n)) {
-            return interfaceText(v);
+            // retido: a PRESENÇA da fonte de nome fica marcada (HOLE), para o motor não calcular o nome por uma fonte de
+            // prioridade menor; vazio continua vazio (alt="" decorativo)
+            String t = interfaceText(v);
+            return t != null ? t : v.isBlank() ? "" : HOLE;
         }
         if (n.equals("value")) {
             String t = tag == null ? "" : tag.toLowerCase(Locale.ROOT);
             String ty = type == null ? "" : type.toLowerCase(Locale.ROOT);
-            return t.equals("input") && BUTTON_TYPES.contains(ty) ? interfaceText(v) : null;
+            if (!t.equals("input") || !BUTTON_TYPES.contains(ty)) {
+                return null;
+            }
+            String text = interfaceText(v);
+            return text != null ? text : v.isBlank() ? "" : HOLE; // retido: presença marcada (senão o nome viraria "Submit")
         }
         if (DESCRIPTIVE.contains(n)) {
             return null;
