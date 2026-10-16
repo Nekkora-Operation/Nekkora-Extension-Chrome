@@ -24,7 +24,9 @@ class ResolutionIT extends LabIT {
     void dynamicIds() {
         Page p = open("/lab/complex/dynamic-ids.html");
         JsonNode s = select(p, "#form-host input");
-        assertTrue(locator(s, "ID").get("stability").asText().contains("UNSTABLE"), "id com sufixo numérico longo: estabilidade reduzida por heurística");
+        // CHROME-SECURITY-001: id com sufixo numérico longo não é do vocabulário → nem chega ao motor (sem localizador ID)
+        JsonNode idLocator = locator(s, "ID");
+        assertTrue(idLocator == null || idLocator.get("stability").asText().contains("UNSTABLE"), "id dinâmico: retido ou instável");
         assertNotEquals("ID", s.at("/inspection/locators/primary/strategy").asText());
         String target = s.at("/identity/targetId").asText();
         String original = s.at("/inspection/nodeId").asText();
@@ -37,7 +39,11 @@ class ResolutionIT extends LabIT {
             JsonNode identity = identity(target);
             java.util.Set<String> ids = new java.util.HashSet<>();
             identity.at("/attributeHistory/id").forEach(v -> ids.add(v.asText()));
-            assertEquals(i + 2, ids.size(), "ids observados: " + identity.at("/attributeHistory/id"));
+            // CHROME-SECURITY-001: os ids dinâmicos ("campo-<número longo>") não são do vocabulário — o histórico registra
+            // que o id existia, sem o valor; a troca deixa de ser observável pelo id (a resolução segue pelo resto)
+            for (String id : ids) {
+                assertTrue("null".equals(id) || com.nekkora.extension.it.support.Policy.id(id) != null, "id retido no histórico: " + id);
+            }
             JsonNode byId = null;
             for (JsonNode l : r.at("/updatedLocators/fallbacks")) {
                 if ("ID".equals(l.get("strategy").asText())) {
@@ -81,20 +87,23 @@ class ResolutionIT extends LabIT {
         String target = s.at("/identity/targetId").asText();
         lab.click(p, By.id("reordenar"));
         assertEquals("303", String.valueOf(lab.js(p, "return document.querySelector('#clientes-corpo tr').dataset.client")));
+        // CHROME-SECURITY-001: a chave da linha (data-client) e os textos das células são DADOS e não atravessam — os
+        // botões "Excluir" das linhas ficaram indistinguíveis no registro. Depois da reordenação (e da re-renderização), o
+        // motor não pode afirmar qual é o da Ana: declara a ambiguidade, NUNCA escolhe o botão de outra linha.
         JsonNode r1 = resolve(p, target);
-        assertEquals("RESOLVED", r1.get("status").asText());
-        assertEquals(nodeIdOf(p, "#clientes-corpo tr[data-client=\"101\"] button"), r1.get("resolvedNodeId").asText());
-        assertFalse(r1.get("nodeReplaced").asBoolean(), "mesmo nó, apenas movido");
-
-        String original = r1.get("resolvedNodeId").asText();
-        lab.clearEvents();
+        assertHonest(r1, nodeIdOf(p, "#clientes-corpo tr[data-client=\"101\"] button"));
         lab.click(p, By.id("rerenderizar"));
-        assertAutoReacquired(target);
         JsonNode r2 = resolve(p, target);
-        assertEquals("RESOLVED", r2.get("status").asText(), r2.get("evidence").toString());
-        assertNotEquals(original, r2.get("resolvedNodeId").asText(), "tabela re-renderizada: nó novo");
-        assertEquals(nodeIdOf(p, "#clientes-corpo tr[data-client=\"101\"] button"), r2.get("resolvedNodeId").asText(),
-                "o botão da Ana continua sendo o da Ana após mudar de posição");
+        assertHonest(r2, nodeIdOf(p, "#clientes-corpo tr[data-client=\"101\"] button"));
+    }
+
+    private static void assertHonest(JsonNode r, String right) {
+        if ("RESOLVED".equals(r.get("status").asText())) {
+            assertEquals(right, r.get("resolvedNodeId").asText(), r.toString());
+        } else {
+            assertTrue(java.util.Set.of("AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(r.get("status").asText()), r.toString());
+            assertTrue(r.path("resolvedNodeId").isNull(), r.toString());
+        }
     }
 
     @Test
@@ -128,7 +137,7 @@ class ResolutionIT extends LabIT {
     void responsive() {
         Page p = open("/lab/complex/responsive.html");
         JsonNode s = select(p, "#minha-conta");
-        assertEquals("desktop-nav", s.at("/inspection/family/parent/idAttr").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.id("desktop-nav"), s.at("/inspection/family/parent/idAttr").asText(null));
         Dimension original = lab.driver().manage().window().getSize();
         try {
             lab.focus(p);

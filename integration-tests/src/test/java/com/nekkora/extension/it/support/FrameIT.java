@@ -101,6 +101,35 @@ public abstract class FrameIT extends SessionIT {
         return f;
     }
 
+    /** O único frame filho de {@code parent} no grafo (identificação estrutural de frame aninhado), ou null. */
+    protected static JsonNode onlyChildFrame(JsonNode graph, JsonNode parent) {
+        if (parent == null || parent.path("childFrameIds").size() != 1) {
+            return null;
+        }
+        String child = parent.path("childFrameIds").get(0).asText();
+        for (JsonNode f : graph.path("frames")) {
+            if (child.equals(f.path("frameId").asText())) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /** Nó do ÚNICO botão dentro de shadow root no documento (frame) indicado do PageMap — sem depender do texto. */
+    protected static String onlyShadowButton(JsonNode map, String frameId) {
+        String found = null;
+        for (JsonNode e : map.path("elements")) {
+            if ("button".equals(e.path("tag").asText()) && frameId.equals(e.path("frameId").asText())
+                    && e.path("scopeId").asText().startsWith("shadow:")) {
+                if (found != null) {
+                    return null;
+                }
+                found = e.path("nodeId").asText();
+            }
+        }
+        return found;
+    }
+
     protected static JsonNode frameTitled(JsonNode graph, String title) {
         for (JsonNode f : graph.get("frames")) {
             if (title.equals(f.path("title").asText(null))) {

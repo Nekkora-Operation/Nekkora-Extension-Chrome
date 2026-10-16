@@ -180,6 +180,10 @@ class SnapshotPrivacyTest {
         String other = h.idOf(h.dom().selectFirst("#campo-principal"));
         assertFalse(other.equals(r.resolvedNodeId()), "o campo Nome NÃO pode ser confirmado como o alvo: " + r.evidence());
         assertFalse(r.status() == com.nekkora.extension.core.resolve.ResolutionStatus.RESOLVED, r.status() + " " + r.evidence());
+        // o id do alvo continua no vocabulário? não ("email-contato"); sem endereço forte, o resultado é a falta de prova
+        assertTrue(java.util.Set.of(com.nekkora.extension.core.resolve.ResolutionStatus.IDENTITY_MISMATCH,
+                com.nekkora.extension.core.resolve.ResolutionStatus.INSUFFICIENT_EVIDENCE, com.nekkora.extension.core.resolve.ResolutionStatus.AMBIGUOUS,
+                com.nekkora.extension.core.resolve.ResolutionStatus.NOT_FOUND).contains(r.status()), r.status().toString());
     }
 
     @Test

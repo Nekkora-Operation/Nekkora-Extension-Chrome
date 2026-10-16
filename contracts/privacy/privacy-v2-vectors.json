@@ -743,7 +743,7 @@
    "value": "frames/ficha-gervasio-barros.html",
    "tag": "iframe",
    "type": null,
-   "out": ""
+   "out": "{…}/{…}"
   },
   {
    "name": "action",
@@ -807,6 +807,69 @@
    "tag": "div",
    "type": null,
    "out": null
+  },
+  {
+   "name": "sandbox",
+   "value": "allow-scripts allow-same-origin",
+   "tag": "iframe",
+   "type": null,
+   "out": "allow-scripts allow-same-origin"
+  },
+  {
+   "name": "srcdoc",
+   "value": "<p>Cliente Zéfiro</p>",
+   "tag": "iframe",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "src",
+   "value": "http://127.0.0.1:18765/lab/frames/ficha-gervasio.html?cliente=Ana",
+   "tag": "iframe",
+   "type": null,
+   "out": "http://127.0.0.1:18765/{…}/{…}/{…}?cliente={…}"
+  },
+  {
+   "name": "src",
+   "value": "/img/foto-de-ana.png",
+   "tag": "img",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "slot",
+   "value": "cabecalho",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "slot",
+   "value": "cliente-anacleto",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "download",
+   "value": "contrato-ana.pdf",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "loading",
+   "value": "lazy",
+   "tag": "iframe",
+   "type": null,
+   "out": "lazy"
+  },
+  {
+   "name": "rel",
+   "value": "noopener noreferrer",
+   "tag": "a",
+   "type": null,
+   "out": "noopener noreferrer"
   }
  ],
  "carriers": [

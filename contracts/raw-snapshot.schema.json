@@ -43,7 +43,11 @@
           "type": "string"
         },
         "title": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "CHROME-SECURITY-001 (D4): só se o título inteiro for do vocabulário controlado; senão null."
         },
         "readyState": {
           "type": "string"
@@ -541,6 +545,14 @@
               "pattern": "^[A-Za-z0-9:._-]{1,80}$"
             }
           }
+        },
+        "textRevision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "CHROME-SECURITY-001: quantas vezes o texto próprio mudou desde que a página o viu (fato estrutural; nem o texto nem resumo dele atravessam)."
         }
       }
     }

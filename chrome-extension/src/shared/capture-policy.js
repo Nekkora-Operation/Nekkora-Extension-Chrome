@@ -48,10 +48,36 @@
   }
 
   /** O valor inteiro é metadado de interface do vocabulário controlado? */
+  /*
+   * Memória de decisões SÓ no content script (contexto com document): os valores já estão na memória da própria página,
+   * e a captura avalia os mesmos rótulos/ids/classes milhares de vezes. No service worker (sem document) não há cache:
+   * nenhum texto da página fica retido lá. Limitado (esvaziado ao encher) e só para valores curtos.
+   */
+  const MEMO = typeof document !== 'undefined' ? new Map() : null;
+  const MEMO_MAX = 8192;
+  const MEMO_KEY_MAX = 256;
+
   function vocabularyOnly(v) {
     if (v == null) {
       return false;
     }
+    const k = String(v);
+    if (MEMO && k.length <= MEMO_KEY_MAX) {
+      const hit = MEMO.get(k);
+      if (hit !== undefined) {
+        return hit;
+      }
+      const r = decideVocabulary(k);
+      if (MEMO.size >= MEMO_MAX) {
+        MEMO.clear();
+      }
+      MEMO.set(k, r);
+      return r;
+    }
+    return decideVocabulary(k);
+  }
+
+  function decideVocabulary(v) {
     const s = clean(v);
     if (!s || s.length > MAX_LEN || !SAFE.test(s)) {
       return false;
@@ -205,10 +231,11 @@
     'aria-expanded', 'aria-pressed', 'aria-checked', 'aria-selected', 'aria-disabled', 'aria-hidden', 'aria-invalid', 'aria-required',
     'aria-readonly', 'aria-busy', 'aria-modal', 'aria-haspopup', 'aria-live', 'aria-current', 'aria-level', 'aria-multiselectable',
     'aria-orientation', 'aria-sort', 'aria-autocomplete', 'aria-atomic', 'aria-relevant', 'aria-valuenow', 'aria-valuemin',
-    'aria-valuemax', 'aria-colcount', 'aria-rowcount', 'aria-colindex', 'aria-rowindex', 'aria-posinset', 'aria-setsize']);
+    'aria-valuemax', 'aria-colcount', 'aria-rowcount', 'aria-colindex', 'aria-rowindex', 'aria-posinset', 'aria-setsize',
+    'sandbox', 'loading', 'referrerpolicy', 'crossorigin', 'charset', 'rel', 'accept', 'enctype', 'novalidate', 'autofocus', 'wrap', 'width', 'height', 'translate', 'autocapitalize', 'enterkeyhint', 'decoding', 'fetchpriority', 'async', 'defer', 'nomodule', 'frameborder', 'scrolling', 'allowfullscreen', 'allow', 'controls', 'autoplay', 'loop', 'muted', 'playsinline', 'preload', 'reversed', 'start', 'span', 'shape', 'kind', 'hreflang', 'srclang']);
   const STRUCTURAL_VALUE = /^[A-Za-z0-9\-_. ]{0,80}$/;
   /** Identificadores escritos pelo desenvolvedor. */
-  const IDENTIFIERS = new Set(['id', 'name', 'data-testid', 'data-test', 'data-test-id', 'data-qa', 'data-cy']);
+  const IDENTIFIERS = new Set(['id', 'name', 'data-testid', 'data-test', 'data-test-id', 'data-qa', 'data-cy', 'slot', 'part', 'is']);
   /** Referências entre elementos: o valor (ids) não sai; a relação vai como id temporário de nó (refs). */
   const IDREFS = new Set(['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant',
     'aria-errormessage', 'aria-details', 'aria-flowto', 'list', 'form', 'headers']);
@@ -218,6 +245,10 @@
   const DESCRIPTIVE = new Set(['aria-description', 'aria-valuetext', 'label']);
   const URLS = new Set(['href', 'src', 'action', 'formaction', 'poster', 'data', 'cite', 'background', 'longdesc', 'srcset',
     'imagesrcset', 'ping', 'manifest', 'codebase', 'archive', 'usemap', 'xlink:href']);
+  /** Só a PRESENÇA (o valor é conteúdo da página: HTML de srcdoc, nome de arquivo de download). */
+  const PRESENCE = new Set(['srcdoc', 'download']);
+  /** Elementos cujo src é a URL de um DOCUMENTO/recurso analisado (frame, script): vai como MODELO (D3), não só presença. */
+  const URL_HOSTS = new Set(['iframe', 'frame', 'script']);
   const BUTTON_TYPES = new Set(['submit', 'button', 'reset']);
 
   /**
@@ -242,7 +273,10 @@
     if (n === 'class') {
       return classes(v);
     }
-    if (IDREFS.has(n) || URLS.has(n)) {
+    if (n === 'src' && URL_HOSTS.has(String((ctx && ctx.tag) || '').toLowerCase())) {
+      return urlTemplate(v) || '';
+    }
+    if (IDREFS.has(n) || URLS.has(n) || PRESENCE.has(n)) {
       return '';
     }
     if (NAMING.has(n)) {

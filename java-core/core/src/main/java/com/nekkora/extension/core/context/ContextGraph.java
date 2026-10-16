@@ -126,9 +126,29 @@ public final class ContextGraph {
                 model.find(id).ifPresent(l -> labels.add(ref(l)));
             }
             for (String id : cls.name().sourceNodeIds()) {
-                relations.add(new ContextRelation(src == NameSource.ARIA_LABELLEDBY ? RelationType.LABELLED_BY : RelationType.LABELS,
-                        id, node.id(), src == NameSource.ARIA_LABELLEDBY ? Basis.ARIA_ATTRIBUTE
+                // LABELLED_BY: elemento → rótulo (o mesmo sentido de aria-labelledby em outgoingDeclared); LABELS: rótulo → elemento
+                boolean byAria = src == NameSource.ARIA_LABELLEDBY;
+                relations.add(new ContextRelation(byAria ? RelationType.LABELLED_BY : RelationType.LABELS,
+                        byAria ? node.id() : id, byAria ? id : node.id(), byAria ? Basis.ARIA_ATTRIBUTE
                         : src == NameSource.WRAPPING_LABEL ? Basis.DOM_STRUCTURE : Basis.HTML_ATTRIBUTE, src.name()));
+            }
+        }
+        // CHROME-SECURITY-001: a ASSOCIAÇÃO com rótulos é estrutural — vem também de element.labels (labelIds) e de
+        // aria-labelledby resolvido na página, mesmo quando o texto do rótulo (e o nome) é retido pela política
+        java.util.Set<String> labelled = new java.util.LinkedHashSet<>();
+        labels.forEach(l -> labelled.add(l.nodeId()));
+        for (String id : node.labelIds()) {
+            if (labelled.add(id)) {
+                model.find(id).ifPresent(l -> {
+                    labels.add(ref(l));
+                    relations.add(new ContextRelation(RelationType.LABELS, l.id(), node.id(), Basis.HTML_ATTRIBUTE, "element.labels"));
+                });
+            }
+        }
+        for (List<RawNode> g : model.refTargets(node, "aria-labelledby")) {
+            if (g.size() == 1 && labelled.add(g.get(0).id())) {
+                labels.add(ref(g.get(0)));
+                relations.add(new ContextRelation(RelationType.LABELLED_BY, node.id(), g.get(0).id(), Basis.ARIA_ATTRIBUTE, "aria-labelledby"));
             }
         }
         String description = cls.name().description().isEmpty() ? null : cls.name().description();
@@ -198,8 +218,13 @@ public final class ContextGraph {
                 contextual, scopeChain, dedupe(relations));
     }
 
+    /** Uma relação por (tipo, origem, destino): a mesma ligação vista por duas fontes (nome acessível e aria-*) conta uma vez. */
     private static List<ContextRelation> dedupe(List<ContextRelation> rels) {
-        return new ArrayList<>(new LinkedHashSet<>(rels));
+        Map<String, ContextRelation> out = new LinkedHashMap<>();
+        for (ContextRelation r : rels) {
+            out.putIfAbsent(r.type() + "|" + r.fromNodeId() + "|" + r.toNodeId(), r);
+        }
+        return new ArrayList<>(out.values());
     }
 
     private ElementKind kind(RawNode n) {

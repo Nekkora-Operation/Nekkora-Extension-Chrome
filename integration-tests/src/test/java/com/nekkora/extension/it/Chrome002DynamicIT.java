@@ -386,8 +386,10 @@ class Chrome002DynamicIT extends SessionIT {
     void accnameMultiple() {
         Page p = open(ACC);
         JsonNode n = compareName(p, "#b-multiplo", "Remessa internacional");
-        // "Remessa internacional" não é do vocabulário: nome retido INTEIRO (nenhuma das duas fontes vira nome parcial)
-        assertEquals(0, n.get("sourceNodeIds").size(), "nome retido não aponta fontes: " + n);
+        // "Remessa internacional" não é do vocabulário: o TEXTO do nome é retido inteiro; as duas REFERÊNCIAS continuam como
+        // relação estrutural (aria-labelledby resolvido na página em ids de nó)
+        assertEquals(2, select(p, "#b-multiplo").at("/inspection/family/relations").findValues("type").stream()
+                .filter(t -> "LABELLED_BY".equals(t.asText())).count(), "duas fontes registradas como relação");
         compareName(p, "#b-self", "Enviar internacional");
     }
 

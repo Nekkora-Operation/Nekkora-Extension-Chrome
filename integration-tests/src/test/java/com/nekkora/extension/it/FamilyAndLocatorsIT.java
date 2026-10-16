@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,7 +43,10 @@ class FamilyAndLocatorsIT extends LabIT {
         assertEquals(byId.get("matchCount").asInt(), liveId.get("cssCount").asInt());
         JsonNode primary = s.at("/inspection/locators/primary");
         assertEquals(1, primary.get("matchCount").asInt());
-        assertEquals("ROW_CONTEXT", primary.get("strategy").asText());
+        // CHROME-SECURITY-001: a chave da linha (data-client) é dado e não atravessa; o contexto que torna o localizador
+        // único passa a ser o contêiner estrutural (CONTEXTUAL) — expressão sempre transportável
+        assertTrue(java.util.Set.of("ROW_CONTEXT", "CONTEXTUAL").contains(primary.get("strategy").asText()), primary.toString());
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(primary.path("css").asText("")), primary.toString());
         assertLiveAgreement(s);
     }
 
@@ -54,9 +58,18 @@ class FamilyAndLocatorsIT extends LabIT {
         JsonNode text = locator(s, "TEXT");
         assertNotNull(text);
         assertEquals(2, text.get("matchCount").asInt(), "texto 'Remover' aparece duas vezes");
-        assertEquals(1, s.at("/inspection/locators/primary/matchCount").asInt());
-        assertEquals("Secundário", s.at("/inspection/family/containerHeading").asText());
-        assertEquals("Remover", s.at("/inspection/classification/name/name").asText(), "nome acessível não absorve o contexto");
+        // CHROME-SECURITY-001: o único diferencial era o título "Secundário" (fora do vocabulário). O motor NÃO inventa
+        // unicidade: o localizador principal declara AMBIGUOUS_MATCH, a identidade declara que o alvo é indistinguível no
+        // registro, e a única alternativa única é posicional (instável, declarada como tal).
+        JsonNode primary = s.at("/inspection/locators/primary");
+        assertEquals(2, primary.get("matchCount").asInt());
+        assertTrue(primary.get("warnings").toString().contains("AMBIGUOUS_MATCH"), primary.toString());
+        assertTrue(s.at("/identity/warnings").toString().contains("NO_DISCRIMINATOR"), s.at("/identity/warnings").toString());
+        JsonNode positional = locator(s, "POSITIONAL");
+        assertEquals(1, positional.get("matchCount").asInt());
+        assertEquals("HEURISTIC_UNSTABLE", positional.get("stability").asText());
+        assertTrue(s.at("/inspection/family/containerHeading").asText("").isEmpty(), "título de contêiner retido");
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Remover"), s.at("/inspection/classification/name/name").asText(), "nome acessível não absorve o contexto");
         assertLiveAgreement(s);
     }
 
@@ -67,14 +80,14 @@ class FamilyAndLocatorsIT extends LabIT {
         JsonNode ana = select(p, "#clientes-ativos #excluir");
         JsonNode maria = select(p, "#clientes-inativos #excluir");
         assertEquals("clientes-ativos", ana.at("/inspection/family/table/idAttr").asText());
-        assertEquals("101", ana.at("/inspection/family/row/rowKey/data-client").asText());
-        assertTrue(ana.at("/inspection/family/row/cellTexts").toString().contains("Ana"));
-        assertEquals("Clientes ativos", ana.at("/inspection/family/containerHeading").asText());
+        // CHROME-SECURITY-001: chave e textos da linha são DADOS (retidos); o que distingue as famílias é a tabela
+        // (id "clientes-ativos"/"clientes-inativos", do vocabulário) e o título do contêiner
+        assertTrue(ana.at("/inspection/family/row/rowKey/data-client").asText("").isEmpty(), "chave da linha retida");
+        assertFalse(ana.at("/inspection/family/row").toString().contains("Ana"), "texto da linha retido");
+        assertTrue(ana.at("/inspection/family/containerHeading").asText("").isEmpty(), "título de contêiner é conteúdo (não carrega nome de interface)");
         assertEquals("clientes-inativos", maria.at("/inspection/family/table/idAttr").asText());
-        assertEquals("202", maria.at("/inspection/family/row/rowKey/data-client").asText());
-        assertTrue(maria.at("/inspection/family/row/cellTexts").toString().contains("Maria"));
+        assertFalse(maria.at("/inspection/family/row").toString().contains("Maria"), "texto da linha retido");
         assertNotEquals(ana.at("/identity/targetId").asText(), maria.at("/identity/targetId").asText());
-        assertTrue(maria.at("/identity/discriminators").toString().contains("ROW_KEY"));
 
         JsonNode rAna = resolve(p, ana.at("/identity/targetId").asText());
         JsonNode rMaria = resolve(p, maria.at("/identity/targetId").asText());
@@ -90,9 +103,13 @@ class FamilyAndLocatorsIT extends LabIT {
         Page p = open(PAGE);
         JsonNode s = select(p, "#clientes-corpo tr[data-client=\"202\"] button");
         JsonNode primary = s.at("/inspection/locators/primary");
-        assertEquals("ROW_CONTEXT", primary.get("strategy").asText());
-        assertTrue(primary.get("css").asText().contains("data-client=\"202\""), primary.get("css").asText());
-        assertEquals("Ações", s.at("/inspection/family/column/headerText").asText());
+        // CHROME-SECURITY-001: o valor "202" de data-client é dado: não entra no localizador. A linha é localizada pela
+        // estrutura (XPath relativo/posição), com a estabilidade declarada — nunca pela chave retida
+        assertEquals(1, primary.get("matchCount").asInt(), primary.toString());
+        String expr = primary.path("css").asText("") + " " + primary.path("xpath").asText("") + " " + primary.path("semantic").asText("");
+        assertFalse(expr.contains("202"), expr);
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(primary.path("css").asText("")), primary.toString());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Ações"), s.at("/inspection/family/column/headerText").asText(""));
         // id "excluir" aparece 5 vezes: 2 nas tabelas da seção §8.1 + 3 linhas desta tabela.
         assertEquals(5, locator(s, "ID").get("matchCount").asInt());
         assertLiveAgreement(s);

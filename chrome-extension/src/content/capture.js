@@ -24,6 +24,30 @@
   const CP = root.NekkoraCapturePolicy;
   /** Conteúdo que é VALOR (não nome): não entra no texto do portador. */
   const VALUE_SUBTREES = new Set(['select', 'option', 'optgroup', 'datalist', 'textarea', 'script', 'style', 'template', 'noscript']);
+  /**
+   * Revisão do texto próprio por elemento (CHROME-SECURITY-001): o texto retido não atravessa, mas a MUDANÇA dele é fato
+   * estrutural ("texto alterado"). Fica só na memória da página (WeakMap) — o número da revisão é o que sai; nem o texto
+   * nem o resumo dele.
+   */
+  const textState = new WeakMap(); // Element -> { h, rev }
+
+  function textRevision(el, raw) {
+    let h = 0;
+    for (let i = 0; i < raw.length; i++) {
+      h = (h * 31 + raw.charCodeAt(i)) | 0;
+    }
+    const prev = textState.get(el);
+    if (!prev) {
+      textState.set(el, { h, rev: 0 });
+      return 0;
+    }
+    if (prev.h !== h) {
+      prev.h = h;
+      prev.rev++;
+    }
+    return prev.rev;
+  }
+
   /** Caches de UMA passada de captura (portador → texto aprovado?; alvos de aria-labelledby). */
   let pass = null;
 
@@ -285,8 +309,15 @@
         continue; // data-nekkora-simulated-src: metadado de SIMULAÇÃO do laboratório, sempre rotulado como tal
       }
       let v;
-      if (name === 'data-nekkora-simulated-src') {
-        v = CP.urlTemplate(new URL(a.value, el.ownerDocument.baseURI).href);
+      if (name === 'data-nekkora-simulated-src' || (name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName))) {
+        // URL de frame/script/simulação: absoluta e como MODELO (D3)
+        let abs = a.value;
+        try {
+          abs = new URL(a.value, el.ownerDocument.baseURI).href;
+        } catch (e) {
+          abs = a.value;
+        }
+        v = CP.urlTemplate(abs) || '';
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
       } else {
@@ -457,6 +488,10 @@
       if (!eligible) {
         out.textSuppressed = true;
       }
+    }
+    const rev = textRevision(el, rawOwn);
+    if (rev > 0 || rawOwn !== '') {
+      out.textRevision = rev;
     }
     if (refs) {
       out.refs = refs;

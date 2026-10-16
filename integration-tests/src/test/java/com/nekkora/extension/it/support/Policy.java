@@ -21,6 +21,11 @@ public final class Policy {
         return t == null ? "" : t;
     }
 
+    /** O identificador técnico (id/name/data-testid) como atravessa: ele mesmo, se do vocabulário; senão null. */
+    public static String id(String pageId) {
+        return CapturePrivacyPolicy.identifier(pageId);
+    }
+
     /** O texto é metadado do vocabulário controlado (pode atravessar)? */
     public static boolean passes(String pageText) {
         return CapturePrivacyPolicy.interfaceText(pageText) != null;

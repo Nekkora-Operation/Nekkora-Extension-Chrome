@@ -137,7 +137,7 @@ public final class SnapshotPrivacy {
         boolean suppressed = Boolean.TRUE.equals(n.textSuppressed()) || !own.isBlank() && !eligible;
         return new RawNode(n.id(), n.parentId(), n.childIds(), n.tag(), n.frameId(), n.scopeId(), attrs, keptText, n.state(), n.rect(),
                 n.labelIds(), n.scroll(), null, segs, present ? Boolean.TRUE : n.textPresent(), suppressed ? Boolean.TRUE : null,
-                refs == null ? n.refs() : refs);
+                refs == null ? n.refs() : refs, n.textRevision());
     }
 
     /** Estado de uma passada: portadores aprovados e alvos de aria-labelledby. */

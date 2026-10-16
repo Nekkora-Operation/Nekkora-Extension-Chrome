@@ -123,7 +123,9 @@ class Chrome003FrameIT extends FrameIT {
         assertTrue(nav.get("effectiveUrl").asText().endsWith("/widget.html"), "URL efetiva = documento atual");
         assertEquals("Widget de suporte", nav.get("documentTitle").asText());
         assertFalse(nav.get("effectiveUrl").asText().contains("navegado"), "query removida da URL exportada");
-        assertTrue(document(after, nav.get("documentId").asText()).get("queryKeys").toString().contains("navegado"), "somente o NOME do parâmetro");
+        // CHROME-SECURITY-001: até o NOME do parâmetro passa pela política (vocabulário); o valor nunca
+        assertEquals(com.nekkora.extension.it.support.Policy.passes("navegado"),
+                document(after, nav.get("documentId").asText()).get("queryKeys").toString().contains("navegado"), "somente o NOME do parâmetro, se do vocabulário");
     }
 
     @Test
@@ -135,7 +137,10 @@ class Chrome003FrameIT extends FrameIT {
         JsonNode path = sel.at("/inspection/accessPath");
         assertEquals(List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), stepTypes(path));
         assertEquals("Contas", path.at("/steps/1/label").asText());
-        assertEquals("iframe#f-contas", path.at("/steps/1/locator").asText());
+        // CHROME-SECURITY-001: o id "f-contas" não é do vocabulário → o localizador do iframe usa só o que atravessou
+        String frameLocator = path.at("/steps/1/locator").asText();
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(frameLocator), frameLocator);
+        assertFalse(frameLocator.contains("f-contas"), frameLocator);
         assertEquals(1, path.at("/steps/1/matchCount").asInt());
         assertEquals(path.at("/steps/1/enteredDocumentId").asText(), path.at("/steps/2/documentId").asText(),
                 "o localizador do elemento é executado no documento do iframe");
@@ -205,21 +210,32 @@ class Chrome003FrameIT extends FrameIT {
         String sul = idIn(p, "button", "FRAME", "#filial-sul iframe");
         String norte = idIn(p, "button", "FRAME", "#filial-norte iframe");
         JsonNode sel = selectNode(p, sul);
-        assertEquals("Filial Sul", sel.at("/identity/frameChain/0/title").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Filial Sul"), sel.at("/identity/frameChain/0/title").asText(""));
         assertTrue(sel.at("/inspection/lookalikes").size() >= 0);
+        // CHROME-SECURITY-001: as filiais só se distinguem por "Filial Sul"/#filial-sul, fora do vocabulário. O resultado
+        // honesto é a ambiguidade DECLARADA (ou a filial certa, se outra evidência comprovar) — nunca a filial Norte.
         JsonNode r = resolve(p, sel.at("/identity/targetId").asText());
-        assertEquals("RESOLVED", r.get("status").asText());
-        assertEquals(sul, r.get("resolvedNodeId").asText());
-        assertNotEquals(norte, r.get("resolvedNodeId").asText());
+        assertHonest(r, sul, norte);
         // Re-renderização do documento do frame Sul (recarga): reencontrado no Sul, nunca no Norte.
         lab.js(p, "document.querySelector('#filial-sul iframe').contentWindow.location.reload()");
         sleep(1500);
         JsonNode again = resolve(p, sel.at("/identity/targetId").asText());
         evidence("F003-008-siblings.json", Map.of("first", r, "afterReload", again));
-        assertEquals("RESOLVED", again.get("status").asText(), again.toString());
-        assertNotEquals(norte, again.get("resolvedNodeId").asText());
         String sulNow = idIn(p, "button", "FRAME", "#filial-sul iframe");
-        assertEquals(sulNow, again.get("resolvedNodeId").asText());
+        assertHonest(again, sulNow, idIn(p, "button", "FRAME", "#filial-norte iframe"));
+    }
+
+    private static void assertHonest(JsonNode r, String right, String wrong) {
+        String st = r.get("status").asText();
+        if ("RESOLVED".equals(st)) {
+            assertEquals(right, r.get("resolvedNodeId").asText(), r.toString());
+        } else {
+            assertTrue(java.util.Set.of("AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(st), r.toString());
+            assertTrue(r.path("resolvedNodeId").isNull(), r.toString());
+        }
+        if (!wrong.isEmpty()) {
+            assertNotEquals(wrong, r.path("resolvedNodeId").asText(""), r.toString());
+        }
     }
 
     @Test
@@ -230,7 +246,13 @@ class Chrome003FrameIT extends FrameIT {
         JsonNode sel = selectNode(p, compras);
         assertTrue(sel.at("/identity/frameChain/0/container").asText().contains("compras"), sel.at("/identity/frameChain").toString());
         String t = sel.at("/identity/targetId").asText();
-        assertEquals(compras, resolve(p, t).get("resolvedNodeId").asText());
+        // CHROME-SECURITY-001: o frame certo é escolhido pelo contêiner (#compras, do vocabulário); dentro dele, o botão
+        // "Atualizar indicadores" só tinha o nome (retido) → a identidade do elemento não é comprovável. O que importa
+        // aqui: nunca o botão do painel de Vendas.
+        String vendas = idIn(p, "button", "FRAME", "#vendas iframe");
+        JsonNode first = resolve(p, t);
+        assertHonest(first, compras, vendas);
+        assertTrue(first.toString().contains("\"actual\":\"#compras\",\"expected\":\"#compras\",\"feature\":\"REGION\",\"outcome\":\"MATCH\""), first.toString());
         act(p, "igualar");
         BrowserLab.waitUntil(Duration.ofSeconds(15), () -> "AMBIGUOUS".equals(resolve(p, t).get("status").asText()), "ambiguidade declarada");
         JsonNode r = resolve(p, t);
@@ -288,7 +310,7 @@ class Chrome003FrameIT extends FrameIT {
         assertEquals("INSPECTED", f.get("status").asText());
         assertEquals("TEMPORARY", document(g, f.get("documentId").asText()).get("lifecycle").asText());
         JsonNode sel = selectNode(p, idIn(p, "button", "FRAME", "#f-branco"));
-        assertEquals("Guardar nota", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Guardar nota"), sel.at("/inspection/classification/name/name").asText());
         assertEquals(List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), stepTypes(sel.at("/inspection/accessPath")));
         assertEquals(1, Integer.parseInt(String.valueOf(lab.js(p, "return document.querySelectorAll('#f-branco').length"))));
     }
@@ -351,26 +373,29 @@ class Chrome003FrameIT extends FrameIT {
     @DisplayName("F003-016 — Outra origem permitida com iframe aninhado e Shadow DOM: trajetória entre documentos de origens diferentes")
     void otherOriginNested() {
         Page p = openActive(ORIGINS, 5);
-        JsonNode g = waitGraph(p, x -> frameTitled(p, x, "Gráficos") != null && "INSPECTED".equals(frameTitled(p, x, "Gráficos").get("status").asText()),
-                "frame aninhado de outra origem inventariado");
+        // "Gráficos" (título fora do vocabulário) é o frame FILHO de "Relatórios" — identificado pela estrutura do grafo
+        JsonNode g = waitGraph(p, x -> onlyChildFrame(x, frameTitled(p, x, "Relatórios")) != null
+                && "INSPECTED".equals(onlyChildFrame(x, frameTitled(p, x, "Relatórios")).get("status").asText()), "frame aninhado de outra origem inventariado");
         JsonNode rel = requireFrame(p, g, "Relatórios");
+        JsonNode graficos = onlyChildFrame(g, rel);
         assertEquals("ATTACHED", rel.at("/browser/inspection").asText(), "capturado pelo content script do próprio frame");
         assertTrue(rel.get("origin").asText().endsWith(":" + (BrowserLab.PORT + 1)));
-        String nodeId = null;
-        for (JsonNode e : exportMap(p).get("elements")) {
-            if ("Exportar gráfico".equals(e.at("/text/accessibleName").asText())) {
-                nodeId = e.get("nodeId").asText();
-            }
-        }
+        String nodeId = onlyShadowButton(exportMap(p), graficos.get("frameId").asText());
         assertNotNull(nodeId);
         JsonNode sel = selectNode(p, nodeId);
         JsonNode path = sel.at("/inspection/accessPath");
         evidence("F003-016-cross-origin-path.json", path);
         assertEquals(List.of("MAIN_DOCUMENT", "IFRAME", "IFRAME", "SHADOW_ROOT", "ELEMENT"), stepTypes(path));
-        assertEquals(List.of("Relatórios", "Gráficos"), stepLabels(path).subList(1, 3));
+        // CHROME-SECURITY-001: rótulo do frame = título pela política; sem título do vocabulário, o rótulo é o MODELO da URL
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Relatórios"), stepLabels(path).get(1));
+        String graficosLabel = stepLabels(path).get(2);
+        assertFalse(graficosLabel.contains("Gráficos") || graficosLabel.contains("graficos"), graficosLabel);
+        assertTrue(graficosLabel.isEmpty() || graficosLabel.contains("{…}"), graficosLabel);
         assertNotEquals(path.at("/steps/0/url").asText(""), path.at("/steps/1/url").asText(""));
+        // o único traço próprio do botão era o nome (fora do vocabulário): a trajetória entre origens é preservada, mas a
+        // identidade do elemento não é comprovável → INSUFFICIENT_EVIDENCE declarado, nunca outro elemento
         JsonNode r = resolve(p, sel.at("/identity/targetId").asText());
-        assertEquals("RESOLVED", r.get("status").asText());
+        assertHonest(r, nodeId, "");
         lab.call("page.highlightFrame", p, "nodeId", nodeId);
         screenshot(p, "F003-016-cross-origin-frame-highlight");
     }
@@ -467,6 +492,12 @@ class Chrome003FrameIT extends FrameIT {
             legacy.remove(k);
         }
         legacy.put("version", "0.1.0");
+        legacy.remove("privacy"); // CHROME-SECURITY-001: campos da 0.3.0 não existem na 0.1.0
+        for (JsonNode el : legacy.path("elements")) {
+            if (el.path("text") instanceof ObjectNode t) {
+                t.remove("suppressed");
+            }
+        }
         Contracts.assertValid("v0.1.0/page-map.schema.json", stripDocumentIds(legacy));
         evidence("F003-020-pagemap-sections.json", Map.of("version", map.get("version"), "frameGraphCounts", map.at("/frameGraph/counts"),
                 "accessPaths", map.get("accessPaths").size(), "protection", map.at("/protection/status"), "readiness", map.at("/readiness/status")));

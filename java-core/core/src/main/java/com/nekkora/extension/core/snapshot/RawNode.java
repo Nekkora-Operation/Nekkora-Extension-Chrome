@@ -34,6 +34,8 @@ import java.util.Objects;
  *                     ou fora do vocabulário)
  * @param refs         relações declaradas por id ({@code for}, {@code aria-labelledby}, {@code aria-controls}…)
  *                     resolvidas NA PÁGINA para ids temporários de nó — o valor do atributo não atravessa
+ * @param textRevision quantas vezes o texto próprio mudou desde que a página o viu (fato estrutural, sem conteúdo);
+ *                     {@code null} em capturas antigas
  */
 public record RawNode(
         String id,
@@ -52,7 +54,8 @@ public record RawNode(
         List<String> textSegments,
         Boolean textPresent,
         Boolean textSuppressed,
-        Map<String, List<String>> refs) {
+        Map<String, List<String>> refs,
+        Integer textRevision) {
 
     private static final java.util.regex.Pattern NODE_ID = java.util.regex.Pattern.compile("[A-Za-z0-9:._-]{1,80}");
 
@@ -68,7 +71,16 @@ public record RawNode(
                    Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
                    ScrollMetrics scroll, String exposedValue, List<String> textSegments) {
         this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
-                null, null, null);
+                null, null, null, null);
+    }
+
+    /** Construtor CHROME-SECURITY-001 (sem revisão de texto). */
+    public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
+                   Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
+                   ScrollMetrics scroll, String exposedValue, List<String> textSegments, Boolean textPresent, Boolean textSuppressed,
+                   Map<String, List<String>> refs) {
+        this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
+                textPresent, textSuppressed, refs, null);
     }
 
     public RawNode {
@@ -119,18 +131,18 @@ public record RawNode(
         // Filhos alterados (ex.: documento de frame anexado): os segmentos deixam de corresponder e são descartados.
         List<String> segs = newChildIds != null && newChildIds.equals(childIds) ? textSegments : null;
         return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, segs,
-                textPresent, textSuppressed, refs);
+                textPresent, textSuppressed, refs, textRevision);
     }
 
     /** Mesmo nó com geometria atualizada (retângulo, presença no viewport, área nula). */
     public RawNode withGeometry(Rect newRect, boolean inViewport) {
         return new RawNode(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText,
                 state.withGeometry(inViewport, newRect.width() == 0 || newRect.height() == 0), newRect, labelIds, scroll, exposedValue, textSegments,
-                textPresent, textSuppressed, refs);
+                textPresent, textSuppressed, refs, textRevision);
     }
 
     public RawNode withParentId(String newParentId) {
         return new RawNode(id, newParentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
-                textPresent, textSuppressed, refs);
+                textPresent, textSuppressed, refs, textRevision);
     }
 }

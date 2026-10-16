@@ -63,6 +63,10 @@ const attrs = [
   ['action', '/api/clientes/sinfronio-lacerda', 'form', null], ['onclick', 'abrir("joão")', 'button', null], ['style', 'color:red', 'div', null],
   ['data-cliente', 'Eustáquio Marangoni', 'div', null], ['x-titular', 'Clodomiro Ventania', 'span', null], ['data-testid', 'btn-salvar', 'button', null],
   ['data-testid', 'linha-55821', 'tr', null], ['data-sitekey', '6Lc_abc', 'div', null], ['data-joao', 'x', 'div', null],
+  ['sandbox', 'allow-scripts allow-same-origin', 'iframe', null], ['srcdoc', '<p>Cliente Zéfiro</p>', 'iframe', null],
+  ['src', 'http://127.0.0.1:18765/lab/frames/ficha-gervasio.html?cliente=Ana', 'iframe', null], ['src', '/img/foto-de-ana.png', 'img', null],
+  ['slot', 'cabecalho', 'div', null], ['slot', 'cliente-anacleto', 'div', null], ['download', 'contrato-ana.pdf', 'a', null],
+  ['loading', 'lazy', 'iframe', null], ['rel', 'noopener noreferrer', 'a', null],
 ];
 const carriers = [
   ['button', null, false], ['a', null, true], ['a', null, false], ['label', null, false], ['legend', null, false], ['summary', null, false],

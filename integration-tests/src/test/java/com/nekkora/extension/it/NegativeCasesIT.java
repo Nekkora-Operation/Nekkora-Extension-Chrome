@@ -44,17 +44,22 @@ class NegativeCasesIT extends LabIT {
         String target = select(p, "#clientes-corpo tr[data-client=\"101\"] button").at("/identity/targetId").asText();
         lab.click(p, By.id("remover-ana"));
         JsonNode r = resolve(p, target);
-        assertEquals("STALE_TARGET", r.get("status").asText(), r.get("evidence").toString());
-        // Maria e João continuam na tabela, mas pertencem a outras linhas: desqualificados.
-        for (JsonNode c : r.get("candidates")) {
-            assertTrue(c.get("verdict").asText().equals("DISQUALIFIED") || c.get("verdict").asText().equals("INCOMPATIBLE"), c.toString());
+        // CHROME-SECURITY-001: a chave da linha (data-client="101") é dado e não atravessa — no registro, o botão da Ana já
+        // era indistinguível dos botões das outras linhas. Removida a linha, o motor NÃO escolhe Maria nem João: declara
+        // que nenhuma escolha é segura (ou que o alvo sumiu), nunca resolve para outra linha.
+        assertTrue(java.util.Set.of("STALE_TARGET", "AMBIGUOUS", "NOT_FOUND", "INSUFFICIENT_EVIDENCE").contains(r.get("status").asText()), r.toString());
+        assertTrue(r.path("resolvedNodeId").isNull(), r.toString());
+        if ("AMBIGUOUS".equals(r.get("status").asText())) {
+            assertTrue(r.get("evidence").toString().contains("indistinguível"), r.get("evidence").toString());
         }
         // Após recarregar a página (nova sessão), o mesmo alvo não encontrado é NOT_FOUND.
         lab.focus(p);
         lab.driver().navigate().refresh();
         BrowserLab.waitUntil(Duration.ofSeconds(10), () -> lab.callRaw("page.diagnostics", java.util.Map.of("tabId", p.tabId())).path("ok").asBoolean(), "content script após recarga");
         lab.click(p, By.id("remover-ana"));
-        assertEquals("NOT_FOUND", resolve(p, target).get("status").asText());
+        JsonNode again = resolve(p, target);
+        assertTrue(java.util.Set.of("NOT_FOUND", "AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(again.get("status").asText()), again.toString());
+        assertTrue(again.path("resolvedNodeId").isNull(), again.toString());
     }
 
     @Test
@@ -65,8 +70,15 @@ class NegativeCasesIT extends LabIT {
         assertEquals("EMAIL_INPUT", s.at("/inspection/classification/kind").asText());
         lab.click(p, By.id("trocar-controle"));
         JsonNode r = resolve(p, s.at("/identity/targetId").asText());
-        assertEquals("IDENTITY_MISMATCH", r.get("status").asText(), r.get("evidence").toString());
-        assertTrue(r.get("candidates").toString().contains("INCOMPATIBLE"));
+        if (com.nekkora.extension.it.support.Policy.id("email-contato") != null) {
+            assertEquals("IDENTITY_MISMATCH", r.get("status").asText(), r.get("evidence").toString());
+            assertTrue(r.get("candidates").toString().contains("INCOMPATIBLE"));
+        } else {
+            // CHROME-SECURITY-001: o id "email-contato" está fora do vocabulário — o motor não sabe mais que o controle novo
+            // ocupa o MESMO endereço; o resultado honesto é a falta de evidência, nunca o controle incompatível resolvido
+            assertTrue(java.util.Set.of("IDENTITY_MISMATCH", "INSUFFICIENT_EVIDENCE").contains(r.get("status").asText()), r.toString());
+            assertTrue(r.path("resolvedNodeId").isNull(), r.toString());
+        }
     }
 
     @Test

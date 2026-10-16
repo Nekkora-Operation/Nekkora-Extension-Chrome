@@ -127,7 +127,8 @@ public final class SemanticClassifier {
             // CHROME-SECURITY-001: parte das fontes do nome é texto da página retido pela política — um nome PARCIAL
             // enganaria (e contraria a validação integral): o nome inteiro é retido e a limitação registrada
             evidence.add("nome acessível retido: parte das fontes ficou fora da política de privacidade");
-            name = new AccessibleName("", NameSource.NONE, List.of(), "", List.of(), "NONE");
+            // as FONTES (relação estrutural com rótulos e referências) continuam; só o texto do nome não sai
+            name = new AccessibleName("", name.source(), name.sourceNodeIds(), "", List.of(), "NONE");
         }
         if (kind.category() == ElementCategory.INTERACTIVE && name.name().isEmpty() && kind != ElementKind.OPTION) {
             uncertainties.add("Controle sem nome acessível");

@@ -475,7 +475,9 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode rota = awaitSteps(rid, 1).get(0);
         JsonNode route = awaitEvidence(rid, "troca de rota", of(rota, "ROUTE_CHANGED"));
         assertEquals("SAME_DOCUMENT", route.at("/details/navigation/kind").asText());
-        assertTrue(route.at("/details/navigation/url").asText().contains("view=clientes"), route.toString());
+        // CHROME-SECURITY-001: o NOME do parâmetro (vocabulário) aparece; o valor "clientes" não
+        assertTrue(route.at("/details/navigation/url").asText().contains("view="), route.toString());
+        assertFalse(route.at("/details/navigation/url").asText().contains("view=clientes"), route.toString());
         Thread.sleep(QUIET_MS);
         click(p, By.id("filtros"));
         JsonNode filtros = awaitSteps(rid, 2).get(1);

@@ -62,10 +62,11 @@ public final class CapturePrivacyPolicy {
             "aria-hidden", "aria-invalid", "aria-required", "aria-readonly", "aria-busy", "aria-modal", "aria-haspopup", "aria-live",
             "aria-current", "aria-level", "aria-multiselectable", "aria-orientation", "aria-sort", "aria-autocomplete", "aria-atomic",
             "aria-relevant", "aria-valuenow", "aria-valuemin", "aria-valuemax", "aria-colcount", "aria-rowcount", "aria-colindex",
-            "aria-rowindex", "aria-posinset", "aria-setsize");
+            "aria-rowindex", "aria-posinset", "aria-setsize", "sandbox", "loading", "referrerpolicy", "crossorigin", "charset", "rel", "accept", "enctype", "novalidate", "autofocus", "wrap", "width", "height", "translate", "autocapitalize", "enterkeyhint", "decoding", "fetchpriority", "async", "defer", "nomodule", "frameborder", "scrolling", "allowfullscreen", "allow", "controls", "autoplay", "loop", "muted", "playsinline", "preload", "reversed", "start", "span", "shape", "kind", "hreflang", "srclang");
     private static final Pattern STRUCTURAL_VALUE = Pattern.compile("^[A-Za-z0-9\\-_. ]{0,80}$");
     /** Identificadores escritos pelo desenvolvedor. */
-    public static final Set<String> IDENTIFIERS = Set.of("id", "name", "data-testid", "data-test", "data-test-id", "data-qa", "data-cy");
+    public static final Set<String> IDENTIFIERS = Set.of("id", "name", "data-testid", "data-test", "data-test-id", "data-qa", "data-cy", "slot",
+            "part", "is");
     /** Referências entre elementos: o valor (ids) não sai; a relação vai como id temporário de nó ({@code refs}). */
     public static final Set<String> IDREFS = Set.of("for", "aria-labelledby", "aria-describedby", "aria-controls", "aria-owns",
             "aria-activedescendant", "aria-errormessage", "aria-details", "aria-flowto", "list", "form", "headers");
@@ -75,6 +76,10 @@ public final class CapturePrivacyPolicy {
     public static final Set<String> DESCRIPTIVE = Set.of("aria-description", "aria-valuetext", "label");
     public static final Set<String> URLS = Set.of("href", "src", "action", "formaction", "poster", "data", "cite", "background", "longdesc",
             "srcset", "imagesrcset", "ping", "manifest", "codebase", "archive", "usemap", "xlink:href");
+    /** Só a PRESENÇA (o valor é conteúdo da página: HTML de srcdoc, nome de arquivo de download). */
+    public static final Set<String> PRESENCE = Set.of("srcdoc", "download");
+    /** Elementos cujo src é a URL de um documento/recurso analisado (frame, script): vai como MODELO (D3). */
+    private static final Set<String> URL_HOSTS = Set.of("iframe", "frame", "script");
     private static final Set<String> BUTTON_TYPES = Set.of("submit", "button", "reset");
     private static final Set<String> CARRIER_TAGS = Set.of("button", "summary", "label", "legend");
     private static final Set<String> CARRIER_ROLES = Set.of("button", "link", "tab", "menuitem", "menuitemcheckbox", "menuitemradio",
@@ -385,7 +390,11 @@ public final class CapturePrivacyPolicy {
         if (n.equals("class")) {
             return classes(v);
         }
-        if (IDREFS.contains(n) || URLS.contains(n)) {
+        if (n.equals("src") && tag != null && URL_HOSTS.contains(tag.toLowerCase(Locale.ROOT))) {
+            String t = urlTemplate(v);
+            return t == null ? "" : t;
+        }
+        if (IDREFS.contains(n) || URLS.contains(n) || PRESENCE.contains(n)) {
             return "";
         }
         if (NAMING.contains(n)) {

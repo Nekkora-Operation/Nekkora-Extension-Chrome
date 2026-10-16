@@ -34,7 +34,8 @@ class NavigationInteractionIT extends LabIT {
         lab.click(p, By.linkText("Pedidos"));
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> {
             for (JsonNode e : lab.events("navigation")) {
-                if (e.at("/data/url").asText().endsWith("/lab/spa/pedidos") && "SPA_ROUTE".equals(e.at("/data/kind").asText())) {
+                // CHROME-SECURITY-001: a URL do evento é o MODELO (segmentos fora do vocabulário viram {…})
+                if (e.at("/data/url").asText().equals(com.nekkora.extension.it.support.Policy.url("http://127.0.0.1:" + BrowserLab.PORT + "/lab/spa/pedidos")) && "SPA_ROUTE".equals(e.at("/data/kind").asText())) {
                     return true;
                 }
             }
@@ -42,7 +43,8 @@ class NavigationInteractionIT extends LabIT {
         }, "evento de rota SPA (history.pushState)");
         JsonNode after = capture(p);
         assertEquals("pedidos", after.at("/navigation/inferred/screen").asText());
-        assertEquals("/lab/spa/pedidos", after.at("/navigation/observed/pathname").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.url("http://127.0.0.1:" + BrowserLab.PORT + "/lab/spa/pedidos")
+                .substring(("http://127.0.0.1:" + BrowserLab.PORT).length()), after.at("/navigation/observed/pathname").asText());
         assertEquals(pageSession, after.get("pageSessionId").asText(), "SPA: mesmo documento, mesma sessão de página");
         lab.call("tracking.stop", p);
     }
@@ -56,11 +58,12 @@ class NavigationInteractionIT extends LabIT {
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> String.valueOf(lab.js(p, "return location.search")).contains("status=aberto"), "query aplicada");
         JsonNode o = lab.call("interaction.observe", p, "beforeCaptureId", before);
         assertEquals("QUERY_CHANGE", o.at("/urlChange/kind").asText());
+        // CHROME-SECURITY-001: a MUDANÇA do parâmetro "status" é observada; o valor ("aberto") é dado e não atravessa
         assertTrue(o.at("/urlChange/queryChanges/status/0").isNull());
-        assertEquals("aberto", o.at("/urlChange/queryChanges/status/1").asText());
+        assertEquals("{…}", o.at("/urlChange/queryChanges/status/1").asText());
         JsonNode after = capture(p);
-        assertEquals("aberto", after.at("/navigation/observed/query/status/0").asText());
-        assertEquals("aberto", after.at("/navigation/inferred/filters/status").asText());
+        assertEquals("{…}", after.at("/navigation/observed/query/status/0").asText());
+        assertFalse(o.toString().contains("aberto") || after.at("/navigation").toString().contains("aberto"), "valor do parâmetro retido");
     }
 
     @Test
@@ -69,7 +72,7 @@ class NavigationInteractionIT extends LabIT {
         Page p = open("/clientes?nome=ana&status=ativo");
         BrowserLab.waitUntil(Duration.ofSeconds(10), () -> ((Number) lab.js(p, "return document.querySelectorAll('#resultados tbody tr').length")).intValue() == 3, "resultados iniciais");
         JsonNode initial = capture(p);
-        assertEquals("ana", initial.at("/navigation/observed/query/nome/0").asText());
+        assertEquals("{…}", initial.at("/navigation/observed/query/nome/0").asText(), "o nome do parâmetro aparece, o valor não");
         assertEquals("clientes", initial.at("/navigation/inferred/screen").asText());
         assertTrue(initial.at("/navigation/inferred/caveat").asText().contains("não comprovam"));
         JsonNode field = select(p, "#pesquisa");
@@ -93,8 +96,12 @@ class NavigationInteractionIT extends LabIT {
         JsonNode o = lab.call("interaction.observe", p, "beforeCaptureId", before, "readHooks", true);
         // URL
         assertEquals("QUERY_CHANGE", o.at("/urlChange/kind").asText());
-        assertEquals("ana", o.at("/urlChange/queryChanges/nome/0").asText());
-        assertEquals("maria", o.at("/urlChange/queryChanges/nome/1").asText());
+        // CHROME-SECURITY-001: os valores ("ana" → "maria") não atravessam; a mudança é declarada sem eles
+        // (a instrumentação de teste, só em DEV e rotulada, é a única parte que lê valores do laboratório)
+        for (String part : new String[]{"urlChange", "uiQueries", "apiRequests", "domChanges", "resultRegions"}) {
+            String j = o.path(part).toString();
+            assertFalse(j.contains("\"ana\"") || j.contains("maria"), part + ": " + j);
+        }
         // Consulta realizada pela interface (DOM)
         JsonNode ui = null;
         for (JsonNode q : o.get("uiQueries")) {
@@ -102,14 +109,15 @@ class NavigationInteractionIT extends LabIT {
                 ui = q;
             }
         }
-        assertNotNull(ui, o.get("uiQueries").toString());
-        assertEquals("ana", ui.get("before").asText());
-        assertEquals("maria", ui.get("after").asText());
-        assertEquals("DOM", ui.get("source").asText());
+        // o valor digitado nunca é coletado (nem antes nem depois): a consulta pela interface é observada pela mudança
+        // do controle de seleção (posição da opção), sem texto
+        if (ui != null) {
+            assertTrue(ui.get("before").isNull() && ui.get("after").isNull(), ui.toString());
+        }
         // Consulta à API (somente o que a página realmente requisitou)
         boolean api = false;
         for (JsonNode r : o.get("apiRequests")) {
-            if (r.get("path").asText().equals("/api/clientes") && r.at("/query/nome/0").asText().equals("maria")) {
+            if (r.get("path").asText().equals("/api/clientes") && r.at("/query/nome/0").asText().equals("{…}")) {
                 api = true;
                 assertEquals("RESOURCE_TIMING", r.get("source").asText());
             }
@@ -128,7 +136,7 @@ class NavigationInteractionIT extends LabIT {
         assertEquals(domRows, region.get("itemsAfter").asInt());
         // Instrumentação de teste (separada e rotulada)
         assertEquals("TEST_INSTRUMENTATION", o.at("/instrumentation/source").asText());
-        assertEquals("maria", o.at("/instrumentation/values/getCurrentFilters/nome").asText());
+        assertEquals("maria", o.at("/instrumentation/values/getCurrentFilters/nome").asText(), "hooks de teste: somente em DEV (laboratório)");
         assertEquals(domRows, o.at("/instrumentation/values/getVisibleResultCount").asInt(), "hook confere com a DOM");
         assertTrue(String.valueOf(lab.js(p, "return window.NekkoraLab.actions.join(',')")).contains("pesquisar:maria|"),
                 "o manipulador real do botão foi executado pelo clique");

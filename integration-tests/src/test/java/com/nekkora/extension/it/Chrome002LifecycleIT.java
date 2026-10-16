@@ -419,7 +419,7 @@ class Chrome002LifecycleIT extends SessionIT {
         JsonNode m2 = lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
         assertEquals(com.nekkora.extension.it.support.Policy.url(String.valueOf(lab.js(p, "return location.href"))), m2.at("/document/url").asText());
         assertTrue(m2.at("/document/url").asText().contains("status="), "nome do parâmetro (vocabulário) refletido");
-        assertFalse(m2.toString().contains("aberto"), "valor do parâmetro retido");
+        assertFalse(m2.at("/document").toString().contains("aberto"), "valor do parâmetro retido na URL e no contexto de navegação");
         lab.js(p, "location.hash = 'detalhes';");
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> String.valueOf(lab.js(p, "return location.hash")).equals("#detalhes"), "fragmento");
         sleep(400);

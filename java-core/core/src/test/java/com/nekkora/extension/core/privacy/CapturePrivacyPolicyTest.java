@@ -66,6 +66,20 @@ class CapturePrivacyPolicyTest {
     }
 
     @Test
+    @DisplayName("SEC001-030 — texto RETIDO que mudou continua sendo uma mudança (pela revisão), sem conteúdo")
+    void suppressedTextChangeIsAFact() {
+        RawNode a = new RawNode("n1", null, List.of(), "h3", "f0", "doc:f0", Map.of(), "", null, null, List.of(), null, null, null,
+                Boolean.TRUE, Boolean.TRUE, null, 0);
+        RawNode b = new RawNode("n1", null, List.of(), "h3", "f0", "doc:f0", Map.of(), "", null, null, List.of(), null, null, null,
+                Boolean.TRUE, Boolean.TRUE, null, 1);
+        NodeChange ch = com.nekkora.extension.core.mutation.SnapshotComparatorAccess.diff(a, b);
+        assertEquals(CapturePrivacyPolicy.WITHHELD, ch.textBefore());
+        assertEquals(CapturePrivacyPolicy.WITHHELD, ch.textAfter());
+        NodeChange same = com.nekkora.extension.core.mutation.SnapshotComparatorAccess.diff(a, a);
+        assertNull(same.textBefore(), "sem mudança, sem fato inventado");
+    }
+
+    @Test
     @DisplayName("SEC001-004 — exposedValue nunca entra no motor, mesmo que uma extensão antiga o envie")
     void exposedValueNeverAccepted() {
         RawNode n = new RawNode("n1", null, List.of(), "input", "f0", "doc:f0", Map.of("type", "search"), "", null, null, List.of(), null,

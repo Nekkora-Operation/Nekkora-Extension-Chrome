@@ -35,7 +35,8 @@ class ComplexComponentsIT extends LabIT {
         assertEquals("ARIA_CONTROLS", o.get("association").asText());
         assertFalse(o.get("listOutsideControlTree").asBoolean());
         assertEquals(2, o.get("materializedCount").asInt());
-        assertEquals("São Paulo", o.at("/options/0/text").asText());
+        // CHROME-SECURITY-001: rótulo de opção é dado, não metadado de interface — identificada, nunca transmitida
+        assertEquals(com.nekkora.extension.it.support.Policy.name("São Paulo"), o.at("/options/0/text").asText(""));
         assertEquals("UNKNOWN", o.get("completeness").asText(), "componente personalizado não comprova completude");
     }
 
@@ -43,7 +44,7 @@ class ComplexComponentsIT extends LabIT {
     @DisplayName("T013 — Dropdown com portal: associação lógica correta")
     void portalDropdown() {
         JsonNode s = select(open(DROPDOWNS), "#pais");
-        assertEquals("País de entrega", s.at("/inspection/classification/name/name").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("País de entrega"), s.at("/inspection/classification/name/name").asText());
         JsonNode o = s.at("/inspection/optionSet");
         assertTrue(o.get("listOutsideControlTree").asBoolean(), "lista renderizada no portal, fora da subárvore do controle");
         assertEquals(3, o.get("materializedCount").asInt());
@@ -126,9 +127,12 @@ class ComplexComponentsIT extends LabIT {
     void openShadow() {
         Page p = open(SHADOW);
         JsonNode s = selectIn(p, "#aplicar", "SHADOW_HOST", "nk-open-card#cartao-aberto");
-        assertEquals("Aplicar cupom", s.at("/inspection/classification/name/name").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Aplicar cupom"), s.at("/inspection/classification/name/name").asText());
         assertEquals("SHADOW_ROOT", s.at("/inspection/locators/primary/scope/type").asText());
-        assertEquals("nk-open-card#cartao-aberto", s.at("/inspection/locators/primary/scope/chain/0/css").asText());
+        // CHROME-SECURITY-001: o id "cartao-aberto" não é do vocabulário → o hospedeiro do shadow é localizado pela estrutura
+        String hostCss = s.at("/inspection/locators/primary/scope/chain/0/css").asText();
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(hostCss) && hostCss.contains("nk-open-card"), hostCss);
+        assertFalse(hostCss.contains("cartao-aberto"), hostCss);
         assertTrue(s.at("/inspection/locators/primary/xpath").isNull(), "XPath não atravessa shadow root");
         assertLiveAgreement(s);
         assertEquals("RESOLVED", resolve(p, s.at("/identity/targetId").asText()).get("status").asText());
@@ -159,9 +163,12 @@ class ComplexComponentsIT extends LabIT {
                 "const f=document.getElementById('frame-pagamento'); return !!(f.contentDocument && f.contentDocument.getElementById('pagar'))")), "iframe carregado");
         JsonNode s = selectIn(p, "#pagar", "FRAME", "iframe#frame-pagamento");
         assertEquals("FRAME", s.at("/inspection/locators/primary/scope/type").asText());
-        assertEquals("iframe#frame-pagamento", s.at("/inspection/locators/primary/scope/chain/0/css").asText());
-        assertEquals("frame-pagamento", s.at("/inspection/family/scopeChain/0/idAttr").asText());
-        assertEquals("form-pagamento", s.at("/inspection/family/form/idAttr").asText());
+        // CHROME-SECURITY-001: ids fora do vocabulário não atravessam; o escopo do frame usa só o que é transportável
+        String frameCss = s.at("/inspection/locators/primary/scope/chain/0/css").asText();
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(frameCss), frameCss);
+        assertFalse(frameCss.contains("frame-pagamento"), frameCss);
+        assertEquals(com.nekkora.extension.it.support.Policy.id("frame-pagamento"), s.at("/inspection/family/scopeChain/0/idAttr").asText(null));
+        assertEquals(com.nekkora.extension.it.support.Policy.id("form-pagamento"), s.at("/inspection/family/form/idAttr").asText(null));
         assertLiveAgreement(s);
         assertEquals("RESOLVED", resolve(p, s.at("/identity/targetId").asText()).get("status").asText());
     }

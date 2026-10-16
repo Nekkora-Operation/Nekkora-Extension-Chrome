@@ -202,6 +202,10 @@ public final class TargetResolver {
                 evidence.add("Candidatos " + confirmed.get(0).nodeId() + " e " + confirmed.get(1).nodeId()
                         + " são igualmente plausíveis (" + confirmed.get(0).score() + " vs " + confirmed.get(1).score() + ")");
             }
+        } else if (mismatchAtAddress) {
+            // fato verificado (o endereço forte agora tem outro tipo de controle) prevalece sobre candidatos não comprovados
+            status = ResolutionStatus.IDENTITY_MISMATCH;
+            evidence.add("O(s) localizador(es) fortes da identidade agora apontam para elemento semanticamente incompatível");
         } else if (viable.size() >= 2 && viable.get(0).score() - viable.get(1).score() < TIE_MARGIN) {
             status = ResolutionStatus.AMBIGUOUS;
             evidence.add("Nenhum candidato comprovado e " + viable.size() + " igualmente plausíveis");
@@ -209,9 +213,6 @@ public final class TargetResolver {
             status = ResolutionStatus.INSUFFICIENT_EVIDENCE;
             evidence.add("Candidato " + viable.get(0).nodeId() + " é plausível mas não comprova a identidade: "
                     + String.join("; ", viable.get(0).reasons()));
-        } else if (mismatchAtAddress) {
-            status = ResolutionStatus.IDENTITY_MISMATCH;
-            evidence.add("O(s) localizador(es) fortes da identidade agora apontam para elemento semanticamente incompatível");
         } else if (sameSession(identity, graph) && identity.lastNodeId() != null && !graph.model().contains(identity.lastNodeId())) {
             status = ResolutionStatus.STALE_TARGET;
             evidence.add("O nó " + identity.lastNodeId() + " foi removido da página nesta sessão e não há substituto confirmável");

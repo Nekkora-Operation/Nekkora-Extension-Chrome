@@ -267,6 +267,10 @@ const commands = {
         after = (await inspection.captureOnce(a.tabId)).captureId;
       }
     }
+    // CHROME-SECURITY-001: hooks de teste são valores da página — lidos somente em DEV
+    if (a.readHooks) {
+      config.assertCommandAllowed('testHooks.read');
+    }
     const instrumentation = a.readHooks ? await readTestHooks(a.tabId) : null;
     return host('interaction.observe', { tabKey: tabKey(a.tabId), beforeCaptureId: a.beforeCaptureId, afterCaptureId: after, instrumentation });
   },

@@ -14,7 +14,9 @@ let loaded = false;
 
 /** Comandos expostos somente em DEV. */
 export const DEV_ONLY = new Set(['page.capture', 'session.forceFull', 'page.compare', 'target.resolve', 'pagemap.export', 'page.rawSnapshot', 'session.debug', 'page.highlightFrame',
-  'studio.tabRef', 'frames.list']); // frames.list: URLs cruas do navegador — diagnóstico de teste, nunca em PRD (CHROME-SECURITY-001)
+  'studio.tabRef', 'frames.list', 'testHooks.read']);
+// frames.list: URLs cruas do navegador; testHooks.read: valores que a PRÓPRIA página expõe em window.nekkoraTestHooks
+// (qualquer página pode declarar o marcador) — diagnósticos de teste, nunca em PRD (CHROME-SECURITY-001)
 
 export async function loadConfig() {
   if (loaded) {

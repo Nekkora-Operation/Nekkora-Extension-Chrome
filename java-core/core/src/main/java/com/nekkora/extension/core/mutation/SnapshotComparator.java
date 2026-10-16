@@ -145,7 +145,9 @@ public final class SnapshotComparator {
         }
         String tb = null;
         String ta = null;
-        if (!a.ownText().equals(b.ownText())) {
+        if (!a.ownText().equals(b.ownText())
+                || a.textRevision() != null && b.textRevision() != null && !a.textRevision().equals(b.textRevision())) {
+            // CHROME-SECURITY-001: texto retido que mudou é detectado pela revisão (fato); o registro retém o conteúdo
             tb = a.ownText();
             ta = b.ownText();
         }

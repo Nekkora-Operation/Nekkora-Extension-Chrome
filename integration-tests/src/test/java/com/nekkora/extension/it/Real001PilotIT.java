@@ -114,7 +114,8 @@ class Real001PilotIT extends FrameIT {
         JsonNode s = session(p);
         assertEquals("ACTIVE", s.get("status").asText());
         assertFalse(s.get("url").asText().contains("SECRETO"), "URL da sessão sanitizada: " + s.get("url"));
-        assertTrue(s.get("url").asText().contains("aba=inicio"), "parâmetros não sensíveis preservados para a análise");
+        // CHROME-SECURITY-001: URL = origem + modelo do caminho — o NOME do parâmetro (vocabulário) fica, nenhum valor
+        assertTrue(s.get("url").asText().contains("aba={…}") && !s.get("url").asText().contains("inicio"), "parâmetro como modelo: " + s.get("url"));
         screenshot(p, "R001-01-authorized-page");
     }
 
@@ -170,13 +171,18 @@ class Real001PilotIT extends FrameIT {
         JsonNode b = requireFrame(p, graph(p), "Parceiro autorizado");
         assertEquals("ATTACHED", b.at("/browser/inspection").asText(), b.toString());
         assertFalse(b.toString().contains("SID-SECRETO"), "URL do frame sanitizada no grafo");
-        String nodeId = nodeByName(p, "Aceitar oferta");
+        // CHROME-SECURITY-001: "Aceitar oferta" está fora do vocabulário — o botão é o ÚNICO no shadow root do frame
+        String nodeId = onlyShadowButton(exportMap(p), b.get("frameId").asText());
+        assertNotNull(nodeId, "botão do frame autorizado inventariado");
         JsonNode sel = selectNode(p, nodeId);
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Aceitar oferta"), sel.at("/inspection/classification/name/name").asText());
         JsonNode path = sel.at("/inspection/accessPath");
         evidence("R001-04-authorized-frame-path.json", Map.of("frame", b, "path", path));
         assertEquals(List.of("MAIN_DOCUMENT", "IFRAME", "SHADOW_ROOT", "ELEMENT"), stepTypes(path));
         JsonNode r = resolve(p, sel.at("/identity/targetId").asText());
-        assertEquals("RESOLVED", r.get("status").asText(), r.toString());
+        // sem nome nem id transportáveis, a identidade do elemento não é comprovável: declarado, nunca outro elemento
+        assertTrue("RESOLVED".equals(r.get("status").asText()) ? nodeId.equals(r.get("resolvedNodeId").asText())
+                : java.util.Set.of("AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(r.get("status").asText()) && r.path("resolvedNodeId").isNull(), r.toString());
     }
 
     @Test
@@ -190,14 +196,15 @@ class Real001PilotIT extends FrameIT {
         lab.js(p, "window.adicionarPedido()");
         BrowserLab.waitUntil(Duration.ofSeconds(15), () -> lab.events("navigation").size() > 0, "evento de navegação SPA");
         JsonNode sel = select(p, "#pedidos tbody tr:nth-child(3) button");
-        assertEquals("Ver A-102", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Ver A-102"), sel.at("/inspection/classification/name/name").asText());
         JsonNode s = session(p);
         assertEquals(full, s.get("fullCaptures").asInt(), "SPA e mutação aplicadas por deltas");
         assertTrue(s.get("deltasApplied").asInt() > 0);
         JsonNode nav = lab.events("navigation").get(0).get("data");
         evidence("R001-05-spa.json", Map.of("navigation", nav, "session", s));
         assertEquals("SPA_ROUTE", nav.get("kind").asText());
-        assertTrue(nav.get("url").asText().contains("ref=REDACTED"), "rota com parâmetro sensível redigido: " + nav.get("url"));
+        // o parâmetro "ref" (nome fora do vocabulário) some; "aba" fica, sem valor
+        assertTrue(nav.get("url").asText().contains("aba={…}") && !nav.get("url").asText().contains("REF-SECRETO"), "rota como modelo: " + nav.get("url"));
         assertTrue(leaks(nav.toString()).isEmpty());
     }
 
@@ -207,7 +214,7 @@ class Real001PilotIT extends FrameIT {
     void openShadowDom() {
         Page p = openSiteActive();
         JsonNode sel = lab.call("page.select", p, "css", "#upgrade", "scope", Map.of("chain", List.of(Map.of("kind", "SHADOW_HOST", "css", "#card"))));
-        assertEquals("Mudar plano", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Mudar plano"), sel.at("/inspection/classification/name/name").asText());
         assertEquals(List.of("MAIN_DOCUMENT", "SHADOW_ROOT", "ELEMENT"), stepTypes(sel.at("/inspection/accessPath")));
         evidence("R001-06-shadow.json", sel.at("/inspection/accessPath"));
     }
@@ -342,33 +349,30 @@ class Real001PilotIT extends FrameIT {
         for (Map.Entry<String, Object> e : found.entrySet()) {
             assertEquals(List.of(), e.getValue(), "dados sensíveis em " + e.getKey());
         }
-        assertTrue(json.contains("[email]") && json.contains("[cpf]") && json.contains("[telefone]") && json.contains("[cartão]"), "textos mascarados");
-        assertTrue(json.contains("token=REDACTED") && json.contains("code=REDACTED"), "parâmetros sensíveis redigidos");
-        assertTrue(json.contains(":redacted"), "segmento de caminho com identificador mascarado");
-        JsonNode config = null;
-        for (JsonNode e : map.get("elements")) {
-            if ("config".equals(e.at("/attributes/id").asText())) {
-                config = e.get("attributes");
-            }
-        }
-        if (config != null) { // elemento exportado: atributos redigidos, atributo neutro preservado
-            assertEquals("[redacted]", config.path("data-password").asText());
-            assertEquals("escuro", config.path("data-tema").asText());
-        }
+        // CHROME-SECURITY-001: não há mais "máscaras" ([email], [cpf]…) — o texto livre simplesmente não atravessa e as
+        // URLs saem como modelo (nenhum valor de parâmetro, segmentos fora do vocabulário como {…})
+        assertFalse(json.contains("[email]") || json.contains("[cpf]"), "nenhuma supressão parcial de texto");
+        assertTrue(json.contains("{…}"), "URLs como modelo");
+        assertFalse(json.contains("550e8400"), "segmento de caminho com identificador retido");
+        assertTrue(map.path("privacy").toString().contains("nekkora-privacy/2"), map.path("privacy").toString());
         assertEquals(List.of(), found.get("rawSnapshot"), "dados sensíveis no snapshot bruto");
+        // #config (id fora do vocabulário): atributos data-* só como PRESENÇA (valor vazio) e só se o NOME passar;
+        // x-session-token (nome fora do vocabulário) nem aparece
         boolean sawConfig = false;
         for (JsonNode n : raw.get("nodes")) {
-            if ("config".equals(n.at("/attributes/id").asText())) {
+            if (n.at("/attributes").has("data-password")) {
                 sawConfig = true;
-                assertEquals("[redacted]", n.at("/attributes/data-password").asText());
-                assertEquals("https://example.test/reset?token=REDACTED", n.at("/attributes/data-reset-url").asText());
-                assertTrue(n.at("/attributes/data-config").asText().contains("apiKey=REDACTED") && n.at("/attributes/data-config").asText().contains("\"pin\":\"REDACTED\""),
-                        n.at("/attributes/data-config").asText());
-                assertEquals("[redacted]", n.at("/attributes/x-session-token").asText());
-                assertEquals("escuro", n.at("/attributes/data-tema").asText());
+                JsonNode at = n.get("attributes");
+                assertTrue(at.path("id").isMissingNode() || at.path("id").isNull(), at.toString());
+                at.fields().forEachRemaining(f -> {
+                    if (f.getKey().startsWith("data-")) {
+                        assertEquals("", f.getValue().asText(), f.getKey());
+                    }
+                });
+                assertFalse(at.has("x-session-token"), at.toString());
             }
         }
-        assertTrue(sawConfig, "elemento #config capturado");
+        assertTrue(sawConfig, "elemento #config capturado (atributo data-password como presença)");
         for (JsonNode f : map.at("/document/frames")) {
             assertFalse(f.path("url").asText().contains("SID-SECRETO"), "document.frames[].url sem a URL completa: " + f);
         }

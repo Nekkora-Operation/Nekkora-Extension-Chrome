@@ -158,7 +158,10 @@ public final class OptionSetAnalyzer {
 
         int materialized = items.size();
         Set<String> observed = new LinkedHashSet<>();
-        items.forEach(i -> observed.add(TextNormalizer.fold(i.text())));
+        // CHROME-SECURITY-001: a opção é identificada pelo texto quando ele atravessou; senão pela POSIÇÃO estrutural
+        // (aria-posinset) e, por último, pelo nó observado — nunca todas iguais por terem o texto retido
+        items.forEach(i -> observed.add(i.text() != null && !i.text().isBlank() ? "t:" + TextNormalizer.fold(i.text())
+                : i.posInSet() != null ? "p:" + i.posInSet() : "n:" + i.nodeId()));
         String key = OptionHistory.keyOf(control, cls);
         boolean seenBefore = history != null && history.seen(key);
         Set<String> previous = history == null ? Set.of() : history.observed(key);

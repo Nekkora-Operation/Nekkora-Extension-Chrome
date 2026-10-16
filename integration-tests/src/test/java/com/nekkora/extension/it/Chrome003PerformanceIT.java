@@ -109,9 +109,15 @@ class Chrome003PerformanceIT extends FrameIT {
             assertEquals("RESOLVED", r.get("status").asText());
             // Atualização após navegação interna de um frame (nível 1 do bloco 1).
             long n0 = System.nanoTime();
+            // CHROME-SECURITY-001: o frame é identificado pelo iframe hospedeiro (o título não é do vocabulário) e a navegação
+            // pela TROCA de documento no grafo (o título novo também não atravessa)
+            String host = nodeIdOf(p, "section[aria-label='Bloco 1'] iframe");
+            String docBefore = com.nekkora.extension.it.support.Policy.frameHostedBy(graph(p), host).path("documentId").asText();
             lab.js(p, "document.querySelector(\"section[aria-label='Bloco 1'] iframe\").contentWindow.location.href = '/generated/frame?i=99&level=1&depth=1'");
-            waitGraph(p, g -> frameTitled(p, g, "Frame 1 nível 1") != null && "Frame 99 nível 1".equals(frameTitled(p, g, "Frame 1 nível 1").path("documentTitle").asText()),
-                    "navegação refletida no grafo");
+            waitGraph(p, g -> {
+                JsonNode f = com.nekkora.extension.it.support.Policy.frameHostedBy(g, host);
+                return f != null && !docBefore.equals(f.path("documentId").asText()) && "INSPECTED".equals(f.path("status").asText());
+            }, "navegação refletida no grafo");
             row.put("navigationUpdateMs", ms(n0));
             row.put("fullCapturesAfterNavigation", session(p).get("fullCaptures").asInt());
             // Observadores, memória e exportação.
