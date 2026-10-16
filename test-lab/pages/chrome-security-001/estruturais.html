@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Atributos estruturais (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Atributos estruturais (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 13 (revisão dos PRs #7, P1-01/P1-02). Atributos de vocabulário fechado (role, autocomplete, type,
+    aria-*, target, rel, lang, scope, numéricos) com valores FORA do vocabulário: nome e número fictícios.</p>
+  <div id="painel" role="gumercindo-tavares" aria-current="gumercindo" aria-haspopup="gumercindo-tavares">
+    <button id="abrir-painel" type="button" aria-expanded="false">Abrir</button>
+  </div>
+  <p><label for="campo-auto">Nome</label> <input id="campo-auto" autocomplete="gumercindo tavares" inputmode="gumercindo"></p>
+  <p><label for="campo-tipo">Código</label> <input id="campo-tipo" type="48291736455" tabindex="48291736455" maxlength="48291736455"></p>
+  <p><a id="link-alvo" href="#" target="gumercindo_tavares" rel="gumercindo tavares" hreflang="gu-gumercindo">Abrir</a></p>
+  <p lang="gumercindo-tavares" dir="gumercindo">Texto com idioma declarado</p>
+  <table><tr><th id="cab" scope="gumercindo">Cabeçalho</th></tr><tr><td><button id="na-linha" type="button">Salvar</button></td></tr></table>
+  <ol id="lista" start="48291736455" type="gumercindo"><li>Primeiro</li></ol>
+  <p id="saida" role="status"></p>
+  <script>
+    for (const b of document.querySelectorAll('button')) {
+      b.addEventListener('click', () => { document.getElementById('saida').textContent = 'ok'; });
+    }
+  </script>
+</body>
+</html>

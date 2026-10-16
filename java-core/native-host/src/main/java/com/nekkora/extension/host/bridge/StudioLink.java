@@ -149,7 +149,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
                 default -> responses.failure(id, type, "UNKNOWN_COMMAND", "Comando desconhecido: " + type);
             };
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "studio.link falhou", e);
+            LOG.log(Level.WARNING, "studio.link falhou", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             return responses.failure(id, type, "INTERNAL_ERROR", e.getClass().getSimpleName());
         }
     }
@@ -200,9 +200,10 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         if ("studio.recording.evidence".equals(type)) {
             EvidencePrivacy.reapply(ev.get("payload")); // idem para as evidências observadas (STUDIO-005)
         }
+        titles(ev.get("payload"));
         ev.put("seq", 1);
         if (!BridgeContract.valid(ev)) {
-            LOG.warning("Evento fora do contrato não repassado (" + type + "): " + BridgeContract.problems(ev));
+            LOG.warning("Evento fora do contrato não repassado (" + type + "): " + BridgeContract.problemSummary(ev));
             return;
         }
         ev.remove("seq");
@@ -374,6 +375,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         ObjectNode client = p.putObject("client");
         client.put("hostVersion", HOST_VERSION);
         client.put("nativeProtocol", ChunkCodec.PROTOCOL);
+        // CHROME-SECURITY-001: o host reaplica a política a etapas, evidências e títulos antes de repassar — a declaração
+        // vale mesmo para uma extensão anterior a ela
+        client.put("privacy", com.nekkora.extension.core.privacy.CapturePrivacyPolicy.VERSION);
         client.set("extension", extensionInfo != null ? extensionInfo.deepCopy() : mapper.createObjectNode().put("version", "0.0.0").put("buildMode", "DEV"));
         c.send(hello);
         JsonNode answer = readFrame(c);
@@ -502,13 +506,35 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         send(c, resp);
     }
 
+    /**
+     * CHROME-SECURITY-001 (D4), 3ª barreira: todo objeto de aba ({@code tabRef} + {@code title}) que vai ao Studio leva o
+     * título só se ele passar no vocabulário controlado; senão {@code null} (o Studio identifica a aba pelo host).
+     */
+    static void titles(JsonNode node) {
+        if (node instanceof ObjectNode o) {
+            if (o.has("tabRef") && o.has("title")) {
+                JsonNode t = o.get("title");
+                String kept = t != null && t.isTextual() ? com.nekkora.extension.core.privacy.CapturePrivacyPolicy.title(t.asText()) : null;
+                if (kept == null) {
+                    o.putNull("title");
+                } else {
+                    o.put("title", kept);
+                }
+            }
+            o.elements().forEachRemaining(StudioLink::titles);
+        } else if (node != null && node.isArray()) {
+            node.forEach(StudioLink::titles);
+        }
+    }
+
     /** Envia uma resposta somente se estiver dentro do contrato; senão devolve INTERNAL_ERROR (nada vaza). */
     private void sendChecked(Connection c, ObjectNode resp, String id, String type) {
+        titles(resp.get("payload"));
         resp.put("seq", 1);
         boolean ok = BridgeContract.valid(resp);
         resp.remove("seq");
         if (!ok) {
-            LOG.warning("Resposta fora do contrato não repassada (" + type + "): " + BridgeContract.problems(resp));
+            LOG.warning("Resposta fora do contrato não repassada (" + type + "): " + BridgeContract.problemSummary(resp));
             respondError(c, id, type, "INTERNAL_ERROR", "Resposta da extensão fora do contrato.");
             return;
         }
@@ -619,7 +645,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
                 try {
                     r.run();
                 } catch (RuntimeException e) {
-                    LOG.log(Level.SEVERE, "Falha no canal do Studio", e);
+                    LOG.log(Level.SEVERE, "Falha no canal do Studio", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
                 }
             });
         } catch (java.util.concurrent.RejectedExecutionException ignored) {

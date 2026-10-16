@@ -1,14 +1,27 @@
 package com.nekkora.extension.host.bridge;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nekkora.extension.core.privacy.Privacy;
+import com.nekkora.extension.core.privacy.CapturePrivacyPolicy;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
- * Terceira barreira de privacidade das etapas gravadas (STUDIO-003): antes de uma etapa sair do host para o Studio, todo
- * texto livre é reaplicado à política Java (mesma regra da extensão) e toda URL é sanitizada de novo. O host não confia
- * na sanitização do content script nem na do service worker. A validação estrita do schema (sem campos de valor,
- * {@code additionalProperties: false}) completa a barreira.
+ * Terceira barreira de privacidade das etapas gravadas. CHROME-SECURITY-001 ({@code nekkora-privacy/2}): antes de uma
+ * etapa sair do host para o Studio, a política é reaplicada — o host não confia no content script nem no service worker:
+ *
+ * <ul>
+ *   <li>nome, rótulos do caminho de acesso e nomes de contexto: só se o valor INTEIRO for do vocabulário, senão vazio;</li>
+ *   <li>{@code htmlId}/{@code htmlName}: só identificadores do vocabulário;</li>
+ *   <li>localizador com qualquer literal fora da política (CSS, XPath ou descrição): descartado, com
+ *       {@code LOCATORS_WITHHELD}; sem localizador seguro e único: {@code SAFE_LOCATOR_UNAVAILABLE} — nunca inventado;</li>
+ *   <li>opção escolhida: nunca ({@code OPTION_WITHHELD});</li>
+ *   <li>URL como modelo; título só se for do vocabulário.</li>
+ * </ul>
+ *
+ * A validação estrita do schema ({@code additionalProperties: false}) completa a barreira.
  */
 final class StepPrivacy {
 
@@ -19,66 +32,135 @@ final class StepPrivacy {
         if (!(payload instanceof ObjectNode p)) {
             return;
         }
+        Set<String> notes = new LinkedHashSet<>();
         if (p.path("element") instanceof ObjectNode e) {
-            mask(e, "name");
+            name(e, "name");
+            // P1-01 (revisão dos PRs #7): papel ARIA só pela regra fechada do atributo role
+            if (e.path("role").isTextual()) {
+                String r = CapturePrivacyPolicy.attribute("role", e.path("role").asText(), null, null);
+                if (r == null || r.isEmpty()) {
+                    e.putNull("role");
+                } else {
+                    e.put("role", r);
+                }
+            }
+            // 2ª revisão dos PRs #7: nome de elemento fora do catálogo HTML/SVG/MathML e do vocabulário => marcador neutro
+            if (e.path("tag").isTextual() && !"unknown".equals(e.path("tag").asText())) {
+                String t = CapturePrivacyPolicy.tagName(e.path("tag").asText());
+                e.put("tag", t == null ? "unknown" : t);
+            }
             if (e.path("sensitive").asBoolean(false)) {
                 e.putNull("htmlId");
                 e.putNull("htmlName");
             } else {
-                attr(e, "htmlId");
-                attr(e, "htmlName");
+                identifier(e, "htmlId");
+                identifier(e, "htmlName");
             }
             for (JsonNode s : e.path("accessPath")) {
                 if (s instanceof ObjectNode o) {
-                    mask(o, "label");
+                    name(o, "label");
+                    if (o.path("locator").isTextual() && !CapturePrivacyPolicy.expressionSafe(o.path("locator").asText())) {
+                        o.putNull("locator");
+                    }
                 }
             }
             for (JsonNode c : e.path("context")) {
                 if (c instanceof ObjectNode o) {
-                    mask(o, "name");
+                    name(o, "name");
                 }
             }
-            for (JsonNode l : e.path("locators")) {
-                if (l instanceof ObjectNode o) {
-                    mask(o, "description");
-                }
-            }
+            locators(e, notes);
         }
-        if (p.path("parameters").path("option") instanceof ObjectNode o) {
-            mask(o, "label");
-            mask(o, "value");
+        if (p.path("parameters") instanceof ObjectNode params && params.path("option") instanceof ObjectNode) {
+            params.putNull("option"); // valor do usuário / conteúdo de negócio: nunca vai ao Studio
+            notes.add("OPTION_WITHHELD");
         }
         if (p.path("context") instanceof ObjectNode c) {
             url(c, "url");
-            mask(c, "title");
+            title(c, "title");
             if (c.path("after") instanceof ObjectNode a) {
                 url(a, "url");
             }
         }
-    }
-
-    private static void mask(ObjectNode o, String field) {
-        JsonNode v = o.get(field);
-        if (v != null && v.isTextual()) {
-            o.put(field, Privacy.maskText(v.asText()));
+        if (!notes.isEmpty()) {
+            ArrayNode arr = p.path("notes") instanceof ArrayNode n ? n : p.putArray("notes");
+            Set<String> have = new LinkedHashSet<>();
+            arr.forEach(x -> have.add(x.asText()));
+            for (String n : notes) {
+                if (!have.contains(n) && arr.size() < 12) {
+                    arr.add(n);
+                }
+            }
         }
     }
 
-    private static void attr(ObjectNode o, String field) {
+    private static void locators(ObjectNode e, Set<String> notes) {
+        if (!(e.path("locators") instanceof ArrayNode ls)) {
+            return;
+        }
+        int preferred = e.path("preferredLocator").asInt(-1);
+        ArrayNode kept = e.arrayNode();
+        int newPreferred = -1;
+        boolean unique = false;
+        for (int i = 0; i < ls.size(); i++) {
+            JsonNode l = ls.get(i);
+            boolean ok = CapturePrivacyPolicy.expressionSafe(l.path("css").isTextual() ? l.path("css").asText() : null)
+                    && CapturePrivacyPolicy.expressionSafe(l.path("xpath").isTextual() ? l.path("xpath").asText() : null)
+                    && CapturePrivacyPolicy.expressionSafe(l.path("description").isTextual() ? l.path("description").asText() : null);
+            if (!ok) {
+                continue;
+            }
+            if (i == preferred) {
+                newPreferred = kept.size();
+            }
+            unique |= l.path("matchCount").asInt() == 1 && l.path("matchesTarget").asBoolean(false);
+            kept.add(l);
+        }
+        if (kept.size() < ls.size()) {
+            notes.add("LOCATORS_WITHHELD");
+            e.set("locators", kept);
+            e.put("preferredLocator", newPreferred);
+        }
+        if (!unique && "RESOLVED".equals(e.path("resolution").asText())) {
+            notes.add("SAFE_LOCATOR_UNAVAILABLE");
+        }
+    }
+
+    private static void name(ObjectNode o, String field) {
         JsonNode v = o.get(field);
-        if (v != null && v.isTextual() && (Privacy.looksSecret(v.asText()) || !Privacy.maskText(v.asText()).equals(v.asText()))) {
-            o.putNull(field); // id/name com aparência de segredo ou com dado pessoal: não sai
+        if (v != null && v.isTextual()) {
+            String t = CapturePrivacyPolicy.interfaceText(v.asText());
+            o.put(field, t == null ? "" : t);
+        }
+    }
+
+    private static void identifier(ObjectNode o, String field) {
+        JsonNode v = o.get(field);
+        if (v != null && v.isTextual() && CapturePrivacyPolicy.identifier(v.asText()) == null) {
+            o.putNull(field);
+        }
+    }
+
+    private static void title(ObjectNode o, String field) {
+        JsonNode v = o.get(field);
+        if (v != null && v.isTextual()) {
+            String t = CapturePrivacyPolicy.title(v.asText());
+            if (t == null) {
+                o.putNull(field);
+            } else {
+                o.put(field, t);
+            }
         }
     }
 
     private static void url(ObjectNode o, String field) {
         JsonNode v = o.get(field);
         if (v != null && v.isTextual()) {
-            String s = Privacy.sanitizeUrl(v.asText());
+            String s = CapturePrivacyPolicy.urlTemplate(v.asText());
             if (s == null) {
                 o.putNull(field);
             } else {
-                o.put(field, s.length() > 2000 ? s.substring(0, 2000) : s);
+                o.put(field, s);
             }
         }
     }

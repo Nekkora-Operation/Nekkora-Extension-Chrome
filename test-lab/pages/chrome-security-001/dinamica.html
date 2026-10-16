@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Alterações dinâmicas (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Alterações dinâmicas (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 9. Texto inserido, alterado e removido depois da captura inicial; atributo personalizado alterado.</p>
+  <p id="cliente" data-cliente="nenhum">Cliente não informado</p>
+  <p><button id="preencher" type="button">Carregar cliente</button>
+     <button id="inserir" type="button">Inserir aviso</button>
+     <button id="apagar" type="button">Remover aviso</button></p>
+  <div id="avisos"></div>
+  <script>
+    document.getElementById('preencher').addEventListener('click', () => {
+      const c = document.getElementById('cliente');
+      c.textContent = 'Cliente Ulisses Paranhos';
+      c.setAttribute('data-cliente', 'Adalgisa Tremembé');
+    });
+    document.getElementById('inserir').addEventListener('click', () => {
+      const p = document.createElement('p');
+      p.id = 'aviso-novo';
+      p.textContent = 'Saldo de Firmino Laranjeira atualizado';
+      document.getElementById('avisos').appendChild(p);
+    });
+    document.getElementById('apagar').addEventListener('click', () => {
+      const a = document.getElementById('aviso-novo');
+      if (a) a.remove();
+    });
+  </script>
+</body>
+</html>

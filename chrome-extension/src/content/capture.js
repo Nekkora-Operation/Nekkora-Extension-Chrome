@@ -14,6 +14,159 @@
     return;
   }
   const P = root.NekkoraPrivacy; // política de privacidade (src/shared/privacy.js), aplicada antes de qualquer envio
+  /**
+   * CHROME-SECURITY-001 (nekkora-privacy/2, 1ª barreira): só sai da página o METADADO DE INTERFACE elegível — texto
+   * dentro de um PORTADOR de nome (botão, link, rótulo, legenda, aba, item de menu…) cujo texto INTEIRO passe no
+   * vocabulário controlado, e atributos pela política de cada categoria. Conteúdo de negócio, tabelas, mensagens e
+   * texto livre ficam como presença ("há texto"), nunca como conteúdo. Relações entre elementos vão como ids
+   * temporários de nó (refs), sem o valor dos atributos. URLs como modelo (origem + caminho do vocabulário).
+   */
+  const CP = root.NekkoraCapturePolicy;
+  /** Conteúdo que é VALOR (não nome): não entra no texto do portador. */
+  const VALUE_SUBTREES = new Set(['select', 'option', 'optgroup', 'datalist', 'textarea', 'script', 'style', 'template', 'noscript']);
+  /**
+   * Revisão do texto próprio por elemento (CHROME-SECURITY-001): o texto retido não atravessa, mas a MUDANÇA dele é fato
+   * estrutural ("texto alterado"). Fica só na memória da página (WeakMap) — o número da revisão é o que sai; nem o texto
+   * nem o resumo dele.
+   */
+  const textState = new WeakMap(); // Element -> { h, rev }
+
+  function textRevision(el, raw) {
+    let h = 0;
+    for (let i = 0; i < raw.length; i++) {
+      h = (h * 31 + raw.charCodeAt(i)) | 0;
+    }
+    const prev = textState.get(el);
+    if (!prev) {
+      textState.set(el, { h, rev: 0 });
+      return 0;
+    }
+    if (prev.h !== h) {
+      prev.h = h;
+      prev.rev++;
+    }
+    return prev.rev;
+  }
+
+  /** Caches de UMA passada de captura (portador → texto aprovado?; alvos de aria-labelledby). */
+  let pass = null;
+
+  function newPass() {
+    pass = { carrierOk: new Map(), labelTargets: null };
+  }
+
+  function composedUp(el) {
+    if (el.parentElement) {
+      return el.parentElement;
+    }
+    const p = el.parentNode;
+    return p instanceof ShadowRoot ? p.host : null;
+  }
+
+  function isEditable(el) {
+    const ce = el.getAttribute && el.getAttribute('contenteditable');
+    return ce === '' || ce === 'true' || ce === 'plaintext-only';
+  }
+
+  /** Elementos referenciados por aria-labelledby (nome de interface por referência), da passada corrente. */
+  function labelTargets() {
+    if (pass.labelTargets) {
+      return pass.labelTargets;
+    }
+    const out = new Set();
+    for (const r of NS.capture.observableRoots()) {
+      for (const ref of r.querySelectorAll('[aria-labelledby]')) {
+        const scope = ref.getRootNode();
+        for (const id of (ref.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean).slice(0, 8)) {
+          const t = scope.getElementById ? scope.getElementById(id) : null;
+          if (t) {
+            out.add(t);
+          }
+        }
+      }
+    }
+    pass.labelTargets = out;
+    return out;
+  }
+
+  /** Portador de nome do elemento (ele mesmo ou ancestral próximo), ou null: fora de portador, texto é conteúdo. */
+  function carrierOf(el) {
+    let e = el;
+    for (let i = 0; e && i < 8; i++) {
+      const tag = e.localName;
+      if (VALUE_SUBTREES.has(tag) || isEditable(e)) {
+        return null; // valor do usuário ou conteúdo de lista: nunca nome
+      }
+      if (CP.isCarrier(tag, e.getAttribute('role'), e.hasAttribute('href')) || labelTargets().has(e)) {
+        return e;
+      }
+      e = composedUp(e);
+    }
+    return null;
+  }
+
+  /** Texto do portador, sem subárvores de valor; aprovado só se o valor INTEIRO passar no vocabulário. */
+  function carrierOk(c) {
+    if (pass.carrierOk.has(c)) {
+      return pass.carrierOk.get(c);
+    }
+    let text = '';
+    const walk = (n, depth) => {
+      if (depth > 12 || text.length > 400) {
+        return;
+      }
+      for (const k of n.childNodes) {
+        if (k.nodeType === Node.TEXT_NODE) {
+          text += ' ' + k.nodeValue;
+        } else if (k.nodeType === 1 && !VALUE_SUBTREES.has(k.localName) && !isEditable(k)) {
+          walk(k, depth + 1);
+        }
+      }
+    };
+    walk(c, 0);
+    const t = CP.clean(text);
+    const ok = t === '' || CP.vocabularyOnly(t);
+    pass.carrierOk.set(c, ok);
+    return ok;
+  }
+
+  /** O texto deste elemento é metadado de interface elegível e aprovado? */
+  function textEligible(el) {
+    const c = carrierOf(el);
+    return !!c && carrierOk(c);
+  }
+
+  const REF_ATTRIBUTES = ['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant',
+    'aria-errormessage', 'aria-details', 'aria-flowto', 'list', 'form', 'headers'];
+
+  /** Relações declaradas por id, resolvidas NA PÁGINA para ids temporários de nó (o valor do atributo não sai). */
+  function refsOf(el) {
+    let out = null;
+    const scope = el.getRootNode();
+    for (const attr of REF_ATTRIBUTES) {
+      if (!el.hasAttribute(attr)) {
+        continue;
+      }
+      const ids = [];
+      if (attr === 'for' && el.localName === 'label') {
+        const t = el.control;
+        if (t) {
+          ids.push(NS.registry.idFor(t));
+        }
+      } else {
+        for (const id of (el.getAttribute(attr) || '').split(/\s+/).filter(Boolean).slice(0, 16)) {
+          const t = scope.getElementById ? scope.getElementById(id) : (el.ownerDocument && el.ownerDocument.getElementById(id));
+          if (t && !isOverlay(t)) {
+            ids.push(NS.registry.idFor(t));
+          }
+        }
+      }
+      if (ids.length) {
+        (out || (out = {}))[attr] = ids;
+      }
+    }
+    return out;
+  }
   const SKIP = new Set(['script', 'style', 'noscript', 'template', 'head', 'meta', 'link', 'title', 'base']);
   const LEAF = new Set(['svg', 'math', 'canvas', 'video', 'audio', 'object', 'embed']);
   const SHADOW_CAPABLE = new Set(['article', 'aside', 'blockquote', 'body', 'div', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -75,15 +228,15 @@
     return null;
   }
 
-  function ownText(el) {
+  /** Texto próprio CRU: só decide presença/elegibilidade; o que sai é decidido em describe(). */
+  function rawOwnText(el) {
     let s = '';
     for (const n of el.childNodes) {
       if (n.nodeType === Node.TEXT_NODE) {
         s += ' ' + n.nodeValue;
       }
     }
-    s = P.maskText(s.replace(/\s+/g, ' ').trim());
-    return s.length > MAX_TEXT_LEN ? s.slice(0, MAX_TEXT_LEN) : s;
+    return CP.clean(s);
   }
 
   /**
@@ -101,7 +254,7 @@
       if (n.nodeType === Node.TEXT_NODE) {
         cur += ' ' + n.nodeValue;
       } else if (n.nodeType === 1 && matched < childIds.length && NS.registry.peek(n) === childIds[matched]) {
-        segs.push(P.maskText(cur.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN));
+        segs.push(CP.clean(cur).slice(0, MAX_TEXT_LEN));
         cur = '';
         matched++;
       }
@@ -109,14 +262,14 @@
     if (matched !== childIds.length) {
       return undefined;
     }
-    segs.push(P.maskText(cur.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN));
+    segs.push(CP.clean(cur).slice(0, MAX_TEXT_LEN));
     return segs;
   }
 
   /** O SVG é capturado como folha; seu <title> compõe o nome acessível (botões de ícone). */
   function svgTitle(el) {
     const t = el.querySelector(':scope > title');
-    return t ? P.maskText(t.textContent.replace(/\s+/g, ' ').trim()).slice(0, MAX_TEXT_LEN) : '';
+    return t ? CP.clean(t.textContent).slice(0, MAX_TEXT_LEN) : '';
   }
 
   const URL_ATTRIBUTE_HOSTS = new Set(['IFRAME', 'FRAME', 'SCRIPT']);
@@ -149,22 +302,29 @@
 
   function attributes(el) {
     const out = {};
+    const ctx = { tag: el.localName, type: el.getAttribute('type') };
     for (const a of el.attributes) {
       const name = a.name;
       if (name === 'style' || (name.startsWith('data-nekkora') && name !== 'data-nekkora-simulated-src')) {
         continue; // data-nekkora-simulated-src: metadado de SIMULAÇÃO do laboratório, sempre rotulado como tal
       }
-      let v = a.value;
-      if (name.startsWith('on')) {
-        v = '[manipulador declarado]';
-      } else if (name === 'data-sitekey') {
-        v = '[redacted]'; // chave pública de CAPTCHA: presença registrada, valor não
-      } else if ((name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName)) || name === 'data-nekkora-simulated-src') {
-        v = P.sanitizeUrl(redactUrlValues(v, el.ownerDocument.baseURI));
+      let v;
+      if (name === 'data-nekkora-simulated-src' || (name === 'src' && URL_ATTRIBUTE_HOSTS.has(el.tagName))) {
+        // URL de frame/script/simulação: absoluta e como MODELO (D3)
+        let abs = a.value;
+        try {
+          abs = new URL(a.value, el.ownerDocument.baseURI).href;
+        } catch (e) {
+          abs = a.value;
+        }
+        v = CP.urlTemplate(abs) || '';
       } else if (name === 'value' && !NS.sensitivity.valueAttributeAllowed(el)) {
         continue;
       } else {
-        v = P.sanitizeAttribute(name, v); // política única de atributos (src/shared/privacy.js; espelho no Java)
+        v = CP.attribute(name, a.value, ctx); // nekkora-privacy/2: categoria do atributo decide (espelho no Java)
+      }
+      if (v == null) {
+        continue;
       }
       out[name] = v.length > MAX_ATTR_LEN ? v.slice(0, MAX_ATTR_LEN) : v;
     }
@@ -242,14 +402,13 @@
 
     let hasValue = null;
     let valueLength = null;
-    let exposedValue = null;
+    // CHROME-SECURITY-001 (SEC001-004): nenhum valor de campo sai da página — nem o de pesquisa. Ser um campo de pesquisa
+    // não torna o termo pesquisado público ("João Oliveira", um CPF). Só a presença e o tamanho.
+    const exposedValue = null;
     if (textEntry || tag === 'select') {
       const v = el.value == null ? '' : String(el.value);
       hasValue = v.length > 0;
       valueLength = sensitive ? null : v.length;
-      if (textEntry && NS.sensitivity.isSearchField(el)) {
-        exposedValue = P.maskText(v.length > 200 ? v.slice(0, 200) : v);
-      }
     }
     // STUDIO-003: o conteúdo de um editor contenteditable é VALOR DE CAMPO (digitado pelo usuário) — como o de um input,
     // não sai da página; o hospedeiro informa só se há conteúdo e o tamanho.
@@ -286,12 +445,16 @@
       }
     }
 
-    const own = tag === 'svg' ? svgTitle(el) : editableContent ? '' : ownText(el);
+    const rawOwn = tag === 'svg' ? svgTitle(el) : editableContent ? '' : rawOwnText(el);
+    const eligible = rawOwn !== '' && textEligible(el);
+    const own = eligible ? rawOwn.slice(0, MAX_TEXT_LEN) : '';
+    const refs = refsOf(el);
     const out = {
       id: NS.registry.idFor(el),
       parentId: ctx.parentId,
       childIds: ctx.childIds,
-      tag,
+      // 2ª revisão dos PRs #7: nome de componente fora do catálogo HTML/SVG/MathML e do vocabulário não sai (marcador neutro)
+      tag: CP.tagName(tag) || CP.NEUTRAL_TAG,
       frameId: ctx.frameId,
       scopeId: ctx.scopeId,
       attributes: attributes(el),
@@ -321,7 +484,23 @@
       scroll,
       exposedValue,
     };
-    const segs = tag === 'svg' || editableContent ? undefined : textSegments(el, ctx.childIds, own);
+    if (rawOwn !== '') {
+      out.textPresent = true; // houve texto (estrutura útil ao motor); o conteúdo só sai se elegível
+      if (!eligible) {
+        out.textSuppressed = true;
+      }
+    }
+    const rev = textRevision(el, rawOwn);
+    if (rev > 0 || rawOwn !== '') {
+      out.textRevision = rev;
+    }
+    if (refs) {
+      out.refs = refs;
+    }
+    if (ctx.childPositions && ctx.childPositions.length && ctx.childPositions.length === (ctx.childIds || []).length) {
+      out.childPositions = ctx.childPositions;
+    }
+    const segs = tag === 'svg' || editableContent || !eligible ? undefined : textSegments(el, ctx.childIds, own);
     if (segs) {
       out.textSegments = segs;
     }
@@ -335,10 +514,14 @@
     if (LEAF.has(tag)) {
       return out;
     }
+    // pos: posição real entre TODOS os filhos elemento (:nth-child), inclusive os que a captura não descreve (script,
+    // style…). Fato estrutural, sem conteúdo: posiciona um componente cujo nome foi retido (2ª revisão dos PRs #7).
+    let pos = 0;
     for (const c of el.children) {
+      pos++;
       const ct = c.tagName.toLowerCase();
       if (!SKIP.has(ct) && !isOverlay(c)) {
-        out.push({ el: c });
+        out.push({ el: c, pos });
       }
     }
     const hostId = NS.registry.idFor(el);
@@ -347,10 +530,12 @@
       const sri = { hostNodeId: hostId, mode: el.shadowRoot.mode || 'open', inspected: true, detection: 'ELEMENT_SHADOW_ROOT', reason: null };
       knownShadows.set(el, sri);
       info.shadowRoots.push(sri);
+      let spos = 0;
       for (const c of el.shadowRoot.children) {
+        spos++;
         const ct = c.tagName.toLowerCase();
         if (!SKIP.has(ct)) {
-          out.push({ el: c, scopeId: 'shadow:' + hostId });
+          out.push({ el: c, scopeId: 'shadow:' + hostId, pos: spos });
         }
       }
     } else if (tag.includes('-') || SHADOW_CAPABLE.has(tag)) {
@@ -405,12 +590,12 @@
       if (doc && doc.documentElement) {
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
-        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: P.sanitizeUrl(doc.location.href), accessible: true, reason: null,
-          title: P.maskText((doc.title || '').slice(0, 200)) || null, readyState: doc.readyState };
-        out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
+        fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: CP.urlTemplate(doc.location.href), accessible: true, reason: null,
+          title: CP.title(doc.title || ''), readyState: doc.readyState, registryEpoch: NS.registry.epoch() };
+        out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid, pos: 1 });
       } else {
         fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
-          url: el.getAttribute('src') ? P.sanitizeUrl(new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href) : null, accessible: false, reason };
+          url: el.getAttribute('src') ? CP.urlTemplate(new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href) : null, accessible: false, reason };
       }
       knownFrames.set(el, fi);
       info.frames.push(fi);
@@ -464,11 +649,12 @@
       info.currentFrame = item.frameId;
       const children = composedChildren(el, info);
       const childIds = children.map((c) => NS.registry.idFor(c.el));
+      const childPositions = children.map((c) => c.pos || 0);
       if (!modals.has(el.ownerDocument)) {
         modals.set(el.ownerDocument, modalOf(el.ownerDocument));
       }
       const d = describe(el, {
-        parentId: item.parentId, childIds, frameId: item.frameId, scopeId: item.scopeId,
+        parentId: item.parentId, childIds, childPositions, frameId: item.frameId, scopeId: item.scopeId,
         parentVisible: item.parentVisible, modal: modals.get(el.ownerDocument),
       });
       t.nodes.push(d);
@@ -511,11 +697,11 @@
   }
 
   function rootFrameInfo() {
-    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: P.sanitizeUrl(location.href), accessible: true, reason: null,
-      title: P.maskText((document.title || '').slice(0, 200)) || null, readyState: document.readyState };
+    return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: CP.urlTemplate(location.href), accessible: true, reason: null,
+      title: CP.title(document.title || ''), readyState: document.readyState, registryEpoch: NS.registry.epoch() };
   }
 
-  /** URL sanitizada: esquema, host, porta e caminho (sem query, fragmento ou credenciais) + NOMES dos parâmetros. */
+  /** URL de recurso como MODELO (origem + caminho do vocabulário) + NOMES de parâmetros do vocabulário. */
   function sanitizeUrl(raw, base) {
     try {
       const u = new URL(raw, base || document.baseURI);
@@ -524,11 +710,11 @@
       }
       const keys = [];
       for (const k of u.searchParams.keys()) {
-        if (!keys.includes(k) && keys.length < 20 && !P.looksSecret(k)) {
+        if (!keys.includes(k) && keys.length < 20 && CP.identifier(k)) {
           keys.push(k);
         }
       }
-      return { url: P.originAndPath(u.href), queryKeys: keys };
+      return { url: CP.urlTemplate(u.origin + u.pathname), queryKeys: keys };
     } catch (e) {
       return null;
     }
@@ -601,7 +787,7 @@
       return performance.getEntriesByType('resource')
         .filter((e) => e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest')
         .slice(-200)
-        .map((e) => ({ url: P.sanitizeUrl(e.name), initiatorType: e.initiatorType, startTime: Math.round(e.startTime * 10) / 10, duration: Math.round(e.duration * 10) / 10 }));
+        .map((e) => ({ url: CP.urlTemplate(e.name), initiatorType: e.initiatorType, startTime: Math.round(e.startTime * 10) / 10, duration: Math.round(e.duration * 10) / 10 }));
     } catch (e) {
       return [];
     }
@@ -609,8 +795,8 @@
 
   function documentInfo(navigationKind) {
     return {
-      url: P.sanitizeUrl(location.href),
-      title: P.maskText(document.title),
+      url: CP.urlTemplate(location.href),
+      title: CP.title(document.title || ''),
       readyState: document.readyState,
       viewport: { width: innerWidth, height: innerHeight, scrollX: Math.round(scrollX), scrollY: Math.round(scrollY), devicePixelRatio },
       navigationKind: navigationKind || 'MANUAL',
@@ -630,10 +816,12 @@
       const t0 = performance.now();
       knownShadows.clear();
       knownFrames.clear();
+      newPass();
       const info = { frames: [rootFrameInfo()], shadowRoots: [], currentFrame: src.rootFrame };
       const r = serializeSubtree(document.documentElement, { parentId: null, frameId: src.rootFrame, scopeId: 'doc:' + src.rootFrame, parentVisible: true }, info, maxNodes);
       const durationMs = Math.round((performance.now() - t0) * 100) / 100;
       return {
+        privacy: CP.VERSION,
         captureId: nextCaptureId(),
         capturedAt: new Date().toISOString(),
         document: documentInfo(opts.navigationKind),
@@ -659,6 +847,7 @@
       const t0 = performance.now();
       knownShadows.clear();
       knownFrames.clear();
+      newPass();
       const captureId = nextCaptureId();
       const info = { frames: [rootFrameInfo()], shadowRoots: [], currentFrame: src.rootFrame };
       const t = createTraversal(document.documentElement, { parentId: null, frameId: src.rootFrame, scopeId: 'doc:' + src.rootFrame, parentVisible: true }, info, maxNodes);
@@ -683,6 +872,7 @@
       }
       const durationMs = Math.round((performance.now() - t0) * 100) / 100;
       return {
+        privacy: CP.VERSION,
         captureId,
         capturedAt: new Date().toISOString(),
         document: documentInfo(opts.navigationKind),
@@ -769,6 +959,7 @@
       const info = { frames: [], shadowRoots: [], currentFrame: src.rootFrame };
       const out = new Map();
       let truncated = false;
+      newPass();
       for (const { el, subtree } of elements) {
         if (!el.isConnected) {
           continue;
@@ -784,7 +975,8 @@
         } else {
           info.currentFrame = sc.frameId;
           const children = composedChildren(el, info);
-          const d = describe(el, { parentId, childIds: children.map((c) => NS.registry.idFor(c.el)), frameId: sc.frameId, scopeId: sc.scopeId, parentVisible, modal: modalOf(el.ownerDocument) });
+          const d = describe(el, { parentId, childIds: children.map((c) => NS.registry.idFor(c.el)), childPositions: children.map((c) => c.pos || 0),
+            frameId: sc.frameId, scopeId: sc.scopeId, parentVisible, modal: modalOf(el.ownerDocument) });
           out.set(d.id, d);
         }
         if (out.size >= maxNodes) {

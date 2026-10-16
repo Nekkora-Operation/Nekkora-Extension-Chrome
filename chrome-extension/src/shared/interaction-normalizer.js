@@ -155,8 +155,8 @@
             return;
           }
           if (t.control === 'COMBOBOX_OPTION' && t.comboboxKey) { // R9
-            emit({ action: 'SELECT_OPTION', targetKey: t.comboboxKey, firstAt: o.at, lastAt: o.at, option: t.option, trigger: 'OPTION_CLICK',
-              evidence: ['CUSTOM_COMBOBOX'] });
+            emit({ action: 'SELECT_OPTION', targetKey: t.comboboxKey, firstAt: o.at, lastAt: o.at, option: t.option || null, trigger: 'OPTION_CLICK',
+              evidence: ['CUSTOM_COMBOBOX'], notes: t.optionWithheld ? ['OPTION_WITHHELD'] : [] });
             return;
           }
           emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, formKey: t.formKey,
@@ -220,8 +220,9 @@
         return;
       }
       if (t.control === 'SELECT') {
+        // CHROME-SECURITY-001: opção identificada mas retida pela política (OPTION_WITHHELD) ≠ não identificada
         emit({ action: 'SELECT_OPTION', targetKey: t.key, firstAt: o.at, lastAt: o.at, events: 2, trigger: 'CHANGE', option: t.option || null,
-          notes: t.option ? [] : ['OPTION_NOT_IDENTIFIED'] });
+          notes: t.option ? [] : [t.optionWithheld ? 'OPTION_WITHHELD' : 'OPTION_NOT_IDENTIFIED'] });
         return;
       }
       discard('NON_INTERACTIVE');
@@ -279,7 +280,8 @@
           return;
         case 'COMBOBOX_OPTION':
           if (t.comboboxKey) {
-            emit({ action: 'SELECT_OPTION', targetKey: t.comboboxKey, firstAt: o.at, lastAt: o.at, option: t.option, evidence: via.concat('CUSTOM_COMBOBOX') });
+            emit({ action: 'SELECT_OPTION', targetKey: t.comboboxKey, firstAt: o.at, lastAt: o.at, option: t.option || null, evidence: via.concat('CUSTOM_COMBOBOX'),
+              notes: t.optionWithheld ? ['OPTION_WITHHELD'] : [] });
             return;
           }
           emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via, notes: ['OPTION_WITHOUT_PROVEN_COMBOBOX'] });

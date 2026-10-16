@@ -39,7 +39,7 @@ public final class CaptureCommands implements CommandRouter.CommandGroup {
         router.register("snapshot.submit", p -> {
             long t0 = System.nanoTime();
             TabState tab = s.session.tab(Payloads.required(p, "tabKey"));
-            RawSnapshot snap = s.json.read(Payloads.node(p, "snapshot"), RawSnapshot.class);
+            RawSnapshot snap = s.snapshot(Payloads.node(p, "snapshot"));
             long t1 = System.nanoTime();
             PageAnalysis previous = tab.latest().orElse(null);
             PageAnalysis analysis = s.session.analyzer().analyze(snap);
@@ -58,8 +58,9 @@ public final class CaptureCommands implements CommandRouter.CommandGroup {
         router.register("snapshot.delta", p -> {
             long t0 = System.nanoTime();
             TabState tab = s.session.tab(Payloads.required(p, "tabKey"));
-            SnapshotDelta delta = s.json.read(Payloads.node(p, "delta"), SnapshotDelta.class);
-            PageAnalysis base = s.capture(tab, delta.baseCaptureId());
+            SnapshotDelta raw = s.json.read(Payloads.node(p, "delta"), SnapshotDelta.class);
+            PageAnalysis base = s.capture(tab, raw.baseCaptureId());
+            SnapshotDelta delta = s.privacy(raw, base);
             return new DeltaProcessor(s).apply(tab, base, delta, Payloads.flag(p, "autoResolve", true));
         });
 

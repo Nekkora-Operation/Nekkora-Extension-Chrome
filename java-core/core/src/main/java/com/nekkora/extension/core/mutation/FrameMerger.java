@@ -63,7 +63,8 @@ public final class FrameMerger {
             frames.add(childRoot
                     ? new FrameInfo(f.frameId(), hostFrame, hostNodeId, f.url(), true, null,
                     f.title() != null ? f.title() : (child.document() == null ? null : child.document().title()),
-                    f.readyState() != null ? f.readyState() : (child.document() == null ? null : child.document().readyState()))
+                    f.readyState() != null ? f.readyState() : (child.document() == null ? null : child.document().readyState()),
+                    f.registryEpoch())
                     : f);
         }
         List<com.nekkora.extension.core.snapshot.ShadowRootInfo> shadows =

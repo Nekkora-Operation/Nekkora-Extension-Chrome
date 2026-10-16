@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Atributos (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Atributos (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 4. Identificadores, classes, atributos personalizados e propriedades ARIA com dados fictícios.</p>
+  <!-- SEC001-017: data-* -->
+  <div id="cartao" data-cliente="Eustáquio Marangoni" class="cartao"><button id="abrir-cartao" type="button">Abrir</button></div>
+  <!-- SEC001-018: id com conteúdo privado -->
+  <p><button id="cliente-anacleto-prudencio" type="button">Detalhes</button></p>
+  <!-- SEC001-019: name com conteúdo privado -->
+  <p><input name="usuario_hermengarda" type="text" aria-label="Usuário"></p>
+  <!-- SEC001-020: atributo personalizado -->
+  <p><span x-titular="Clodomiro Ventania" id="titular-x">Titular</span></p>
+  <!-- classe com nome de pessoa; aria-description; aria-valuetext; alt -->
+  <p><button type="button" class="btn cliente-rosamunda-teixeira">Selecionar</button></p>
+  <p><button id="descr" type="button" aria-description="Conta de Policarpo Siqueira">Conta</button></p>
+  <p><span id="barra" role="slider" tabindex="0" aria-valuenow="3" aria-valuetext="Limite de Hortência Malaquias"></span></p>
+  <p><img id="foto" alt="Foto de Cremilda Bastião" width="10" height="10" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></p>
+  <p><a id="link-ficha" href="/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo#ficha-ataulfo">Ficha</a></p>
+  <form id="f" action="/api/clientes/sinfronio-lacerda" onsubmit="return false"><button id="enviar" type="submit" formaction="/api/clientes/sinfronio-lacerda?x=1">Enviar</button></form>
+</body>
+</html>

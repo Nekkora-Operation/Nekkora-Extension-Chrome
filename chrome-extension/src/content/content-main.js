@@ -229,8 +229,10 @@
         return { exists: false, connected: false };
       }
       const r = el.getBoundingClientRect();
-      return { exists: true, connected: el.isConnected, tag: el.tagName.toLowerCase(), id: el.id || null,
-        text: (el.textContent || '').trim().slice(0, 80), rect: { left: r.left, top: r.top, width: r.width, height: r.height } };
+      // CHROME-SECURITY-001 (2ª revisão): nada de texto da página nem id cru — só o que a política deixa sair
+      const CP = root.NekkoraCapturePolicy;
+      return { exists: true, connected: el.isConnected, tag: CP ? CP.tagName(el.tagName) : null, id: CP && el.id ? CP.identifier(el.id) : null,
+        rect: { left: r.left, top: r.top, width: r.width, height: r.height } };
     },
     /** Encontra o id temporário de um elemento por CSS (uso do harness de testes; somente leitura). */
     'cs.idFor': (a) => {

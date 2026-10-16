@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -91,11 +92,18 @@ class Chrome003ProtectionIT extends FrameIT {
         assertEquals("HIGH", a.get("confidence").asText());
         assertEquals("CHALLENGE_PRESENT", a.get("challengeState").asText());
         act(p, "abrir-desafio");
-        BrowserLab.waitUntil(Duration.ofSeconds(15), () -> "CHALLENGE_ACTIVE".equals(
-                assessment(diagnose(p).get("protection"), "HCAPTCHA").get("challengeState").asText()), "desafio ativo");
+        // CHROME-SECURITY-001: o desafio aberto do hCaptcha só se distinguia pelo fragmento "#...frame=challenge" da URL do
+        // iframe, e fragmentos/valores de URL não atravessam mais a captura (URL = origem + modelo do caminho, D3). O motor
+        // continua vendo o widget (HIGH, desafio PRESENTE) e NUNCA declara o desafio como concluído; a distinção
+        // presente × ativo para o hCaptcha virou limitação conhecida (known-limitations.md).
+        sleep(1500);
         JsonNode d = diagnose(p);
         evidence("P003-003-hcaptcha-active.json", d.get("protection"));
-        assertEquals("REQUIRES_HUMAN_INTERVENTION", d.at("/readiness/status").asText());
+        JsonNode after = assessment(d.get("protection"), "HCAPTCHA");
+        assertEquals("HIGH", after.get("confidence").asText());
+        assertTrue(java.util.Set.of("CHALLENGE_PRESENT", "CHALLENGE_ACTIVE").contains(after.get("challengeState").asText()), after.toString());
+        assertFalse(d.get("protection").toString().contains("frame=challenge"), "fragmento da URL não atravessa");
+        assertNotEquals("NO_KNOWN_OBSTACLES", d.at("/readiness/status").asText());
     }
 
     @Test
@@ -139,10 +147,12 @@ class Chrome003ProtectionIT extends FrameIT {
         JsonNode d = fixture("p06-false-positive", 0);
         assertEquals("NOT_OBSERVED", d.at("/protection/status").asText());
         assertEquals(0, d.at("/protection/assessments").size());
-        assertTrue(d.at("/protection/genericIndicators").size() > 0, "menções registradas como indicadores genéricos");
+        // CHROME-SECURITY-001: o texto livre da página não chega ao motor, então menções textuais a "CAPTCHA" deixaram de
+        // ser registradas como indicador genérico (limitação aceita). O que importa continua: nenhum fornecedor afirmado e
+        // nenhuma afirmação de ausência de proteção.
+        assertEquals(0, d.at("/protection/genericIndicators").size(), "texto da página não é avaliado");
         String lim = d.at("/protection/limitations").toString();
         assertTrue(lim.contains("não comprova ausência"), "nunca afirma que a página não possui proteção: " + lim);
-        assertTrue(lim.contains("Menção textual"));
         assertEquals("NO_KNOWN_OBSTACLES", d.at("/readiness/status").asText());
     }
 
@@ -246,7 +256,9 @@ class Chrome003ProtectionIT extends FrameIT {
         String json = map.toString();
         assertFalse(json.contains("LAB-FICTICIA"), "chave de site (mesmo fictícia) nunca exportada");
         assertTrue(json.contains("[redacted]"));
-        assertTrue(json.contains("k=REDACTED"), "nomes de parâmetros mantidos, valores redigidos");
+        // CHROME-SECURITY-001: URLs saem como modelo — nenhum valor de parâmetro (nem a chave fictícia, nem "co=lab")
+        assertFalse(json.contains("co=lab"), "valor de parâmetro nunca exportado");
+        assertTrue(json.contains("/recaptcha/api2/anchor"), "o caminho do fornecedor (vocabulário) continua identificável");
         evidence("P003-013-pagemap-protection.json", map.get("protection"));
     }
 

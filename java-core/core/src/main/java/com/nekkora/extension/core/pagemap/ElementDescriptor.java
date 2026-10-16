@@ -74,6 +74,12 @@ public record ElementDescriptor(
      * @param contextual            textos da família usados para diferenciar o elemento
      */
     public record ElementText(String own, String descendant, String accessibleName, String accessibleNameSource,
-                              String accessibleDescription, List<String> contextual) {
+                              String accessibleDescription, List<String> contextual, Boolean suppressed) {
+
+        /** Construtor CHROME-002/003 (sem a marca de texto retido). */
+        public ElementText(String own, String descendant, String accessibleName, String accessibleNameSource,
+                           String accessibleDescription, List<String> contextual) {
+            this(own, descendant, accessibleName, accessibleNameSource, accessibleDescription, contextual, null);
+        }
     }
 }

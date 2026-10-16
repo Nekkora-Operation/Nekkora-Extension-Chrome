@@ -64,7 +64,7 @@ public final class InteractionAnalyzer {
             String path = null;
             Map<String, List<String>> q = Map.of();
             try {
-                URI u = URI.create(r.url());
+                URI u = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(r.url()));
                 path = u.getPath();
                 q = urls.parse(r.url(), null).observed().query();
             } catch (IllegalArgumentException ignored) {
@@ -102,17 +102,25 @@ public final class InteractionAnalyzer {
                 instrumentation, notes);
     }
 
+    /**
+     * Estado do valor de um controle, SEM o conteúdo (CHROME-SECURITY-001, SEC001-011): numa lista, as POSIÇÕES das opções
+     * selecionadas ("#2"); o texto da opção é dado da página/escolha do usuário e não é exportado. Campos: nada.
+     */
     private static String valueOf(RawNode n, PageModel m, ContextGraph g) {
         if (n.tag().equals("select")) {
             List<String> sel = new ArrayList<>();
+            int i = 0;
             for (RawNode d : m.descendants(n)) {
-                if (d.tag().equals("option") && Boolean.TRUE.equals(d.state().selected())) {
-                    sel.add(m.textContent(d));
+                if (d.tag().equals("option")) {
+                    i++;
+                    if (Boolean.TRUE.equals(d.state().selected())) {
+                        sel.add("#" + i);
+                    }
                 }
             }
             return g.semantics().get(n.id()).sensitive() ? null : String.join(",", sel);
         }
-        return n.exposedValue();
+        return null;
     }
 
     private static String name(RawNode n, Classification c) {

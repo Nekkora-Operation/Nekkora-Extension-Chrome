@@ -1,0 +1,1489 @@
+{
+ "policy": "nekkora-privacy/2",
+ "vocabulary": "nekkora-ui-vocabulary/1",
+ "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4). tags: nome de elemento (contrato nekkora-html-elements/1; fora dele e do vocabulário => \"custom-element\").",
+ "interfaceText": [
+  {
+   "in": "Entrar",
+   "out": "Entrar"
+  },
+  {
+   "in": "Salvar",
+   "out": "Salvar"
+  },
+  {
+   "in": "Pesquisar",
+   "out": "Pesquisar"
+  },
+  {
+   "in": "Usuário",
+   "out": "Usuário"
+  },
+  {
+   "in": "Senha",
+   "out": "Senha"
+  },
+  {
+   "in": "E-mail",
+   "out": "E-mail"
+  },
+  {
+   "in": "Nome completo",
+   "out": "Nome completo"
+  },
+  {
+   "in": "Data de nascimento",
+   "out": "Data de nascimento"
+  },
+  {
+   "in": "Carregar mais",
+   "out": "Carregar mais"
+  },
+  {
+   "in": "Item 12",
+   "out": "Item 12"
+  },
+  {
+   "in": "Item 123",
+   "out": null
+  },
+  {
+   "in": "Consultar",
+   "out": "Consultar"
+  },
+  {
+   "in": "Consultar cliente",
+   "out": "Consultar cliente"
+  },
+  {
+   "in": "Consultar cliente Bartolomeu Quixadá",
+   "out": null
+  },
+  {
+   "in": "o cliente joão já existe",
+   "out": null
+  },
+  {
+   "in": "telefone do cliente joão",
+   "out": null
+  },
+  {
+   "in": "Pedido de Maria Souza aprovado",
+   "out": null
+  },
+  {
+   "in": "Contrato 4831",
+   "out": null
+  },
+  {
+   "in": "Ximena",
+   "out": null
+  },
+  {
+   "in": "Costa",
+   "out": null
+  },
+  {
+   "in": "Campos obrigatórios",
+   "out": null
+  },
+  {
+   "in": "Últimos 30 dias",
+   "out": null
+  },
+  {
+   "in": "SALVAR",
+   "out": "SALVAR"
+  },
+  {
+   "in": "  Salvar   alteração  ",
+   "out": "Salvar alteração"
+  },
+  {
+   "in": "Sal​var",
+   "out": null
+  },
+  {
+   "in": "Salvar\u0000",
+   "out": null
+  },
+  {
+   "in": "Ｓａｌｖａｒ",
+   "out": null
+  },
+  {
+   "in": "Salvár",
+   "out": "Salvár"
+  },
+  {
+   "in": "Salvár",
+   "out": "Salvár"
+  },
+  {
+   "in": "joão",
+   "out": null
+  },
+  {
+   "in": "João",
+   "out": null
+  },
+  {
+   "in": "João",
+   "out": null
+  },
+  {
+   "in": "<b>Salvar</b>",
+   "out": null
+  },
+  {
+   "in": "Salvar & sair",
+   "out": null
+  },
+  {
+   "in": "Salvar; sair",
+   "out": null
+  },
+  {
+   "in": "salvar@sair",
+   "out": null
+  },
+  {
+   "in": "Привет",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": "   ",
+   "out": null
+  },
+  {
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "out": null
+  },
+  {
+   "in": "Salvar sair voltar fechar abrir editar excluir novo",
+   "out": "Salvar sair voltar fechar abrir editar excluir novo"
+  },
+  {
+   "in": "Salvar sair voltar fechar abrir editar excluir novo item",
+   "out": null
+  },
+  {
+   "in": "Ver detalhes (2)",
+   "out": "Ver detalhes (2)"
+  },
+  {
+   "in": "Próxima página",
+   "out": "Próxima página"
+  },
+  {
+   "in": "próximo →",
+   "out": null
+  },
+  {
+   "in": "Sim",
+   "out": "Sim"
+  },
+  {
+   "in": "Não",
+   "out": "Não"
+  },
+  {
+   "in": "OK",
+   "out": "OK"
+  },
+  {
+   "in": "Cancelar",
+   "out": "Cancelar"
+  },
+  {
+   "in": "Rua",
+   "out": "Rua"
+  },
+  {
+   "in": "Endereço de entrega",
+   "out": null
+  },
+  {
+   "in": "Ativo",
+   "out": "Ativo"
+  }
+ ],
+ "identifiers": [
+  {
+   "in": "username",
+   "out": "username"
+  },
+  {
+   "in": "password",
+   "out": "password"
+  },
+  {
+   "in": "btn-pesquisar",
+   "out": "btn-pesquisar"
+  },
+  {
+   "in": "btnPesquisar",
+   "out": "btnPesquisar"
+  },
+  {
+   "in": "searchInput",
+   "out": "searchInput"
+  },
+  {
+   "in": "cliente-anacleto-prudencio",
+   "out": null
+  },
+  {
+   "in": "usuario_hermengarda",
+   "out": null
+  },
+  {
+   "in": "pedido_483192",
+   "out": null
+  },
+  {
+   "in": "pedido_12",
+   "out": "pedido_12"
+  },
+  {
+   "in": "estado",
+   "out": "estado"
+  },
+  {
+   "in": "cidade",
+   "out": "cidade"
+  },
+  {
+   "in": "cep",
+   "out": "cep"
+  },
+  {
+   "in": "q",
+   "out": "q"
+  },
+  {
+   "in": "nk:menu.item-2",
+   "out": null
+  },
+  {
+   "in": "menu item",
+   "out": null
+  },
+  {
+   "in": "user@host",
+   "out": null
+  },
+  {
+   "in": "Nome",
+   "out": "Nome"
+  },
+  {
+   "in": "nome",
+   "out": "nome"
+  },
+  {
+   "in": "consultar",
+   "out": "consultar"
+  },
+  {
+   "in": "r-consultar",
+   "out": null
+  },
+  {
+   "in": "s-campo",
+   "out": null
+  },
+  {
+   "in": "rot-fone",
+   "out": null
+  },
+  {
+   "in": "fone",
+   "out": "fone"
+  },
+  {
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": "ação",
+   "out": null
+  },
+  {
+   "in": "login-form",
+   "out": "login-form"
+  },
+  {
+   "in": "loginForm",
+   "out": "loginForm"
+  },
+  {
+   "in": "submitBtn",
+   "out": "submitBtn"
+  }
+ ],
+ "classes": [
+  {
+   "in": "btn btn-primary cliente-rosamunda-teixeira",
+   "out": "btn btn-primary"
+  },
+  {
+   "in": "cartao",
+   "out": null
+  },
+  {
+   "in": "ver",
+   "out": "ver"
+  },
+  {
+   "in": "hidden  active",
+   "out": "hidden active"
+  },
+  {
+   "in": "xyz123 abc",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
+  }
+ ],
+ "urls": [
+  {
+   "in": "https://sistema.exemplo/clientes/joao",
+   "out": "https://sistema.exemplo/clientes/{…}"
+  },
+  {
+   "in": "https://sistema.exemplo/clientes/joao-oliveira#aba-bonifacio",
+   "out": "https://sistema.exemplo/clientes/{…}"
+  },
+  {
+   "in": "http://127.0.0.1:18765/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo#ficha-ataulfo",
+   "out": "http://127.0.0.1:18765/{…}/{…}/clientes/{…}?cliente={…}"
+  },
+  {
+   "in": "http://127.0.0.1:18765/lab/chrome-security-001/urls.html",
+   "out": "http://127.0.0.1:18765/{…}/{…}/{…}"
+  },
+  {
+   "in": "https://app.exemplo/clientes/consulta?status=ativo&nome=Ana",
+   "out": "https://app.exemplo/clientes/consulta?status={…}&nome={…}"
+  },
+  {
+   "in": "https://user:pass@App.Exemplo:8443/pedidos/index.html?page=2",
+   "out": "https://app.exemplo:8443/pedidos/index.html?page={…}"
+  },
+  {
+   "in": "https://app.exemplo/relat%C3%B3rio/2024",
+   "out": "https://app.exemplo/relat%C3%B3rio/{…}"
+  },
+  {
+   "in": "https://app.exemplo/api/v2/clientes/483192",
+   "out": "https://app.exemplo/api/v2/clientes/{…}"
+  },
+  {
+   "in": "https://app.exemplo/",
+   "out": "https://app.exemplo/"
+  },
+  {
+   "in": "https://app.exemplo",
+   "out": "https://app.exemplo"
+  },
+  {
+   "in": "/api/clientes/sinfronio-lacerda?nome=Sinfronio",
+   "out": "/api/clientes/{…}?nome={…}"
+  },
+  {
+   "in": "/clientes?nome=ana&status=ativo",
+   "out": "/clientes?nome={…}&status={…}"
+  },
+  {
+   "in": "#/clientes/benvinda-guaraciaba",
+   "out": null
+  },
+  {
+   "in": "about:blank",
+   "out": "about:blank"
+  },
+  {
+   "in": "about:srcdoc",
+   "out": "about:srcdoc"
+  },
+  {
+   "in": "mailto:ana@exemplo.com",
+   "out": "mailto:{…}"
+  },
+  {
+   "in": "javascript:void(0)",
+   "out": "javascript:{…}"
+  },
+  {
+   "in": "data:text/html,oi",
+   "out": "data:{…}"
+  },
+  {
+   "in": "blob:https://x/1",
+   "out": "blob:{…}"
+  },
+  {
+   "in": "//cdn.exemplo/js/app.js",
+   "out": "//cdn.exemplo/js/app.js"
+  },
+  {
+   "in": "https://app.exemplo/a%2Fb/pedidos",
+   "out": "https://app.exemplo/{…}/pedidos"
+  },
+  {
+   "in": "https://app.exemplo/%E0%A4%A/x",
+   "out": "https://app.exemplo/{…}/{…}"
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": null,
+   "out": null
+  },
+  {
+   "in": "https://app.exemplo/login?redirect=https%3A%2F%2Fx&token=abc&lang=pt",
+   "out": "https://app.exemplo/login?token={…}"
+  }
+ ],
+ "expressions": [
+  {
+   "in": "//button[@data-customer='12345678900']",
+   "out": false
+  },
+  {
+   "in": "input[type=\"48291736455\"]",
+   "out": false
+  },
+  {
+   "in": "[data-customer=12345678900]",
+   "out": false
+  },
+  {
+   "in": "button:nth-child(12)",
+   "out": true
+  },
+  {
+   "in": "//html/body/div[123]/button[1]",
+   "out": true
+  },
+  {
+   "in": "html >> body >> div {nth-of-type 123}",
+   "out": true
+  },
+  {
+   "in": "input[maxlength='12']",
+   "out": true
+  },
+  {
+   "in": "button[aria-label='Consultar']",
+   "out": true
+  },
+  {
+   "in": "button[aria-label='Consultar cliente Bartolomeu Quixadá']",
+   "out": false
+  },
+  {
+   "in": "#pesquisar",
+   "out": true
+  },
+  {
+   "in": "#cliente-anacleto-prudencio",
+   "out": false
+  },
+  {
+   "in": "input[name=\"usuario_hermengarda\"]",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space()='Salvar']",
+   "out": true
+  },
+  {
+   "in": "//button[text()='Consultar João Oliveira']",
+   "out": false
+  },
+  {
+   "in": "[data-customer='joao-oliveira']",
+   "out": false
+  },
+  {
+   "in": "form > p:nth-of-type(3) > input",
+   "out": true
+  },
+  {
+   "in": "/html/body/main/form[1]/p[12]/input",
+   "out": true
+  },
+  {
+   "in": "button {name=\"Consultar\"}",
+   "out": true
+  },
+  {
+   "in": "section {has child <h2> \"ficha de luciola assumpcao\"} >> input {id=rua}",
+   "out": false
+  },
+  {
+   "in": "input {id=rua}",
+   "out": true
+  },
+  {
+   "in": "tr {row: \"Wenceslau Barbacena\"} >> button",
+   "out": false
+  },
+  {
+   "in": "input[type=submit]",
+   "out": true
+  },
+  {
+   "in": ".btn.btn-primary",
+   "out": true
+  },
+  {
+   "in": ".cliente-rosamunda-teixeira",
+   "out": false
+  },
+  {
+   "in": "a[href='/clientes/{…}']",
+   "out": false
+  },
+  {
+   "in": "//input[@id=//label[normalize-space(.)=\"Nome\"]/@for]",
+   "out": true
+  },
+  {
+   "in": "//input[@id=//label[normalize-space(.)=\"Nome do cliente João\"]/@for]",
+   "out": false
+  },
+  {
+   "in": "",
+   "out": true
+  },
+  {
+   "in": null,
+   "out": true
+  },
+  {
+   "in": "button[data-client^=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client~=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client|=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client$=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "input[aria-label*=gumercindo-tavares]",
+   "out": false
+  },
+  {
+   "in": "input[aria-label *= gumercindo-tavares]",
+   "out": false
+  },
+  {
+   "in": "button[data-client=joao-oliveira i]",
+   "out": false
+  },
+  {
+   "in": "button[data-client=\"Consultar\" i]",
+   "out": true
+  },
+  {
+   "in": "input[aria-label*='Consultar']",
+   "out": true
+  },
+  {
+   "in": "input[aria-label^=\"Consultar\"]",
+   "out": true
+  },
+  {
+   "in": "button[data-client=\"Salvar\\\" joao oliveira\"]",
+   "out": false
+  },
+  {
+   "in": "#\\6a oao-oliveira",
+   "out": false
+  },
+  {
+   "in": ".\\63 liente-joao",
+   "out": false
+  },
+  {
+   "in": "#\\70 esquisar",
+   "out": true
+  },
+  {
+   "in": "button\\:joao",
+   "out": false
+  },
+  {
+   "in": "button:not([data-client=joao-oliveira])",
+   "out": false
+  },
+  {
+   "in": "button:not(.btn)",
+   "out": false
+  },
+  {
+   "in": "button:contains(joao)",
+   "out": false
+  },
+  {
+   "in": "button::after",
+   "out": false
+  },
+  {
+   "in": "button[data-client=joao-oliveira],a",
+   "out": false
+  },
+  {
+   "in": "button, a",
+   "out": false
+  },
+  {
+   "in": "button /* joao oliveira */",
+   "out": false
+  },
+  {
+   "in": "button[data-joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-testid]",
+   "out": true
+  },
+  {
+   "in": "button[aria-label]",
+   "out": true
+  },
+  {
+   "in": "[data-client",
+   "out": false
+  },
+  {
+   "in": "button)",
+   "out": false
+  },
+  {
+   "in": "ficha-cliente-joao > button",
+   "out": false
+  },
+  {
+   "in": "eustaquio button",
+   "out": false
+  },
+  {
+   "in": "painel-cliente > button",
+   "out": true
+  },
+  {
+   "in": "div > *",
+   "out": true
+  },
+  {
+   "in": "*:nth-of-type(2)",
+   "out": true
+  },
+  {
+   "in": "button:nth-child(2n+1)",
+   "out": true
+  },
+  {
+   "in": "li:first-child",
+   "out": true
+  },
+  {
+   "in": "html > body > main:nth-of-type(1) > button",
+   "out": true
+  },
+  {
+   "in": "form ~ p + input",
+   "out": true
+  },
+  {
+   "in": "//ficha-cliente-joao/button",
+   "out": false
+  },
+  {
+   "in": "//button[@data-client=joao]",
+   "out": false
+  },
+  {
+   "in": "//button[starts-with(@data-client,'Consultar')]",
+   "out": false
+  },
+  {
+   "in": "//button[contains(@data-client,'joao')]",
+   "out": false
+  },
+  {
+   "in": "//*[@id='pesquisar']",
+   "out": true
+  },
+  {
+   "in": "//*[@id=\"pesquisar\"]",
+   "out": true
+  },
+  {
+   "in": "//button[@data-testid='salvar'][2]",
+   "out": true
+  },
+  {
+   "in": "//label[normalize-space(.)='Nome']/ancestor::form",
+   "out": false
+  },
+  {
+   "in": "//input[ancestor::label[normalize-space(.)=\"Nome\"]]",
+   "out": true
+  },
+  {
+   "in": "//section[h2[normalize-space(.)=\"Pagamentos\"]]//button",
+   "out": true
+  },
+  {
+   "in": "//section[h2[normalize-space(.)=\"Pagamentos de Joao\"]]//button",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space(.)=concat(\"Salvar\",'\"',\"agora\")]",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space(.)=concat(\"Salvar\",'\"',\"Joao\")]",
+   "out": false
+  },
+  {
+   "in": "//button | //a",
+   "out": false
+  },
+  {
+   "in": "button {aria-label=Consultar Joao Oliveira}",
+   "out": false
+  },
+  {
+   "in": "button {aria-label=Consultar}",
+   "out": true
+  },
+  {
+   "in": "button {data-client=joao}",
+   "out": false
+  },
+  {
+   "in": "ficha-cliente-joao >> button",
+   "out": false
+  },
+  {
+   "in": "* {has data-testid} >> button {nth-of-type 2}",
+   "out": true
+  },
+  {
+   "in": "* {has data-joao-oliveira}",
+   "out": false
+  },
+  {
+   "in": "section {has child <h2> \"Pagamentos\"} >> button",
+   "out": true
+  },
+  {
+   "in": "section {has child <ficha-joao> \"Pagamentos\"} >> button",
+   "out": false
+  },
+  {
+   "in": "button {label=\"Nome\"}",
+   "out": true
+  },
+  {
+   "in": "button {text=\"Salvar\"}",
+   "out": true
+  },
+  {
+   "in": "button {role=button} {name=\"Salvar\"}",
+   "out": true
+  },
+  {
+   "in": "button {role=gumercindo}",
+   "out": false
+  },
+  {
+   "in": "button {nth-of-type 123}",
+   "out": true
+  },
+  {
+   "in": "button {joao oliveira}",
+   "out": false
+  },
+  {
+   "in": "html >> body >> * {nth-child 3} >> button {nth-of-type 1}",
+   "out": true
+  },
+  {
+   "in": "html > body > *:nth-child(3) > button:nth-of-type(1)",
+   "out": true
+  },
+  {
+   "in": "/html/body/*[3]/button[1]",
+   "out": true
+  },
+  {
+   "in": "* {nth-child joao}",
+   "out": false
+  }
+ ],
+ "attributes": [
+  {
+   "name": "id",
+   "value": "pesquisar",
+   "tag": "input",
+   "type": "search",
+   "out": "pesquisar"
+  },
+  {
+   "name": "id",
+   "value": "cliente-anacleto-prudencio",
+   "tag": "button",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "name",
+   "value": "q",
+   "tag": "input",
+   "type": "search",
+   "out": "q"
+  },
+  {
+   "name": "name",
+   "value": "usuario_hermengarda",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "class",
+   "value": "btn cliente-rosamunda-teixeira",
+   "tag": "button",
+   "type": null,
+   "out": "btn"
+  },
+  {
+   "name": "type",
+   "value": "password",
+   "tag": "input",
+   "type": "password",
+   "out": "password"
+  },
+  {
+   "name": "role",
+   "value": "button",
+   "tag": "div",
+   "type": null,
+   "out": "button"
+  },
+  {
+   "name": "aria-expanded",
+   "value": "true",
+   "tag": "button",
+   "type": null,
+   "out": "true"
+  },
+  {
+   "name": "aria-valuenow",
+   "value": "3",
+   "tag": "span",
+   "type": null,
+   "out": "3"
+  },
+  {
+   "name": "tabindex",
+   "value": "0",
+   "tag": "span",
+   "type": null,
+   "out": "0"
+  },
+  {
+   "name": "autocomplete",
+   "value": "current-password",
+   "tag": "input",
+   "type": "password",
+   "out": "current-password"
+  },
+  {
+   "name": "type",
+   "value": "texto livre do cliente joão",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-label",
+   "value": "Pesquisar",
+   "tag": "button",
+   "type": null,
+   "out": "Pesquisar"
+  },
+  {
+   "name": "aria-label",
+   "value": "Consultar cliente Bartolomeu Quixadá",
+   "tag": "button",
+   "type": null,
+   "out": "{…}"
+  },
+  {
+   "name": "title",
+   "value": "Observação sobre Teodolinda Vasconi",
+   "tag": "input",
+   "type": "text",
+   "out": "{…}"
+  },
+  {
+   "name": "placeholder",
+   "value": "ex.: Filomena Zanatta",
+   "tag": "input",
+   "type": "text",
+   "out": "{…}"
+  },
+  {
+   "name": "placeholder",
+   "value": "Pesquisar",
+   "tag": "input",
+   "type": "search",
+   "out": "Pesquisar"
+  },
+  {
+   "name": "alt",
+   "value": "Foto de Cremilda Bastião",
+   "tag": "img",
+   "type": null,
+   "out": "{…}"
+  },
+  {
+   "name": "aria-description",
+   "value": "Conta",
+   "tag": "button",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "aria-valuetext",
+   "value": "Limite de Hortência Malaquias",
+   "tag": "span",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "value",
+   "value": "Entrar",
+   "tag": "input",
+   "type": "submit",
+   "out": "Entrar"
+  },
+  {
+   "name": "value",
+   "value": "Leocádia",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "value",
+   "value": "t1",
+   "tag": "option",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "value",
+   "value": "Pagar Leocádia",
+   "tag": "input",
+   "type": "submit",
+   "out": "{…}"
+  },
+  {
+   "name": "alt",
+   "value": "",
+   "tag": "img",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-label",
+   "value": "",
+   "tag": "button",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "role",
+   "value": "cliente-joao",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "role",
+   "value": "button",
+   "tag": "div",
+   "type": null,
+   "out": "button"
+  },
+  {
+   "name": "autocomplete",
+   "value": "joao oliveira",
+   "tag": "input",
+   "type": "text",
+   "out": ""
+  },
+  {
+   "name": "autocomplete",
+   "value": "shipping street-address",
+   "tag": "input",
+   "type": "text",
+   "out": "shipping street-address"
+  },
+  {
+   "name": "type",
+   "value": "48291736455",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "tabindex",
+   "value": "48291736455",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "tabindex",
+   "value": "-1",
+   "tag": "div",
+   "type": null,
+   "out": "-1"
+  },
+  {
+   "name": "target",
+   "value": "gumercindo_tavares",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "target",
+   "value": "_blank",
+   "tag": "a",
+   "type": null,
+   "out": "_blank"
+  },
+  {
+   "name": "lang",
+   "value": "gumercindo-tavares",
+   "tag": "p",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "lang",
+   "value": "pt-BR",
+   "tag": "p",
+   "type": null,
+   "out": "pt-BR"
+  },
+  {
+   "name": "aria-current",
+   "value": "gumercindo",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-current",
+   "value": "page",
+   "tag": "a",
+   "type": null,
+   "out": "page"
+  },
+  {
+   "name": "disabled",
+   "value": "gumercindo",
+   "tag": "button",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "width",
+   "value": "120px",
+   "tag": "img",
+   "type": null,
+   "out": "120px"
+  },
+  {
+   "name": "allow",
+   "value": "camera https://gumercindo.exemplo",
+   "tag": "iframe",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "scope",
+   "value": "gumercindo",
+   "tag": "th",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-labelledby",
+   "value": "rot-fone",
+   "tag": "input",
+   "type": "tel",
+   "out": ""
+  },
+  {
+   "name": "for",
+   "value": "nome",
+   "tag": "label",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "aria-controls",
+   "value": "lista",
+   "tag": "input",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "href",
+   "value": "/lab/chrome-security-001/clientes/ataulfo-marcondes.html?cliente=Ataulfo",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "src",
+   "value": "frames/ficha-gervasio-barros.html",
+   "tag": "iframe",
+   "type": null,
+   "out": "{…}/{…}"
+  },
+  {
+   "name": "action",
+   "value": "/api/clientes/sinfronio-lacerda",
+   "tag": "form",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "onclick",
+   "value": "abrir(\"joão\")",
+   "tag": "button",
+   "type": null,
+   "out": "[manipulador declarado]"
+  },
+  {
+   "name": "style",
+   "value": "color:red",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-cliente",
+   "value": "Eustáquio Marangoni",
+   "tag": "div",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "x-titular",
+   "value": "Clodomiro Ventania",
+   "tag": "span",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-testid",
+   "value": "btn-salvar",
+   "tag": "button",
+   "type": null,
+   "out": "btn-salvar"
+  },
+  {
+   "name": "data-testid",
+   "value": "linha-55821",
+   "tag": "tr",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "data-sitekey",
+   "value": "6Lc_abc",
+   "tag": "div",
+   "type": null,
+   "out": "[redacted]"
+  },
+  {
+   "name": "data-joao",
+   "value": "x",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "sandbox",
+   "value": "allow-scripts allow-same-origin",
+   "tag": "iframe",
+   "type": null,
+   "out": "allow-scripts allow-same-origin"
+  },
+  {
+   "name": "srcdoc",
+   "value": "<p>Cliente Zéfiro</p>",
+   "tag": "iframe",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "src",
+   "value": "http://127.0.0.1:18765/lab/frames/ficha-gervasio.html?cliente=Ana",
+   "tag": "iframe",
+   "type": null,
+   "out": "http://127.0.0.1:18765/{…}/{…}/{…}?cliente={…}"
+  },
+  {
+   "name": "src",
+   "value": "/img/foto-de-ana.png",
+   "tag": "img",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "slot",
+   "value": "cabecalho",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "slot",
+   "value": "cliente-anacleto",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "download",
+   "value": "contrato-ana.pdf",
+   "tag": "a",
+   "type": null,
+   "out": ""
+  },
+  {
+   "name": "loading",
+   "value": "lazy",
+   "tag": "iframe",
+   "type": null,
+   "out": "lazy"
+  },
+  {
+   "name": "rel",
+   "value": "noopener noreferrer",
+   "tag": "a",
+   "type": null,
+   "out": "noopener noreferrer"
+  }
+ ],
+ "carriers": [
+  {
+   "tag": "button",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "a",
+   "role": null,
+   "hasHref": true,
+   "out": true
+  },
+  {
+   "tag": "a",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "label",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "legend",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "summary",
+   "role": null,
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "div",
+   "role": "button",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "span",
+   "role": "link",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "li",
+   "role": "menuitem",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "div",
+   "role": "tab",
+   "hasHref": false,
+   "out": true
+  },
+  {
+   "tag": "td",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "th",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "p",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "h2",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "option",
+   "role": null,
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "option",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "alert",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "li",
+   "role": "option",
+   "hasHref": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "BUTTON extra",
+   "hasHref": false,
+   "out": true
+  }
+ ],
+ "tags": [
+  {
+   "in": "button",
+   "out": "button"
+  },
+  {
+   "in": "BUTTON",
+   "out": "button"
+  },
+  {
+   "in": "svg",
+   "out": "svg"
+  },
+  {
+   "in": "foreignObject",
+   "out": "foreignobject"
+  },
+  {
+   "in": "math",
+   "out": "math"
+  },
+  {
+   "in": "painel-cliente",
+   "out": "painel-cliente"
+  },
+  {
+   "in": "ficha-cliente-teodolinda",
+   "out": "custom-element"
+  },
+  {
+   "in": "ficha-cliente-joao",
+   "out": "custom-element"
+  },
+  {
+   "in": "nk-open-card",
+   "out": "custom-element"
+  },
+  {
+   "in": "eustaquio",
+   "out": "custom-element"
+  },
+  {
+   "in": "custom-element",
+   "out": "custom-element"
+  },
+  {
+   "in": "cliente-48291736455",
+   "out": "custom-element"
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": null,
+   "out": null
+  }
+ ]
+}

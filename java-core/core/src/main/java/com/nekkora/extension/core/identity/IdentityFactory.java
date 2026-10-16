@@ -97,7 +97,8 @@ public final class IdentityFactory {
         DocumentInfo doc = graph.model().snapshot().document();
         return new TargetIdentity(idGenerator.get(), TargetIdentity.SCHEMA_VERSION, clock.get(), originOf(doc),
                 sig, discriminators, lookalikes.size(), set, nodeId, doc == null ? null : doc.pageSessionId(),
-                captureId, history, warnings, com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
+                captureId, history, warnings, com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node),
+                NodeAnchor.of(graph, node));
     }
 
     private static String chainKey(ContextGraph graph, RawNode node) {
@@ -160,7 +161,7 @@ public final class IdentityFactory {
             return null;
         }
         try {
-            URI u = URI.create(doc.url());
+            URI u = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(doc.url()));
             return u.getScheme() + "://" + u.getAuthority() + (u.getPath() == null ? "" : u.getPath());
         } catch (IllegalArgumentException e) {
             return doc.url();

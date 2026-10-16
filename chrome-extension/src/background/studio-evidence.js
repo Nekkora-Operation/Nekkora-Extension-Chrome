@@ -201,12 +201,10 @@ export function createEvidencePipeline(deps) {
     return { availability: 'NONE', text: null };
   }
 
+  /** URL como MODELO (CHROME-SECURITY-001, D3): origem + segmentos do vocabulário; sem a política, nada sai. */
   function url(v) {
-    if (!v) {
-      return null;
-    }
-    const s = privacy() ? privacy().sanitizeUrl(String(v)) : null;
-    return s ? s.slice(0, 2000) : null;
+    const p = globalThis.NekkoraCapturePolicy;
+    return v && p ? p.urlTemplate(String(v)) : null;
   }
 
   function message(m) {

@@ -65,6 +65,20 @@ public abstract class LabIT {
         return lab.call("target.resolve", p, "targetId", targetId).get("result");
     }
 
+    /** Quantos elementos a página REAL tem para o seletor (documento principal). */
+    protected long liveCount(BrowserLab.Page p, String css) {
+        return ((Number) lab.js(p, "return document.querySelectorAll(arguments[0]).length", css)).longValue();
+    }
+
+    /**
+     * CHROME-SECURITY-001: o estado final da página está no mapa exportado — mesma quantidade de elementos {@code tag} que
+     * a página real — e o texto inserido não atravessou.
+     */
+    protected void assertExportedState(BrowserLab.Page p, com.fasterxml.jackson.databind.JsonNode map, String tag, String insertedText, String what) {
+        org.junit.jupiter.api.Assertions.assertEquals(liveCount(p, tag), com.nekkora.extension.it.support.Policy.countTag(map, tag), what);
+        org.junit.jupiter.api.Assertions.assertFalse(map.toString().contains(insertedText), "texto da página retido: " + insertedText);
+    }
+
     protected String nodeIdOf(BrowserLab.Page p, String css) {
         JsonNode r = lab.call("page.idFor", p, "css", css);
         assertEquals(1, r.path("count").asInt(), "esperado exatamente 1 elemento para " + css);

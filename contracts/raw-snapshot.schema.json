@@ -16,6 +16,10 @@
     "stats"
   ],
   "properties": {
+    "privacy": {
+      "const": "nekkora-privacy/2",
+      "description": "CHROME-SECURITY-001: política aplicada pelo content script (1ª barreira). O Native Host reaplica a mesma política na entrada, com ou sem esta declaração."
+    },
     "captureId": {
       "type": "string",
       "minLength": 1
@@ -39,7 +43,11 @@
           "type": "string"
         },
         "title": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "CHROME-SECURITY-001 (D4): só se o título inteiro for do vocabulário controlado; senão null."
         },
         "readyState": {
           "type": "string"
@@ -135,6 +143,14 @@
               "string",
               "null"
             ]
+          },
+          "registryEpoch": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9]{1,16}$",
+            "description": "D7 (CHROME-SECURITY-001): época do registro de nós do content script que produziu o documento; mesmo id de nó só prova o mesmo objeto DOM dentro da mesma época"
           }
         }
       }
@@ -364,7 +380,8 @@
         },
         "tag": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): nome do catálogo nekkora-html-elements/1 ou nome personalizado inteiro do vocabulário; senão o marcador neutro 'custom-element' (o nome real não atravessa)."
         },
         "frameId": {
           "type": "string"
@@ -387,7 +404,8 @@
         },
         "ownText": {
           "type": "string",
-          "maxLength": 500
+          "maxLength": 500,
+          "description": "CHROME-SECURITY-001: só metadado de interface do vocabulário controlado, dentro de um portador de nome; senão vazio."
         },
         "state": {
           "type": "object",
@@ -508,11 +526,53 @@
           }
         },
         "exposedValue": {
+          "type": "null",
+          "description": "Sempre null (CHROME-SECURITY-001): nenhum valor de campo sai da página, nem o de pesquisa."
+        },
+        "textPresent": {
           "type": [
-            "string",
+            "boolean",
             "null"
           ],
-          "maxLength": 200
+          "description": "CHROME-SECURITY-001: o elemento tem texto próprio na página (estrutura), mesmo que o conteúdo não tenha atravessado."
+        },
+        "textSuppressed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "CHROME-SECURITY-001: o texto existia e foi retido pela política."
+        },
+        "refs": {
+          "type": "object",
+          "description": "CHROME-SECURITY-001: relações declaradas por id (for, aria-labelledby, aria-controls…) resolvidas NA PÁGINA em ids temporários de nó; o valor do atributo não atravessa.",
+          "additionalProperties": {
+            "type": "array",
+            "maxItems": 16,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9:._-]{1,80}$"
+            }
+          }
+        },
+        "childPositions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): posição (base 1) de cada filho de childIds entre TODOS os filhos elemento do pai na página (:nth-child real, inclusive os não descritos); 0 = desconhecida. Fato estrutural, sem conteúdo."
+        },
+        "textRevision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "CHROME-SECURITY-001: quantas vezes o texto próprio mudou desde que a página o viu (fato estrutural; nem o texto nem resumo dele atravessam)."
         }
       }
     }

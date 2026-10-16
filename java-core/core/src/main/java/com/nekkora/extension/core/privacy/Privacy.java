@@ -342,7 +342,7 @@ public final class Privacy {
             return false;
         }
         try {
-            String host = java.net.URI.create(originOrUrl.strip()).getHost();
+            String host = java.net.URI.create(CapturePrivacyPolicy.forUri(originOrUrl.strip())).getHost();
             return "127.0.0.1".equals(host) || "localhost".equalsIgnoreCase(host);
         } catch (IllegalArgumentException e) {
             return false;

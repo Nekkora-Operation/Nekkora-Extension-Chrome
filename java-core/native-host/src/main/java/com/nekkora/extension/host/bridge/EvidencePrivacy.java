@@ -80,7 +80,7 @@ final class EvidencePrivacy {
     private static void url(ObjectNode o, String field) {
         JsonNode v = o.get(field);
         if (v != null && v.isTextual()) {
-            String s = Privacy.sanitizeUrl(v.asText());
+            String s = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.urlTemplate(v.asText()); // CHROME-SECURITY-001: modelo
             if (s == null) {
                 o.putNull(field);
             } else {

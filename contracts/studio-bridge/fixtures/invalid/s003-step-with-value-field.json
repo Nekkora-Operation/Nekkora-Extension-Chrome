@@ -24,7 +24,7 @@
       "locators": [
         {
           "strategy": "LABEL",
-          "description": "campo \"Senha\"",
+          "description": "input {label=\"Senha\"}",
           "css": null,
           "xpath": "//input[@type='password']",
           "matchCount": 1,
@@ -37,7 +37,7 @@
       "accessPath": [
         {
           "type": "MAIN_DOCUMENT",
-          "label": "Login de teste",
+          "label": "Login",
           "locator": null,
           "restriction": null
         },
@@ -64,8 +64,8 @@
       "value": "s3nh@"
     },
     "context": {
-      "url": "http://127.0.0.1:18765/lab/studio003/login.html",
-      "title": "Login de teste",
+      "url": "http://127.0.0.1:18765/{…}/{…}/login.html",
+      "title": "Login",
       "frame": "MAIN"
     },
     "evidence": [

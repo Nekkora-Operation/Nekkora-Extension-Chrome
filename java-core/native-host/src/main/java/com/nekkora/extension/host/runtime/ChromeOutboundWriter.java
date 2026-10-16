@@ -88,7 +88,7 @@ public final class ChromeOutboundWriter implements AutoCloseable {
                 }
             } catch (IOException e) {
                 failed = true; // Chrome fechou a porta: o leitor verá o fim do fluxo
-                LOG.log(Level.WARNING, "Falha ao escrever para o Chrome", e);
+                LOG.log(Level.WARNING, "Falha ao escrever para o Chrome", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             } finally {
                 lock.lock();
                 try {

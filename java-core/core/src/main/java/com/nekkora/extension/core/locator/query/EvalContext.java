@@ -59,6 +59,27 @@ public final class EvalContext {
         return roleNameIndex.getOrDefault(scopeId + "|" + role + "|" + name, java.util.List.of());
     }
 
+    /**
+     * Posição base 1 do nó entre TODOS os irmãos elemento, como a página informou ({@code childPositions} do pai); -1
+     * quando não é conhecida (captura antiga, filho de frame anexado). Nunca é recalculada pelo motor: a captura não
+     * descreve todos os filhos ({@code script}, {@code style}…), e a contagem do motor divergiria da do navegador.
+     */
+    public int nthChild(RawNode node) {
+        if (node.parentId() == null) {
+            return node.tag().equals("html") ? 1 : -1;
+        }
+        RawNode parent = model.find(node.parentId()).orElse(null);
+        if (parent == null || parent.childPositions() == null) {
+            return -1;
+        }
+        int i = parent.childIds().indexOf(node.id());
+        if (i < 0) {
+            return -1;
+        }
+        int p = parent.childPositions().get(i);
+        return p > 0 ? p : -1;
+    }
+
     /** Posição base 1 do nó entre os irmãos de mesma tag no mesmo escopo. */
     public int nthOfType(RawNode node) {
         return nthCache.computeIfAbsent(node.id(), k -> {

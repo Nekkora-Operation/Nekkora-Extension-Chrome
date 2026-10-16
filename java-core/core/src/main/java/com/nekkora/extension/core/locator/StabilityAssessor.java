@@ -75,6 +75,9 @@ public final class StabilityAssessor {
                 } else if (p instanceof Predicate.NthOfType) {
                     partial = StabilityLevel.HEURISTIC_UNSTABLE;
                     reasons.add("depende de posição (nth-of-type)");
+                } else if (p instanceof Predicate.NthChild) {
+                    partial = StabilityLevel.HEURISTIC_UNSTABLE;
+                    reasons.add("depende de posição (nth-child)");
                 } else {
                     partial = StabilityLevel.HEURISTIC_STABLE;
                 }

@@ -109,7 +109,8 @@ class Chrome002ReviewIT extends SessionIT {
         assertTrue(retry.get("complete").asBoolean());
         assertFalse(retry.get("duplicate").asBoolean(), "a falha não foi memorizada");
         assertEquals("SYNCHRONIZED", retry.get("syncState").asText());
-        assertTrue(Files.readString(Path.of(retry.get("path").asText())).contains("Detalhar 1"));
+        assertExportedState(p, new com.fasterxml.jackson.databind.ObjectMapper().readTree(Files.readString(Path.of(retry.get("path").asText()))),
+                "tr", "Detalhar 1", "linha da gravação no arquivo exportado");
         assertEquals(before + 1, exportedFiles());
         assertTrue(recording("finished", "rec-r02", p).get("duplicate").asBoolean());
     }
@@ -138,7 +139,9 @@ class Chrome002ReviewIT extends SessionIT {
         JsonNode r = recording("finished", "rec-r03", p);
         assertEquals("EXPORTED", r.get("status").asText(), r.toString());
         String file = Files.readString(Path.of(r.get("path").asText()));
-        assertTrue(file.contains("Detalhar 1") && file.contains("Detalhar 2"), "mutações de antes e depois do reinício");
+        // as duas linhas (antes e depois do reinício) estão no arquivo; o texto delas não
+        assertEquals(liveCount(p, "#historico tbody tr"), 2, "a página tem as duas linhas");
+        assertExportedState(p, new com.fasterxml.jackson.databind.ObjectMapper().readTree(file), "tr", "Detalhar", "mutações de antes e depois do reinício");
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> session(p).isMissingNode() || session(p).isNull(), "sessão liberada");
     }
 

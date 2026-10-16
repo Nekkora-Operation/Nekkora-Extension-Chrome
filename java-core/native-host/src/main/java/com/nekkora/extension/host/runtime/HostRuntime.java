@@ -114,7 +114,7 @@ public final class HostRuntime {
             try {
                 raw = codec.read();
             } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Fluxo de entrada inválido; encerrando", e);
+                LOG.log(Level.SEVERE, "Fluxo de entrada inválido; encerrando", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
                 break;
             }
             if (raw == null) {
@@ -136,11 +136,11 @@ public final class HostRuntime {
             try {
                 assembled = chunks.accept(mapper.readTree(raw), System.currentTimeMillis());
             } catch (ProtocolException e) {
-                LOG.log(Level.WARNING, "Fragmento recusado", e);
+                LOG.log(Level.WARNING, "Fragmento recusado", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
                 writer.submit(processor.failure(null, null, e.code(), e.getMessage()), ChromeOutboundWriter.Lane.ENGINE);
                 return;
             } catch (IOException e) {
-                writer.submit(processor.failure(null, null, "BAD_JSON", e.getMessage()), ChromeOutboundWriter.Lane.ENGINE);
+                writer.submit(processor.failure(null, null, "BAD_JSON", LogSafety.jsonProblem(e)), ChromeOutboundWriter.Lane.ENGINE);
                 return;
             }
             if (assembled == null) {
@@ -170,7 +170,7 @@ public final class HostRuntime {
         try {
             msg = mapper.readTree(raw);
         } catch (IOException e) {
-            writer.submit(processor.failure(null, type, "BAD_JSON", e.getMessage()), ChromeOutboundWriter.Lane.CONTROL);
+            writer.submit(processor.failure(null, type, "BAD_JSON", LogSafety.jsonProblem(e)), ChromeOutboundWriter.Lane.CONTROL);
             return;
         }
         StudioChannel channel = studio;
@@ -197,7 +197,7 @@ public final class HostRuntime {
                     LOG.warning("Mensagem do Studio desconhecida ignorada: " + type);
                 }
             } catch (RuntimeException e) {
-                LOG.log(Level.SEVERE, "Falha no canal do Studio (" + type + ")", e);
+                LOG.log(Level.SEVERE, "Falha no canal do Studio (" + type + ")", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             }
         });
     }
@@ -234,7 +234,7 @@ public final class HostRuntime {
             try {
                 channel.shutdown("CHROME_DISCONNECTED");
             } catch (RuntimeException e) {
-                LOG.log(Level.WARNING, "Falha ao encerrar o canal do Studio", e);
+                LOG.log(Level.WARNING, "Falha ao encerrar o canal do Studio", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             }
         }
         control.shutdown();

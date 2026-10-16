@@ -13,6 +13,8 @@
  *   studio-recording gravação técnica controlada pelo Studio (consumidor próprio, concessão, sem exportação)
  */
 import '../shared/privacy.js';
+import '../shared/ui-vocabulary.js';
+import '../shared/capture-policy.js';
 import { client, host, toContent, tabKey, broadcast, eventLog, isAllowedUrl, assertAllowed, errorInfo, HostError } from './runtime.js';
 import * as policy from './access-policy.js';
 import * as injection from './injection.js';
@@ -174,6 +176,8 @@ const commands = {
   'studio.link.get': async () => studioLink.describe(),
   'studio.link.set': async (a) => studioLink.setEnabled(!!a.enabled),
   'studio.recordings': async () => studioRecording.list(),
+  // DEV (testes): referência opaca da aba para o Studio — o título deixou de identificar a aba (CHROME-SECURITY-001, D4)
+  'studio.tabRef': async (a) => ({ tabRef: studioRecording.tabRef(a.tabId) }),
   /** Medições do pipeline de etapas (harness/diagnóstico): contagens e latências, sem conteúdo da página. */
   'studio.steps.metrics': async (a) => studioRecording.stepMetrics(a.recordingId),
   'studio.evidence.metrics': async (a) => studioRecording.evidenceMetrics(a.recordingId),
@@ -262,6 +266,10 @@ const commands = {
       } else {
         after = (await inspection.captureOnce(a.tabId)).captureId;
       }
+    }
+    // CHROME-SECURITY-001: hooks de teste são valores da página — lidos somente em DEV
+    if (a.readHooks) {
+      config.assertCommandAllowed('testHooks.read');
     }
     const instrumentation = a.readHooks ? await readTestHooks(a.tabId) : null;
     return host('interaction.observe', { tabKey: tabKey(a.tabId), beforeCaptureId: a.beforeCaptureId, afterCaptureId: after, instrumentation });
@@ -388,9 +396,9 @@ for (const evt of ['onHistoryStateUpdated', 'onReferenceFragmentUpdated']) {
       return;
     }
     const kind = evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT';
-    broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraPrivacy.sanitizeUrl(d.url), at: Date.now(), transitionType: d.transitionType });
+    broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraCapturePolicy.urlTemplate(d.url), at: Date.now(), transitionType: d.transitionType });
     ready.then(() => {
-      studioRecording.onNavigation(d.tabId, kind, globalThis.NekkoraPrivacy.sanitizeUrl(d.url));
+      studioRecording.onNavigation(d.tabId, kind, globalThis.NekkoraCapturePolicy.urlTemplate(d.url));
       return capture.onNavigation(d.tabId, kind);
     }).catch(() => {});
   }, HTTP_FILTER);

@@ -83,9 +83,9 @@ class TargetResolverTest {
             assertEquals(ResolutionStatus.RESOLVED, r.status(), String.join("\n", r.evidence()));
             assertEquals(h.idOf("input"), r.resolvedNodeId());
             assertTrue(r.attributeChanges().containsKey("id"));
-            LocatorDescriptor byId = r.updatedLocators().all().stream()
-                    .filter(d -> d.strategy() == LocatorStrategyKind.ID).findFirst().orElseThrow();
-            assertEquals(StabilityLevel.OBSERVED_UNSTABLE, byId.stability(), "instabilidade comprovada por observação");
+            // CHROME-SECURITY-001 (P1-02): o id dinâmico (sufixo numérico longo) não é transportável — não há localizador ID
+            // a reavaliar; a instabilidade fica no histórico de atributos, e o principal nunca é o id
+            assertTrue(r.updatedLocators().all().stream().noneMatch(d -> d.strategy() == LocatorStrategyKind.ID), r.updatedLocators().all().toString());
             assertNotEquals(LocatorStrategyKind.ID, r.updatedLocators().primary().strategy());
             id = r.updatedIdentity();
         }

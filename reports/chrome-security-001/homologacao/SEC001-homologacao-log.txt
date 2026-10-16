@@ -1,0 +1,96 @@
+Tela: java.awt.Rectangle[x=0,y=0,width=1920,height=1032] · java 21.0.12
+Modo: completo (extensão, host e Studio da CHROME-SECURITY-001)
+Canários verificados: 64
+Native Host instalado pelo script oficial (install-host.ps1)
+Chrome for Testing: 155.0.8059.39
+OK    Conexão autenticada Studio ⇄ host ⇄ extensão
+  política declarada no hello: nekkora-privacy/2 · status: Navegador: conectado (Nekkora Extension 0.4.0)
+OK    Cenário 8a: extensão nova declara nekkora-privacy/2 e o Studio a aceita sem aviso
+  aba da gravação no Studio: título=127.0.0.1 host=127.0.0.1
+  Autenticação: [Preencher campo Usuário, Preencher campo Senha, Clicar no botão Entrar]
+  Consulta: [Clicar no link Clientes, Preencher campo Pesquisa, Selecionar opção no campo Estado, Clicar no botão Pesquisar]
+  tipos: [FILL, FILL, CLICK, CLICK, FILL, SELECT_OPTION, CLICK]
+OK    Cenário 1: Autenticação = preencher, preencher, clicar
+OK    Cenário 1: Consulta = clicar (link), preencher (pesquisa), selecionar opção, clicar (Pesquisar)
+OK    Cenário 1: senha marcada como sensível e sem valor
+OK    Cenário 1: opção escolhida não veio da extensão (OPTION_WITHHELD); a escolha é configurada no Studio
+captura SEC001-01-processo-completo.png (1920x1000)
+OK    Cenário 1: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 1: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+  Nomes: [Clicar no botão, Preencher campo]
+OK    Cenário 2: botão 'Consultar cliente Bartolomeu Quixadá' vira etapa com descrição segura (sem o nome do cliente)
+OK    Cenário 2: campo rotulado por 'telefone de …' (aria-labelledby) sem o rótulo privado
+captura SEC001-02-nome-sensivel.png (1920x1000)
+OK    Cenário 2: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 2: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+  endereços no Studio: [http://127.0.0.1:18765/{…}/{…}/{…}, Navigation[newDocument=false, url=http://127.0.0.1:18765/{…}/{…}/clientes/{…}], null, null, http://127.0.0.1:18765/{…}/{…}/clientes/{…}, Navigation[newDocument=false, url=http://127.0.0.1:18765/{…}/{…}/clientes/{…}], null, null, http://127.0.0.1:18765/{…}/{…}/clientes/{…}, null, Navigation[newDocument=true, url=http://127.0.0.1:18765/{…}/{…}/clientes/{…}?cliente={…}]]
+OK    Cenário 3: rota (History API), fragmento e novo documento sem identificadores privados no Studio
+OK    Cenário 3: título/host da aba no Studio sem dado do documento
+captura SEC001-03-urls.png (1920x1000)
+OK    Cenário 3: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 3: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+OK    Cenário 4: a página real mostra os textos dinâmicos (o teste é significativo)
+  captura completa: 1279 B; sincronização: {"ok":true,"result":{"geometryRefreshes":0,"geometryChanged":0,"geometryUpdates":0,"largeSubtreeScans":0,"deltasSent":2,"rawMutations":3,"batches":2,"ignored":0,"failures":0,"lastDeltaMs":0.4,"maxDelt
+OK    Cenário 4: snapshot (completo + deltas aplicados) sem os textos dinâmicos
+OK    Cenário 4: resposta da captura sem conteúdo da página
+OK    Cenário 4: eventLog do service worker sem conteúdo da página
+OK    Cenário 4: estado de depuração da sessão de captura sem conteúdo da página
+OK    Cenário 4: logs e arquivos do Native Host sem conteúdo da página
+OK    Cenário 4: snapshot declara a política nekkora-privacy/2
+  PageMap exportado: C:\Users\nicol\nekkora\Nekkora-Extension-Chrome\reports\chrome-security-001\homologacao\host-data\pagemaps\cap-ps-mvazux3q-20lrhf-1.json
+OK    Cenário 5: arquivo exportado examinado inteiro: nenhum dado fictício da página
+OK    Cenário 5: PageMap 0.3.0 com a política declarada
+  tamanho do PageMap exportado: 100048 caracteres
+  service worker encerrado (238208C3BF2577704774CB61502FB668)
+  service worker depois: 9FD4663862E2CA3C1510F51C85DEDF3A
+  Recuperação: [Preencher campo Nome, Clicar no botão, Clicar no botão, Clicar no botão]
+OK    Cenário 6: nenhuma etapa duplicada ou reenviada depois do reinício e da reconexão
+OK    Cenário 6: chrome.storage (session e local) sem dados da página nem valores digitados
+OK    Cenário 6: eventLog depois da recuperação sem dados da página
+OK    Cenário 6: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 6: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+captura SEC001-06-recuperacao.png (1920x1000)
+  iframe autorizado: CLICK «Clicar no botão» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=TEXT, description=button {text="Aprovar"}, expression=//button[normalize-space(.)="Aprovar"], stability=HEURISTIC_STABLE, matchCount=1, matchesTarget=true] trajetória=3 passo(s) notas=[Localizador preferencial executado na página real e único] política=nekkora-privacy/2
+  Shadow DOM: CLICK «Clicar no botão» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=POSITIONAL, description=button {nth-of-type 1}, expression=button:nth-of-type(1), stability=HEURISTIC_UNSTABLE, matchCount=1, matchesTarget=true] trajetória=3 passo(s) notas=[Localizador preferencial executado na página real e único] política=nekkora-privacy/2
+  tabela (2ª linha, botão sem id): CLICK «Clicar no botão Visualizar» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=POSITIONAL, description=html >> body >> table {nth-of-type 1} >> tbody {nth-of-type 1} >> tr {nth-of-type 2} >> td {nth-of-type 3} >> button {nth-of-type 1}, expression=html > body > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(2) > td:nth-of-type(3) > button:nth-of-type(1), stability=HEURISTIC_UNSTABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único, 1 elemento(s) parecido(s) na página] política=nekkora-privacy/2
+  componente dinâmico: CLICK «Clicar no botão» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=POSITIONAL, description=html >> body >> p {nth-of-type 3} >> button {nth-of-type 2}, expression=html > body > p:nth-of-type(3) > button:nth-of-type(2), stability=HEURISTIC_UNSTABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único] política=nekkora-privacy/2
+OK    Cenário 7: iframe → trajetória com IFRAME, nome privado ('Aprovar Genésio Furtado') retido
+OK    Cenário 7: Shadow DOM → trajetória com SHADOW_ROOT, nome privado retido
+OK    Cenário 7: tabela → linha não identificada por texto (nenhum localizador com o titular/pedido)
+OK    Cenário 7: nenhum localizador preferido inventado — todo preferido é validado; sem localizador seguro, limitação declarada
+captura SEC001-07-elementos-dificeis.png (1920x1000)
+OK    Cenário 7: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 7: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+  resolvedNodeId=null updatedLocators=null updatedIdentity=null
+  resolução depois da virtualização: status=AMBIGUOUS continuidade={"status":"LIVE_NODE_CONTINUITY","nodeId":"n23","proof":["mesma época do registro de nós (5ametas5ra)","mesmo frame e escopo","mesmo tipo e tag"],"limitations":["LOGICAL_IDENTITY_NOT_REVALIDATED","ROW_CONTENT_CHANGED: a linha/item foi reaproveitada ou alterada (virtualização?)"]}
+OK    Cenário 9 (D7): mesmo objeto DOM — LIVE_NODE_CONTINUITY com ROW_CONTENT_CHANGED (mudança observada por contadores, sem texto)
+OK    Cenário 9 (D7): nenhum texto ou identificador da linha no resultado
+OK    Cenário 9 (D7): continuidade não autoriza uso — identidade lógica não confirmada, sem nó resolvido nem localizador novo
+OK    Cenário 9 (D7): nenhum destaque de alvo confirmado
+captura SEC001-09-continuidade.png (1920x1000)
+  botão em <ficha-cliente-teodolinda>: CLICK «Clicar no botão Consultar» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=TEXT, description=button {text="Consultar"}, expression=//button[normalize-space(.)="Consultar"], stability=HEURISTIC_STABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único] política=nekkora-privacy/2
+  <acao-teodolinda-ramos role=button>: CLICK «Clicar no botão Salvar» tipo=BUTTON tag=custom-element preferido=LocatorCandidate[strategy=POSITIONAL, description=html >> body >> p {nth-of-type 2} >> * {nth-child 1}, expression=html > body > p:nth-of-type(2) > :nth-child(1), stability=HEURISTIC_UNSTABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único, 1 elemento(s) parecido(s) na página] política=nekkora-privacy/2
+  botão no Shadow DOM de <cartao-teodolinda-viana>: CLICK «Clicar no botão Abrir» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=POSITIONAL, description=button {nth-of-type 1}, expression=button:nth-of-type(1), stability=HEURISTIC_UNSTABLE, matchCount=1, matchesTarget=true] trajetória=3 passo(s) notas=[Localizador preferencial executado na página real e único, 1 elemento(s) parecido(s) na página] política=nekkora-privacy/2
+  botão em <painel-cliente>: CLICK «Clicar no botão Abrir» tipo=BUTTON tag=button preferido=LocatorCandidate[strategy=ID, description=button {id=no-painel}, expression=button#no-painel, stability=HEURISTIC_STABLE, matchCount=1, matchesTarget=true] trajetória=2 passo(s) notas=[Localizador preferencial executado na página real e único, 1 elemento(s) parecido(s) na página] política=nekkora-privacy/2
+OK    Cenário 10: nomes de componente fictícios ('teodolinda') não chegam ao Studio — nem na tag, nem em localizadores ou trajetórias
+OK    Cenário 10: o componente clicado aparece com o marcador neutro (custom-element), sem o nome real
+OK    Cenário 10: Shadow DOM de componente com nome retido → trajetória com SHADOW_ROOT preservada
+OK    Cenário 10: motor (inspeção, identidade, localizadores) sem os nomes fictícios; componente do vocabulário ('painel-cliente') mantido
+OK    Cenário 10: localizador do hospedeiro do Shadow DOM sem o nome, pela posição real entre os irmãos (:nth-child)
+OK    Cenário 10: PageMap exportado e arquivos do host sem os nomes fictícios
+OK    Cenário 10: consulta de nó (page.nodeInfo) sem texto nem nome da página
+OK    Cenário 10: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Cenário 10: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+captura SEC001-10-componentes.png (1920x1000)
+captura SEC001-08-resumo.png (400x551)
+OK    Final: domínio da automação e tela do Studio sem dados da página nem valores digitados
+OK    Final: armazenamento da extensão e logs/arquivos do host sem dados da página nem valores digitados
+captura SEC001-11-automacao-final.png (1920x1000)
+Automação final:
+  Sessão Autenticação: [Preencher campo Usuário, Preencher campo Senha, Clicar no botão Entrar]
+  Sessão Consulta: [Clicar no link Clientes, Preencher campo Pesquisa, Selecionar opção no campo Estado, Clicar no botão Pesquisar]
+  Sessão Nomes: [Clicar no botão, Preencher campo, Clicar no botão, Clicar no botão, Clicar no link, Clicar no botão Carregar cliente, Clicar no botão]
+  Sessão Recuperação: [Preencher campo Nome, Clicar no botão, Clicar no botão, Clicar no botão]
+  Sessão Elementos difíceis: [Clicar no botão, Clicar no botão, Clicar no botão Visualizar, Clicar no botão, Clicar no botão]
+  Sessão Componentes: [Clicar no botão Consultar, Clicar no botão Salvar, Clicar no botão Abrir, Clicar no botão Abrir]
+RESULTADO: 51 verificações, 0 falha(s)

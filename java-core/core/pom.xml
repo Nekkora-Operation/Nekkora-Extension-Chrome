@@ -36,6 +36,18 @@
   </dependencies>
 
   <build>
+    <resources>
+      <!-- CHROME-SECURITY-001: vocabulário controlado da política nekkora-privacy/2 (fonte única: contracts/privacy). -->
+      <resource>
+        <directory>${project.basedir}/../../contracts/privacy</directory>
+        <targetPath>contracts/privacy</targetPath>
+        <includes>
+          <include>ui-vocabulary.json</include>
+          <include>structural-attributes.json</include>
+          <include>html-elements.json</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

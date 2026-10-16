@@ -31,13 +31,13 @@ test('sensitive fields are detected in the browser layer', () => {
   assert.equal(p.isSensitive(el('input', { name: 'cidade' })), false);
 });
 
-test('only search fields expose values; value attributes of text inputs are dropped', () => {
+test('SEC001-004: no field exposes its value (not even search fields); value attributes of text inputs are dropped', () => {
   const { NekkoraCS } = load('content/ns.js', 'content/sensitivity.js');
   const p = NekkoraCS.sensitivity;
-  assert.equal(p.isSearchField(el('input', { type: 'search' })), true);
-  assert.equal(p.isSearchField(el('input', { type: 'text', name: 'pesquisa' })), true);
-  assert.equal(p.isSearchField(el('input', { type: 'text', name: 'nome' })), false);
-  assert.equal(p.isSearchField(el('input', { type: 'search', name: 'token' })), false, 'campo sensível nunca expõe valor');
+  // CHROME-SECURITY-001: a antiga exceção dos campos de pesquisa (o termo pesquisado saía como exposedValue) foi removida
+  assert.equal(p.isSearchField, undefined, 'nenhuma exceção de exposição para campos de pesquisa');
+  const capture = readFileSync(new URL('../src/content/capture.js', import.meta.url), 'utf8');
+  assert.match(capture, /const exposedValue = null;/, 'a captura nunca preenche exposedValue');
   assert.equal(p.valueAttributeAllowed(el('input', { type: 'text' })), false);
   assert.equal(p.valueAttributeAllowed(el('input', { type: 'submit' })), true);
   assert.equal(p.valueAttributeAllowed(el('option')), true);

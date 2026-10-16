@@ -441,7 +441,7 @@ public final class ProtectionDetector {
         String path = null;
         if (url != null) {
             try {
-                URI u = URI.create(url.replace(" ", "%20"));
+                URI u = URI.create(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.forUri(url));
                 host = u.getHost() == null ? null : u.getHost().toLowerCase(Locale.ROOT);
                 path = u.getRawPath();
             } catch (IllegalArgumentException ignored) {

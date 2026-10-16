@@ -153,7 +153,7 @@
     const doc = el.ownerDocument || document;
     let url = null;
     try {
-      url = root.NekkoraPrivacy ? root.NekkoraPrivacy.sanitizeUrl(doc.location.href) : null;
+      url = root.NekkoraCapturePolicy ? root.NekkoraCapturePolicy.urlTemplate(doc.location.href) : null; // CHROME-SECURITY-001: modelo
     } catch (e) {
       url = null;
     }

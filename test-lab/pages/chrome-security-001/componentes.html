@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Componentes personalizados (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Componentes personalizados (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 15 (2ª revisão dos PRs #7). Nomes de elementos personalizados e de elementos desconhecidos montados
+    com nomes fictícios ("teodolinda", "eustaquio"). Um componente com nome do vocabulário ("painel-cliente") serve de
+    controle: esse nome pode atravessar.</p>
+
+  <!-- elemento personalizado no DOM claro, com controle dentro -->
+  <ficha-cliente-teodolinda id="ficha">
+    <button id="consultar-ficha" type="button">Consultar</button>
+  </ficha-cliente-teodolinda>
+
+  <!-- elemento personalizado clicável (o próprio componente é o alvo da etapa) -->
+  <p><acao-teodolinda-ramos id="acao" role="button" tabindex="0">Salvar</acao-teodolinda-ramos></p>
+
+  <!-- elemento desconhecido sem hífen (HTMLUnknownElement) -->
+  <eustaquio id="desconhecido"><button id="no-desconhecido" type="button">Salvar</button></eustaquio>
+
+  <!-- shadow root aberto num componente com nome fictício, aninhado em outro -->
+  <secao-teodolinda id="secao"><cartao-teodolinda-viana id="cartao"></cartao-teodolinda-viana></secao-teodolinda>
+
+  <!-- controle: nome inteiro do vocabulário -->
+  <painel-cliente id="painel"><button id="no-painel" type="button">Abrir</button></painel-cliente>
+
+  <p id="saida" role="status"></p>
+  <script>
+    customElements.define('cartao-teodolinda-viana', class extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' }).innerHTML = '<button id="no-cartao" type="button">Abrir</button>';
+      }
+    });
+    customElements.define('ficha-cliente-teodolinda', class extends HTMLElement {});
+    customElements.define('painel-cliente', class extends HTMLElement {});
+    const saida = document.getElementById('saida');
+    const ok = () => { saida.textContent = 'ok'; };
+    for (const b of document.querySelectorAll('button')) {
+      b.addEventListener('click', ok);
+    }
+    document.getElementById('cartao').shadowRoot.getElementById('no-cartao').addEventListener('click', ok);
+    const acao = document.getElementById('acao');
+    acao.addEventListener('click', ok);
+    acao.addEventListener('keydown', (e) => { if (e.key === 'Enter') ok(); });
+  </script>
+</body>
+</html>

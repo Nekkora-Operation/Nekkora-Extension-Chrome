@@ -22,7 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Chrome003IntegratedIT extends FrameIT {
 
     /** Expectativas de um cenário. */
-    private record Expect(String kind, String name, List<String> steps, int documents, String readiness, String protection) {
+    private record Expect(String kind, String name, List<String> steps, int documents, String readiness, String protection, boolean resolvable) {
+        Expect(String kind, String name, List<String> steps, int documents, String readiness, String protection) {
+            this(kind, name, steps, documents, readiness, protection, true);
+        }
     }
 
     private Map<String, Object> run(String id, Page p, String nodeId, Expect e) {
@@ -40,7 +43,8 @@ class Chrome003IntegratedIT extends FrameIT {
         JsonNode sel = selectNode(p, nodeId);
         JsonNode c = sel.at("/inspection/classification");
         assertEquals(e.kind(), c.get("kind").asText(), c.toString());
-        assertEquals(e.name(), c.at("/name/name").asText());
+        // CHROME-SECURITY-001: o nome é o resultado EXATO da política sobre o texto da página
+        assertEquals(com.nekkora.extension.it.support.Policy.name(e.name()), c.at("/name/name").asText());
         JsonNode fam = sel.at("/inspection/family");
         assertNotNull(fam);
         out.put("identificacao", Map.of("kind", c.get("kind"), "name", c.at("/name/name"), "targetId", sel.at("/identity/targetId"),
@@ -57,8 +61,14 @@ class Chrome003IntegratedIT extends FrameIT {
         out.put("trajetoria", path);
         // 7. reencontro
         JsonNode r = resolve(p, sel.at("/identity/targetId").asText());
-        assertEquals("RESOLVED", r.get("status").asText(), r.toString());
-        assertEquals(nodeId, r.get("resolvedNodeId").asText());
+        if (e.resolvable()) {
+            assertEquals("RESOLVED", r.get("status").asText(), r.toString());
+            assertEquals(nodeId, r.get("resolvedNodeId").asText());
+        } else {
+            // o que distinguia o alvo era só texto da página: ambiguidade DECLARADA, nunca outro elemento escolhido
+            assertTrue(java.util.Set.of("AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(r.get("status").asText()), r.toString());
+            assertTrue(r.path("resolvedNodeId").isNull() || nodeId.equals(r.path("resolvedNodeId").asText()), r.toString());
+        }
         out.put("reencontro", Map.of("status", r.get("status"), "score", r.get("score"), "evidence", r.get("evidence")));
         // 8. diagnóstico
         JsonNode d = diagnose(p);
@@ -86,8 +96,9 @@ class Chrome003IntegratedIT extends FrameIT {
     @DisplayName("I003-02 — Filiais idênticas: Aprovar da Filial Sul")
     void filiais() {
         Page p = openActive(FRAMES, 9);
+        // CHROME-SECURITY-001: as filiais só se distinguiam por "Filial Sul"/"#filial-sul" (fora do vocabulário)
         run("I003-02", p, idIn(p, "button", "FRAME", "#filial-sul iframe"), new Expect("BUTTON", "Aprovar",
-                List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 10, "REQUIRES_SPECIAL_HANDLING", "NOT_OBSERVED"));
+                List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 10, "REQUIRES_SPECIAL_HANDLING", "NOT_OBSERVED", false));
     }
 
     @Test
@@ -102,26 +113,23 @@ class Chrome003IntegratedIT extends FrameIT {
     @DisplayName("I003-04 — Outra origem permitida: Relatórios → Gráficos → Shadow DOM → Exportar gráfico")
     void relatorios() {
         Page p = openActive(ORIGINS, 5);
-        waitGraph(p, x -> frameTitled(x, "Gráficos") != null && "INSPECTED".equals(frameTitled(x, "Gráficos").get("status").asText()), "Gráficos");
-        String id = null;
-        for (JsonNode e : exportMap(p).get("elements")) {
-            if ("Exportar gráfico".equals(e.at("/text/accessibleName").asText())) {
-                id = e.get("nodeId").asText();
-            }
-        }
+        JsonNode g = waitGraph(p, x -> onlyChildFrame(x, frameTitled(p, x, "Relatórios")) != null
+                && "INSPECTED".equals(onlyChildFrame(x, frameTitled(p, x, "Relatórios")).get("status").asText()), "Gráficos");
+        String id = onlyShadowButton(exportMap(p), onlyChildFrame(g, requireFrame(p, g, "Relatórios")).get("frameId").asText());
         assertNotNull(id);
+        // CHROME-SECURITY-001: o único traço próprio do botão era o nome "Exportar gráfico" (fora do vocabulário)
         run("I003-04", p, id, new Expect("BUTTON", "Exportar gráfico", List.of("MAIN_DOCUMENT", "IFRAME", "IFRAME", "SHADOW_ROOT", "ELEMENT"),
-                6, "REQUIRES_SPECIAL_HANDLING", "NOT_OBSERVED"));
+                6, "REQUIRES_SPECIAL_HANDLING", "NOT_OBSERVED", false));
     }
 
     @Test
     @DisplayName("I003-05 — SPA: Salvar do iframe Cadastro após re-renderização (frame reconstruído)")
     void spa() {
         Page p = openActive(DYNAMIC, 5);
-        String before = requireFrame(graph(p), "Cadastro").get("hostNodeId").asText();
+        String before = requireFrame(p, graph(p), "Cadastro").get("hostNodeId").asText();
         act(p, "spa");
-        waitGraph(p, x -> frameTitled(x, "Cadastro") != null && !before.equals(frameTitled(x, "Cadastro").get("hostNodeId").asText())
-                && "INSPECTED".equals(frameTitled(x, "Cadastro").get("status").asText()), "Cadastro recriado");
+        waitGraph(p, x -> frameTitled(p, x, "Cadastro") != null && !before.equals(frameTitled(p, x, "Cadastro").get("hostNodeId").asText())
+                && "INSPECTED".equals(frameTitled(p, x, "Cadastro").get("status").asText()), "Cadastro recriado");
         run("I003-05", p, idIn(p, "button[type=submit]", "FRAME", "#spa-root iframe"), new Expect("BUTTON", "Salvar",
                 List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 6, "MANAGEABLE", "NOT_OBSERVED"));
     }
@@ -131,7 +139,7 @@ class Chrome003IntegratedIT extends FrameIT {
     void aboutBlank() {
         Page p = openActive(DYNAMIC, 5);
         run("I003-06", p, idIn(p, "button", "FRAME", "#f-branco"), new Expect("BUTTON", "Guardar nota",
-                List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 6, "MANAGEABLE", "NOT_OBSERVED"));
+                List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 6, "MANAGEABLE", "NOT_OBSERVED", false)); // nome fora do vocabulário, sem id
     }
 
     @Test
@@ -159,7 +167,7 @@ class Chrome003IntegratedIT extends FrameIT {
     void challengePage() {
         Page p = openActive(PROTECTION + "p04-challenge-page.html", 0);
         Map<String, Object> out = run("I003-09", p, nodeIdOf(p, "#caixa"), new Expect("CHECKBOX", "Verify you are human",
-                List.of("MAIN_DOCUMENT", "ELEMENT"), 1, "REQUIRES_HUMAN_INTERVENTION", "OBSERVED"));
+                List.of("MAIN_DOCUMENT", "ELEMENT"), 1, "REQUIRES_HUMAN_INTERVENTION", "OBSERVED", false)); // nome e id "caixa" retidos
         assertTrue(out.get("diagnostico").toString().contains("HUMAN_INTERVENTION"));
         assertEquals(0L, ((Number) lab.js(p, "return document.getElementById('caixa').checked ? 1 : 0")).longValue(), "nenhum desafio executado");
     }

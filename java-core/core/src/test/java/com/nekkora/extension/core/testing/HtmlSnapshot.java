@@ -47,6 +47,15 @@ public final class HtmlSnapshot {
     private final Map<String, FrameSpec> frames = new LinkedHashMap<>();
     private final IdentityHashMap<Element, String> ids = new IdentityHashMap<>();
     private int counter = 0;
+    /*
+     * D7: simula o registro de nós do content script — a ÉPOCA muda a cada recarga do documento, reinicialização do registro
+     * (ids recomeçam e podem ser REUSADOS) e recarga de um frame; textRevision conta mudanças do texto próprio, como na página.
+     */
+    private int epochSeq = 1;
+    private String epoch = "hs1";
+    private final Map<String, String> frameEpochs = new LinkedHashMap<>();
+    private final Map<Element, Integer> revisions = new java.util.IdentityHashMap<>();
+    private final Map<Element, String> lastOwn = new java.util.IdentityHashMap<>();
     private int captures = 0;
     private String url = "http://127.0.0.1:8765/lab/test.html";
     private String pageSession = "ps-test-1";
@@ -96,6 +105,21 @@ public final class HtmlSnapshot {
     public HtmlSnapshot reload() {
         ids.clear();
         pageSession = "ps-test-" + (counter + 1000);
+        epoch = "hs" + (++epochSeq);
+        return this;
+    }
+
+    /** Reinicialização do registro de nós (configurePrefix): mapas limpos, contador recomeça — ids podem ser REUSADOS. */
+    public HtmlSnapshot resetRegistry() {
+        ids.clear();
+        counter = 0;
+        epoch = "hs" + (++epochSeq);
+        return this;
+    }
+
+    /** Recarga de um frame: novo content script no frame, nova época do registro dele. */
+    public HtmlSnapshot reloadFrame(String name) {
+        frameEpochs.put(name, "fr" + (++epochSeq));
         return this;
     }
 
@@ -108,7 +132,7 @@ public final class HtmlSnapshot {
         List<RawNode> nodes = new ArrayList<>();
         List<FrameInfo> frameInfos = new ArrayList<>();
         List<ShadowRootInfo> shadows = new ArrayList<>();
-        frameInfos.add(new FrameInfo("f0", null, null, url, true, null));
+        frameInfos.add(new FrameInfo("f0", null, null, url, true, null, null, null, epoch));
         Element html = doc.selectFirst("html");
         int[] frameCounter = {0};
         frameTitles.clear();
@@ -117,7 +141,7 @@ public final class HtmlSnapshot {
             FrameInfo f = frameInfos.get(i);
             if (frameTitles.containsKey(f.frameId())) {
                 frameInfos.set(i, new FrameInfo(f.frameId(), f.parentFrameId(), f.hostNodeId(), f.url(), f.accessible(), f.reason(),
-                        frameTitles.get(f.frameId()), "complete"));
+                        frameTitles.get(f.frameId()), "complete", f.registryEpoch()));
             }
         }
         DocumentInfo info = new DocumentInfo(url, doc.title(), "complete", new Viewport(1280, 800, 0, 0, 1), "MANUAL", pageSession);
@@ -149,9 +173,14 @@ public final class HtmlSnapshot {
         out.add(null); // reserva posição (pré-ordem)
         boolean hidden = hiddenAncestor || isHiddenSelf(e);
         List<String> children = new ArrayList<>();
+        List<Integer> positions = new ArrayList<>();
+        int light = 0;
 
         for (Element child : e.children()) {
             String ct = child.tagName().toLowerCase(Locale.ROOT);
+            if (!(ct.equals("template") && child.hasAttr("shadowrootmode"))) {
+                light++; // o template declarativo vira shadow root: não é filho elemento na página
+            }
             if (ct.equals("template") && child.hasAttr("shadowrootmode")) {
                 String mode = child.attr("shadowrootmode");
                 boolean open = mode.equals("open");
@@ -159,8 +188,14 @@ public final class HtmlSnapshot {
                         open ? null : "shadow root fechado: encapsulamento intencional"));
                 if (open) {
                     Document content = Jsoup.parseBodyFragment(child.html());
+                    int inShadow = 0;
                     for (Element sc : content.body().children()) {
+                        inShadow++;
+                        if (SKIP.contains(sc.tagName().toLowerCase(Locale.ROOT))) {
+                            continue;
+                        }
                         children.add(emit(sc, id, frameId, "shadow:" + id, hidden, out, frameInfos, shadows, frameCounter));
+                        positions.add(inShadow);
                     }
                 }
                 continue;
@@ -188,14 +223,18 @@ public final class HtmlSnapshot {
                 continue;
             }
             children.add(emit(child, id, frameId, scopeId, hidden, out, frameInfos, shadows, frameCounter));
+            positions.add(light);
         }
         if ((tag.equals("iframe") || tag.equals("frame")) && e.hasAttr("data-fixture-frame")) {
             FrameSpec spec = frames.get(e.attr("data-fixture-frame"));
             String fid = "f" + (++frameCounter[0]);
+            String frameName = e.attr("data-fixture-frame");
             frameInfos.add(new FrameInfo(fid, frameId, id, spec == null ? null : spec.url(), spec != null && spec.accessible(),
-                    spec == null ? "NOT_LOADED" : spec.reason()));
+                    spec == null ? "NOT_LOADED" : spec.reason(), null, null,
+                    spec != null && spec.accessible() ? frameEpochs.computeIfAbsent(frameName, k -> "fr" + k.replaceAll("[^a-z0-9]", "")) : null));
             if (spec != null && spec.accessible()) {
                 children.add(emit(spec.doc().selectFirst("html"), id, fid, "doc:" + fid, hidden, out, frameInfos, shadows, frameCounter));
+                positions.add(1);
             }
         }
 
@@ -235,8 +274,11 @@ public final class HtmlSnapshot {
                 tag.equals("dialog") || tag.equals("details") ? e.hasAttr("open") : null,
                 tag.equals("dialog") ? modal : null,
                 false);
+        String prev = lastOwn.put(e, own);
+        int rev = revisions.getOrDefault(e, 0) + (prev != null && !prev.equals(own) ? 1 : 0);
+        revisions.put(e, rev);
         out.set(index, new RawNode(id, parentId, children, tag, frameId, scopeId, attrs, own, state,
-                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed, segments(e, children, own)));
+                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed, segments(e, children, own), null, null, null, rev, positions));
         return id;
     }
 

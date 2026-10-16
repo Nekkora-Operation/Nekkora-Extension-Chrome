@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Continuidade técnica (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Continuidade técnica do nó (CHROME-SECURITY-001, D7)</h1>
+  <p class="muted">Página 14. Continuidade técnica (mesmo objeto DOM) × identidade lógica: botões indistinguíveis, troca de nó,
+    re-renderização, virtualização que reaproveita a linha, iframe recarregado.</p>
+  <section id="iguais" aria-label="Iguais"><button type="button" class="ok">Ok</button><button type="button" class="ok">Ok</button></section>
+  <p><button id="trocar" type="button">Trocar</button></p>
+  <section id="virtual" aria-label="Lista">
+    <table><tbody>
+      <tr><td class="c">Registro 1</td><td><button type="button" class="ver">Ver</button></td></tr>
+      <tr><td class="c">Registro 2</td><td><button type="button" class="ver">Ver</button></td></tr>
+    </tbody></table>
+  </section>
+  <p><button id="rolar" type="button">Rolar</button></p>
+  <section id="render"><form id="login" onsubmit="return false"><button id="entrar" type="submit">Entrar</button></form></section>
+  <p><button id="rerenderizar" type="button">Atualizar</button></p>
+  <iframe id="quadro" title="Quadro" src="/lab/chrome-security-001/frames/ficha-gervasio-barros.html" width="420" height="90"></iframe>
+  <script>
+    document.getElementById('trocar').addEventListener('click', () => {
+      const first = document.querySelector('#iguais .ok');
+      const novo = document.createElement('button');
+      novo.type = 'button';
+      novo.className = 'ok';
+      novo.textContent = 'Ok';
+      first.before(novo); // objeto NOVO na mesma posição
+      first.remove();
+    });
+    document.getElementById('rolar').addEventListener('click', () => {
+      // lista virtual: a MESMA linha (mesmos objetos DOM) passa a mostrar outro registro
+      document.querySelector('#virtual td.c').textContent = 'Registro 3';
+    });
+    document.getElementById('rerenderizar').addEventListener('click', () => {
+      const r = document.getElementById('render');
+      r.innerHTML = r.innerHTML; // mesmos atributos, objetos novos
+    });
+  </script>
+</body>
+</html>

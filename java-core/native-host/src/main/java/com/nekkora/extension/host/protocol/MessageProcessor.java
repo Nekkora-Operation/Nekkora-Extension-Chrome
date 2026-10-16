@@ -67,19 +67,19 @@ public final class MessageProcessor {
             resp.putNull("error");
             return chunks.split(resp.toString());
         } catch (ProtocolException e) {
-            LOG.log(Level.WARNING, "Violação de protocolo", e);
+            LOG.log(Level.WARNING, "Violação de protocolo", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             return error(id, type, e.code(), e.getMessage(), t0);
         } catch (CommandException e) {
             return error(id, type, e.code(), e.getMessage(), t0);
         } catch (IllegalArgumentException e) {
-            LOG.log(Level.INFO, "Requisição inválida: " + type, e);
+            LOG.log(Level.INFO, "Requisição inválida: " + type, com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             return error(id, type, "BAD_REQUEST", e.getMessage(), t0);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            LOG.log(Level.WARNING, "JSON inválido", e);
-            return error(id, type, "BAD_JSON", e.getOriginalMessage(), t0);
+            LOG.log(Level.WARNING, "JSON inválido", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
+            return error(id, type, "BAD_JSON", com.nekkora.extension.host.runtime.LogSafety.jsonProblem(e), t0);
         } catch (Exception | StackOverflowError e) {
-            LOG.log(Level.SEVERE, "Falha ao processar " + type, e);
-            return error(id, type, "INTERNAL_ERROR", e.getClass().getSimpleName() + ": " + e.getMessage(), t0);
+            LOG.log(Level.SEVERE, "Falha ao processar " + type, com.nekkora.extension.host.runtime.LogSafety.redacted(e));
+            return error(id, type, "INTERNAL_ERROR", e.getClass().getSimpleName() + " (mensagem omitida)", t0); // CHROME-SECURITY-001
         }
     }
 

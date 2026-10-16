@@ -23,7 +23,7 @@
       "locators": [
         {
           "strategy": "ID",
-          "description": "id \"entrar\"",
+          "description": "button {id=entrar}",
           "css": "#entrar",
           "xpath": "//*[@id='entrar']",
           "matchCount": 1,
@@ -33,7 +33,7 @@
         },
         {
           "strategy": "ROLE_NAME",
-          "description": "botão \"Entrar\"",
+          "description": "* {role=button} {name=\"Entrar\"}",
           "css": null,
           "xpath": "//button[normalize-space()='Entrar']",
           "matchCount": 1,
@@ -46,7 +46,7 @@
       "accessPath": [
         {
           "type": "MAIN_DOCUMENT",
-          "label": "Login de teste",
+          "label": "Login",
           "locator": null,
           "restriction": null
         },
@@ -78,12 +78,12 @@
       "key": null
     },
     "context": {
-      "url": "http://127.0.0.1:18765/lab/studio003/login.html",
-      "title": "Login de teste",
+      "url": "http://127.0.0.1:18765/{…}/{…}/login.html",
+      "title": "Login",
       "frame": "MAIN",
       "after": {
         "navigation": "NEW_DOCUMENT",
-        "url": "http://127.0.0.1:18765/lab/studio003/consulta.html"
+        "url": "http://127.0.0.1:18765/{…}/{…}/consulta.html"
       }
     },
     "evidence": [

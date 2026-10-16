@@ -27,6 +27,8 @@ public final class PageModel {
     private final Map<String, List<String>> nodesByScope;    // scope -> nodes
     private final Map<String, String> textCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, String> visibleTextCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, Boolean> suppressedCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Set<String> VALUE_SUBTREES = java.util.Set.of("select", "option", "optgroup", "datalist", "textarea");
 
     private PageModel(RawSnapshot snapshot) {
         this.snapshot = snapshot;
@@ -249,9 +251,66 @@ public final class PageModel {
         return found.size() == 1 ? Optional.of(found.get(0)) : Optional.empty();
     }
 
+    /**
+     * Alvos de uma relação declarada ({@code for}, {@code aria-labelledby}, {@code aria-controls}…), um grupo por
+     * referência. CHROME-SECURITY-001: quando a página resolveu a relação ({@code refs}, ids temporários de nó), ela é
+     * usada — o valor do atributo não atravessa; senão (captura antiga ou teste), o valor do atributo é resolvido por id.
+     * Um grupo com mais de um nó é uma referência ambígua (id duplicado); vazio, ausente.
+     */
+    public List<List<RawNode>> refTargets(RawNode from, String attribute) {
+        List<String> ids = from.refs().get(attribute);
+        List<List<RawNode>> out = new ArrayList<>();
+        if (ids != null) {
+            for (String id : ids) {
+                find(id).ifPresent(n -> out.add(List.of(n)));
+            }
+            return out;
+        }
+        String v = from.attr(attribute);
+        if (v == null || v.isBlank()) {
+            return out;
+        }
+        for (String ref : v.trim().split("\\s+")) {
+            out.add(resolveIdRefAll(from, ref));
+        }
+        return out;
+    }
+
+    /** Descrição da referência para evidências: o id temporário do nó (nunca o valor do atributo da página). */
+    public static String refLabel(RawNode from, String attribute, List<RawNode> group, int index) {
+        if (from.refs().containsKey(attribute) || group.isEmpty()) {
+            return attribute + (group.isEmpty() ? " (não resolvido)" : " → " + group.get(0).id());
+        }
+        String v = from.attr(attribute);
+        String[] parts = v == null ? new String[0] : v.trim().split("\\s+");
+        return attribute + "=" + (index < parts.length ? parts[index] : "?");
+    }
+
     /** Todas as ocorrências de um IDREF (permite detectar referências ambíguas por id duplicado). */
     public List<RawNode> resolveIdRefAll(RawNode from, String idValue) {
         return byIdAttribute(from.scopeId(), idValue);
+    }
+
+    /**
+     * CHROME-SECURITY-001: a subárvore do nó (sem subárvores de VALOR — listas, áreas de texto, editores) tem texto retido
+     * pela política? Um nome composto dela estaria incompleto. Memorizado por nó (O(n) no total).
+     */
+    public boolean textSuppressedWithin(RawNode node) {
+        Boolean cached = suppressedCache.get(node.id());
+        if (cached != null) {
+            return cached;
+        }
+        boolean r = Boolean.TRUE.equals(node.textSuppressed());
+        if (!r) {
+            for (RawNode c : children(node)) {
+                if (!VALUE_SUBTREES.contains(c.tag()) && !"true".equals(c.attr("contenteditable")) && textSuppressedWithin(c)) {
+                    r = true;
+                    break;
+                }
+            }
+        }
+        suppressedCache.put(node.id(), r);
+        return r;
     }
 
     public boolean isHidden(RawNode node) {

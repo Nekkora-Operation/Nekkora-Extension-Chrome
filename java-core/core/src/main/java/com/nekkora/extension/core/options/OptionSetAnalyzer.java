@@ -65,17 +65,18 @@ public final class OptionSetAnalyzer {
             association = "SELF";
         } else {
             for (String attr : List.of("aria-controls", "aria-owns")) {
-                String ref = control.attr(attr);
-                if (ref != null && !ref.isBlank()) {
-                    List<RawNode> targets = m.resolveIdRefAll(control, ref.trim().split("\\s+")[0]);
+                if (control.hasAttr(attr) || control.refs().containsKey(attr)) {
+                    List<List<RawNode>> groups = m.refTargets(control, attr);
+                    List<RawNode> targets = groups.isEmpty() ? List.of() : groups.get(0);
+                    String label = com.nekkora.extension.core.snapshot.PageModel.refLabel(control, attr, targets, 0);
                     if (targets.size() == 1) {
                         list = targets.get(0);
                         association = attr.equals("aria-controls") ? "ARIA_CONTROLS" : "ARIA_OWNS";
-                        evidence.add(attr + "=" + ref + " → " + list.id());
+                        evidence.add(label);
                     } else if (targets.size() > 1) {
-                        evidence.add(attr + "=" + ref + " é ambíguo (" + targets.size() + " elementos com o mesmo id)");
+                        evidence.add(label + " é ambíguo (" + targets.size() + " elementos com o mesmo id)");
                     } else {
-                        evidence.add(attr + "=" + ref + " não encontrado na DOM (lista não materializada)");
+                        evidence.add(attr + " não encontrado na DOM (lista não materializada)");
                     }
                     break;
                 }
@@ -157,7 +158,10 @@ public final class OptionSetAnalyzer {
 
         int materialized = items.size();
         Set<String> observed = new LinkedHashSet<>();
-        items.forEach(i -> observed.add(TextNormalizer.fold(i.text())));
+        // CHROME-SECURITY-001: a opção é identificada pelo texto quando ele atravessou; senão pela POSIÇÃO estrutural
+        // (aria-posinset) e, por último, pelo nó observado — nunca todas iguais por terem o texto retido
+        items.forEach(i -> observed.add(i.text() != null && !i.text().isBlank() ? "t:" + TextNormalizer.fold(i.text())
+                : i.posInSet() != null ? "p:" + i.posInSet() : "n:" + i.nodeId()));
         String key = OptionHistory.keyOf(control, cls);
         boolean seenBefore = history != null && history.seen(key);
         Set<String> previous = history == null ? Set.of() : history.observed(key);

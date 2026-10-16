@@ -296,7 +296,11 @@ class Chrome002LifecycleIT extends SessionIT {
         act(p, "renomear");
         // Sem espera: a seleção aguarda a barreira de sincronização.
         JsonNode sel = select(p, "#tarefas li:first-child .concluir");
-        assertEquals("Concluir revisão", sel.at("/inspection/classification/name/name").asText(), sel.at("/inspection/classification/name").toString());
+        // CHROME-SECURITY-001: o nome NOVO ("Concluir revisão") não é inteiro do vocabulário → retido; o ANTIGO ("Concluir")
+        // passaria — o nome vazio prova que a seleção usou o estado atualizado
+        assertEquals(com.nekkora.extension.it.support.Policy.name("Concluir revisão"), sel.at("/inspection/classification/name/name").asText(),
+                sel.at("/inspection/classification/name").toString());
+        assertNotEquals(com.nekkora.extension.it.support.Policy.name("Concluir"), sel.at("/inspection/classification/name/name").asText(), "estado anterior não usado");
         assertEquals("SYNCHRONIZED", sel.at("/sync/syncState").asText());
         assertEquals(1, session(p).get("fullCaptures").asInt());
         deactivate(p);
@@ -407,16 +411,21 @@ class Chrome002LifecycleIT extends SessionIT {
         lab.js(p, "history.pushState({}, '', '/lab/spa/pedidos'); render();"); // a inspeção ativa bloqueia cliques reais
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> String.valueOf(lab.js(p, "return location.pathname")).endsWith("/pedidos"), "rota");
         JsonNode m1 = lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
-        assertTrue(m1.at("/document/url").asText().endsWith("/lab/spa/pedidos"), m1.at("/document/url").asText());
+        // CHROME-SECURITY-001: a URL é o MODELO da URL real (a rota nova está refletida: segmento "pedidos" do vocabulário)
+        assertEquals(com.nekkora.extension.it.support.Policy.url(String.valueOf(lab.js(p, "return location.href"))), m1.at("/document/url").asText());
+        assertTrue(m1.at("/document/url").asText().endsWith("/pedidos"), m1.at("/document/url").asText());
         lab.js(p, "history.pushState({}, '', '/lab/spa/pedidos?status=aberto'); render();");
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> String.valueOf(lab.js(p, "return location.search")).contains("status=aberto"), "query");
         JsonNode m2 = lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
-        assertTrue(m2.at("/document/url").asText().contains("status=aberto"));
+        assertEquals(com.nekkora.extension.it.support.Policy.url(String.valueOf(lab.js(p, "return location.href"))), m2.at("/document/url").asText());
+        assertTrue(m2.at("/document/url").asText().contains("status="), "nome do parâmetro (vocabulário) refletido");
+        assertFalse(m2.at("/document").toString().contains("aberto"), "valor do parâmetro retido na URL e no contexto de navegação");
         lab.js(p, "location.hash = 'detalhes';");
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> String.valueOf(lab.js(p, "return location.hash")).equals("#detalhes"), "fragmento");
         sleep(400);
         JsonNode m3 = lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
-        assertTrue(m3.at("/document/url").asText().endsWith("#detalhes"), m3.at("/document/url").asText());
+        // o fragmento nunca vai na URL (decisão D3); a mudança de fragmento continua observada (evento FRAGMENT, abaixo)
+        assertFalse(m3.at("/document/url").asText().contains("#"), m3.at("/document/url").asText());
         JsonNode s = session(p);
         assertEquals(doc, s.get("documentId").asText(), "SPA: mesmo documento");
         assertEquals(1, s.get("fullCaptures").asInt(), "SPA preserva a base válida (somente deltas)");

@@ -82,13 +82,17 @@ class Studio005EvidenceIT extends SessionIT {
         return prefix + "-" + UUID.randomUUID();
     }
 
+    /**
+     * Referência opaca da aba no Studio. CHROME-SECURITY-001 (D4): o título só segue se for do vocabulário, então a aba
+     * não é mais identificada pelo título — o teste pede a referência exata (comando DEV) e confere que ela aparece na
+     * listagem que o Studio recebe.
+     */
     private String refOf(Page p) {
+        String ref = lab.call("studio.tabRef", p).path("tabRef").asText();
         JsonNode r = studio.call("browser.tabs.list", null);
-        String title = (String) lab.js(p, "return document.title");
-        String host = java.net.URI.create(p.url()).getHost();
         for (JsonNode t : r.at("/payload/tabs")) {
-            if (host.equals(t.path("host").asText()) && title.equals(t.path("title").asText())) {
-                return t.path("tabRef").asText();
+            if (ref.equals(t.path("tabRef").asText())) {
+                return ref;
             }
         }
         throw new AssertionError("aba não listada: " + p.url() + " em " + r);
@@ -471,7 +475,9 @@ class Studio005EvidenceIT extends SessionIT {
         JsonNode rota = awaitSteps(rid, 1).get(0);
         JsonNode route = awaitEvidence(rid, "troca de rota", of(rota, "ROUTE_CHANGED"));
         assertEquals("SAME_DOCUMENT", route.at("/details/navigation/kind").asText());
-        assertTrue(route.at("/details/navigation/url").asText().contains("view=clientes"), route.toString());
+        // CHROME-SECURITY-001: o NOME do parâmetro (vocabulário) aparece; o valor "clientes" não
+        assertTrue(route.at("/details/navigation/url").asText().contains("view="), route.toString());
+        assertFalse(route.at("/details/navigation/url").asText().contains("view=clientes"), route.toString());
         Thread.sleep(QUIET_MS);
         click(p, By.id("filtros"));
         JsonNode filtros = awaitSteps(rid, 2).get(1);

@@ -124,26 +124,13 @@
     return (scope.querySelector && scope.querySelector(sel)) || null;
   }
 
-  function maskText(t, max) {
-    const s = String(t || '').replace(/\s+/g, ' ').trim().slice(0, max || 80);
-    return root.NekkoraPrivacy ? root.NekkoraPrivacy.maskText(s) : s;
-  }
 
-  function optionOf(select) {
-    if (NS.sensitivity.isSensitive(select)) {
-      return null; // campo sensível: a opção escolhida não sai da página
-    }
-    const o = select.selectedOptions && select.selectedOptions[0];
-    if (!o) {
-      return null;
-    }
-    const label = maskText(o.label || o.textContent, 120);
-    const raw = o.getAttribute('value');
-    let value = raw == null ? '' : String(raw).slice(0, 120);
-    if (root.NekkoraPrivacy) {
-      value = root.NekkoraPrivacy.maskText(root.NekkoraPrivacy.sanitizeAttribute('value', value) || '');
-    }
-    return { label, value };
+  /**
+   * CHROME-SECURITY-001: a opção escolhida é VALOR do usuário / conteúdo de negócio — identificada aqui (há uma opção
+   * selecionada), mas nem o rótulo nem o valor saem da página, mesmo que sejam palavras do vocabulário.
+   */
+  function optionChosen(select) {
+    return !!(select.selectedOptions && select.selectedOptions[0]);
   }
 
   /**
@@ -208,27 +195,37 @@
       info.checked = !!el.checked;
     }
     if (r.control === 'SELECT' && event && event.type === 'change') {
-      info.option = optionOf(el);
+      info.option = null;
+      info.optionWithheld = optionChosen(el); // identificada, retida pela política
     }
     if (r.control === 'COMBOBOX_OPTION') {
       const combo = comboboxOf(el);
       if (combo) {
         info.comboboxKey = NS.registry.idFor(combo);
-        info.option = { label: maskText(el.getAttribute('aria-label') || el.textContent, 120), value: '' };
+        info.option = null;
+        info.optionWithheld = true;
       }
     }
     return info;
   }
 
   /** Descritor OBSERVADO do elemento (reserva quando o motor não conseguir correlacionar): nunca o valor. */
+  /**
+   * Descritor observado (usado quando o motor não resolve o nó). CHROME-SECURITY-001: o nome só sai se for METADADO de
+   * interface do vocabulário controlado (aria-label, rótulo, conteúdo de botão/link/aba/item de menu, value de botão,
+   * placeholder/title) e o valor INTEIRO passar; opção de lista não é nome (é valor). id/name: só identificadores do
+   * vocabulário. Nada de detecção heurística.
+   */
   function descriptor(el) {
     const role = el.getAttribute('role');
-    const allowed = (v) => (v && !NS.sensitivity.isSensitive(el) && root.NekkoraPrivacy && !root.NekkoraPrivacy.looksSecret(v) ? maskText(v, 80) : null);
+    const CP = root.NekkoraCapturePolicy;
+    const sensitive = NS.sensitivity.isSensitive(el);
+    const ident = (v) => (v && !sensitive && CP ? CP.identifier(v) : null);
     let name = el.getAttribute('aria-label') || '';
     if (!name && el.labels && el.labels.length) {
       name = el.labels[0].textContent;
     }
-    if (!name && (el.tagName === 'BUTTON' || el.tagName === 'A' || role === 'button' || role === 'link' || role === 'option' || role === 'menuitem' || role === 'tab')) {
+    if (!name && (el.tagName === 'BUTTON' || el.tagName === 'A' || role === 'button' || role === 'link' || role === 'menuitem' || role === 'tab')) {
       name = el.textContent;
     }
     if (!name && el.tagName === 'INPUT' && CLICK_TYPES.has(inputType(el))) {
@@ -238,12 +235,12 @@
       name = el.getAttribute('placeholder') || el.getAttribute('title') || '';
     }
     return {
-      tag: el.tagName.toLowerCase(),
+      tag: CP ? CP.tagName(el.tagName) || 'unknown' : 'unknown', // 2ª revisão dos PRs #7: nome de componente pela política
       type: el.tagName === 'INPUT' ? inputType(el) || 'text' : null,
-      role: role ? role.slice(0, 40) : null,
-      htmlId: allowed(el.id),
-      htmlName: allowed(el.getAttribute('name')),
-      name: maskText(name, 80) || null,
+      role: role && CP ? CP.attribute('role', role, { tag: el.tagName }) || null : null, // P1-01: regra fechada do role
+      htmlId: ident(el.id),
+      htmlName: ident(el.getAttribute('name')),
+      name: CP ? CP.interfaceText(name) : null,
       sensitive: NS.sensitivity.isSensitive(el),
       inShadow: el.getRootNode() instanceof ShadowRoot,
     };
@@ -255,7 +252,7 @@
     state.lastSeq = i.localSeq;
     const el = NS.registry.elementFor(i.targetKey);
     send('interaction', { epoch: state.epoch, mode: state.mode, interaction: i, element: el ? descriptor(el) : null, url: NS.privacyUrl(),
-      title: maskText(document.title, 120) || null, discarded: state.normalizer.stats().discarded });
+      title: root.NekkoraCapturePolicy ? root.NekkoraCapturePolicy.title(document.title) : null, discarded: state.normalizer.stats().discarded });
     if (state.evidence && NS.feedbackObserver) {
       NS.feedbackObserver.open(i, el); // STUDIO-005: janela de observação das consequências desta interação
     }

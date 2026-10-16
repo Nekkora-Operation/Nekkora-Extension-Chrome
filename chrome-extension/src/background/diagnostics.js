@@ -8,14 +8,16 @@
  * As regras de análise estão no Java; aqui só há coleta de dados do navegador e orquestração.
  */
 import '../shared/privacy.js';
+import '../shared/ui-vocabulary.js';
+import '../shared/capture-policy.js';
 import { host, toContent, tabKey, isAllowedUrl, assertAllowed, frameOfNode, broadcast, HostError } from './runtime.js';
 import * as capture from './capture-session.js';
 
 const pendingSync = new Map(); // tabId -> timer
 
-/** Origem + caminho sanitizado (política de privacidade): metadados do Chrome nunca levam consulta/fragmento. */
+/** URL do frame como MODELO (CHROME-SECURITY-001, D3): origem + segmentos do vocabulário; nada de valores nem fragmento. */
 function sanitize(url) {
-  return url ? globalThis.NekkoraPrivacy.originAndPath(url) : null;
+  return url && globalThis.NekkoraCapturePolicy ? globalThis.NekkoraCapturePolicy.urlTemplate(url) : null;
 }
 
 async function allFrames(tabId) {

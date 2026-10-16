@@ -1,0 +1,381 @@
+{
+  "legenda" : "por página: [interativos, mesma classificação, com nome legível, preferido único, transportável único, transportável único estável, sem nenhum único, bytes do snapshot, ms de análise+localizadores]",
+  "vocabulario" : "nekkora-ui-vocabulary/1 (1062 termos)",
+  "resumo" : {
+    "ATUAL" : {
+      "interativos" : 359,
+      "classificacaoIgualAtual" : 359,
+      "comNomeLegivel" : 181,
+      "preferidoUnico" : 351,
+      "transportavelUnico" : 359,
+      "transportavelUnicoEstavel" : 186,
+      "semNenhumUnico" : 0,
+      "bytesSnapshot" : 706833,
+      "msAnalise" : 265,
+      "estrategiaDoTransportavel" : {
+        "ATTRIBUTE" : 3,
+        "CONTEXTUAL" : 16,
+        "ID" : 131,
+        "LABEL" : 5,
+        "NAME" : 8,
+        "POSITIONAL" : 113,
+        "ROLE_NAME" : 22,
+        "XPATH_RELATIVE" : 61
+      },
+      "estabilidadeDoTransportavel" : {
+        "HEURISTIC_STABLE" : 186,
+        "HEURISTIC_UNSTABLE" : 173
+      },
+      "classificacaoAlterada" : { }
+    },
+    "ESTRUTURAL" : {
+      "interativos" : 359,
+      "classificacaoIgualAtual" : 359,
+      "comNomeLegivel" : 0,
+      "preferidoUnico" : 351,
+      "transportavelUnico" : 359,
+      "transportavelUnicoEstavel" : 40,
+      "semNenhumUnico" : 0,
+      "bytesSnapshot" : 698847,
+      "msAnalise" : 68,
+      "estrategiaDoTransportavel" : {
+        "ATTRIBUTE" : 32,
+        "CONTEXTUAL" : 8,
+        "POSITIONAL" : 319
+      },
+      "estabilidadeDoTransportavel" : {
+        "HEURISTIC_STABLE" : 40,
+        "HEURISTIC_UNSTABLE" : 319
+      },
+      "classificacaoAlterada" : { }
+    },
+    "ESTRUTURAL_IDS" : {
+      "interativos" : 359,
+      "classificacaoIgualAtual" : 359,
+      "comNomeLegivel" : 0,
+      "preferidoUnico" : 355,
+      "transportavelUnico" : 359,
+      "transportavelUnicoEstavel" : 163,
+      "semNenhumUnico" : 0,
+      "bytesSnapshot" : 699350,
+      "msAnalise" : 75,
+      "estrategiaDoTransportavel" : {
+        "ATTRIBUTE" : 3,
+        "CONTEXTUAL" : 19,
+        "ID" : 131,
+        "NAME" : 8,
+        "POSITIONAL" : 133,
+        "XPATH_RELATIVE" : 65
+      },
+      "estabilidadeDoTransportavel" : {
+        "HEURISTIC_STABLE" : 163,
+        "HEURISTIC_UNSTABLE" : 196
+      },
+      "classificacaoAlterada" : { }
+    },
+    "VOCABULARIO" : {
+      "interativos" : 359,
+      "classificacaoIgualAtual" : 359,
+      "comNomeLegivel" : 182,
+      "preferidoUnico" : 351,
+      "transportavelUnico" : 359,
+      "transportavelUnicoEstavel" : 186,
+      "semNenhumUnico" : 0,
+      "bytesSnapshot" : 701707,
+      "msAnalise" : 88,
+      "estrategiaDoTransportavel" : {
+        "ATTRIBUTE" : 3,
+        "CONTEXTUAL" : 16,
+        "ID" : 131,
+        "LABEL" : 5,
+        "NAME" : 8,
+        "POSITIONAL" : 113,
+        "ROLE_NAME" : 22,
+        "XPATH_RELATIVE" : 61
+      },
+      "estabilidadeDoTransportavel" : {
+        "HEURISTIC_STABLE" : 186,
+        "HEURISTIC_UNSTABLE" : 173
+      },
+      "classificacaoAlterada" : { }
+    },
+    "TOKENS" : {
+      "interativos" : 359,
+      "classificacaoIgualAtual" : 359,
+      "comNomeLegivel" : 0,
+      "preferidoUnico" : 353,
+      "transportavelUnico" : 359,
+      "transportavelUnicoEstavel" : 34,
+      "semNenhumUnico" : 0,
+      "bytesSnapshot" : 708569,
+      "msAnalise" : 84,
+      "estrategiaDoTransportavel" : {
+        "ATTRIBUTE" : 33,
+        "CONTEXTUAL" : 1,
+        "POSITIONAL" : 325
+      },
+      "estabilidadeDoTransportavel" : {
+        "HEURISTIC_STABLE" : 34,
+        "HEURISTIC_UNSTABLE" : 325
+      },
+      "classificacaoAlterada" : { }
+    }
+  },
+  "paginas" : {
+    "/lab/simple/form-basics.html" : {
+      "ATUAL" : [ 26, 26, 12, 26, 26, 15, 0, 41543, 161 ],
+      "ESTRUTURAL" : [ 26, 26, 0, 24, 26, 4, 0, 41133, 16 ],
+      "ESTRUTURAL_IDS" : [ 26, 26, 0, 26, 26, 13, 0, 41258, 17 ],
+      "VOCABULARIO" : [ 26, 26, 12, 26, 26, 15, 0, 41377, 17 ],
+      "TOKENS" : [ 26, 26, 0, 24, 26, 4, 0, 41710, 15 ]
+    },
+    "/lab/intermediate/forms-groups.html" : {
+      "ATUAL" : [ 16, 16, 9, 16, 16, 4, 0, 26054, 8 ],
+      "ESTRUTURAL" : [ 16, 16, 0, 16, 16, 0, 0, 25863, 6 ],
+      "ESTRUTURAL_IDS" : [ 16, 16, 0, 16, 16, 4, 0, 25877, 6 ],
+      "VOCABULARIO" : [ 16, 16, 9, 16, 16, 4, 0, 25955, 7 ],
+      "TOKENS" : [ 16, 16, 0, 16, 16, 0, 0, 26133, 6 ]
+    },
+    "/lab/intermediate/tables.html" : {
+      "ATUAL" : [ 9, 9, 8, 9, 9, 0, 0, 31780, 8 ],
+      "ESTRUTURAL" : [ 9, 9, 0, 9, 9, 0, 0, 31666, 3 ],
+      "ESTRUTURAL_IDS" : [ 9, 9, 0, 9, 9, 0, 0, 31667, 4 ],
+      "VOCABULARIO" : [ 9, 9, 8, 9, 9, 0, 0, 31718, 4 ],
+      "TOKENS" : [ 9, 9, 0, 9, 9, 0, 0, 31890, 4 ]
+    },
+    "/lab/intermediate/widgets.html" : {
+      "ATUAL" : [ 24, 24, 8, 24, 24, 10, 0, 32426, 6 ],
+      "ESTRUTURAL" : [ 24, 24, 0, 24, 24, 0, 0, 32076, 4 ],
+      "ESTRUTURAL_IDS" : [ 24, 24, 0, 24, 24, 8, 0, 32057, 6 ],
+      "VOCABULARIO" : [ 24, 24, 8, 24, 24, 10, 0, 32143, 4 ],
+      "TOKENS" : [ 24, 24, 0, 24, 24, 0, 0, 32333, 5 ]
+    },
+    "/lab/complex/dropdowns.html" : {
+      "ATUAL" : [ 33, 33, 2, 33, 33, 7, 0, 32627, 10 ],
+      "ESTRUTURAL" : [ 33, 33, 0, 33, 33, 0, 0, 32489, 4 ],
+      "ESTRUTURAL_IDS" : [ 33, 33, 0, 33, 33, 6, 0, 32448, 4 ],
+      "VOCABULARIO" : [ 33, 33, 2, 33, 33, 7, 0, 32478, 7 ],
+      "TOKENS" : [ 33, 33, 0, 33, 33, 0, 0, 32583, 6 ]
+    },
+    "/lab/complex/duplicated-ids.html" : {
+      "ATUAL" : [ 16, 16, 11, 10, 16, 2, 0, 40205, 6 ],
+      "ESTRUTURAL" : [ 16, 16, 0, 16, 16, 0, 0, 39743, 3 ],
+      "ESTRUTURAL_IDS" : [ 16, 16, 0, 14, 16, 2, 0, 39832, 4 ],
+      "VOCABULARIO" : [ 16, 16, 11, 10, 16, 2, 0, 39931, 6 ],
+      "TOKENS" : [ 16, 16, 0, 16, 16, 0, 0, 40397, 5 ]
+    },
+    "/lab/complex/dynamic-ids.html" : {
+      "ATUAL" : [ 8, 8, 3, 8, 8, 4, 0, 14678, 3 ],
+      "ESTRUTURAL" : [ 8, 8, 0, 8, 8, 1, 0, 14506, 2 ],
+      "ESTRUTURAL_IDS" : [ 8, 8, 0, 8, 8, 4, 0, 14542, 2 ],
+      "VOCABULARIO" : [ 8, 8, 3, 8, 8, 4, 0, 14567, 2 ],
+      "TOKENS" : [ 8, 8, 0, 8, 8, 1, 0, 14675, 2 ]
+    },
+    "/lab/complex/rerender.html" : {
+      "ATUAL" : [ 8, 8, 4, 8, 8, 4, 0, 17612, 3 ],
+      "ESTRUTURAL" : [ 8, 8, 0, 8, 8, 0, 0, 17497, 1 ],
+      "ESTRUTURAL_IDS" : [ 8, 8, 0, 8, 8, 4, 0, 17505, 2 ],
+      "VOCABULARIO" : [ 8, 8, 4, 8, 8, 4, 0, 17553, 2 ],
+      "TOKENS" : [ 8, 8, 0, 8, 8, 0, 0, 17676, 2 ]
+    },
+    "/lab/complex/responsive.html" : {
+      "ATUAL" : [ 6, 6, 2, 6, 6, 3, 0, 11709, 2 ],
+      "ESTRUTURAL" : [ 6, 6, 0, 6, 6, 0, 0, 11647, 1 ],
+      "ESTRUTURAL_IDS" : [ 6, 6, 0, 6, 6, 3, 0, 11644, 1 ],
+      "VOCABULARIO" : [ 6, 6, 2, 6, 6, 3, 0, 11695, 1 ],
+      "TOKENS" : [ 6, 6, 0, 6, 6, 0, 0, 11769, 2 ]
+    },
+    "/lab/complex/shadow-iframes.html" : {
+      "ATUAL" : [ 6, 6, 2, 6, 6, 3, 0, 20383, 6 ],
+      "ESTRUTURAL" : [ 6, 6, 0, 6, 6, 0, 0, 19997, 2 ],
+      "ESTRUTURAL_IDS" : [ 6, 6, 0, 6, 6, 3, 0, 19983, 1 ],
+      "VOCABULARIO" : [ 6, 6, 2, 6, 6, 3, 0, 20012, 2 ],
+      "TOKENS" : [ 6, 6, 0, 6, 6, 0, 0, 20433, 1 ]
+    },
+    "/lab/chrome002/accessible-names.html" : {
+      "ATUAL" : [ 21, 21, 9, 21, 21, 11, 0, 36898, 4 ],
+      "ESTRUTURAL" : [ 21, 21, 0, 21, 21, 2, 0, 36364, 3 ],
+      "ESTRUTURAL_IDS" : [ 21, 21, 0, 21, 21, 2, 0, 36360, 2 ],
+      "VOCABULARIO" : [ 21, 21, 9, 21, 21, 11, 0, 36574, 3 ],
+      "TOKENS" : [ 21, 21, 0, 21, 21, 2, 0, 36806, 3 ]
+    },
+    "/lab/chrome002/continuous.html" : {
+      "ATUAL" : [ 16, 16, 11, 16, 16, 9, 0, 26535, 4 ],
+      "ESTRUTURAL" : [ 16, 16, 0, 16, 16, 1, 0, 26226, 2 ],
+      "ESTRUTURAL_IDS" : [ 16, 16, 0, 16, 16, 8, 0, 26329, 2 ],
+      "VOCABULARIO" : [ 16, 16, 11, 16, 16, 9, 0, 26460, 3 ],
+      "TOKENS" : [ 16, 16, 0, 16, 16, 1, 0, 26653, 2 ]
+    },
+    "/lab/chrome002/iframes.html" : {
+      "ATUAL" : [ 9, 9, 2, 9, 9, 4, 0, 19702, 2 ],
+      "ESTRUTURAL" : [ 9, 9, 0, 9, 9, 0, 0, 19236, 1 ],
+      "ESTRUTURAL_IDS" : [ 9, 9, 0, 9, 9, 4, 0, 19232, 1 ],
+      "VOCABULARIO" : [ 9, 9, 2, 9, 9, 4, 0, 19262, 1 ],
+      "TOKENS" : [ 9, 9, 0, 9, 9, 0, 0, 19638, 2 ]
+    },
+    "/lab/chrome002/recording.html" : {
+      "ATUAL" : [ 6, 6, 5, 6, 6, 5, 0, 15270, 2 ],
+      "ESTRUTURAL" : [ 6, 6, 0, 6, 6, 1, 0, 15116, 1 ],
+      "ESTRUTURAL_IDS" : [ 6, 6, 0, 6, 6, 5, 0, 15150, 1 ],
+      "VOCABULARIO" : [ 6, 6, 5, 6, 6, 5, 0, 15195, 1 ],
+      "TOKENS" : [ 6, 6, 0, 6, 6, 1, 0, 15330, 1 ]
+    },
+    "/lab/chrome002/shadow-dynamic.html" : {
+      "ATUAL" : [ 8, 8, 0, 8, 8, 4, 0, 14281, 1 ],
+      "ESTRUTURAL" : [ 8, 8, 0, 8, 8, 0, 0, 14224, 1 ],
+      "ESTRUTURAL_IDS" : [ 8, 8, 0, 8, 8, 4, 0, 14252, 1 ],
+      "VOCABULARIO" : [ 8, 8, 0, 8, 8, 4, 0, 14252, 1 ],
+      "TOKENS" : [ 8, 8, 0, 8, 8, 0, 0, 14368, 1 ]
+    },
+    "/lab/chrome003/contas.html" : {
+      "ATUAL" : [ 3, 3, 3, 3, 3, 3, 0, 6042, 2 ],
+      "ESTRUTURAL" : [ 3, 3, 0, 3, 3, 1, 0, 5910, 1 ],
+      "ESTRUTURAL_IDS" : [ 3, 3, 0, 3, 3, 3, 0, 5928, 1 ],
+      "VOCABULARIO" : [ 3, 3, 3, 3, 3, 3, 0, 5975, 1 ],
+      "TOKENS" : [ 3, 3, 0, 3, 3, 1, 0, 6070, 1 ]
+    },
+    "/lab/chrome003/filial.html" : {
+      "ATUAL" : [ 1, 1, 1, 1, 1, 1, 0, 3072, 1 ],
+      "ESTRUTURAL" : [ 1, 1, 0, 1, 1, 0, 0, 3051, 0 ],
+      "ESTRUTURAL_IDS" : [ 1, 1, 0, 1, 1, 0, 0, 3051, 0 ],
+      "VOCABULARIO" : [ 1, 1, 1, 1, 1, 1, 0, 3058, 0 ],
+      "TOKENS" : [ 1, 1, 0, 1, 1, 0, 0, 3086, 0 ]
+    },
+    "/lab/chrome003/financeiro.html" : {
+      "ATUAL" : [ 7, 7, 6, 7, 7, 7, 0, 16355, 3 ],
+      "ESTRUTURAL" : [ 7, 7, 0, 7, 7, 3, 0, 15933, 1 ],
+      "ESTRUTURAL_IDS" : [ 7, 7, 0, 7, 7, 7, 0, 15953, 1 ],
+      "VOCABULARIO" : [ 7, 7, 6, 7, 7, 7, 0, 16101, 2 ],
+      "TOKENS" : [ 7, 7, 0, 7, 7, 1, 0, 16340, 1 ]
+    },
+    "/lab/chrome003/frames.html" : {
+      "ATUAL" : [ 19, 19, 14, 19, 19, 15, 0, 58850, 5 ],
+      "ESTRUTURAL" : [ 19, 19, 0, 19, 19, 4, 0, 57507, 3 ],
+      "ESTRUTURAL_IDS" : [ 19, 19, 0, 19, 19, 13, 0, 57560, 4 ],
+      "VOCABULARIO" : [ 19, 19, 14, 19, 19, 15, 0, 57874, 5 ],
+      "TOKENS" : [ 19, 19, 0, 19, 19, 2, 0, 58703, 5 ]
+    },
+    "/lab/chrome003/pagamentos.html" : {
+      "ATUAL" : [ 3, 3, 2, 3, 3, 3, 0, 6762, 1 ],
+      "ESTRUTURAL" : [ 3, 3, 0, 3, 3, 2, 0, 6648, 0 ],
+      "ESTRUTURAL_IDS" : [ 3, 3, 0, 3, 3, 3, 0, 6655, 1 ],
+      "VOCABULARIO" : [ 3, 3, 2, 3, 3, 3, 0, 6703, 1 ],
+      "TOKENS" : [ 3, 3, 0, 3, 3, 0, 0, 6771, 1 ]
+    },
+    "/lab/chrome003/painel.html" : {
+      "ATUAL" : [ 1, 1, 0, 1, 1, 0, 0, 3078, 0 ],
+      "ESTRUTURAL" : [ 1, 1, 0, 1, 1, 0, 0, 3064, 0 ],
+      "ESTRUTURAL_IDS" : [ 1, 1, 0, 1, 1, 0, 0, 3064, 0 ],
+      "VOCABULARIO" : [ 1, 1, 0, 1, 1, 0, 0, 3064, 0 ],
+      "TOKENS" : [ 1, 1, 0, 1, 1, 0, 0, 3086, 0 ]
+    },
+    "/lab/chrome003/relatorios.html" : {
+      "ATUAL" : [ 2, 2, 1, 2, 2, 1, 0, 8188, 1 ],
+      "ESTRUTURAL" : [ 2, 2, 0, 2, 2, 0, 0, 8089, 0 ],
+      "ESTRUTURAL_IDS" : [ 2, 2, 0, 2, 2, 1, 0, 8080, 0 ],
+      "VOCABULARIO" : [ 2, 2, 1, 2, 2, 1, 0, 8096, 1 ],
+      "TOKENS" : [ 2, 2, 0, 2, 2, 0, 0, 8190, 0 ]
+    },
+    "/lab/studio003/consulta.html" : {
+      "ATUAL" : [ 21, 21, 10, 21, 21, 12, 0, 34550, 3 ],
+      "ESTRUTURAL" : [ 21, 21, 0, 19, 21, 2, 0, 34324, 2 ],
+      "ESTRUTURAL_IDS" : [ 21, 21, 0, 21, 21, 12, 0, 34307, 2 ],
+      "VOCABULARIO" : [ 21, 21, 10, 21, 21, 12, 0, 34406, 2 ],
+      "TOKENS" : [ 21, 21, 0, 19, 21, 2, 0, 34658, 4 ]
+    },
+    "/lab/studio003/login.html" : {
+      "ATUAL" : [ 6, 6, 5, 6, 6, 5, 0, 14364, 3 ],
+      "ESTRUTURAL" : [ 6, 6, 0, 6, 6, 3, 0, 14268, 1 ],
+      "ESTRUTURAL_IDS" : [ 6, 6, 0, 6, 6, 5, 0, 14271, 1 ],
+      "VOCABULARIO" : [ 6, 6, 5, 6, 6, 5, 0, 14325, 1 ],
+      "TOKENS" : [ 6, 6, 0, 6, 6, 3, 0, 14491, 2 ]
+    },
+    "/lab/studio003/frames.html" : {
+      "ATUAL" : [ 5, 5, 2, 5, 5, 4, 0, 16581, 2 ],
+      "ESTRUTURAL" : [ 5, 5, 0, 5, 5, 2, 0, 16459, 1 ],
+      "ESTRUTURAL_IDS" : [ 5, 5, 0, 5, 5, 4, 0, 16435, 1 ],
+      "VOCABULARIO" : [ 5, 5, 2, 5, 5, 4, 0, 16473, 1 ],
+      "TOKENS" : [ 5, 5, 0, 5, 5, 2, 0, 16627, 1 ]
+    },
+    "/lab/studio005/login-erro.html" : {
+      "ATUAL" : [ 6, 6, 5, 6, 6, 5, 0, 12701, 2 ],
+      "ESTRUTURAL" : [ 6, 6, 0, 6, 6, 2, 0, 12584, 1 ],
+      "ESTRUTURAL_IDS" : [ 6, 6, 0, 6, 6, 4, 0, 12615, 2 ],
+      "VOCABULARIO" : [ 6, 6, 5, 6, 6, 5, 0, 12671, 1 ],
+      "TOKENS" : [ 6, 6, 0, 6, 6, 2, 0, 12808, 1 ]
+    },
+    "/lab/studio005/pesquisa.html" : {
+      "ATUAL" : [ 3, 3, 2, 3, 3, 2, 0, 8608, 1 ],
+      "ESTRUTURAL" : [ 3, 3, 0, 3, 3, 1, 0, 8538, 0 ],
+      "ESTRUTURAL_IDS" : [ 3, 3, 0, 3, 3, 2, 0, 8535, 0 ],
+      "VOCABULARIO" : [ 3, 3, 2, 3, 3, 2, 0, 8586, 0 ],
+      "TOKENS" : [ 3, 3, 0, 3, 3, 1, 0, 8648, 1 ]
+    },
+    "/lab/studio005/validacao.html" : {
+      "ATUAL" : [ 4, 4, 3, 4, 4, 3, 0, 10944, 1 ],
+      "ESTRUTURAL" : [ 4, 4, 0, 4, 4, 2, 0, 10851, 1 ],
+      "ESTRUTURAL_IDS" : [ 4, 4, 0, 4, 4, 3, 0, 10849, 1 ],
+      "VOCABULARIO" : [ 4, 4, 3, 4, 4, 3, 0, 10891, 1 ],
+      "TOKENS" : [ 4, 4, 0, 4, 4, 2, 0, 11017, 1 ]
+    },
+    "/lab/chrome-security-001/formularios.html" : {
+      "ATUAL" : [ 21, 21, 14, 21, 21, 15, 0, 30619, 5 ],
+      "ESTRUTURAL" : [ 21, 21, 0, 19, 21, 5, 0, 30400, 2 ],
+      "ESTRUTURAL_IDS" : [ 21, 21, 0, 21, 21, 15, 0, 30305, 2 ],
+      "VOCABULARIO" : [ 21, 21, 14, 21, 21, 15, 0, 30448, 3 ],
+      "TOKENS" : [ 21, 21, 0, 19, 21, 5, 0, 30691, 3 ]
+    },
+    "/lab/chrome-security-001/elementos.html" : {
+      "ATUAL" : [ 7, 7, 0, 7, 7, 5, 0, 12520, 1 ],
+      "ESTRUTURAL" : [ 7, 7, 0, 7, 7, 1, 0, 12428, 1 ],
+      "ESTRUTURAL_IDS" : [ 7, 7, 0, 7, 7, 5, 0, 12409, 1 ],
+      "VOCABULARIO" : [ 7, 7, 1, 7, 7, 5, 0, 12418, 1 ],
+      "TOKENS" : [ 7, 7, 0, 7, 7, 1, 0, 12590, 1 ]
+    },
+    "/lab/chrome-security-001/atributos.html" : {
+      "ATUAL" : [ 9, 9, 6, 9, 9, 6, 0, 15912, 1 ],
+      "ESTRUTURAL" : [ 9, 9, 0, 9, 9, 1, 0, 15698, 1 ],
+      "ESTRUTURAL_IDS" : [ 9, 9, 0, 9, 9, 2, 0, 15709, 0 ],
+      "VOCABULARIO" : [ 9, 9, 6, 9, 9, 6, 0, 15767, 1 ],
+      "TOKENS" : [ 9, 9, 0, 9, 9, 1, 0, 16088, 1 ]
+    },
+    "/lab/chrome-security-001/tabela.html" : {
+      "ATUAL" : [ 3, 3, 2, 1, 3, 0, 0, 15383, 1 ],
+      "ESTRUTURAL" : [ 3, 3, 0, 1, 3, 0, 0, 15317, 1 ],
+      "ESTRUTURAL_IDS" : [ 3, 3, 0, 1, 3, 0, 0, 15349, 1 ],
+      "VOCABULARIO" : [ 3, 3, 2, 1, 3, 0, 0, 15369, 1 ],
+      "TOKENS" : [ 3, 3, 0, 3, 3, 0, 0, 15448, 0 ]
+    },
+    "/lab/chrome-security-001/exportacao.html" : {
+      "ATUAL" : [ 4, 4, 3, 4, 4, 3, 0, 11550, 1 ],
+      "ESTRUTURAL" : [ 4, 4, 0, 4, 4, 1, 0, 11468, 0 ],
+      "ESTRUTURAL_IDS" : [ 4, 4, 0, 4, 4, 3, 0, 11452, 0 ],
+      "VOCABULARIO" : [ 4, 4, 3, 4, 4, 3, 0, 11467, 1 ],
+      "TOKENS" : [ 4, 4, 0, 4, 4, 1, 0, 11618, 1 ]
+    },
+    "/clientes?nome=ana&status=ativo" : {
+      "ATUAL" : [ 22, 22, 14, 22, 22, 11, 0, 39051, 5 ],
+      "ESTRUTURAL" : [ 22, 22, 0, 22, 22, 1, 0, 38527, 2 ],
+      "ESTRUTURAL_IDS" : [ 22, 22, 0, 22, 22, 11, 0, 38687, 3 ],
+      "VOCABULARIO" : [ 22, 22, 14, 22, 22, 11, 0, 38843, 4 ],
+      "TOKENS" : [ 22, 22, 0, 22, 22, 1, 0, 39245, 3 ]
+    }
+  },
+  "canariosDeIdentificador" : {
+    "cliente-anacleto-prudencio" : {
+      "vocabulario" : false,
+      "gramaticaTecnica" : true
+    },
+    "Consultar cliente Bartolomeu Quixadá" : {
+      "vocabulario" : false
+    },
+    "usuario_hermengarda" : {
+      "vocabulario" : false,
+      "gramaticaTecnica" : true
+    },
+    "btn-pesquisar" : {
+      "vocabulario" : true,
+      "gramaticaTecnica" : true
+    }
+  }
+}

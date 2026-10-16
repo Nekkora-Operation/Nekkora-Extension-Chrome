@@ -78,6 +78,13 @@ public record SnapshotDelta(
                 rawMutationCount, batchCount, stats, null, null, 0, 0, null, null);
     }
 
+    /** Mesmo delta (base, sequência, época, fonte) com o CONTEÚDO substituído — usado pela barreira de privacidade. */
+    public SnapshotDelta withContent(DocumentInfo newDocument, List<RawNode> newUpserts, List<FrameInfo> newFrames,
+                                     List<ObservedRequest> newRequests, List<com.nekkora.extension.core.snapshot.ResourceRef> newResources) {
+        return new SnapshotDelta(baseCaptureId, captureId, capturedAt, newDocument, newUpserts, removed, newFrames, shadowRoots, newRequests,
+                rawMutationCount, batchCount, stats, sessionId, source, epoch, seq, newResources, geometry);
+    }
+
     public boolean sequenced() {
         return sessionId != null;
     }

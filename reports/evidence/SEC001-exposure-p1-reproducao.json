@@ -1,0 +1,67 @@
+{
+  "Página 13 — atributos estruturais" : {
+    "byDestination" : {
+      "PageMap exportado (pagemap.export)" : [ {
+        "excerpt" : "ns\":[],\"row\":null,\"scopechain\":[],\"siblings\":[{\"idattr\":\"painel\",\"keyattributes\":{\"role\":\"gumercindo tavares\"},\"kind\":\"custom dropdown\",\"nam",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "igo\",\"suppressed\":null},\"uncertainties\":[]},{\"attributes\":{\"id\":\"campo tipo\",\"maxlength\":\"48291736455\",\"tabindex\":\"48291736455\",\"type\":\"48291",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ],
+      "arquivo do host: pagemaps/*.json" : [ {
+        "excerpt" : ": \"custom dropdown\", \"name\" : \"abrir\", \"idattr\" : \"painel\", \"keyattributes\" : { \"role\" : \"gumercindo tavares\" } }, { \"nodeid\" : \"n7\", \"tag\" ",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "extual\" : [ ], \"suppressed\" : null }, \"attributes\" : { \"id\" : \"campo tipo\", \"tabindex\" : \"48291736455\", \"maxlength\" : \"48291736455\", \"type\" :",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ],
+      "arquivo do host: targets/registry-v2.json" : [ {
+        "excerpt" : "dattribute\" : \"lista\", \"nameattribute\" : null, \"testattribute\" : null, \"typeattribute\" : \"gumercindo\", \"label\" : null, \"form\" : null, \"field",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "ibute\" : \"campo tipo\", \"nameattribute\" : null, \"testattribute\" : null, \"typeattribute\" : \"48291736455\", \"label\" : \"codigo\", \"form\" : null, \"f",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ],
+      "chrome.storage.session" : [ {
+        "excerpt" : ",\"scopepath\":[],\"table\":null,\"tag\":\"ol\",\"testattribute\":null,\"text\":null,\"typeattribute\":\"gumercindo\"},\"targetid\":\"tgt d706e414 4af4 4150 b9",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      } ],
+      "registro de alvos (target.list)" : [ {
+        "excerpt" : ",\"scopepath\":[],\"table\":null,\"tag\":\"ol\",\"testattribute\":null,\"text\":null,\"typeattribute\":\"gumercindo\"},\"targetid\":\"tgt d706e414 4af4 4150 b9",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "equivalente css/xpath; verificavel apenas pelo motor\"],\"xpath\":null},{\"css\":\"input[type=\\\"48291736455\\\"]\",\"expected\":{\"dialog\":null,\"form\":nu",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ],
+      "resultado do motor para a inspeção (element.inspect/target.register)" : [ {
+        "excerpt" : "interactive\",\"present\",\"visible\",\"enabled\"],\"confidence\":\"low\",\"evidence\":[\"aria haspopup=gumercindo tavares\"],\"kind\":\"custom dropdown\",\"nam",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "equivalente css/xpath; verificavel apenas pelo motor\"],\"xpath\":null},{\"css\":\"input[type=\\\"48291736455\\\"]\",\"expected\":{\"dialog\":null,\"form\":nu",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ],
+      "snapshot transportado ao motor (cs.capture)" : [ {
+        "excerpt" : "\"textpresent\":true,\"textrevision\":0,\"textsuppressed\":true},{\"attributes\":{\"aria current\":\"gumercindo\",\"aria haspopup\":\"gumercindo tavares\",\"",
+        "canary" : "gumercindo",
+        "surface" : "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)"
+      }, {
+        "excerpt" : "label\",\"textpresent\":true,\"textrevision\":0},{\"attributes\":{\"id\":\"campo tipo\",\"maxlength\":\"48291736455\",\"tabindex\":\"48291736455\",\"type\":\"48291",
+        "canary" : "48291736455",
+        "surface" : "SEC001-089 número longo em atributo estrutural e em localizador"
+      } ]
+    },
+    "count" : 13
+  },
+  "notes" : [ ]
+}

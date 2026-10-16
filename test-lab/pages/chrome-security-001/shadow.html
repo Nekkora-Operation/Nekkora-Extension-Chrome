@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Shadow DOM (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Shadow DOM (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 7. Componentes com shadow root aberto contendo textos e rótulos fictícios.</p>
+  <ficha-cliente id="ficha"></ficha-cliente>
+  <script>
+    customElements.define('ficha-cliente', class extends HTMLElement {
+      connectedCallback() {
+        const r = this.attachShadow({ mode: 'open' });
+        r.innerHTML = '<p>Sombra de Valdomiro Pestana</p><label for="s-campo">Apelido de Valdomiro</label> <input id="s-campo" type="text">'
+          + ' <button id="s-ok" type="button" aria-label="Confirmar Valdomiro Pestana">OK</button>';
+      }
+    });
+  </script>
+</body>
+</html>

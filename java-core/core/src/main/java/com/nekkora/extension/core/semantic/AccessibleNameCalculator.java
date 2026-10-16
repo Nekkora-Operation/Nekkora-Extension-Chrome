@@ -1,5 +1,6 @@
 package com.nekkora.extension.core.semantic;
 
+import com.nekkora.extension.core.privacy.CapturePrivacyPolicy;
 import com.nekkora.extension.core.snapshot.NodeState;
 import com.nekkora.extension.core.snapshot.PageModel;
 import com.nekkora.extension.core.snapshot.RawNode;
@@ -37,6 +38,26 @@ public final class AccessibleNameCalculator {
     private static final class Walk {
         final Set<String> visited = new HashSet<>();
         final List<String> sources = new ArrayList<>();
+        /** CHROME-SECURITY-001: alguma fonte de nome encontrada no caminho foi RETIDA pela política. */
+        boolean withheld;
+    }
+
+    /**
+     * Valor de um atributo nomeador. Retido pela política ({@code {…}}): marca a caminhada e devolve vazio — a fonte
+     * EXISTE (o nome real vem dela), mas o texto não pode ser usado.
+     */
+    private static String attrText(RawNode n, String attribute, Walk w) {
+        String v = n.attr(attribute);
+        if (CapturePrivacyPolicy.HOLE.equals(v)) {
+            w.withheld = true;
+            return "";
+        }
+        return TextNormalizer.normalize(v);
+    }
+
+    /** A fonte de prioridade mais alta presente foi retida: o nome é retido INTEIRO (sem recorrer a fontes menores). */
+    private static AccessibleName withheldName(NameSource source, Walk w) {
+        return new AccessibleName("", source, List.copyOf(new LinkedHashSet<>(w.sources)), "", List.of(), "NONE");
     }
 
     public AccessibleName compute(RawNode node, ElementKind kind, String role, PageModel model) {
@@ -46,9 +67,11 @@ public final class AccessibleNameCalculator {
         NameSource source = NameSource.NONE;
 
         // 2B — aria-labelledby (não seguido recursivamente a partir de um nó já referenciado)
-        String labelledBy = node.attr("aria-labelledby");
-        if (labelledBy != null && !labelledBy.isBlank()) {
-            String text = fromReferences(node, labelledBy, model, w, true);
+        if (node.hasAttr("aria-labelledby") || node.refs().containsKey("aria-labelledby")) {
+            String text = fromReferences(node, "aria-labelledby", model, w, true);
+            if (w.withheld) {
+                return withheldName(NameSource.ARIA_LABELLEDBY, w);
+            }
             if (!text.isEmpty()) {
                 name = text;
                 source = NameSource.ARIA_LABELLEDBY;
@@ -56,7 +79,10 @@ public final class AccessibleNameCalculator {
         }
         // 2C — aria-label
         if (name.isEmpty()) {
-            String ariaLabel = TextNormalizer.normalize(node.attr("aria-label"));
+            String ariaLabel = attrText(node, "aria-label", w);
+            if (w.withheld) {
+                return withheldName(NameSource.ARIA_LABEL, w);
+            }
             if (!ariaLabel.isEmpty()) {
                 name = ariaLabel;
                 source = NameSource.ARIA_LABEL;
@@ -67,6 +93,9 @@ public final class AccessibleNameCalculator {
             w.sources.clear();
             NameSource[] labelSource = new NameSource[1];
             String text = labelText(node, model, w, labelSource);
+            if (w.withheld || text.isEmpty() && labelTextWithheld(node, model)) {
+                return withheldName(labelSource[0] == null ? NameSource.LABEL_ELEMENT : labelSource[0], w);
+            }
             if (!text.isEmpty()) {
                 name = text;
                 source = labelSource[0];
@@ -75,6 +104,9 @@ public final class AccessibleNameCalculator {
         if (name.isEmpty()) {
             w.sources.clear();
             String nativeName = nativeName(node, model, w);
+            if (w.withheld) {
+                return withheldName(nativeSource(node), w);
+            }
             if (!nativeName.isEmpty()) {
                 name = nativeName;
                 source = nativeSource(node);
@@ -83,6 +115,9 @@ public final class AccessibleNameCalculator {
         // 2F — nome por conteúdo
         if (name.isEmpty() && allowsNameFromContent(node, kind, role)) {
             String text = TextNormalizer.normalize(fromContent(node, model, w, false, 0));
+            if (w.withheld) {
+                return withheldName(NameSource.CONTENT, w);
+            }
             if (!text.isEmpty()) {
                 name = TextNormalizer.truncate(text, 160);
                 source = NameSource.CONTENT;
@@ -90,14 +125,20 @@ public final class AccessibleNameCalculator {
         }
         // 2I — dica (tooltip) e placeholder
         if (name.isEmpty()) {
-            String title = TextNormalizer.normalize(node.attr("title"));
+            String title = attrText(node, "title", w);
+            if (w.withheld) {
+                return withheldName(NameSource.TITLE, w);
+            }
             if (!title.isEmpty()) {
                 name = title;
                 source = NameSource.TITLE;
             }
         }
         if (name.isEmpty()) {
-            String placeholder = TextNormalizer.normalize(node.attr("placeholder"));
+            String placeholder = attrText(node, "placeholder", w);
+            if (w.withheld) {
+                return withheldName(NameSource.PLACEHOLDER, w);
+            }
             if (!placeholder.isEmpty()) {
                 name = placeholder;
                 source = NameSource.PLACEHOLDER;
@@ -108,15 +149,14 @@ public final class AccessibleNameCalculator {
         Walk dw = new Walk();
         dw.visited.add(node.id());
         String description = "";
-        String describedBy = node.attr("aria-describedby");
-        if (describedBy != null && !describedBy.isBlank()) {
-            description = fromReferences(node, describedBy, model, dw, true);
+        if (node.hasAttr("aria-describedby") || node.refs().containsKey("aria-describedby")) {
+            description = fromReferences(node, "aria-describedby", model, dw, true);
         }
         if (description.isEmpty()) {
             description = TextNormalizer.normalize(node.attr("aria-description"));
         }
         if (description.isEmpty() && source != NameSource.TITLE) {
-            description = TextNormalizer.normalize(node.attr("title"));
+            description = attrText(node, "title", new Walk());
         }
         return new AccessibleName(name, source, source == NameSource.NONE ? List.of() : List.copyOf(new LinkedHashSet<>(w.sources)),
                 description, dw.sources, confidenceOf(source));
@@ -134,10 +174,10 @@ public final class AccessibleNameCalculator {
     // ------------------------------------------------------------------------------ passos
 
     /** 2B: texto das referências (IDREFs), na ordem declarada; ocultos INCLUÍDOS por estarem referenciados. */
-    private String fromReferences(RawNode from, String refs, PageModel model, Walk w, boolean recordSources) {
+    private String fromReferences(RawNode from, String attribute, PageModel model, Walk w, boolean recordSources) {
         List<String> parts = new ArrayList<>();
-        for (String ref : refs.trim().split("\\s+")) {
-            RawNode target = model.resolveIdRef(from, ref).orElse(null);
+        for (List<RawNode> group : model.refTargets(from, attribute)) {
+            RawNode target = group.size() == 1 ? group.get(0) : null; // ausente ou ambíguo: não contribui
             if (target != null && target.id().equals(from.id())) {
                 // Autorreferência (ex.: aria-labelledby="eu outro" + aria-label): o próprio nó contribui com a
                 // alternativa textual SEM reaplicar o passo 2B — aria-label (2C), nativa ou conteúdo.
@@ -154,6 +194,9 @@ public final class AccessibleNameCalculator {
                 continue; // ausente, ambíguo ou já visitado (referência circular)
             }
             String t = referencedText(target, model, w, 1);
+            if (t.isEmpty() && model.textSuppressedWithin(target)) {
+                w.withheld = true; // o rótulo referenciado existe, mas o texto foi retido
+            }
             if (!t.isEmpty()) {
                 parts.add(t);
                 if (recordSources) {
@@ -169,8 +212,8 @@ public final class AccessibleNameCalculator {
         if (depth > MAX_DEPTH) {
             return "";
         }
-        String aria = TextNormalizer.normalize(n.attr("aria-label"));
-        if (!aria.isEmpty()) {
+        String aria = attrText(n, "aria-label", w);
+        if (!aria.isEmpty() || w.withheld) {
             return aria;
         }
         String embedded = embeddedControlValue(n, model);
@@ -218,18 +261,20 @@ public final class AccessibleNameCalculator {
                 continue;
             }
             // 2B/2C dentro do conteúdo: aria-labelledby e aria-label do descendente prevalecem.
-            String lb = c.attr("aria-labelledby");
-            if (lb != null && !lb.isBlank()) {
-                String t = fromReferences(c, lb, model, w, false);
+            if (c.hasAttr("aria-labelledby") || c.refs().containsKey("aria-labelledby")) {
+                String t = fromReferences(c, "aria-labelledby", model, w, false);
                 if (!t.isEmpty()) {
                     sb.append(' ').append(t);
                     continue;
                 }
             }
-            String aria = TextNormalizer.normalize(c.attr("aria-label"));
+            String aria = attrText(c, "aria-label", w);
             if (!aria.isEmpty()) {
                 sb.append(' ').append(aria);
                 continue;
+            }
+            if (CapturePrivacyPolicy.HOLE.equals(c.attr("aria-label"))) {
+                continue; // retido: a caminhada já está marcada
             }
             String embedded = embeddedControlValue(c, model);
             if (embedded != null) {
@@ -237,12 +282,12 @@ public final class AccessibleNameCalculator {
                 continue;
             }
             if (c.tag().equals("img") || c.tag().equals("area") || ("image".equals(c.attr("type")) && c.tag().equals("input"))) {
-                sb.append(' ').append(TextNormalizer.normalize(c.attr("alt")));
+                sb.append(' ').append(attrText(c, "alt", w));
                 continue;
             }
             String inner = fromContent(c, model, w, includeHidden, depth + 1);
             if (inner.isBlank() && c.attr("title") != null) {
-                inner = c.attr("title"); // 2I aplicado ao descendente
+                inner = attrText(c, "title", w); // 2I aplicado ao descendente
             }
             sb.append(' ').append(inner);
         }
@@ -268,7 +313,7 @@ public final class AccessibleNameCalculator {
             return vt != null ? TextNormalizer.normalize(vt) : TextNormalizer.normalize(c.attr("aria-valuenow"));
         }
         if (c.tag().equals("input") && !Set.of("button", "submit", "reset", "image", "checkbox", "radio", "hidden").contains(type(c))) {
-            return c.exposedValue() == null ? "" : TextNormalizer.normalize(c.exposedValue());
+            return ""; // o valor digitado nunca compõe o nome (CHROME-SECURITY-001)
         }
         return null;
     }
@@ -293,6 +338,17 @@ public final class AccessibleNameCalculator {
         return kind == ElementKind.COMBOBOX && !node.tag().equals("input")
                 || kind == ElementKind.CUSTOM_DROPDOWN
                 || kind == ElementKind.LABEL || kind == ElementKind.LEGEND;
+    }
+
+    /** Algum rótulo associado (element.labels) tem o texto retido pela política? */
+    private static boolean labelTextWithheld(RawNode node, PageModel model) {
+        for (String id : node.labelIds()) {
+            RawNode l = model.find(id).orElse(null);
+            if (l != null && model.textSuppressedWithin(l)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isLabelable(RawNode node) {
@@ -363,19 +419,19 @@ public final class AccessibleNameCalculator {
             case "input" -> {
                 String t = type(node);
                 if (t.equals("submit") || t.equals("button") || t.equals("reset")) {
-                    String v = TextNormalizer.normalize(node.attr("value"));
-                    if (!v.isEmpty()) {
+                    String v = attrText(node, "value", w);
+                    if (!v.isEmpty() || w.withheld) {
                         return v;
                     }
                     return t.equals("submit") ? "Submit" : t.equals("reset") ? "Reset" : "";
                 }
                 if (t.equals("image")) {
-                    return TextNormalizer.normalize(node.attr("alt"));
+                    return attrText(node, "alt", w);
                 }
                 return "";
             }
             case "img", "area" -> {
-                return TextNormalizer.normalize(node.attr("alt"));
+                return attrText(node, "alt", w);
             }
             case "svg" -> {
                 return TextNormalizer.normalize(node.ownText()); // <title> do SVG

@@ -1,0 +1,71 @@
+{
+  "Página 15 — componentes personalizados" : {
+    "count" : 14,
+    "byDestination" : {
+      "PageMap exportado (pagemap.export)" : [ {
+        "excerpt" : "xpectedcondition\":\"element present\",\"frameidentity\":null,\"label\":\"salvar\",\"locator\":\"acao teodolinda ramos {text=\\\"salvar\\\"}\",\"locatorstrate",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "tereddocumentid\":null,\"expectedcondition\":\"element present\",\"frameidentity\":null,\"label\":\"eustaquio\",\"locator\":\"html > body > eustaquio:nth",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "arquivo do host: pagemaps/*.json" : [ {
+        "excerpt" : " 5 }, \"family\" : { \"nodeid\" : \"n13\", \"parent\" : { \"nodeid\" : \"n6\", \"tag\" : \"ficha cliente teodolinda\", \"kind\" : \"generic container\", \"name\" ",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : " \"height\" : 34 5 }, \"family\" : { \"nodeid\" : \"n15\", \"parent\" : { \"nodeid\" : \"n8\", \"tag\" : \"eustaquio\", \"kind\" : \"generic container\", \"name\" ",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "arquivo do host: targets/registry-v2.json" : [ {
+        "excerpt" : ": [ ], \"live\" : null }, { \"strategy\" : \"positional\", \"css\" : \"html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)\"",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "penas pelo motor\" ], \"live\" : null }, { \"strategy\" : \"positional\", \"css\" : \"html > body > eustaquio:nth of type(1) > button:nth of type(1)\"",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "eventos ao Studio (etapas/evidências)" : [ {
+        "excerpt" : "validation\":\"live\"},{\"strategy\":\"positional\",\"description\":\"html >> body >> ficha cliente teodolinda {nth of type 1} >> button {nth of type ",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "stic stable\",\"validation\":\"none\"},{\"strategy\":\"positional\",\"description\":\"html >> body >> eustaquio {nth of type 1} >> button {nth of type ",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "registro de alvos (target.list)" : [ {
+        "excerpt" : "\"xpath\":\"//button[normalize space( )=\\\"consultar\\\"]\"},{\"css\":\"html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)\"",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "quivalente css/xpath; verificavel apenas pelo motor\"],\"xpath\":null},{\"css\":\"html > body > eustaquio:nth of type(1) > button:nth of type(1)\"",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "resultado do motor para a inspeção (element.inspect/target.register)" : [ {
+        "excerpt" : "ch\":\"v74nmqju8u\",\"rownodeid\":null,\"rowrevision\":0,\"scopeid\":\"doc:f0\",\"tag\":\"ficha cliente teodolinda\"},\"attributehistory\":{\"id\":[null],\"name",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "\",\"registryepoch\":\"v74nmqju8u\",\"rownodeid\":null,\"rowrevision\":0,\"scopeid\":\"doc:f0\",\"tag\":\"eustaquio\"},\"attributehistory\":{\"id\":[null],\"name",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ],
+      "snapshot transportado ao motor (cs.capture)" : [ {
+        "excerpt" : ",\"selected\":null,\"valuelength\":null,\"visible\":true,\"zerosize\":false},\"tag\":\"ficha cliente teodolinda\"},{\"attributes\":{\"type\":\"button\"},\"chil",
+        "canary" : "teodolinda",
+        "surface" : "SEC001-091 nome de elemento personalizado (tag)"
+      }, {
+        "excerpt" : "required\":null,\"selected\":null,\"valuelength\":null,\"visible\":true,\"zerosize\":false},\"tag\":\"eustaquio\"},{\"attributes\":{\"type\":\"button\"},\"chil",
+        "canary" : "eustaquio",
+        "surface" : "SEC001-091 nome de elemento desconhecido (tag)"
+      } ]
+    }
+  },
+  "notes" : [ ]
+}

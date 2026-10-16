@@ -145,7 +145,9 @@ public final class SnapshotComparator {
         }
         String tb = null;
         String ta = null;
-        if (!a.ownText().equals(b.ownText())) {
+        if (!a.ownText().equals(b.ownText())
+                || a.textRevision() != null && b.textRevision() != null && !a.textRevision().equals(b.textRevision())) {
+            // CHROME-SECURITY-001: texto retido que mudou é detectado pela revisão (fato); o registro retém o conteúdo
             tb = a.ownText();
             ta = b.ownText();
         }
@@ -161,9 +163,6 @@ public final class SnapshotComparator {
         state(states, "modal", sa.modal(), sb.modal());
         state(states, "inert", sa.inert(), sb.inert());
         state(states, "hasValue", sa.hasValue(), sb.hasValue());
-        if (!Objects.equals(a.exposedValue(), b.exposedValue())) {
-            states.add("value: \"" + a.exposedValue() + "\"→\"" + b.exposedValue() + "\"");
-        }
         return new NodeChange(a.id(), attrs, tb, ta, states, !a.childIds().equals(b.childIds()));
     }
 

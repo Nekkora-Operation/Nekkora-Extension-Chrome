@@ -59,7 +59,11 @@ class PerformanceIT extends LabIT {
             JsonNode sel = select(p, "#grande tr:last-child button");
             double selectMs = (System.nanoTime() - s0) / 1e6;
             JsonNode res = lab.call("target.resolve", p, "targetId", sel.at("/identity/targetId").asText());
-            assertEquals("RESOLVED", res.at("/result/status").asText());
+            // CHROME-SECURITY-001: as linhas da tabela grande só se distinguiam pelo texto (dado): ambiguidade declarada,
+            // nunca outra linha
+            String st = res.at("/result/status").asText();
+            assertTrue("RESOLVED".equals(st) ? sel.at("/inspection/nodeId").asText().equals(res.at("/result/resolvedNodeId").asText())
+                    : java.util.Set.of("AMBIGUOUS", "INSUFFICIENT_EVIDENCE").contains(st) && res.at("/result/resolvedNodeId").isNull(), res.toString());
             JsonNode exp = lab.call("pagemap.export", p, "returnPageMap", false);
             JsonNode metrics = lab.call("pagemap.export", p, "returnPageMap", true).at("/pageMap/metrics");
             JsonNode ping = lab.call("host.ping", Map.of()).get("ping");

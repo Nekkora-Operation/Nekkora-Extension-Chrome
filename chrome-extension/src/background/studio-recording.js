@@ -166,13 +166,13 @@ export function createStudioRecorder(deps) {
     }
   }
 
-  /** Título exibível: mascarado pela política de privacidade e limitado (nunca a URL). */
+  /**
+   * Título da aba (CHROME-SECURITY-001, decisão D4): só segue se TODO o título for do vocabulário controlado; senão
+   * null (o Studio identifica a aba por host). Sem a política carregada, nada sai.
+   */
   function safeTitle(title) {
-    if (!title || typeof title !== 'string') {
-      return null;
-    }
-    const masked = globalThis.NekkoraPrivacy ? globalThis.NekkoraPrivacy.maskText(title.trim()) : title.trim();
-    return masked ? masked.slice(0, 120) : null;
+    const p = globalThis.NekkoraCapturePolicy;
+    return title && typeof title === 'string' && p ? p.title(title) : null;
   }
 
   async function listTabs() {
@@ -1174,5 +1174,6 @@ export function createStudioRecorder(deps) {
     });
   }
 
-  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, evidenceMetrics, steps, evidence };
+  return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, evidenceMetrics, steps, evidence,
+    tabRef: refOf };
 }

@@ -129,6 +129,9 @@ public final class LocatorEngine {
 
         private LocatorDescriptor describe(LocatorCandidate c, RawNode node, LocatorScope scope, ExpectedTarget expected,
                                            StabilityObservations observations) {
+            if (!LocatorPrivacy.transportable(c.query())) {
+                return null; // P1-02: predicado com valor fora da política não vira localizador (posição continua)
+            }
             List<RawNode> matches = evaluator.evaluate(c.query(), node.scopeId(), eval);
             boolean matchesTarget = matches.stream().anyMatch(n -> n.id().equals(node.id()));
             if (!matchesTarget) {
@@ -148,7 +151,7 @@ public final class LocatorEngine {
                             warnings.add("DUPLICATE_ID: id \"" + eq.value() + "\" aparece " + dup + " vezes no escopo");
                         }
                     }
-                    if (p instanceof Predicate.NthOfType) {
+                    if (p instanceof Predicate.NthOfType || p instanceof Predicate.NthChild) {
                         warnings.add("POSITIONAL_DEPENDENCY");
                     }
                 }

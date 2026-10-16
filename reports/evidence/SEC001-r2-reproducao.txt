@@ -1,0 +1,95 @@
+CHROME-SECURITY-001 — 2ª revisão dos PRs #7: reprodução ANTES das correções (extensão 81ce410, Studio ddc4705)
+
+== P1-A: validador textual de localizadores (vetores compartilhados, contracts/privacy/privacy-v2-vectors.json)
+-- JavaScript (capture-policy.js):
+expressões divergentes no código atual (81ce410): 29
+  BYPASS (aceito) "button[data-client^=joao-oliveira]"
+  BYPASS (aceito) "button[data-client~=joao-oliveira]"
+  BYPASS (aceito) "button[data-client|=joao-oliveira]"
+  BYPASS (aceito) "button[data-client$=joao-oliveira]"
+  BYPASS (aceito) "input[aria-label*=gumercindo-tavares]"
+  BYPASS (aceito) "input[aria-label *= gumercindo-tavares]"
+  BYPASS (aceito) "#\\6a oao-oliveira"
+  BYPASS (aceito) ".\\63 liente-joao"
+  BYPASS (aceito) "button\\:joao"
+  BYPASS (aceito) "button:not(.btn)"
+  BYPASS (aceito) "button:contains(joao)"
+  BYPASS (aceito) "button::after"
+  BYPASS (aceito) "button, a"
+  BYPASS (aceito) "button /* joao oliveira */"
+  BYPASS (aceito) "button[data-joao-oliveira]"
+  BYPASS (aceito) "[data-client"
+  BYPASS (aceito) "button)"
+  BYPASS (aceito) "ficha-cliente-joao > button"
+  BYPASS (aceito) "eustaquio button"
+  BYPASS (aceito) "//ficha-cliente-joao/button"
+  BYPASS (aceito) "//button[starts-with(@data-client,'Consultar')]"
+  BYPASS (aceito) "//label[normalize-space(.)='Nome']/ancestor::form"
+  DEVERIA PASSAR "//button[normalize-space(.)=concat(\"Salvar\",'\"',\"agora\")]"
+  BYPASS (aceito) "//button | //a"
+  BYPASS (aceito) "button {aria-label=Consultar Joao Oliveira}"
+  BYPASS (aceito) "ficha-cliente-joao >> button"
+  BYPASS (aceito) "* {has data-joao-oliveira}"
+  BYPASS (aceito) "section {has child <ficha-joao> \"Pagamentos\"} >> button"
+  BYPASS (aceito) "button {joao oliveira}"
+tags: função de política de tag existe? undefined
+-- Java (CapturePrivacyPolicy.java; o Studio usa cópia gerada do mesmo código):
+  BYPASS (aceito) button[data-client^=joao-oliveira]
+  BYPASS (aceito) button[data-client~=joao-oliveira]
+  BYPASS (aceito) button[data-client|=joao-oliveira]
+  BYPASS (aceito) button[data-client$=joao-oliveira]
+  BYPASS (aceito) input[aria-label*=gumercindo-tavares]
+  BYPASS (aceito) input[aria-label *= gumercindo-tavares]
+  BYPASS (aceito) #\6a oao-oliveira
+  BYPASS (aceito) .\63 liente-joao
+  BYPASS (aceito) button\:joao
+  BYPASS (aceito) button:not(.btn)
+  BYPASS (aceito) button:contains(joao)
+  BYPASS (aceito) button::after
+  BYPASS (aceito) button, a
+  BYPASS (aceito) button /* joao oliveira */
+  BYPASS (aceito) button[data-joao-oliveira]
+  BYPASS (aceito) [data-client
+  BYPASS (aceito) button)
+  BYPASS (aceito) ficha-cliente-joao > button
+  BYPASS (aceito) eustaquio button
+  BYPASS (aceito) //ficha-cliente-joao/button
+  BYPASS (aceito) //button[starts-with(@data-client,'Consultar')]
+  BYPASS (aceito) //label[normalize-space(.)='Nome']/ancestor::form
+  DEVERIA PASSAR //button[normalize-space(.)=concat("Salvar",'"',"agora")]
+  BYPASS (aceito) //button | //a
+  BYPASS (aceito) button {aria-label=Consultar Joao Oliveira}
+  BYPASS (aceito) ficha-cliente-joao >> button
+  BYPASS (aceito) * {has data-joao-oliveira}
+  BYPASS (aceito) section {has child <ficha-joao> "Pagamentos"} >> button
+  BYPASS (aceito) button {joao oliveira}
+expressões divergentes no Java (81ce410): 29
+
+== P1-B: nome de elemento personalizado/desconhecido (Chrome real, página 15, ChromeSecurity001IT.sec001Componentes)
+Página 15 — componentes personalizados: 14 exposição(ões):
+  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento personalizado (tag) ? …,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"ficha cliente teodolinda"},{"attributes":{"type":"button"},"chil…
+  [snapshot transportado ao motor (cs.capture)] SEC001-091 nome de elemento desconhecido (tag) ? …required":null,"selected":null,"valuelength":null,"visible":true,"zerosize":false},"tag":"eustaquio"},{"attributes":{"type":"button"},"chil…
+  [resultado do motor para a inspeção (element.inspect/target.register)] SEC001-091 nome de elemento personalizado (tag) ? …ch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"ficha cliente teodolinda"},"attributehistory":{"id":[null],"name…
+  [resultado do motor para a inspeção (element.inspect/target.register)] SEC001-091 nome de elemento desconhecido (tag) ? …","registryepoch":"v74nmqju8u","rownodeid":null,"rowrevision":0,"scopeid":"doc:f0","tag":"eustaquio"},"attributehistory":{"id":[null],"name…
+  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento personalizado (tag) ? …xpectedcondition":"element present","frameidentity":null,"label":"salvar","locator":"acao teodolinda ramos {text=\"salvar\"}","locatorstrate…
+  [PageMap exportado (pagemap.export)] SEC001-091 nome de elemento desconhecido (tag) ? …tereddocumentid":null,"expectedcondition":"element present","frameidentity":null,"label":"eustaquio","locator":"html > body > eustaquio:nth…
+  [registro de alvos (target.list)] SEC001-091 nome de elemento personalizado (tag) ? …"xpath":"//button[normalize space( )=\"consultar\"]"},{"css":"html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"…
+  [registro de alvos (target.list)] SEC001-091 nome de elemento desconhecido (tag) ? …quivalente css/xpath; verificavel apenas pelo motor"],"xpath":null},{"css":"html > body > eustaquio:nth of type(1) > button:nth of type(1)"…
+  [eventos ao Studio (etapas/evidências)] SEC001-091 nome de elemento personalizado (tag) ? …validation":"live"},{"strategy":"positional","description":"html >> body >> ficha cliente teodolinda {nth of type 1} >> button {nth of type …
+  [eventos ao Studio (etapas/evidências)] SEC001-091 nome de elemento desconhecido (tag) ? …stic stable","validation":"none"},{"strategy":"positional","description":"html >> body >> eustaquio {nth of type 1} >> button {nth of type …
+  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento personalizado (tag) ? … 5 }, "family" : { "nodeid" : "n13", "parent" : { "nodeid" : "n6", "tag" : "ficha cliente teodolinda", "kind" : "generic container", "name" …
+  [arquivo do host: pagemaps/*.json] SEC001-091 nome de elemento desconhecido (tag) ? … "height" : 34 5 }, "family" : { "nodeid" : "n15", "parent" : { "nodeid" : "n8", "tag" : "eustaquio", "kind" : "generic container", "name" …
+  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento personalizado (tag) ? …: [ ], "live" : null }, { "strategy" : "positional", "css" : "html > body > ficha cliente teodolinda:nth of type(1) > button:nth of type(1)"…
+  [arquivo do host: targets/registry-v2.json] SEC001-091 nome de elemento desconhecido (tag) ? …penas pelo motor" ], "live" : null }, { "strategy" : "positional", "css" : "html > body > eustaquio:nth of type(1) > button:nth of type(1)"…
+
+== Achado adicional (P2, mesma classe): page.nodeInfo devolvia textContent e id crus a páginas da extensão, inclusive em PRD (não estava em DEV_ONLY)
+Consulta de nó: 3 exposição(ões):
+  [consulta de nó (page.nodeInfo) #pedido] SEC001-001/022 texto próprio ? …ct":{"height":22 5,"left":24,"top":165 5,"width":1302},"tag":"p","text":"pedido de ximena tavolaro aprovado"}…
+  [consulta de nó (page.nodeInfo) #contrato] SEC001-023 texto descendente ? …":{"height":22 5,"left":24,"top":203,"width":1302},"tag":"div","text":"contrato de irineu calabouco"}…
+  [consulta de nó (page.nodeInfo) #misto] SEC001-024 segmentos de texto ? …":{"height":38 5,"left":24,"top":225 5,"width":1302},"tag":"div","text":"cliente severino pitanguy consultar ativo"}…
+
+== Conferência com o conjunto FINAL de vetores (97 expressões), executando cada implementação antiga
+  JS 81ce410: 29 aceitas indevidamente
+  Java 81ce410: 29 aceitas indevidamente (lista acima; a 29ª é "* {nth-child joao}", vetor acrescentado com o predicado novo)
+  Studio ddc4705: 29 aceitas indevidamente (CapturePrivacy da ddc4705 compilado e executado)
+  Depois da correção (a240333 / 1391360): 0 aceitas indevidamente nas três implementações

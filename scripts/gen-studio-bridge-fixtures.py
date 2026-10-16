@@ -156,7 +156,7 @@ element_button = {
         {"strategy": "ROLE_NAME", "description": "botão \"Entrar\"", "css": None, "xpath": "//button[normalize-space()='Entrar']", "matchCount": 1,
          "matchesTarget": True, "stability": "HEURISTIC_STABLE", "validation": "SNAPSHOT"}],
     "preferredLocator": 0,
-    "accessPath": [{"type": "MAIN_DOCUMENT", "label": "Login de teste", "locator": None, "restriction": None},
+    "accessPath": [{"type": "MAIN_DOCUMENT", "label": "Login", "locator": None, "restriction": None},
                    {"type": "ELEMENT", "label": "Entrar", "locator": "#entrar", "restriction": None}],
     "context": [{"relation": "IN_FORM", "kind": "FORM", "name": "login"}],
     "lookalikes": 0,
@@ -170,23 +170,23 @@ step_click = {
     "recordingId": REC, "eventId": "ev-1-3", "sequence": 3, "routeRef": "route-1", "observedAt": "2026-10-15T12:00:07.000Z",
     "mode": "CAPTURE_AND_INTERACT", "observation": "INTERACTION_OBSERVED", "action": "CLICK", "element": element_button,
     "parameters": {"valueCaptured": False, "option": None, "key": None},
-    "context": {"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN",
-                "after": {"navigation": "NEW_DOCUMENT", "url": "http://127.0.0.1:18765/lab/studio003/consulta.html"}},
+    "context": {"url": "http://127.0.0.1:18765/{…}/{…}/login.html", "title": "Login", "frame": "MAIN",
+                "after": {"navigation": "NEW_DOCUMENT", "url": "http://127.0.0.1:18765/{…}/{…}/consulta.html"}},
     "evidence": ["FORM_SUBMITTED", "NAVIGATION_FOLLOWED", "LOCATORS_VERIFIED_LIVE"], "notes": [], "events": 4,
 }
 step_fill_password = dict(step_click, eventId="ev-1-2", sequence=2, action="FILL", element=element_password, evidence=["FOCUS_CLICK_ABSORBED"],
-                          events=9, context={"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN"})
+                          events=9, context={"url": "http://127.0.0.1:18765/{…}/{…}/login.html", "title": "Login", "frame": "MAIN"})
 step_select = dict(step_click, eventId="ev-1-5", sequence=5, routeRef="route-2", action="SELECT_OPTION",
                    element=dict(element_button, kind="SELECT", role="combobox", name="Estado", tag="select", htmlId="estado", context=[]),
                    parameters={"valueCaptured": False, "option": {"label": "São Paulo", "value": "SP"}, "key": None}, evidence=[], events=2,
-                   context={"url": "http://127.0.0.1:18765/lab/studio003/consulta.html", "title": "Consulta", "frame": "MAIN"})
+                   context={"url": "http://127.0.0.1:18765/{…}/{…}/consulta.html", "title": "Consulta", "frame": "MAIN"})
 step_proposed = dict(step_click, eventId="ev-1-6", sequence=6, mode="CAPTURE_ONLY", observation="PROPOSED", evidence=[], events=1,
                      context={"url": None, "title": None, "frame": "FRAME"})
 step_unresolved = dict(step_click, eventId="ev-1-7", sequence=7, action="UNKNOWN", evidence=[], notes=["AMBIGUOUS_TARGET", "ELEMENT_UNRESOLVED"],
                        element={"resolution": "UNRESOLVED", "kind": "UNKNOWN", "role": None, "name": "Ícone", "tag": "span", "htmlId": None,
                                 "htmlName": None, "sensitive": False, "locators": [], "preferredLocator": -1, "accessPath": [], "context": [],
                                 "lookalikes": 0},
-                       context={"url": "http://127.0.0.1:18765/lab/studio003/login.html", "title": "Login de teste", "frame": "MAIN"})
+                       context={"url": "http://127.0.0.1:18765/{…}/{…}/login.html", "title": "Login", "frame": "MAIN"})
 summary_available = dict(summary, actionCapture="AVAILABLE", limitations=[],
                          steps={"produced": 3, "acknowledged": 3, "rejected": 0, "unacknowledged": 0, "lost": 0,
                                 "discarded": {"UNTRUSTED": 0, "NON_INTERACTIVE": 2, "FOCUS_ONLY": 1, "PROGRAMMATIC_SUBMIT": 0, "ABSORBED": 3,
@@ -283,7 +283,7 @@ def _evidence5(**over):
         "relation": "AFTER_ACTION",
         "confidence": "TEMPORALLY_ASSOCIATED",
         "classification": "ERROR_INDICATOR",
-        "document": {"frame": "MAIN", "inShadow": False, "title": "Login de teste", "url": "http://127.0.0.1:18765/lab/studio005/login-erro.html"},
+        "document": {"frame": "MAIN", "inShadow": False, "title": "Login", "url": "http://127.0.0.1:18765/{…}/{…}/{…}"},
         "details": {
             "region": "alerta do formulário login",
             "message": {"availability": "AVAILABLE", "text": "Usuário ou senha inválidos."},
@@ -322,7 +322,7 @@ fixtures_valid["s005-event-evidence-ambiguous"] = _ev5("studio.recording.evidenc
 _e = _evidence5(evidenceId="evd-1-8", evidenceSequence=8, type="ROUTE_CHANGED", source="NAVIGATION_OBSERVER", confidence="TEMPORALLY_ASSOCIATED",
                 classification=None)
 _e["details"].update({"region": None, "message": {"availability": "NONE", "text": None}, "signals": ["HISTORY_API"],
-                      "navigation": {"kind": "SAME_DOCUMENT", "url": "http://127.0.0.1:18765/lab/studio005/spa.html#/clientes"}})
+                      "navigation": {"kind": "SAME_DOCUMENT", "url": "http://127.0.0.1:18765/{…}/{…}/{…}"}})
 fixtures_valid["s005-event-evidence-route"] = _ev5("studio.recording.evidence", _e)
 _e = _evidence5(evidenceId="evd-1-9", evidenceSequence=9, type="ELEMENT_STATE_CHANGED", confidence="DIRECTLY_OBSERVED", classification=None)
 _e["details"].update({"region": "botão Filtros", "message": {"availability": "NONE", "text": None}, "signals": ["TARGET_ATTRIBUTE"],

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Formulários (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Formulários (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 2. Os valores digitados pelo teste são fictícios e nunca podem sair da página. A página de
+    propósito repete alguns valores no próprio texto (como fazem aplicações reais).</p>
+  <form id="form" onsubmit="return false">
+    <p><label for="nome">Nome</label> <input id="nome" type="text"></p>
+    <p><label for="senha">Senha</label> <input id="senha" type="password"></p>
+    <p><label for="email">E-mail</label> <input id="email" type="email"></p>
+    <p><label for="telefone">Telefone</label> <input id="telefone" type="tel"></p>
+    <p><label for="numero">Número do pedido</label> <input id="numero" type="number"></p>
+    <p><label for="pesquisa">Pesquisar</label> <input id="pesquisa" type="search" name="q"></p>
+    <p><label for="obs">Observação</label> <textarea id="obs"></textarea></p>
+    <p>Nota: <span id="nota" contenteditable="true" role="textbox" aria-label="Nota"></span></p>
+    <p><label for="titular">Titular</label>
+      <select id="titular">
+        <option value="">—</option>
+        <option value="t1">Zéfiro Quintanilha (contrato 7731)</option>
+        <option value="t2">Outra pessoa</option>
+      </select></p>
+    <p><label id="rot-combo" for="combo">Responsável</label>
+      <input id="combo" role="combobox" aria-expanded="false" aria-controls="lista" aria-labelledby="rot-combo" autocomplete="off">
+      <ul id="lista" role="listbox" hidden>
+        <li id="op-ondina" role="option">Ondina Carrasqueira</li>
+        <li id="op-outro" role="option">Outro responsável</li>
+      </ul></p>
+    <p><label for="codigo">Código</label> <input id="codigo" type="text">
+      <button id="verificar" type="button">Verificar código</button>
+      <button id="remover" type="button">Remover campo</button></p>
+    <p><button id="salvar" type="button">Salvar</button></p>
+  </form>
+  <p id="eco" role="status"></p>
+  <script>
+    const combo = document.getElementById('combo');
+    const lista = document.getElementById('lista');
+    combo.addEventListener('click', () => { lista.hidden = false; combo.setAttribute('aria-expanded', 'true'); });
+    for (const li of lista.querySelectorAll('[role=option]')) {
+      li.addEventListener('click', () => {
+        combo.value = li.textContent;
+        lista.hidden = true;
+        combo.setAttribute('aria-expanded', 'false');
+      });
+    }
+    // SEC001-032: a página limpa o campo e depois escreve o valor no texto visível
+    document.getElementById('verificar').addEventListener('click', () => {
+      const c = document.getElementById('codigo');
+      const v = c.value;
+      c.value = '';
+      document.getElementById('eco').textContent = 'O código ' + v + ' expirou.';
+    });
+    // SEC001-033: a página remove o campo e depois escreve o valor
+    document.getElementById('remover').addEventListener('click', () => {
+      const n = document.getElementById('nome');
+      const v = n.value;
+      n.remove();
+      document.getElementById('eco').textContent = 'Até logo, ' + v + '.';
+    });
+  </script>
+</body>
+</html>

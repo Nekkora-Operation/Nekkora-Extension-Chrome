@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /** Base dos testes CHROME-003: grafo documental, trajetórias, proteções e prontidão. */
 public abstract class FrameIT extends SessionIT {
@@ -70,6 +71,63 @@ public abstract class FrameIT extends SessionIT {
 
     protected JsonNode exportMap(Page p) {
         return lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
+    }
+
+    /**
+     * CHROME-SECURITY-001: o título de um frame no grafo é o atributo title do iframe (ou o título do documento) e só
+     * atravessa se for do vocabulário controlado. Título do vocabulário: localiza pelo título, como antes. Fora dele: o
+     * teste encontra o iframe na PÁGINA REAL e localiza no grafo o frame hospedado por esse nó (identificação estrutural).
+     */
+    protected JsonNode frameTitled(Page p, JsonNode graph, String title) {
+        if (com.nekkora.extension.it.support.Policy.passes(title)) {
+            return frameTitled(graph, title);
+        }
+        assertNull(frameTitled(graph, title), "título fora do vocabulário não aparece no grafo: " + title);
+        String q = title.replace("\\", "\\\\").replace("\"", "\\\"");
+        try {
+            JsonNode r = lab.call("page.idFor", p, "css", "iframe[title=\"" + q + "\"], frame[title=\"" + q + "\"]");
+            if (r.path("count").asInt() == 1) {
+                return com.nekkora.extension.it.support.Policy.frameHostedBy(graph, r.path("nodeIds").get(0).asText());
+            }
+        } catch (RuntimeException e) {
+            // iframe não está no documento principal
+        }
+        return null;
+    }
+
+    protected JsonNode requireFrame(Page p, JsonNode graph, String title) {
+        JsonNode f = frameTitled(p, graph, title);
+        assertNotNull(f, "frame '" + title + "' no grafo");
+        return f;
+    }
+
+    /** O único frame filho de {@code parent} no grafo (identificação estrutural de frame aninhado), ou null. */
+    protected static JsonNode onlyChildFrame(JsonNode graph, JsonNode parent) {
+        if (parent == null || parent.path("childFrameIds").size() != 1) {
+            return null;
+        }
+        String child = parent.path("childFrameIds").get(0).asText();
+        for (JsonNode f : graph.path("frames")) {
+            if (child.equals(f.path("frameId").asText())) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /** Nó do ÚNICO botão dentro de shadow root no documento (frame) indicado do PageMap — sem depender do texto. */
+    protected static String onlyShadowButton(JsonNode map, String frameId) {
+        String found = null;
+        for (JsonNode e : map.path("elements")) {
+            if ("button".equals(e.path("tag").asText()) && frameId.equals(e.path("frameId").asText())
+                    && e.path("scopeId").asText().startsWith("shadow:")) {
+                if (found != null) {
+                    return null;
+                }
+                found = e.path("nodeId").asText();
+            }
+        }
+        return found;
     }
 
     protected static JsonNode frameTitled(JsonNode graph, String title) {

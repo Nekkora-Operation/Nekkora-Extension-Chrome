@@ -23,10 +23,23 @@ import java.util.Objects;
  * @param rect       retângulo em coordenadas do viewport do frame, ou {@code null}
  * @param labelIds   ids temporários de labels associados pela API {@code element.labels}
  * @param scroll     métricas de rolagem quando o elemento é rolável, ou {@code null}
- * @param exposedValue valor do controle SOMENTE quando a política permite (campos de pesquisa); senão {@code null}
+ * @param exposedValue sempre {@code null} (CHROME-SECURITY-001): nenhum valor de campo é aceito, nem o de pesquisa — o
+ *                     campo segue no contrato só por compatibilidade
  * @param textSegments conteúdo MISTO (CHROME-002, opcional): {@code childIds.size()+1} trechos de texto, o i-ésimo
  *                     antes do i-ésimo filho e o último após o último — preserva a ordem texto/elemento; {@code null}
  *                     quando o elemento não tem texto e filhos intercalados
+ * @param textPresent  CHROME-SECURITY-001: o elemento TEM texto próprio na página (estrutura), mesmo que o conteúdo não
+ *                     tenha atravessado; {@code null} em capturas antigas (aí vale {@code ownText} não vazio)
+ * @param textSuppressed o texto existia e foi retido pela política (conteúdo de negócio, tabela, mensagem, texto livre
+ *                     ou fora do vocabulário)
+ * @param refs         relações declaradas por id ({@code for}, {@code aria-labelledby}, {@code aria-controls}…)
+ *                     resolvidas NA PÁGINA para ids temporários de nó — o valor do atributo não atravessa
+ * @param textRevision quantas vezes o texto próprio mudou desde que a página o viu (fato estrutural, sem conteúdo);
+ *                     {@code null} em capturas antigas
+ * @param childPositions posição (base 1) de cada filho em {@code childIds} entre TODOS os filhos elemento do pai na
+ *                     página (inclusive os que a captura não descreve, como {@code script}); é o {@code :nth-child} real.
+ *                     Fato estrutural, sem conteúdo (2ª revisão dos PRs #7: posiciona um componente cujo nome foi
+ *                     retido). {@code null} em capturas antigas; 0 = desconhecida
  */
 public record RawNode(
         String id,
@@ -42,13 +55,56 @@ public record RawNode(
         List<String> labelIds,
         ScrollMetrics scroll,
         String exposedValue,
-        List<String> textSegments) {
+        List<String> textSegments,
+        Boolean textPresent,
+        Boolean textSuppressed,
+        Map<String, List<String>> refs,
+        Integer textRevision,
+        List<Integer> childPositions) {
+
+    private static final java.util.regex.Pattern NODE_ID = java.util.regex.Pattern.compile("[A-Za-z0-9:._-]{1,80}");
+
+    /**
+     * Tag a usar num localizador: {@code null} (qualquer elemento, {@code *}) quando o nome do elemento não é mantido pela
+     * política — o marcador neutro {@code custom-element} ou, num snapshot que não passou pela 3ª barreira, um nome fora
+     * do catálogo e do vocabulário (2ª revisão dos PRs #7). O marcador não é o nome real: usá-lo num seletor não
+     * encontraria nada no navegador, e a posição entre irmãos "de mesma tag" não é conhecida.
+     */
+    public String locatorTag() {
+        return tag != null && com.nekkora.extension.core.privacy.CapturePrivacyPolicy.tagSafe(tag) ? tag : null;
+    }
 
     /** Construtor CHROME-001 (sem segmentos de texto). */
     public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
                    Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
                    ScrollMetrics scroll, String exposedValue) {
         this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, null);
+    }
+
+    /** Construtor CHROME-002 (sem presença de texto nem relações por nó). */
+    public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
+                   Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
+                   ScrollMetrics scroll, String exposedValue, List<String> textSegments) {
+        this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
+                null, null, null, null);
+    }
+
+    /** Construtor CHROME-SECURITY-001 (sem revisão de texto). */
+    public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
+                   Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
+                   ScrollMetrics scroll, String exposedValue, List<String> textSegments, Boolean textPresent, Boolean textSuppressed,
+                   Map<String, List<String>> refs) {
+        this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
+                textPresent, textSuppressed, refs, null);
+    }
+
+    /** Construtor CHROME-SECURITY-001 com revisão de texto (sem posições dos filhos). */
+    public RawNode(String id, String parentId, List<String> childIds, String tag, String frameId, String scopeId,
+                   Map<String, String> attributes, String ownText, NodeState state, Rect rect, List<String> labelIds,
+                   ScrollMetrics scroll, String exposedValue, List<String> textSegments, Boolean textPresent, Boolean textSuppressed,
+                   Map<String, List<String>> refs, Integer textRevision) {
+        this(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
+                textPresent, textSuppressed, refs, textRevision, null);
     }
 
     public RawNode {
@@ -59,13 +115,37 @@ public record RawNode(
         attributes = attributes == null ? Map.of() : com.nekkora.extension.core.privacy.AttributePrivacy.sanitize(Map.copyOf(attributes));
         labelIds = labelIds == null ? List.of() : List.copyOf(labelIds);
         ownText = ownText == null ? "" : com.nekkora.extension.core.privacy.Privacy.maskText(ownText);
-        exposedValue = com.nekkora.extension.core.privacy.Privacy.maskText(exposedValue);
+        exposedValue = null; // barreira no motor: mesmo uma extensão antiga que envie o valor não o faz entrar
         state = state == null ? NodeState.UNKNOWN : state;
         frameId = frameId == null ? "f0" : frameId;
         scopeId = scopeId == null ? "doc:" + frameId : scopeId;
         tag = tag.toLowerCase(java.util.Locale.ROOT);
+        if (childPositions != null && (childPositions.size() != childIds.size() || childPositions.stream().anyMatch(p -> p == null || p < 0))) {
+            childPositions = null; // não corresponde aos filhos: posição desconhecida (nunca inventada)
+        } else if (childPositions != null) {
+            childPositions = List.copyOf(childPositions);
+        }
         textSegments = textSegments == null || textSegments.size() != childIds.size() + 1 ? null
                 : List.copyOf(textSegments.stream().map(t -> t == null ? "" : com.nekkora.extension.core.privacy.Privacy.maskText(t)).toList());
+        if (refs == null || refs.isEmpty()) {
+            refs = Map.of();
+        } else {
+            java.util.Map<String, List<String>> r = new java.util.LinkedHashMap<>();
+            refs.forEach((k, v) -> {
+                if (k != null && v != null) {
+                    List<String> ok = v.stream().filter(x -> x != null && NODE_ID.matcher(x).matches()).limit(16).toList();
+                    if (!ok.isEmpty()) {
+                        r.put(k, ok);
+                    }
+                }
+            });
+            refs = java.util.Collections.unmodifiableMap(r);
+        }
+    }
+
+    /** Há texto próprio na página (visível ou retido pela política). Decide estrutura (texto × contêiner). */
+    public boolean hasText() {
+        return !ownText.isBlank() || Boolean.TRUE.equals(textPresent);
     }
 
     public String attr(String name) {
@@ -79,16 +159,20 @@ public record RawNode(
     public RawNode withChildIds(List<String> newChildIds) {
         // Filhos alterados (ex.: documento de frame anexado): os segmentos deixam de corresponder e são descartados.
         List<String> segs = newChildIds != null && newChildIds.equals(childIds) ? textSegments : null;
-        return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, segs);
+        List<Integer> pos = newChildIds != null && newChildIds.equals(childIds) ? childPositions : null;
+        return new RawNode(id, parentId, newChildIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, segs,
+                textPresent, textSuppressed, refs, textRevision, pos);
     }
 
     /** Mesmo nó com geometria atualizada (retângulo, presença no viewport, área nula). */
     public RawNode withGeometry(Rect newRect, boolean inViewport) {
         return new RawNode(id, parentId, childIds, tag, frameId, scopeId, attributes, ownText,
-                state.withGeometry(inViewport, newRect.width() == 0 || newRect.height() == 0), newRect, labelIds, scroll, exposedValue, textSegments);
+                state.withGeometry(inViewport, newRect.width() == 0 || newRect.height() == 0), newRect, labelIds, scroll, exposedValue, textSegments,
+                textPresent, textSuppressed, refs, textRevision, childPositions);
     }
 
     public RawNode withParentId(String newParentId) {
-        return new RawNode(id, newParentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments);
+        return new RawNode(id, newParentId, childIds, tag, frameId, scopeId, attributes, ownText, state, rect, labelIds, scroll, exposedValue, textSegments,
+                textPresent, textSuppressed, refs, textRevision, childPositions);
     }
 }

@@ -7,9 +7,10 @@ import java.util.Map;
  * Alteração de um nó presente nas duas capturas.
  *
  * @param nodeId           nó
- * @param attributeChanges atributo → [antes, depois]
- * @param textBefore       texto próprio anterior (se mudou)
- * @param textAfter        texto próprio atual (se mudou)
+ * @param attributeChanges atributo → [antes, depois]; o VALOR só aparece em atributos estruturais (CHROME-SECURITY-001),
+ *                         nos demais vira {@code [omitido]}
+ * @param textBefore       {@code [omitido]} quando o texto próprio mudou (o conteúdo nunca sai); {@code null} se não mudou
+ * @param textAfter        idem
  * @param stateChanges     estados alterados (ex.: {@code visible: true→false})
  * @param childrenChanged  lista de filhos alterada
  */
@@ -17,7 +18,10 @@ public record NodeChange(String nodeId, Map<String, List<String>> attributeChang
                          List<String> stateChanges, boolean childrenChanged) {
 
     public NodeChange {
-        attributeChanges = Map.copyOf(attributeChanges);
+        // barreira: nenhum produtor de mudança (delta, comparação, reconciliação) faz o texto ou valor da página sair
+        attributeChanges = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.attributeChanges(attributeChanges);
+        textBefore = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.withheldText(textBefore);
+        textAfter = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.withheldText(textAfter);
         stateChanges = List.copyOf(stateChanges);
     }
 

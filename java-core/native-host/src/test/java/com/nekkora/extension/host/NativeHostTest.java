@@ -121,14 +121,26 @@ class NativeHostTest {
         JsonNode submit = call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + snapshot + "}");
         assertTrue(submit.get("ok").asBoolean(), submit.toString());
         assertEquals(16, submit.at("/payload/nodes").asInt());
-        assertEquals("duplicated-ids", submit.at("/payload/navigation/inferred/screen").asText());
+        // CHROME-SECURITY-001: o caminho chega como MODELO; segmentos fora do vocabulário não viram "tela" inventada
+        assertTrue(submit.at("/payload/navigation/inferred/screen").isNull(), submit.at("/payload/navigation").toString());
+        assertFalse(submit.toString().contains("duplicated"), "segmento do caminho não atravessou");
 
         JsonNode inspect = call("element.inspect", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\"}");
         assertTrue(inspect.get("ok").asBoolean(), inspect.toString());
         assertEquals("BUTTON", inspect.at("/payload/classification/kind").asText());
-        assertEquals("clientes-inativos", inspect.at("/payload/family/table/idAttr").asText());
-        assertEquals("202", inspect.at("/payload/family/row/rowKey/data-client").asText());
-        assertEquals("ROW_CONTEXT", inspect.at("/payload/locators/primary/strategy").asText());
+        assertEquals("Excluir", inspect.at("/payload/classification/name/name").asText(), "nome de controle do vocabulário continua");
+        assertEquals("clientes-inativos", inspect.at("/payload/family/table/idAttr").asText(), "id do desenvolvedor feito de termos do vocabulário");
+        // a CHAVE da linha (data-client=202, identificador de negócio) e os textos das células não atravessam
+        assertEquals(0, inspect.at("/payload/family/row/rowKey").size(), inspect.at("/payload/family/row").toString());
+        assertEquals(0, inspect.at("/payload/family/row/cellTexts").size());
+        assertFalse(inspect.toString().contains("202"), "valor da chave de linha retido");
+        // sem a chave da linha, o localizador estável e único vem da estrutura com ids do vocabulário (não é inventado)
+        assertEquals("CONTEXTUAL", inspect.at("/payload/locators/primary/strategy").asText());
+        assertEquals(1, inspect.at("/payload/locators/primary/matchCount").asInt());
+        assertTrue(inspect.at("/payload/locators/primary/matchesTarget").asBoolean());
+        for (String f : new String[]{"css", "xpath", "semantic"}) {
+            assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(inspect.at("/payload/locators/primary/" + f).asText()), f);
+        }
         assertEquals("ATTR_EQUALS", inspect.at("/payload/locators/primary/query/steps/0/predicates/0/type").asText());
         assertEquals(1, inspect.at("/payload/lookalikes").size());
 
@@ -142,12 +154,12 @@ class NativeHostTest {
         assertEquals("n16", res.at("/payload/result/resolvedNodeId").asText());
 
         // A identidade persistida é relida (polimorfismo de predicados preservado).
-        Path registry = dataDir.resolve("targets").resolve("registry.json");
+        Path registry = dataDir.resolve("targets").resolve("registry-v2.json"); // CHROME-SECURITY-001
         assertTrue(Files.exists(registry));
         NativeHost restarted = new NativeHost(new DataDirectory(dataDir));
         TargetIdentity reloaded = restarted.session().targets().get(targetId).orElseThrow();
         assertNotNull(reloaded.locators().primary().query());
-        assertEquals("ROW_CONTEXT", reloaded.locators().primary().strategy().name());
+        assertEquals("CONTEXTUAL", reloaded.locators().primary().strategy().name());
 
         JsonNode verify = call("locators.verify", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\",\"checks\":[{\"semantic\":"
                 + mapper.writeValueAsString(inspect.at("/payload/locators/primary/semantic").asText())
@@ -160,6 +172,48 @@ class NativeHostTest {
         assertTrue(Files.exists(Path.of(export.at("/payload/path").asText())));
         assertEquals(1, export.at("/payload/pageMap/targets").size());
         assertTrue(export.at("/payload/pageMap/evidence").size() >= 3);
+    }
+
+    private String withEpoch(String epoch) throws Exception {
+        ObjectNode snap = (ObjectNode) mapper.readTree(snapshot);
+        ((ObjectNode) snap.get("frames").get(0)).put("registryEpoch", epoch);
+        return snap.toString();
+    }
+
+    @Test
+    void d7ContinuidadeTecnicaSobreviveAoReinicioDoHostSemVirarIdentidadeLogica() throws Exception {
+        // CHROME-SECURITY-001, D7: a âncora técnica é persistida com o alvo; depois do reinício do Native Host, o mesmo
+        // documento (mesma época do registro de nós) mantém a continuidade — e ela continua separada da resolução lógica
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep1") + "}").get("ok").asBoolean());
+        JsonNode reg = call("target.register", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\"}");
+        String targetId = reg.at("/payload/targetId").asText();
+        host = new NativeHost(new DataDirectory(dataDir)); // reinício do Native Host (mesmo diretório de dados)
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep1") + "}").get("ok").asBoolean());
+        JsonNode res = call("target.resolve", "{\"tabKey\":\"t1\",\"targetId\":\"" + targetId + "\"}");
+        assertTrue(res.get("ok").asBoolean(), res.toString());
+        assertEquals("LIVE_NODE_CONTINUITY", res.at("/payload/result/continuity/status").asText(), res.toString());
+        assertEquals("n16", res.at("/payload/result/continuity/nodeId").asText());
+        assertTrue(res.at("/payload/result/continuity/limitations").toString().contains("LOGICAL_IDENTITY_NOT_REVALIDATED"));
+        // mesmo id de nó em OUTRA época (documento recarregado / registro reiniciado): nada é presumido
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep2") + "}").get("ok").asBoolean());
+        JsonNode res2 = call("target.resolve", "{\"tabKey\":\"t1\",\"targetId\":\"" + targetId + "\"}");
+        assertEquals("CONTINUITY_BROKEN", res2.at("/payload/result/continuity/status").asText(), res2.toString());
+        assertTrue(res2.at("/payload/result/continuity/limitations/0").asText().startsWith("REGISTRY_EPOCH_CHANGED"));
+    }
+
+    @Test
+    void sec001RegistroAntigoNaoELidoNemApagado() throws Exception {
+        // CHROME-SECURITY-001 (SEC001-073): registro de versão anterior, com texto da página, fica no disco intocado e fora da memória
+        Path legacy = dataDir.resolve("targets").resolve("registry.json");
+        Files.createDirectories(legacy.getParent());
+        String old = "{\"schemaVersion\":\"0.1.0\",\"targets\":[{\"targetId\":\"tgt-antigo\",\"signature\":{\"contextTexts\":"
+                + "[\"Cliente Ulisses Paranhos\"]}}],\"owners\":{}}";
+        Files.writeString(legacy, old);
+        NativeHost h = new NativeHost(new DataDirectory(dataDir));
+        assertTrue(h.session().targets().all().isEmpty(), "nada do registro antigo entra na memória do host");
+        assertEquals(old, Files.readString(legacy), "o arquivo do usuário não é apagado nem reescrito");
+        JsonNode list = call("target.list", "{}");
+        assertFalse(list.toString().contains("Paranhos"), list.toString());
     }
 
     @Test

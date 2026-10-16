@@ -29,6 +29,8 @@ import java.util.Map;
 public final class RecorderCommands implements CommandRouter.CommandGroup {
 
     static final int MAX_LOCATORS = 5;
+    private static final int MAX_EXPRESSION = 500;
+
     private final EngineServices s;
 
     public RecorderCommands(EngineServices services) {
@@ -131,7 +133,8 @@ public final class RecorderCommands implements CommandRouter.CommandGroup {
             }
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("strategy", d.strategy().name());
-            m.put("description", text(d.semantic(), 200));
+            // inteira ou vazia: cortada (ou mascarada) deixaria de ser analisável pela política estrita das barreiras seguintes
+            m.put("description", d.semantic() != null && d.semantic().length() <= MAX_EXPRESSION ? d.semantic() : "");
             m.put("css", d.css());
             m.put("xpath", d.xpath());
             m.put("matchCount", d.matchCount());

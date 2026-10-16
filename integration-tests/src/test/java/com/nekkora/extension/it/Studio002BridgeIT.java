@@ -74,18 +74,15 @@ class Studio002BridgeIT extends SessionIT {
     }
 
     private String refOf(Page p) {
+        // CHROME-SECURITY-001 (D4): o título só segue se for do vocabulário — a aba é identificada pela referência exata
+        // (comando DEV) e o teste confere que ela está na listagem que o Studio recebe, com o host certo.
+        String ref = lab.call("studio.tabRef", p).path("tabRef").asText();
         for (JsonNode t : tabs()) {
-            if (t.path("active").asBoolean() && hostOf(p).equals(t.path("host").asText()) || matches(t, p)) {
-                return t.path("tabRef").asText();
+            if (ref.equals(t.path("tabRef").asText()) && hostOf(p).equals(t.path("host").asText())) {
+                return ref;
             }
         }
         throw new AssertionError("aba não listada: " + p.url());
-    }
-
-    private boolean matches(JsonNode t, Page p) {
-        // A referência é opaca: identifica-se a aba pelo host e pelo título que o próprio teste conhece.
-        String title = (String) lab.js(p, "return document.title");
-        return hostOf(p).equals(t.path("host").asText()) && (title.equals(t.path("title").asText()) || t.path("title").isNull());
     }
 
     private static String hostOf(Page p) {

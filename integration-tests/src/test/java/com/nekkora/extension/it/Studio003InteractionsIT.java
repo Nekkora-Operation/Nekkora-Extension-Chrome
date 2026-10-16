@@ -83,13 +83,17 @@ class Studio003InteractionsIT extends SessionIT {
         return prefix + "-" + UUID.randomUUID();
     }
 
+    /**
+     * Referência opaca da aba no Studio. CHROME-SECURITY-001 (D4): o título só segue se for do vocabulário, então a aba
+     * não é mais identificada pelo título — o teste pede a referência exata (comando DEV) e confere que ela aparece na
+     * listagem que o Studio recebe.
+     */
     private String refOf(Page p) {
+        String ref = lab.call("studio.tabRef", p).path("tabRef").asText();
         JsonNode r = studio.call("browser.tabs.list", null);
-        String title = (String) lab.js(p, "return document.title");
-        String host = java.net.URI.create(p.url()).getHost();
         for (JsonNode t : r.at("/payload/tabs")) {
-            if (host.equals(t.path("host").asText()) && title.equals(t.path("title").asText())) {
-                return t.path("tabRef").asText();
+            if (ref.equals(t.path("tabRef").asText())) {
+                return ref;
             }
         }
         throw new AssertionError("aba não listada: " + p.url() + " em " + r);
@@ -267,14 +271,23 @@ class Studio003InteractionsIT extends SessionIT {
         for (JsonNode e : s) {
             got.add(e.path("action").asText() + ":" + e.at("/element/htmlId").asText(e.at("/element/name").asText()));
         }
-        assertEquals(List.of("SELECT_OPTION:estado", "CLICK:pesquisar", "CHECK:pf", "CHECK:ativos", "UNCHECK:ativos", "FILL:obs", "FILL:nota",
-                "CLICK:menu-clientes", "CLICK:exportar", "UNKNOWN:detalhes", "CLICK:automatico", "CLICK:cidade", "SELECT_OPTION:cidade",
+        // CHROME-SECURITY-001: ids fora do vocabulário ("pf", "obs", "automatico") não atravessam — a etapa cai no nome, que
+        // também só sai se for do vocabulário ("Observações" sai; os demais ficam vazios). Ordem e tipos inalterados.
+        assertEquals(List.of("SELECT_OPTION:estado", "CLICK:pesquisar", "CHECK:", "CHECK:ativos", "UNCHECK:ativos", "FILL:Observações", "FILL:nota",
+                "CLICK:menu-clientes", "CLICK:exportar", "UNKNOWN:detalhes", "CLICK:", "CLICK:cidade", "SELECT_OPTION:cidade",
                 "FILL:pesquisa", "PRESS_KEY:pesquisa"), got, "ordem e tipos: " + summary(s));
-        assertEquals("São Paulo", s.get(0).at("/parameters/option/label").asText());
-        assertEquals("SP", s.get(0).at("/parameters/option/value").asText());
+        for (int i : new int[]{2, 5, 10}) {
+            assertTrue(s.get(i).at("/element/htmlId").isNull(), "id fora do vocabulário retido: " + s.get(i).at("/element"));
+        }
+        // a opção escolhida é valor do usuário: identificada, nunca enviada
+        assertTrue(s.get(0).at("/parameters/option").isNull(), s.get(0).toString());
+        assertTrue(s.get(0).path("notes").toString().contains("OPTION_WITHHELD"), s.get(0).toString());
+        assertFalse(studio.allEvents.toString().contains("São Paulo"), "rótulo da opção não chega ao Studio");
         assertEquals("LINK", s.get(7).at("/element/kind").asText());
         assertTrue(s.get(9).path("notes").toString().contains("AMBIGUOUS_TARGET"), "ambíguo declarado: " + s.get(9));
-        assertEquals("Campinas", s.get(12).at("/parameters/option/label").asText(), "combobox personalizado com relação comprovada");
+        assertTrue(s.get(12).at("/parameters/option").isNull() && s.get(12).path("notes").toString().contains("OPTION_WITHHELD"),
+                "combobox personalizado com relação comprovada; opção retida: " + s.get(12));
+        assertFalse(studio.allEvents.toString().contains("Campinas"));
         assertEquals("Enter", s.get(14).at("/parameters/key").asText());
         assertTrue(s.get(14).path("evidence").toString().contains("FORM_SUBMITTED"), "Enter enviou o formulário (sem clique inventado)");
         assertEquals(15, s.size(), "eventos programáticos (preencher/marcar/clicar pelo script) não viraram etapas");
@@ -346,7 +359,8 @@ class Studio003InteractionsIT extends SessionIT {
         assertEquals("Nome", s.get(0).at("/element/name").asText());
         assertTrue(s.get(2).at("/element/accessPath").toString().contains("SHADOW_ROOT"), "trajetória entra no shadow root: " + s.get(2).at("/element/accessPath"));
         assertEquals("BUTTON", s.get(3).at("/element/kind").asText(), "clique no ícone identifica o botão");
-        assertTrue(s.get(3).at("/element/name").asText().contains("Entrar"));
+        // "→ Entrar": a seta está fora do conjunto seguro de caracteres → o nome inteiro é retido (sem supressão parcial)
+        assertEquals(com.nekkora.extension.it.support.Policy.name("→ Entrar"), s.get(3).at("/element/name").asText());
         assertFalse(studio.allEvents.toString().contains("fora do escopo"), "nada do iframe sem permissão");
         JsonNode status = studio.call("studio.recording.status", studio.obj().put("recordingId", rid));
         assertEquals("PARTIAL", status.at("/payload/recordings/0/coverage/state").asText(), "cobertura parcial declarada: " + status);

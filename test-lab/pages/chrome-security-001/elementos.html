@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Elementos (CHROME-SECURITY-001)</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <h1>Elementos (CHROME-SECURITY-001)</h1>
+  <p class="muted">Página 3. Rótulos e nomes acessíveis com dados pessoais fictícios.</p>
+  <!-- SEC001-002 / SEC001-013: aria-label -->
+  <p><button id="consultar" type="button" aria-label="Consultar cliente Bartolomeu Quixadá">Consultar</button></p>
+  <!-- SEC001-014: aria-labelledby -->
+  <p><span id="rot-fone">telefone do cliente Godofredo Ubirajara</span> <input id="fone" type="tel" aria-labelledby="rot-fone"></p>
+  <!-- SEC001-015: placeholder -->
+  <p><input id="apelido" type="text" placeholder="ex.: Filomena Zanatta"></p>
+  <!-- SEC001-016: title -->
+  <p><input id="anotacao" type="text" title="Observação sobre Teodolinda Vasconi"></p>
+  <!-- label comum com nome de pessoa -->
+  <p><label for="dependente">Dependente de Leopoldina Arantes</label> <input id="dependente" type="text"></p>
+  <!-- link com nome de pessoa -->
+  <p><a id="perfil" href="#perfil-x">Perfil de Cassiano Bonfim</a></p>
+</body>
+</html>

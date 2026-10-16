@@ -16,9 +16,12 @@
     isAllowedLocation(loc) {
       return loc.protocol === 'http:' || loc.protocol === 'https:';
     },
-    /** URL do documento já sanitizada pela política de privacidade (nunca location.href bruto). */
+    /**
+     * URL do documento como MODELO (CHROME-SECURITY-001, nekkora-privacy/2: origem + segmentos do vocabulário, demais
+     * {…}; nunca location.href bruto). Sem a política carregada, nada sai.
+     */
     privacyUrl() {
-      return root.NekkoraPrivacy ? root.NekkoraPrivacy.sanitizeUrl(root.location.href) : null;
+      return root.NekkoraCapturePolicy ? root.NekkoraCapturePolicy.urlTemplate(root.location.href) : null;
     },
     log(...args) {
       if (root.__NEKKORA_DEBUG__) {

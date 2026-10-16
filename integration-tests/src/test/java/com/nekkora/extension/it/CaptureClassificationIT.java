@@ -79,7 +79,10 @@ class CaptureClassificationIT extends LabIT {
         assertEquals("NATIVE", o.get("association").asText());
         assertEquals("COMPLETE", o.get("completeness").asText());
         assertEquals(4, o.get("materializedCount").asInt());
-        assertEquals("SP", o.at("/options/1/value").asText());
+        // CHROME-SECURITY-001: o VALOR de uma opção ("SP") é dado de negócio — não atravessa; a estrutura da lista, sim
+        assertTrue(o.at("/options/1/value").isMissingNode() || o.at("/options/1/value").isNull() || o.at("/options/1/value").asText().isEmpty(),
+                o.at("/options/1").toString());
+        assertFalse(o.toString().contains("\"SP\""), "valor da opção retido: " + o);
         assertTrue(o.at("/options/1/selected").asBoolean());
         assertTrue(o.at("/options/2/disabled").asBoolean());
         assertFalse(o.get("multiple").asBoolean());
@@ -91,10 +94,10 @@ class CaptureClassificationIT extends LabIT {
         Page p = open(PAGE);
         JsonNode o = select(p, "#segmento").at("/inspection/optionSet");
         assertEquals(2, o.get("groups").size());
-        assertEquals("Varejo", o.at("/groups/0/label").asText());
+        // o rótulo do grupo (atributo label) é texto de negócio: não atravessa; a estrutura dos grupos, sim
+        assertFalse(o.toString().contains("Varejo") || o.toString().contains("Serviços"), "rótulos de grupo retidos: " + o);
         assertEquals(2, o.at("/groups/0/optionCount").asInt());
         assertTrue(o.at("/groups/1/disabled").asBoolean());
-        assertEquals("Serviços", o.at("/options/2/group").asText());
     }
 
     @Test
@@ -126,12 +129,19 @@ class CaptureClassificationIT extends LabIT {
     @Test
     @DisplayName("T029 — Label externo: associação correta")
     void externalLabel() {
-        JsonNode s = select(open(PAGE), "#cidade-externa");
-        assertEquals("Cidade (label externo)", s.at("/inspection/classification/name/name").asText());
-        assertEquals("LABEL_ELEMENT", s.at("/inspection/classification/name/source").asText());
+        Page p = open(PAGE);
+        JsonNode s = select(p, "#cidade-externa");
+        // CHROME-SECURITY-001: "Cidade (label externo)" não é inteiro do vocabulário → o nome é retido inteiro; a ASSOCIAÇÃO
+        // com o label externo continua resolvida (relação por id de nó resolvida na página)
+        assertEquals("", s.at("/inspection/classification/name/name").asText());
         assertEquals("label", s.at("/inspection/family/labels/0/tag").asText());
-        assertNotNull(locator(s, "LABEL"));
         assertLiveAgreement(s);
+        // a mesma capacidade com metadado do vocabulário: o nome vem do <label> e gera localizador por rótulo
+        JsonNode uf = select(p, "#uf");
+        assertEquals("Estado", uf.at("/inspection/classification/name/name").asText());
+        assertEquals("LABEL_ELEMENT", uf.at("/inspection/classification/name/source").asText());
+        assertNotNull(locator(uf, "LABEL"));
+        assertLiveAgreement(uf);
     }
 
     @Test
@@ -139,8 +149,9 @@ class CaptureClassificationIT extends LabIT {
     void contentEditable() {
         JsonNode s = select(open(PAGE), "#bio");
         assertEquals("CONTENTEDITABLE", s.at("/inspection/classification/kind").asText());
-        assertEquals("Biografia", s.at("/inspection/classification/name/name").asText());
-        assertEquals("ARIA_LABELLEDBY", s.at("/inspection/classification/name/source").asText());
+        // "Biografia" não é do vocabulário: nome retido; a relação aria-labelledby continua resolvida (por id de nó)
+        assertEquals("", s.at("/inspection/classification/name/name").asText());
+        assertTrue(s.at("/inspection/family/relations").toString().contains("LABELLED_BY"), s.at("/inspection/family/relations").toString());
     }
 
     @Test

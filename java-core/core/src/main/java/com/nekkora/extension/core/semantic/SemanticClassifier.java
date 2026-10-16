@@ -42,6 +42,7 @@ public final class SemanticClassifier {
     private final SensitivityPolicy sensitivity = new SensitivityPolicy();
 
     /** Referências cruzadas pré-calculadas de um snapshot (alvos de describedby/errormessage). */
+    /** Ids de NÓ referenciados por aria-describedby / aria-errormessage (de campo inválido). */
     public record CrossReferences(Set<String> describedBy, Set<String> errorMessages) {
     }
 
@@ -59,7 +60,7 @@ public final class SemanticClassifier {
 
         if (explicitRole != null && (explicitRole.equals("presentation") || explicitRole.equals("none"))
                 && !isFocusableNative(node)) {
-            kind = node.ownText().isBlank() ? ElementKind.GENERIC_CONTAINER : ElementKind.TEXT;
+            kind = node.hasText() ? ElementKind.TEXT : ElementKind.GENERIC_CONTAINER; // texto retido continua sendo texto
             evidence.add("role=" + explicitRole + " remove a semântica nativa");
             nativeSemantics = false;
         } else if (roleKind != null && (nativeKind == null || overridesNative(nativeKind, roleKind))) {
@@ -122,6 +123,13 @@ public final class SemanticClassifier {
             role = landmarkRole(node, explicitRole);
         }
         AccessibleName name = names.compute(node, kind, role, model);
+        if (!name.name().isEmpty() && incompleteName(node, name, model)) {
+            // CHROME-SECURITY-001: parte das fontes do nome é texto da página retido pela política — um nome PARCIAL
+            // enganaria (e contraria a validação integral): o nome inteiro é retido e a limitação registrada
+            evidence.add("nome acessível retido: parte das fontes ficou fora da política de privacidade");
+            // as FONTES (relação estrutural com rótulos e referências) continuam; só o texto do nome não sai
+            name = new AccessibleName("", name.source(), name.sourceNodeIds(), "", List.of(), "NONE");
+        }
         if (kind.category() == ElementCategory.INTERACTIVE && name.name().isEmpty() && kind != ElementKind.OPTION) {
             uncertainties.add("Controle sem nome acessível");
         }
@@ -347,17 +355,31 @@ public final class SemanticClassifier {
     }
 
     private static ElementKind textOrContainer(RawNode node, PageModel model, CrossReferences refs, List<String> evidence) {
-        if (!node.ownText().isBlank()) {
+        if (node.hasText()) {
             evidence.add("texto próprio");
             return ElementKind.TEXT;
         }
         return ElementKind.GENERIC_CONTAINER;
     }
 
+    /** O nome veio (também) de alguma fonte com texto retido? Conteúdo do próprio nó, rótulos e referências. */
+    private static boolean incompleteName(RawNode node, AccessibleName name, PageModel model) {
+        if (name.source() == NameSource.CONTENT && model.textSuppressedWithin(node)) {
+            return true;
+        }
+        for (String id : name.sourceNodeIds()) {
+            RawNode s = model.find(id).orElse(null);
+            if (s != null && model.textSuppressedWithin(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static ElementKind refineText(RawNode node, ElementKind kind, CrossReferences refs, List<String> evidence) {
         String idAttr = node.attr("id");
-        boolean referencedAsError = idAttr != null && refs.errorMessages().contains(node.scopeId() + "|" + idAttr);
-        boolean referencedAsDescription = idAttr != null && refs.describedBy().contains(node.scopeId() + "|" + idAttr);
+        boolean referencedAsError = refs.errorMessages().contains(node.id());
+        boolean referencedAsDescription = refs.describedBy().contains(node.id());
         String hints = (node.attr("class") == null ? "" : node.attr("class")) + " " + (idAttr == null ? "" : idAttr);
         if (kind == ElementKind.ALERT || kind == ElementKind.STATUS) {
             if (referencedAsError || ERROR_HINT.matcher(hints).find()) {
@@ -379,7 +401,7 @@ public final class SemanticClassifier {
             return ElementKind.STATUS;
         }
         boolean textual = kind == ElementKind.TEXT || kind == ElementKind.PARAGRAPH || kind == ElementKind.DESCRIPTION;
-        if (textual && ERROR_HINT.matcher(hints).find() && !node.ownText().isBlank()) {
+        if (textual && ERROR_HINT.matcher(hints).find() && node.hasText()) {
             evidence.add("indício de erro em class/id (heurística)");
             return ElementKind.VALIDATION_MESSAGE;
         }
@@ -387,7 +409,7 @@ public final class SemanticClassifier {
             evidence.add("referenciado por aria-describedby");
             return ElementKind.DESCRIPTION;
         }
-        if (textual && HELP_HINT.matcher(hints).find() && !node.ownText().isBlank()) {
+        if (textual && HELP_HINT.matcher(hints).find() && node.hasText()) {
             evidence.add("indício de instrução em class/id (heurística)");
             return ElementKind.INSTRUCTION;
         }

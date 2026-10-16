@@ -39,6 +39,19 @@ public final class EngineServices {
         this.json = json;
     }
 
+    /**
+     * CHROME-SECURITY-001 — 3ª barreira: todo snapshot recebido passa por {@code nekkora-privacy/2} ANTES do motor, seja
+     * qual for o produtor (extensão antiga, página hostil, defeito).
+     */
+    com.nekkora.extension.core.snapshot.RawSnapshot snapshot(com.fasterxml.jackson.databind.JsonNode node) throws java.io.IOException {
+        return com.nekkora.extension.core.privacy.SnapshotPrivacy.apply(json.read(node, com.nekkora.extension.core.snapshot.RawSnapshot.class));
+    }
+
+    /** Idem para deltas: o contexto (portador de nome, ancestrais) vem do delta e da captura-base. */
+    com.nekkora.extension.core.mutation.SnapshotDelta privacy(com.nekkora.extension.core.mutation.SnapshotDelta raw, PageAnalysis base) {
+        return com.nekkora.extension.core.privacy.SnapshotPrivacy.apply(raw, id -> base == null ? null : base.model().find(id).orElse(null));
+    }
+
     PageAnalysis capture(TabState tab, String captureId) {
         return tab.capture(captureId).orElseThrow(() -> new CommandException("UNKNOWN_CAPTURE",
                 captureId == null ? "Nenhuma captura registrada para a aba " + tab.tabKey()

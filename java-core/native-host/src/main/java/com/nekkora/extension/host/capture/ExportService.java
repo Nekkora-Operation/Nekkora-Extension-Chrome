@@ -66,7 +66,7 @@ public final class ExportService {
         try {
             schema = new PageMapSchema();
         } catch (RuntimeException e) {
-            LOG.log(Level.WARNING, "Schema do PageMap indisponível: exportações não serão validadas", e);
+            LOG.log(Level.WARNING, "Schema do PageMap indisponível: exportações não serão validadas", com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             schema = null;
         }
         this.writer = new StreamingPageMapWriter(json.mapper(), schema);
@@ -166,7 +166,7 @@ public final class ExportService {
                     target.toString(), bytes, HexFormat.of().formatHex(sha.digest()), complete, syncState,
                     o.coverageLimitations(), validation, false, null, ms(t0), Instant.now().toString());
         } catch (IOException | RuntimeException | NoSuchAlgorithmException e) {
-            LOG.log(Level.WARNING, "Exportação falhou para " + s.sessionId(), e);
+            LOG.log(Level.WARNING, "Exportação falhou para " + s.sessionId(), com.nekkora.extension.host.runtime.LogSafety.redacted(e));
             try {
                 Files.deleteIfExists(tmp);
             } catch (IOException ignored) {

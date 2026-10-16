@@ -9,6 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // Política de privacidade real (mascaramento de títulos).
 // eslint-disable-next-line no-new-func
 new Function(readFileSync(path.join(here, '../src/shared/privacy.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/ui-vocabulary.js'), 'utf8'))();
+new Function(readFileSync(path.join(here, '../src/shared/capture-policy.js'), 'utf8'))();
 
 let store;
 let tabs;
@@ -169,7 +171,7 @@ async function refOf(predicate) {
 
 const settle = () => new Promise((r) => setTimeout(r, 10));
 
-test('lista de abas: referências opacas, host sem URL, título mascarado, acesso classificado', async () => {
+test('lista de abas: referências opacas, host sem URL, título só do vocabulário (D4), acesso classificado', async () => {
   const r = await send('browser.tabs.list', {});
   assert.equal(r.ok, true);
   const list = r.payload.tabs;
@@ -180,8 +182,8 @@ test('lista de abas: referências opacas, host sem URL, título mascarado, acess
   }
   const lab = list.find((t) => t.access === 'LAB');
   assert.equal(lab.host, '127.0.0.1');
-  assert.ok(!lab.title.includes('ana@exemplo.com'), 'e-mail do título mascarado');
-  assert.ok(lab.title.includes('[email]'));
+  // CHROME-SECURITY-001 (D4): o título só segue se for INTEIRO do vocabulário; um título com e-mail não segue, nem mascarado
+  assert.equal(lab.title, null, 'título com dado de pessoa não vai ao Studio');
   const denied = list.find((t) => t.access === 'PERMISSION_REQUIRED');
   assert.equal(denied.host, 'portal.exemplo.com');
   assert.equal(denied.title, null);

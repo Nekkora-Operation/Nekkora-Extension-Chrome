@@ -61,6 +61,9 @@ public final class TargetResolver {
         List<String> evidence = new ArrayList<>();
         IdentitySignature expected = identity.signature();
 
+        // D7: continuidade TÉCNICA do objeto ancorado — avaliada à parte; nunca vira resolução lógica
+        TechnicalContinuity continuity = TechnicalContinuity.evaluate(identity.anchor(), graph);
+
         // 1) Escopo
         ScopeResolution scope = resolveScopes(identity, graph, session);
         List<String> diagnostics = new ArrayList<>(scope.diagnostics());
@@ -68,7 +71,7 @@ public final class TargetResolver {
             ResolutionStatus st = scope.unavailable() ? ResolutionStatus.SCOPE_UNAVAILABLE : ResolutionStatus.NOT_FOUND;
             evidence.add(scope.description());
             return result(identity, captureId, st, null, 0, false, scope.description(), List.of(), List.of(), Map.of(), evidence, null, null,
-                    diagnostics);
+                    diagnostics, continuity);
         }
 
         // 2) Localizadores registrados
@@ -202,6 +205,10 @@ public final class TargetResolver {
                 evidence.add("Candidatos " + confirmed.get(0).nodeId() + " e " + confirmed.get(1).nodeId()
                         + " são igualmente plausíveis (" + confirmed.get(0).score() + " vs " + confirmed.get(1).score() + ")");
             }
+        } else if (mismatchAtAddress) {
+            // fato verificado (o endereço forte agora tem outro tipo de controle) prevalece sobre candidatos não comprovados
+            status = ResolutionStatus.IDENTITY_MISMATCH;
+            evidence.add("O(s) localizador(es) fortes da identidade agora apontam para elemento semanticamente incompatível");
         } else if (viable.size() >= 2 && viable.get(0).score() - viable.get(1).score() < TIE_MARGIN) {
             status = ResolutionStatus.AMBIGUOUS;
             evidence.add("Nenhum candidato comprovado e " + viable.size() + " igualmente plausíveis");
@@ -209,9 +216,6 @@ public final class TargetResolver {
             status = ResolutionStatus.INSUFFICIENT_EVIDENCE;
             evidence.add("Candidato " + viable.get(0).nodeId() + " é plausível mas não comprova a identidade: "
                     + String.join("; ", viable.get(0).reasons()));
-        } else if (mismatchAtAddress) {
-            status = ResolutionStatus.IDENTITY_MISMATCH;
-            evidence.add("O(s) localizador(es) fortes da identidade agora apontam para elemento semanticamente incompatível");
         } else if (sameSession(identity, graph) && identity.lastNodeId() != null && !graph.model().contains(identity.lastNodeId())) {
             status = ResolutionStatus.STALE_TARGET;
             evidence.add("O nó " + identity.lastNodeId() + " foi removido da página nesta sessão e não há substituto confirmável");
@@ -226,7 +230,7 @@ public final class TargetResolver {
                 diagnostics.add("TARGET_AMBIGUOUS");
             }
             return result(identity, captureId, status, null, best, false, scope.description(), checks, evaluations, Map.of(), evidence, null, null,
-                    diagnostics);
+                    diagnostics, continuity);
         }
 
         RawNode node = graph.model().node(chosen.nodeId());
@@ -255,10 +259,16 @@ public final class TargetResolver {
                 identity.registeredAt(), identity.origin(), identity.signature(), identity.discriminators(),
                 identity.lookalikeCount(), updated, node.id(), doc == null ? null : doc.pageSessionId(), captureId,
                 history, identity.warnings(),
-                identity.frameChain() == null ? null : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
+                identity.frameChain() == null ? null : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node),
+                com.nekkora.extension.core.identity.NodeAnchor.of(graph, node));
         return result(identity, captureId, status, node.id(), chosen.score(), replaced, scope.description(), checks,
-                evaluations, changes, evidence, updated, updatedIdentity, diagnostics);
+                evaluations, changes, evidence, updated, updatedIdentity, diagnostics, continuity);
     }
+
+    /** Características que identificam o PRÓPRIO elemento (não só onde ele está). */
+    static final java.util.Set<IdentityFeature> IDENTITY_BEARING = java.util.EnumSet.of(IdentityFeature.TEST_ATTRIBUTE, IdentityFeature.ROW_KEY,
+            IdentityFeature.ROW_TEXTS, IdentityFeature.LABEL, IdentityFeature.NAME, IdentityFeature.TEXT, IdentityFeature.NAME_ATTRIBUTE,
+            IdentityFeature.ID_ATTRIBUTE, IdentityFeature.COLUMN);
 
     private static String verdict(TargetIdentity identity, List<FeatureResult> features, double score, List<String> reasons) {
         boolean disqualified = false;
@@ -293,6 +303,13 @@ public final class TargetResolver {
         }
         if (disqualified) {
             return "DISQUALIFIED";
+        }
+        // CHROME-SECURITY-001: sem texto da página, uma identidade pode ficar com quase nenhuma característica e a razão da
+        // pontuação ficar alta com evidência mínima (ex.: só um texto de contexto). Confirmar exige ao menos UMA
+        // característica do PRÓPRIO elemento; contêiner, contexto e tipo, sozinhos, não provam que é o mesmo elemento.
+        if (features.stream().noneMatch(r -> IDENTITY_BEARING.contains(r.feature()) && r.outcome() == FeatureOutcome.MATCH)) {
+            reasons.add("nenhuma característica de identidade do próprio elemento confirmada (só contêiner, contexto ou tipo)");
+            unproven = true;
         }
         if (!identity.discriminators().isEmpty() && !anyDiscriminatorMatch) {
             reasons.add("nenhum discriminador confirmado");
@@ -457,9 +474,9 @@ public final class TargetResolver {
                                            double score, boolean replaced, String scope, List<LocatorCheck> checks,
                                            List<CandidateEvaluation> candidates, Map<String, List<String>> changes,
                                            List<String> evidence, LocatorSet updated, TargetIdentity updatedIdentity,
-                                           List<String> diagnostics) {
+                                           List<String> diagnostics, TechnicalContinuity continuity) {
         return new ResolutionResult(TargetIdentity.SCHEMA_VERSION, identity.targetId(), captureId, status, nodeId, score,
-                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity, diagnostics);
+                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity, diagnostics, continuity);
     }
 
     private static double round(double v) {

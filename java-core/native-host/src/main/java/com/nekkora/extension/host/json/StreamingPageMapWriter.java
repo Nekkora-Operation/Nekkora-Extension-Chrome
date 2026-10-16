@@ -58,6 +58,7 @@ public final class StreamingPageMapWriter {
             g.writeStartObject();
             g.writeStringField("schema", p.schema());
             g.writeStringField("version", p.version());
+            g.writeStringField("privacy", com.nekkora.extension.core.privacy.CapturePrivacyPolicy.VERSION);
             g.writeStringField("generatedAt", p.generatedAt());
             g.writeObjectField("generator", p.generator());
             g.writeObjectField("snapshot", p.snapshot());

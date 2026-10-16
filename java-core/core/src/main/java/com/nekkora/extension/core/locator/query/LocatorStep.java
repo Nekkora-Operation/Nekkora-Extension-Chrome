@@ -41,10 +41,14 @@ public record LocatorStep(Axis axis, String tag, List<Predicate> predicates) {
     public String xpath() {
         StringBuilder sb = new StringBuilder(axis == Axis.DESCENDANT ? "//" : "/");
         sb.append(tag == null ? "*" : tag);
-        // Posição precisa ser o primeiro predicado para manter a semântica de :nth-of-type.
+        // Posição precisa ser o primeiro predicado para manter a semântica de :nth-of-type / :nth-child.
+        // *[n] é o n-ésimo filho elemento (= :nth-child); com tag, tag[n] seria outra coisa: sem XPath equivalente.
+        if (tag != null && predicates.stream().anyMatch(p -> p instanceof Predicate.NthChild)) {
+            return null;
+        }
         List<Predicate> ordered = new ArrayList<>();
-        predicates.stream().filter(p -> p instanceof Predicate.NthOfType).forEach(ordered::add);
-        predicates.stream().filter(p -> !(p instanceof Predicate.NthOfType)).forEach(ordered::add);
+        predicates.stream().filter(LocatorStep::positional).forEach(ordered::add);
+        predicates.stream().filter(p -> !positional(p)).forEach(ordered::add);
         for (Predicate p : ordered) {
             String x = p.xpath();
             if (x == null) {
@@ -53,6 +57,10 @@ public record LocatorStep(Axis axis, String tag, List<Predicate> predicates) {
             sb.append('[').append(x).append(']');
         }
         return sb.toString();
+    }
+
+    private static boolean positional(Predicate p) {
+        return p instanceof Predicate.NthOfType || p instanceof Predicate.NthChild;
     }
 
     public String describe() {

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nekkora.dev/contracts/page-map/0.2.0",
+  "$id": "https://nekkora.dev/contracts/page-map/0.3.0",
   "title": "Nekkora PageMap",
   "description": "Representação estruturada de uma página observada pela Nekkora Extension Chrome. Versão 0.1.0. Identificadores de nó (nodeId) são TEMPORÁRIOS e valem apenas na sessão de página (pageSessionId); identidades lógicas estão em targets[].targetId. 0.2.0 (CHROME-003): seções opcionais frameGraph, accessPaths, protection e readiness; documentId nos elementos; frameChain nas identidades; diagnostics nas resoluções. Documentos 0.1.0 continuam válidos.",
   "type": "object",
@@ -8,6 +8,7 @@
   "required": [
     "schema",
     "version",
+    "privacy",
     "generatedAt",
     "generator",
     "snapshot",
@@ -27,10 +28,12 @@
       "const": "nekkora.pagemap"
     },
     "version": {
-      "enum": [
-        "0.1.0",
-        "0.2.0"
-      ]
+      "const": "0.3.0",
+      "description": "CHROME-SECURITY-001: 0.3.0 = conteúdo sob nekkora-privacy/2 (texto da página só como metadado de interface do vocabulário controlado; URLs como modelo). Arquivos 0.1.0/0.2.0 validam contra contracts/v0.1.0 e contracts/v0.2.0."
+    },
+    "privacy": {
+      "const": "nekkora-privacy/2",
+      "description": "Política aplicada a TODO o conteúdo deste PageMap. Ausente (versões anteriores) = sem garantia da política."
     },
     "generatedAt": {
       "type": "string"
@@ -433,6 +436,13 @@
         },
         "readyState": {
           "$ref": "#/$defs/str"
+        },
+        "registryEpoch": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9]{1,16}$"
         }
       }
     },
@@ -1104,6 +1114,22 @@
           "additionalProperties": false
         },
         {
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): posição entre TODOS os irmãos elemento (:nth-child), só em passo sem tag, para elemento cujo nome foi retido pela política.",
+          "properties": {
+            "type": {
+              "const": "NTH_CHILD"
+            },
+            "position": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "position"
+          ],
+          "additionalProperties": false
+        },
+        {
           "properties": {
             "type": {
               "const": "LABEL_TEXT_EQUALS"
@@ -1507,6 +1533,13 @@
             },
             "contextual": {
               "$ref": "#/$defs/strings"
+            },
+            "suppressed": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "CHROME-SECURITY-001: o elemento TEM texto na página, retido pela política (conteúdo de negócio, tabela, mensagem, texto livre ou fora do vocabulário)."
             }
           }
         },
@@ -1833,6 +1866,9 @@
               }
             }
           ]
+        },
+        "anchor": {
+          "$ref": "#/$defs/NodeAnchor"
         }
       }
     },
@@ -1990,6 +2026,9 @@
               "TARGET_AMBIGUOUS"
             ]
           }
+        },
+        "continuity": {
+          "$ref": "#/$defs/TechnicalContinuity"
         }
       }
     },
@@ -3143,6 +3182,93 @@
           ]
         },
         "basis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "NodeAnchor": {
+      "description": "D7 (CHROME-SECURITY-001): âncora TÉCNICA do alvo (objeto DOM observado), não identidade lógica.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "nodeId",
+        "frameId",
+        "scopeId",
+        "tag",
+        "compatibility",
+        "contentRevision",
+        "rowRevision"
+      ],
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "frameId": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "registryEpoch": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9]{1,16}$"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "compatibility": {
+          "type": "string"
+        },
+        "contentRevision": {
+          "type": "integer"
+        },
+        "rowNodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "rowRevision": {
+          "type": "integer"
+        }
+      }
+    },
+    "TechnicalContinuity": {
+      "description": "D7: continuidade técnica do objeto DOM, separada da resolução lógica; nunca autoriza uso do elemento como alvo confirmado.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "proof",
+        "limitations"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "LIVE_NODE_CONTINUITY",
+            "CONTINUITY_BROKEN",
+            "NOT_PROVEN"
+          ]
+        },
+        "nodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "proof": {
           "type": "array",
           "items": {
             "type": "string"

@@ -25,7 +25,7 @@ public final class AttributeStrategies {
                 return List.of();
             }
             return List.of(LocatorCandidate.of(LocatorStrategyKind.ID,
-                    LocatorQuery.of(LocatorStep.descendant(t.node().tag(), new Predicate.AttrEquals("id", id)))));
+                    LocatorQuery.of(LocatorStep.descendant(t.node().locatorTag(), new Predicate.AttrEquals("id", id)))));
         }
     }
 
@@ -38,7 +38,7 @@ public final class AttributeStrategies {
                 String v = t.node().attr(a);
                 if (StepFactory.nonBlank(v)) {
                     out.add(LocatorCandidate.of(LocatorStrategyKind.TEST_ATTRIBUTE,
-                            LocatorQuery.of(LocatorStep.descendant(t.node().tag(), new Predicate.AttrEquals(a, v)))));
+                            LocatorQuery.of(LocatorStep.descendant(t.node().locatorTag(), new Predicate.AttrEquals(a, v)))));
                 }
             }
             return out;
@@ -57,11 +57,11 @@ public final class AttributeStrategies {
             List<LocatorCandidate> out = new ArrayList<>();
             String type = n.attr("type");
             if (("radio".equals(type) || "checkbox".equals(type)) && StepFactory.nonBlank(n.attr("value"))) {
-                out.add(LocatorCandidate.of(LocatorStrategyKind.NAME, LocatorQuery.of(LocatorStep.descendant(n.tag(),
+                out.add(LocatorCandidate.of(LocatorStrategyKind.NAME, LocatorQuery.of(LocatorStep.descendant(n.locatorTag(),
                         new Predicate.AttrEquals("name", name), new Predicate.AttrEquals("value", n.attr("value"))))));
             }
             out.add(LocatorCandidate.of(LocatorStrategyKind.NAME,
-                    LocatorQuery.of(LocatorStep.descendant(n.tag(), new Predicate.AttrEquals("name", name)))));
+                    LocatorQuery.of(LocatorStep.descendant(n.locatorTag(), new Predicate.AttrEquals("name", name)))));
             return out;
         }
     }
@@ -95,7 +95,7 @@ public final class AttributeStrategies {
                     String text = t.graph().model().textContent(label);
                     if (StepFactory.nonBlank(text) && text.length() <= 120) {
                         out.add(LocatorCandidate.of(LocatorStrategyKind.LABEL, LocatorQuery.of(LocatorStep.descendant(
-                                t.node().tag(), new Predicate.LabelTextEquals(text, src == NameSource.WRAPPING_LABEL)))));
+                                t.node().locatorTag(), new Predicate.LabelTextEquals(text, src == NameSource.WRAPPING_LABEL)))));
                     }
                 });
                 break;
@@ -127,7 +127,7 @@ public final class AttributeStrategies {
                 String v = n.attr(a);
                 if (StepFactory.nonBlank(v) && v.length() <= 200) {
                     out.add(LocatorCandidate.of(LocatorStrategyKind.ATTRIBUTE,
-                            LocatorQuery.of(LocatorStep.descendant(n.tag(), new Predicate.AttrEquals(a, v)))));
+                            LocatorQuery.of(LocatorStep.descendant(n.locatorTag(), new Predicate.AttrEquals(a, v)))));
                 }
             }
             if (n.tag().equals("input") && StepFactory.nonBlank(n.attr("type"))) {
