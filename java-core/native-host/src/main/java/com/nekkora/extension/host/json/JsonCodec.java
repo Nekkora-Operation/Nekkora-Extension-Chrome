@@ -25,6 +25,7 @@ public final class JsonCodec {
             @JsonSubTypes.Type(value = Predicate.TextEquals.class, name = "TEXT_EQUALS"),
             @JsonSubTypes.Type(value = Predicate.HasChildText.class, name = "HAS_CHILD_TEXT"),
             @JsonSubTypes.Type(value = Predicate.NthOfType.class, name = "NTH_OF_TYPE"),
+            @JsonSubTypes.Type(value = Predicate.NthChild.class, name = "NTH_CHILD"),
             @JsonSubTypes.Type(value = Predicate.LabelTextEquals.class, name = "LABEL_TEXT_EQUALS"),
             @JsonSubTypes.Type(value = Predicate.RoleIs.class, name = "ROLE_IS"),
             @JsonSubTypes.Type(value = Predicate.NameEquals.class, name = "NAME_EQUALS")

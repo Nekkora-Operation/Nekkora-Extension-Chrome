@@ -1114,6 +1114,22 @@
           "additionalProperties": false
         },
         {
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): posição entre TODOS os irmãos elemento (:nth-child), só em passo sem tag, para elemento cujo nome foi retido pela política.",
+          "properties": {
+            "type": {
+              "const": "NTH_CHILD"
+            },
+            "position": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "position"
+          ],
+          "additionalProperties": false
+        },
+        {
           "properties": {
             "type": {
               "const": "LABEL_TEXT_EQUALS"

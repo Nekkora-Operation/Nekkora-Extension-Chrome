@@ -65,6 +65,21 @@ class CapturePolicyVectorsTest {
             assertEquals(c.get("out").asBoolean(), CapturePrivacyPolicy.isCarrier(text(c.get("tag")), text(c.get("role")),
                     c.get("hasHref").asBoolean()), "isCarrier " + c.get("tag") + "/" + c.get("role"));
         }
+        for (JsonNode c : v.get("tags")) {
+            assertEquals(text(c.get("out")), CapturePrivacyPolicy.tagName(text(c.get("in"))), "tagName " + c.get("in"));
+        }
+    }
+
+    @Test
+    @DisplayName("SEC001-091 — o catálogo de elementos empacotado é a fonte única e não contém o marcador neutro")
+    void elementsAreTheSingleSource() throws IOException {
+        JsonNode src = read("html-elements.json");
+        assertEquals(CapturePrivacyPolicy.NEUTRAL_TAG, src.path("neutral").asText());
+        for (JsonNode e : src.get("elements")) {
+            assertEquals(e.asText(), CapturePrivacyPolicy.tagName(e.asText()), "elemento do catálogo: " + e);
+        }
+        assertEquals(CapturePrivacyPolicy.NEUTRAL_TAG, CapturePrivacyPolicy.tagName("custom-element"));
+        assertEquals(CapturePrivacyPolicy.NEUTRAL_TAG, CapturePrivacyPolicy.tagName("\u212Abd"), "sem dobra Unicode");
     }
 
     @Test

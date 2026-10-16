@@ -35,7 +35,7 @@ test('DEV build: PRD can be simulated by extension pages and DEV-only commands a
   assert.deepEqual(r, { mode: 'PRD', buildMode: 'DEV', simulated: true });
   // CHROME-SECURITY-001: diagnósticos que devolvem dados crus da página (URLs do navegador, hooks da página) também
   for (const cmd of ['page.capture', 'session.forceFull', 'pagemap.export', 'page.compare', 'target.resolve', 'session.debug', 'frames.list',
-    'testHooks.read', 'studio.tabRef']) {
+    'testHooks.read', 'studio.tabRef', 'page.nodeInfo']) {
     assert.throws(() => config.assertCommandAllowed(cmd), (e) => e.code === 'MODE_RESTRICTED', cmd);
   }
   config.assertCommandAllowed('inspection.toggle');

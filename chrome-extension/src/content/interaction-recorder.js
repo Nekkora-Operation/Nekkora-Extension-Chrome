@@ -235,7 +235,7 @@
       name = el.getAttribute('placeholder') || el.getAttribute('title') || '';
     }
     return {
-      tag: el.tagName.toLowerCase(),
+      tag: CP ? CP.tagName(el.tagName) || 'unknown' : 'unknown', // 2ª revisão dos PRs #7: nome de componente pela política
       type: el.tagName === 'INPUT' ? inputType(el) || 'text' : null,
       role: role && CP ? CP.attribute('role', role, { tag: el.tagName }) || null : null, // P1-01: regra fechada do role
       htmlId: ident(el.id),

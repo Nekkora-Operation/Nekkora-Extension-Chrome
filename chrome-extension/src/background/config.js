@@ -14,9 +14,10 @@ let loaded = false;
 
 /** Comandos expostos somente em DEV. */
 export const DEV_ONLY = new Set(['page.capture', 'session.forceFull', 'page.compare', 'target.resolve', 'pagemap.export', 'page.rawSnapshot', 'session.debug', 'page.highlightFrame',
-  'studio.tabRef', 'frames.list', 'testHooks.read']);
+  'studio.tabRef', 'frames.list', 'testHooks.read', 'page.nodeInfo']);
 // frames.list: URLs cruas do navegador; testHooks.read: valores que a PRÓPRIA página expõe em window.nekkoraTestHooks
-// (qualquer página pode declarar o marcador) — diagnósticos de teste, nunca em PRD (CHROME-SECURITY-001)
+// (qualquer página pode declarar o marcador) — diagnósticos de teste, nunca em PRD (CHROME-SECURITY-001); page.nodeInfo:
+// consulta de nó do harness (2ª revisão dos PRs #7: devolvia texto e id crus; agora só o que a política deixa sair, e só em DEV)
 
 export async function loadConfig() {
   if (loaded) {

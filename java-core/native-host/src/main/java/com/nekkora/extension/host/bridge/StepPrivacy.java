@@ -44,6 +44,11 @@ final class StepPrivacy {
                     e.put("role", r);
                 }
             }
+            // 2ª revisão dos PRs #7: nome de elemento fora do catálogo HTML/SVG/MathML e do vocabulário => marcador neutro
+            if (e.path("tag").isTextual() && !"unknown".equals(e.path("tag").asText())) {
+                String t = CapturePrivacyPolicy.tagName(e.path("tag").asText());
+                e.put("tag", t == null ? "unknown" : t);
+            }
             if (e.path("sensitive").asBoolean(false)) {
                 e.putNull("htmlId");
                 e.putNull("htmlName");

@@ -29,7 +29,7 @@ public final class StepFactory {
     /** Passos que selecionam o próprio elemento, do mais específico ao mais genérico. */
     public static List<LocatorStep> simpleSteps(RawNode node, ContextGraph graph) {
         List<LocatorStep> out = new ArrayList<>();
-        String tag = node.tag();
+        String tag = node.locatorTag(); // null quando o nome do elemento foi retido (custom-element)
         for (String ta : TEST_ATTRIBUTES) {
             if (nonBlank(node.attr(ta))) {
                 out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals(ta, node.attr(ta))));
@@ -38,7 +38,7 @@ public final class StepFactory {
         if (nonBlank(node.attr("id"))) {
             out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals("id", node.attr("id"))));
         }
-        if (nonBlank(node.attr("name")) && isFormControl(tag)) {
+        if (nonBlank(node.attr("name")) && isFormControl(node.tag())) {
             String type = node.attr("type");
             if (("radio".equals(type) || "checkbox".equals(type)) && nonBlank(node.attr("value"))) {
                 out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals("name", node.attr("name")),
@@ -56,7 +56,7 @@ public final class StepFactory {
                 out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals(attr, node.attr(attr))));
             }
         }
-        if (tag.equals("input") && nonBlank(node.attr("type"))) {
+        if (node.tag().equals("input") && nonBlank(node.attr("type"))) {
             out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals("type", node.attr("type"))));
         }
         if (nonBlank(node.attr("role"))) {
@@ -69,7 +69,7 @@ public final class StepFactory {
     /** Passos que identificam um contêiner (âncoras de contexto). */
     public static List<LocatorStep> anchorSteps(RawNode container, ContextGraph graph) {
         List<LocatorStep> out = new ArrayList<>();
-        String tag = container.tag();
+        String tag = container.locatorTag(); // null quando o nome do elemento foi retido (custom-element)
         for (String ta : TEST_ATTRIBUTES) {
             if (nonBlank(container.attr(ta))) {
                 out.add(LocatorStep.descendant(tag, new Predicate.AttrEquals(ta, container.attr(ta))));
@@ -102,14 +102,15 @@ public final class StepFactory {
             if (headingChild || keyCell) {
                 String t = graph.model().textContent(child);
                 if (!t.isEmpty() && t.length() <= MAX_TEXT && !containsInteractive(child, graph)) {
-                    out.add(LocatorStep.descendant(tag, new Predicate.HasChildText(child.tag(), t)));
+                    out.add(LocatorStep.descendant(tag, new Predicate.HasChildText(child.locatorTag(), t)));
                     if (keyCell && out.size() > 6) {
                         break;
                     }
                 }
             }
         }
-        if (tag.equals("dialog") || tag.equals("form") || tag.equals("table") || tag.equals("fieldset")) {
+        String own = container.tag();
+        if (own.equals("dialog") || own.equals("form") || own.equals("table") || own.equals("fieldset")) {
             out.add(LocatorStep.descendant(tag));
         }
         return out;

@@ -152,12 +152,33 @@ function fakeHost(type, payload) {
         notes: [], verification: { primary: { semantic: 's0', css: '#x' }, fallbacks: [] },
       });
     }
+    // n7 (2ª revisão dos PRs #7): payload ADVERSARIAL — operadores CSS além de "=", escape CSS, valor sem aspas na notação
+    // semântica, nome de componente com dado de pessoa (na tag do elemento, no localizador e no caminho de acesso)
+    if (payload.nodeId === 'n7') {
+      return Promise.resolve({
+        resolution: 'RESOLVED', captureId: 'cap-2', nodeId: 'n7', targetId: 'tgt-n7', documentId: 'doc:0', kind: 'BUTTON', role: 'button',
+        name: 'Salvar', tag: 'ficha-cliente-joao', htmlId: null, htmlName: null, sensitive: false,
+        locators: [{ strategy: 'ATTRIBUTE', description: '', css: 'button[data-client^=joao-oliveira]', xpath: null, matchCount: 1, matchesTarget: true,
+          stability: 'HEURISTIC_STABLE' },
+        { strategy: 'ATTRIBUTE', description: '', css: 'input[aria-label*=gumercindo-tavares]', xpath: null, matchCount: 1, matchesTarget: true,
+          stability: 'HEURISTIC_STABLE' },
+        { strategy: 'ID', description: '', css: '#\\6a oao-oliveira', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
+        { strategy: 'ATTRIBUTE', description: 'button {aria-label=Consultar Joao Oliveira}', css: null, xpath: null, matchCount: 1, matchesTarget: true,
+          stability: 'HEURISTIC_STABLE' },
+        { strategy: 'POSITIONAL', description: 'html >> body >> ficha-cliente-joao {nth-of-type 1} >> button {nth-of-type 1}',
+          css: 'html > body > * > button:nth-of-type(1)', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_UNSTABLE' }],
+        preferredLocator: 0,
+        accessPath: [{ type: 'MAIN_DOCUMENT', label: 'Documento', locator: null, restriction: null },
+          { type: 'SHADOW_ROOT', label: 'Componente', locator: 'ficha-cliente-joao[data-x~=joao]', restriction: null }],
+        context: [], lookalikes: 0, notes: [], verification: { primary: { semantic: 's0', css: '#x' }, fallbacks: [] },
+      });
+    }
     const locators = payload.nodeId === 'n5'
       ? [{ strategy: 'ROLE_NAME', description: 'button {name="Consultar cliente Bartolomeu Quixadá"}', css: null,
         xpath: "//button[normalize-space()='Consultar cliente Bartolomeu Quixadá']", matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
-      { strategy: 'ID', description: 'id "cliente-anacleto-prudencio"', css: '#cliente-anacleto-prudencio', xpath: null, matchCount: 1, matchesTarget: true,
+      { strategy: 'ID', description: 'input {id=cliente-anacleto-prudencio}', css: '#cliente-anacleto-prudencio', xpath: null, matchCount: 1, matchesTarget: true,
         stability: 'HEURISTIC_STABLE' }]
-      : [{ strategy: 'ID', description: 'id "' + id + '"', css: '#' + id, xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }];
+      : [{ strategy: 'ID', description: (payload.nodeId === 'n3' ? 'button' : 'input') + ' {id=' + id + '}', css: '#' + id, xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }];
     return Promise.resolve({
       resolution: 'RESOLVED', captureId: 'cap-2', nodeId: payload.nodeId, targetId: 'tgt-' + payload.nodeId, documentId: 'doc:0',
       kind: payload.nodeId === 'n3' ? 'BUTTON' : payload.nodeId === 'n2' ? 'PASSWORD_INPUT' : 'TEXT_INPUT', role: 'textbox',
@@ -332,6 +353,22 @@ test('SEC001-088/089 (P1) — 2ª barreira: papel fora da regra do role e locali
   assert.equal(e.element.locators.length, 1, 'o posicional (números de posição) continua: ' + JSON.stringify(e.element.locators));
   assert.ok(e.element.locators[0].css.includes('div:nth-of-type(123)'));
   assert.ok(e.notes.includes('LOCATORS_WITHHELD'), 'descarte declarado: ' + e.notes);
+});
+
+test('SEC001-090/091 (2ª revisão) — 2ª barreira: operadores CSS, escapes, valor sem aspas e nome de componente não atravessam', async () => {
+  await startRecording();
+  interact('CLICK', 'n7');
+  await settle();
+  const e = steps()[0];
+  assert.equal(e.element.tag, 'custom-element', 'nome do componente vira o marcador neutro');
+  const raw = JSON.stringify(e);
+  for (const s of ['joao', 'gumercindo', '6a oao', 'ficha-cliente']) {
+    assert.ok(!raw.includes(s), s + ' em ' + raw);
+  }
+  assert.equal(e.element.locators.length, 0, 'nenhum dos localizadores adversariais atravessa: ' + JSON.stringify(e.element.locators));
+  assert.equal(e.element.accessPath[1].locator, null, 'localizador do caminho de acesso também é analisado inteiro');
+  assert.ok(e.notes.includes('LOCATORS_WITHHELD'), 'descarte declarado: ' + e.notes);
+  assert.ok(e.notes.includes('SAFE_LOCATOR_UNAVAILABLE'), e.notes);
 });
 
 test('S003-045 — nenhum PageMap trafega: evento compacto (poucos KB) sem snapshot nem nós', async () => {

@@ -151,7 +151,7 @@ public final class LocatorEngine {
                             warnings.add("DUPLICATE_ID: id \"" + eq.value() + "\" aparece " + dup + " vezes no escopo");
                         }
                     }
-                    if (p instanceof Predicate.NthOfType) {
+                    if (p instanceof Predicate.NthOfType || p instanceof Predicate.NthChild) {
                         warnings.add("POSITIONAL_DEPENDENCY");
                     }
                 }

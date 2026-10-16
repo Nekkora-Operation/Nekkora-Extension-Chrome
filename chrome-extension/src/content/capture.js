@@ -453,7 +453,8 @@
       id: NS.registry.idFor(el),
       parentId: ctx.parentId,
       childIds: ctx.childIds,
-      tag,
+      // 2ª revisão dos PRs #7: nome de componente fora do catálogo HTML/SVG/MathML e do vocabulário não sai (marcador neutro)
+      tag: CP.tagName(tag) || CP.NEUTRAL_TAG,
       frameId: ctx.frameId,
       scopeId: ctx.scopeId,
       attributes: attributes(el),
@@ -496,6 +497,9 @@
     if (refs) {
       out.refs = refs;
     }
+    if (ctx.childPositions && ctx.childPositions.length && ctx.childPositions.length === (ctx.childIds || []).length) {
+      out.childPositions = ctx.childPositions;
+    }
     const segs = tag === 'svg' || editableContent || !eligible ? undefined : textSegments(el, ctx.childIds, own);
     if (segs) {
       out.textSegments = segs;
@@ -510,10 +514,14 @@
     if (LEAF.has(tag)) {
       return out;
     }
+    // pos: posição real entre TODOS os filhos elemento (:nth-child), inclusive os que a captura não descreve (script,
+    // style…). Fato estrutural, sem conteúdo: posiciona um componente cujo nome foi retido (2ª revisão dos PRs #7).
+    let pos = 0;
     for (const c of el.children) {
+      pos++;
       const ct = c.tagName.toLowerCase();
       if (!SKIP.has(ct) && !isOverlay(c)) {
-        out.push({ el: c });
+        out.push({ el: c, pos });
       }
     }
     const hostId = NS.registry.idFor(el);
@@ -522,10 +530,12 @@
       const sri = { hostNodeId: hostId, mode: el.shadowRoot.mode || 'open', inspected: true, detection: 'ELEMENT_SHADOW_ROOT', reason: null };
       knownShadows.set(el, sri);
       info.shadowRoots.push(sri);
+      let spos = 0;
       for (const c of el.shadowRoot.children) {
+        spos++;
         const ct = c.tagName.toLowerCase();
         if (!SKIP.has(ct)) {
-          out.push({ el: c, scopeId: 'shadow:' + hostId });
+          out.push({ el: c, scopeId: 'shadow:' + hostId, pos: spos });
         }
       }
     } else if (tag.includes('-') || SHADOW_CAPABLE.has(tag)) {
@@ -582,7 +592,7 @@
         frameWindows.set(fid, el.contentWindow);
         fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: CP.urlTemplate(doc.location.href), accessible: true, reason: null,
           title: CP.title(doc.title || ''), readyState: doc.readyState, registryEpoch: NS.registry.epoch() };
-        out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
+        out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid, pos: 1 });
       } else {
         fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
           url: el.getAttribute('src') ? CP.urlTemplate(new URL(el.getAttribute('src'), el.ownerDocument.baseURI).href) : null, accessible: false, reason };
@@ -639,11 +649,12 @@
       info.currentFrame = item.frameId;
       const children = composedChildren(el, info);
       const childIds = children.map((c) => NS.registry.idFor(c.el));
+      const childPositions = children.map((c) => c.pos || 0);
       if (!modals.has(el.ownerDocument)) {
         modals.set(el.ownerDocument, modalOf(el.ownerDocument));
       }
       const d = describe(el, {
-        parentId: item.parentId, childIds, frameId: item.frameId, scopeId: item.scopeId,
+        parentId: item.parentId, childIds, childPositions, frameId: item.frameId, scopeId: item.scopeId,
         parentVisible: item.parentVisible, modal: modals.get(el.ownerDocument),
       });
       t.nodes.push(d);
@@ -964,7 +975,8 @@
         } else {
           info.currentFrame = sc.frameId;
           const children = composedChildren(el, info);
-          const d = describe(el, { parentId, childIds: children.map((c) => NS.registry.idFor(c.el)), frameId: sc.frameId, scopeId: sc.scopeId, parentVisible, modal: modalOf(el.ownerDocument) });
+          const d = describe(el, { parentId, childIds: children.map((c) => NS.registry.idFor(c.el)), childPositions: children.map((c) => c.pos || 0),
+            frameId: sc.frameId, scopeId: sc.scopeId, parentVisible, modal: modalOf(el.ownerDocument) });
           out.set(d.id, d);
         }
         if (out.size >= maxNodes) {

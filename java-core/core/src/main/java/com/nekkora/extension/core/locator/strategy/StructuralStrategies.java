@@ -33,7 +33,7 @@ public final class StructuralStrategies {
                 if (StepFactory.nonBlank(id) && m.byIdAttribute(a.scopeId(), id).size() == 1
                         && heuristics.assess(id).level() != StabilityLevel.HEURISTIC_UNSTABLE) {
                     List<LocatorStep> steps = new ArrayList<>();
-                    steps.add(LocatorStep.descendant(a.tag(), new Predicate.AttrEquals("id", id)));
+                    steps.add(LocatorStep.descendant(a.locatorTag(), new Predicate.AttrEquals("id", id)));
                     Collections.reverse(chain);
                     for (RawNode n : chain) {
                         steps.add(childStep(n, t, false));
@@ -74,6 +74,14 @@ public final class StructuralStrategies {
     }
 
     static LocatorStep childStep(RawNode n, TargetContext t, boolean alwaysPosition) {
+        if (n.locatorTag() == null) {
+            // nome retido (custom-element): qualquer elemento; a posição é a real entre TODOS os irmãos (:nth-child),
+            // informada pela página — :nth-of-type exigiria o nome. Sem a posição informada, nenhuma é inventada.
+            int k = t.eval().nthChild(n);
+            RawNode p = t.graph().model().find(n.parentId()).orElse(null);
+            long siblings = p == null ? 0 : t.graph().model().children(p).stream().filter(s -> s.scopeId().equals(n.scopeId())).count();
+            return k > 0 && (siblings > 1 || (alwaysPosition && p != null)) ? LocatorStep.child(null, new Predicate.NthChild(k)) : LocatorStep.child(null);
+        }
         if (n.tag().equals("html") || n.tag().equals("body")) {
             return LocatorStep.child(n.tag());
         }

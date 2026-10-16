@@ -116,7 +116,7 @@ async function fakeHost(type, payload) {
     return {
       resolution: 'RESOLVED', captureId: 'cap-2', nodeId: payload.nodeId, targetId: 'tgt-' + payload.nodeId, documentId: 'doc:0', kind: 'BUTTON', role: 'button',
       name: 'Entrar', tag: 'button', htmlId: 'entrar', htmlName: null, sensitive: false,
-      locators: [{ strategy: 'ID', description: 'id "entrar"', css: '#entrar', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }],
+      locators: [{ strategy: 'ID', description: 'button {id=entrar}', css: '#entrar', xpath: null, matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' }],
       preferredLocator: 0, accessPath: [], context: [], lookalikes: 0, notes: [], verification: { primary: { semantic: 's0', css: '#entrar' }, fallbacks: [] },
     };
   }

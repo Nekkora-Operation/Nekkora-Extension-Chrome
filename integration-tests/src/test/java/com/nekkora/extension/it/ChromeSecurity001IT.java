@@ -33,6 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -380,6 +381,48 @@ class ChromeSecurity001IT extends SessionIT {
         Map<String, String> engine = inspectAndExport(p, "tbody tr:nth-child(2) button.ver", "tbody tr:nth-child(1) td:nth-child(1)");
         finish(rid);
         assertClean("Página 6 — tabela", scan("Página 6 — tabela", p, rid, since, engine));
+    }
+
+    @Test
+    @DisplayName("SEC001-092 — Consulta de nó (page.nodeInfo): sem texto nem id da página, e recurso só de desenvolvimento")
+    void sec001ConsultaDeNo() throws Exception {
+        Page p = open(BASE + "texto-livre.html");
+        Map<String, String> out = new LinkedHashMap<>();
+        for (String css : List.of("#pedido", "#contrato", "#misto")) {
+            String nodeId = lab.call("page.idFor", p, "css", css).path("nodeIds").path(0).asText();
+            out.put("consulta de nó (page.nodeInfo) " + css, lab.call("page.nodeInfo", p, "nodeId", nodeId).toString());
+        }
+        List<Finding> found = new ArrayList<>();
+        out.forEach((k, v) -> found.addAll(PrivacyCanaries.scan(k, v)));
+        FINDINGS.computeIfAbsent("Consulta de nó", k -> new ArrayList<>()).addAll(found);
+        assertClean("Consulta de nó", found);
+        lab.call("config.setMode", Map.of("mode", "PRD"));
+        try {
+            JsonNode r = lab.callRaw("page.nodeInfo", Map.of("tabId", p.tabId(), "nodeId", "n1"));
+            assertEquals("MODE_RESTRICTED", r.at("/error/code").asText(), r.toString());
+        } finally {
+            lab.call("config.setMode", Map.of("mode", "DEV"));
+        }
+    }
+
+    @Test
+    @DisplayName("SEC001-091 — Página 15: nomes de elementos personalizados e desconhecidos fora do vocabulário não saem (nem em localizadores)")
+    void sec001Componentes() throws Exception {
+        long since = System.currentTimeMillis();
+        Page p = open(BASE + "componentes.html");
+        String rid = start(p);
+        click(p, By.id("consultar-ficha"));
+        click(p, By.id("acao"));
+        click(p, By.id("no-desconhecido"));
+        lab.focus(p);
+        WebElement noCartao = (WebElement) lab.js(p, "return document.getElementById('cartao').shadowRoot.getElementById('no-cartao')");
+        new Actions(lab.driver()).moveToElement(noCartao).click().perform();
+        click(p, By.id("no-painel"));
+        awaitSteps(rid, 5);
+        Map<String, String> engine = inspectAndExport(p, "#ficha", "#consultar-ficha", "#acao", "#desconhecido", "#no-desconhecido",
+                "#secao", "#cartao", "#painel", "#no-painel");
+        finish(rid);
+        assertClean("Página 15 — componentes personalizados", scan("Página 15 — componentes personalizados", p, rid, since, engine));
     }
 
     @Test

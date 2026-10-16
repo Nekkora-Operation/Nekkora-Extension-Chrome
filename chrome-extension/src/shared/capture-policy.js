@@ -192,10 +192,6 @@
     return out ? out.slice(0, 2000) : null;
   }
 
-  const QUOTED = /'([^']*)'|"([^"]*)"/g;
-  const CSS_TOKEN = /[#.](-?[A-Za-z_][A-Za-z0-9_-]*)/g;
-  const PAIR = /\b[A-Za-z][A-Za-z0-9-]*=([^\s,}\]"'()/[][^\s,}\]"'()]*)/g;
-
   /*
    * Literal de localizador (texto entre aspas, valor de atributo, id/classe CSS). P1-02 (revisão dos PRs #7): número
    * longo NÃO é estrutural quando é VALOR (//button[@data-customer='12345678900']) — só até 2 dígitos, como no texto.
@@ -205,28 +201,533 @@
     return v === '' || /^\d{1,2}$/.test(v) || v === HOLE || vocabularyOnly(v);
   }
 
-  /** Uma expressão de localizador (CSS, XPath ou descrição) só é transportável se TODO literal passar na política. */
+  // ------------------------------------------------------------------------- nomes de elemento (2ª revisão dos PRs #7)
+
+  /** Marcador neutro de um nome de elemento retido (nunca é o nome real e nunca entra em localizador). */
+  const NEUTRAL_TAG = 'custom-element';
+  /** Nome de elemento personalizado (ASCII; o caractere "-" é o que o distingue de um elemento HTML). */
+  const CUSTOM_TAG = /^[a-z][a-z0-9._-]*-[a-z0-9._-]*$/;
+
+  function asciiLower(v) {
+    return String(v).replace(/[A-Z]/g, (c) => c.toLowerCase());
+  }
+
+  function elementSet() {
+    const v = root.NekkoraVocabulary;
+    return v && v.elements ? v.elements : new Set();
+  }
+
+  /**
+   * Nome de elemento transportável. O nome de um componente é escolhido pelo desenvolvedor e pode carregar dado de
+   * negócio (<ficha-cliente-joao>): só atravessa se for do catálogo fechado HTML/SVG/MathML (contrato
+   * nekkora-html-elements/1) ou se o nome personalizado INTEIRO for identificador do vocabulário (como id e classe).
+   * Senão vai o marcador neutro "custom-element": o motor sabe que há um elemento, sem o nome.
+   */
+  function tagName(raw) {
+    if (raw == null) {
+      return null;
+    }
+    const s = asciiLower(raw);
+    if (!s) {
+      return null;
+    }
+    if (s !== NEUTRAL_TAG && (elementSet().has(s) || (CUSTOM_TAG.test(s) && identifier(s) != null))) {
+      return s;
+    }
+    return NEUTRAL_TAG;
+  }
+
+  /** Nome de elemento aceito DENTRO de um localizador: "*", ou um nome que a política mantém (nunca o marcador neutro). */
+  function tagOk(t) {
+    const s = asciiLower(t);
+    return t === '*' || (s !== NEUTRAL_TAG && tagName(s) === s);
+  }
+
+  const ATTR_NAME = /^[a-z_:][a-z0-9_:.-]*$/;
+  const KNOWN_ATTRIBUTES = ['class', 'value', 'style', 'data-sitekey'];
+
+  /** Nome de atributo aceito num localizador: nome que a política conhece, ou personalizado inteiro do vocabulário. */
+  function attributeNameOk(name) {
+    const s = asciiLower(name);
+    if (s.length > MAX_LEN || !ATTR_NAME.test(s)) {
+      return false;
+    }
+    return STRUCTURAL.has(s) || IDENTIFIERS.has(s) || IDREFS.has(s) || NAMING.has(s) || DESCRIPTIVE.has(s) || URLS.has(s)
+      || PRESENCE.has(s) || KNOWN_ATTRIBUTES.includes(s) || identifier(s) != null;
+  }
+
+  // ------------------------------------------------------------------------- expressões (2ª revisão dos PRs #7)
+  /*
+   * Análise ESTRITA da expressão pronta (CSS, XPath ou notação semântica). As barreiras que só recebem a expressão
+   * serializada (service worker, host, Studio) não podem depender de o produtor ter gerado o localizador certo: a
+   * expressão inteira precisa ser reconhecida pela gramática, e todo nome de elemento, nome de atributo e literal
+   * (depois de decodificar os escapes) precisa passar na política. O que não for analisável é recusado inteiro.
+   */
+  const MAX_EXPR = 4000;
+  const CSS_WS = ' \t\n\r\f';
+  const CSS_PSEUDO = ['first-child', 'last-child', 'only-child', 'first-of-type', 'last-of-type', 'only-of-type', 'checked',
+    'disabled', 'enabled', 'required', 'optional', 'read-only', 'read-write', 'empty', 'root'];
+  const CSS_NTH = ['nth-child', 'nth-last-child', 'nth-of-type', 'nth-last-of-type'];
+  const NTH_ARG = /^ *(odd|even|[+-]?\d+|[+-]?\d*n( *[+-] *\d+)?) *$/;
+  /** Controle, separador de linha e DEL: nenhum produtor os emite; a expressão inteira é recusada. */
+  const EXPR_CONTROL = /[\u0000-\u001f\u007f\u0085\u2028\u2029]/;
+
+  /** Seletor CSS (lista de compostos com combinadores; sem vírgula, comentário, namespace, ::, nem :not/:is/:has). */
+  function cssSafe(s) {
+    const n = s.length;
+    let i = 0;
+    const ch = (k) => (k < n ? s[k] : '');
+    const isHex = (c) => /^[0-9a-fA-F]$/.test(c);
+    const ws = () => {
+      const st = i;
+      while (i < n && CSS_WS.includes(s[i])) {
+        i++;
+      }
+      return i > st;
+    };
+    function escape() { // em "\"
+      i++;
+      const c = ch(i);
+      if (c === '' || c === '\n' || c === '\r' || c === '\f') {
+        return null;
+      }
+      if (isHex(c)) {
+        let h = '';
+        while (i < n && h.length < 6 && isHex(s[i])) {
+          h += s[i++];
+        }
+        if (ch(i) === '\r' && ch(i + 1) === '\n') {
+          i += 2;
+        } else if (CSS_WS.includes(ch(i)) && ch(i) !== '') {
+          i++;
+        }
+        const cp = parseInt(h, 16);
+        return cp === 0 || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) ? '�' : String.fromCodePoint(cp);
+      }
+      const r = String.fromCodePoint(s.codePointAt(i));
+      i += r.length;
+      return r;
+    }
+    function identStart(k) {
+      const c = ch(k);
+      return c === '\\' || /^[A-Za-z_]$/.test(c) || (c !== '' && c.charCodeAt(0) >= 0x80)
+        || (c === '-' && (ch(k + 1) === '-' || ch(k + 1) === '\\' || /^[A-Za-z_]$/.test(ch(k + 1)) || (ch(k + 1) !== '' && ch(k + 1).charCodeAt(0) >= 0x80)));
+    }
+    function ident() { // valor DECODIFICADO ou null
+      if (!identStart(i)) {
+        return null;
+      }
+      let out = '';
+      while (i < n) {
+        const c = s[i];
+        if (c === '\\') {
+          const e = escape();
+          if (e == null) {
+            return null;
+          }
+          out += e;
+        } else if (/^[A-Za-z0-9_-]$/.test(c) || c.charCodeAt(0) >= 0x80) {
+          out += c;
+          i++;
+        } else {
+          break;
+        }
+      }
+      return out;
+    }
+    function string() { // valor DECODIFICADO ou null
+      const q = s[i++];
+      let out = '';
+      while (i < n) {
+        const c = s[i];
+        if (c === q) {
+          i++;
+          return out;
+        }
+        if (c === '\n' || c === '\r' || c === '\f') {
+          return null;
+        }
+        if (c === '\\') {
+          if (ch(i + 1) === '\n') {
+            i += 2;
+            continue;
+          }
+          const e = escape();
+          if (e == null) {
+            return null;
+          }
+          out += e;
+          continue;
+        }
+        out += c;
+        i++;
+      }
+      return null;
+    }
+    function attributeSelector() { // em "["
+      i++;
+      ws();
+      const name = ident();
+      if (name == null || !attributeNameOk(name)) {
+        return false;
+      }
+      ws();
+      if (ch(i) === ']') {
+        i++;
+        return true;
+      }
+      if (ch(i) === '=') {
+        i++;
+      } else if ('~|^$*'.includes(ch(i)) && ch(i) !== '' && ch(i + 1) === '=') {
+        i += 2;
+      } else {
+        return false;
+      }
+      ws();
+      const v = ch(i) === '"' || ch(i) === "'" ? string() : ident();
+      if (v == null || !literalOk(v)) {
+        return false;
+      }
+      ws();
+      if ('iIsS'.includes(ch(i)) && ch(i) !== '') {
+        i++;
+        ws();
+      }
+      if (ch(i) !== ']') {
+        return false;
+      }
+      i++;
+      return true;
+    }
+    function pseudo() { // em ":"
+      i++;
+      if (ch(i) === ':') {
+        return false;
+      }
+      const p = ident();
+      if (p == null) {
+        return false;
+      }
+      const name = asciiLower(p);
+      if (ch(i) === '(') {
+        if (!CSS_NTH.includes(name)) {
+          return false;
+        }
+        const close = s.indexOf(')', i);
+        if (close < 0 || !NTH_ARG.test(asciiLower(s.slice(i + 1, close)))) {
+          return false;
+        }
+        i = close + 1;
+        return true;
+      }
+      return CSS_PSEUDO.includes(name);
+    }
+    function compound() {
+      let any = false;
+      if (ch(i) === '*') {
+        i++;
+        any = true;
+      } else if (identStart(i)) {
+        const t = ident();
+        if (t == null || !tagOk(t)) {
+          return false;
+        }
+        any = true;
+      }
+      for (;;) {
+        const c = ch(i);
+        if (c === '#' || c === '.') {
+          i++;
+          const v = ident();
+          if (v == null || !literalOk(v)) {
+            return false;
+          }
+        } else if (c === '[') {
+          if (!attributeSelector()) {
+            return false;
+          }
+        } else if (c === ':') {
+          if (!pseudo()) {
+            return false;
+          }
+        } else {
+          break;
+        }
+        any = true;
+      }
+      return any;
+    }
+    ws();
+    if (!compound()) {
+      return false;
+    }
+    for (;;) {
+      const hadWs = ws();
+      if (i >= n) {
+        return true;
+      }
+      const c = s[i];
+      if (c === '>' || c === '+' || c === '~') {
+        i++;
+        ws();
+        if (!compound()) {
+          return false;
+        }
+      } else if (hadWs) {
+        if (!compound()) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  }
+
+  const XPATH_NAME = /^[A-Za-z_][A-Za-z0-9._-]*/;
+  const XPATH_TEXT = ['normalize-space(.)', 'normalize-space()', 'text()'];
+
+  /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::). */
+  function xpathSafe(s) {
+    const n = s.length;
+    let i = 0;
+    const ch = (k) => (k < n ? s[k] : '');
+    const skip = () => {
+      while (ch(i) === ' ') {
+        i++;
+      }
+    };
+    function name() {
+      const m = XPATH_NAME.exec(s.slice(i));
+      if (!m) {
+        return null;
+      }
+      i += m[0].length;
+      return m[0];
+    }
+    function nodeTest() {
+      if (ch(i) === '*') {
+        i++;
+        return true;
+      }
+      const t = name();
+      return t != null && tagOk(t);
+    }
+    function quoted() {
+      const q = ch(i);
+      const e = s.indexOf(q, i + 1);
+      if (e < 0) {
+        return null;
+      }
+      const v = s.slice(i + 1, e);
+      i = e + 1;
+      return v;
+    }
+    function literal() { // valor (concat: a concatenação, julgada inteira) ou null
+      if (ch(i) === '"' || ch(i) === "'") {
+        return quoted();
+      }
+      i += 'concat('.length;
+      let out = '';
+      for (;;) {
+        skip();
+        if (ch(i) !== '"' && ch(i) !== "'") {
+          return null;
+        }
+        const v = quoted();
+        if (v == null) {
+          return null;
+        }
+        out += v;
+        skip();
+        if (ch(i) === ',') {
+          i++;
+        } else if (ch(i) === ')') {
+          i++;
+          return out;
+        } else {
+          return null;
+        }
+      }
+    }
+    function step(axis) {
+      if (axis && s.startsWith('ancestor::', i)) {
+        i += 'ancestor::'.length;
+      }
+      if (ch(i) === '@') {
+        i++;
+        const a = name();
+        return a != null && attributeNameOk(a);
+      }
+      if (!nodeTest()) {
+        return false;
+      }
+      while (ch(i) === '[') {
+        if (!predicate()) {
+          return false;
+        }
+      }
+      return true;
+    }
+    function steps(first) { // passos separados por / ou //
+      if (first && !step(true)) {
+        return false;
+      }
+      while (ch(i) === '/') {
+        i += ch(i + 1) === '/' ? 2 : 1;
+        if (!step(false)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    function operand() { // 'ok', 'lit', 'num:<dígitos>' ou null
+      skip();
+      const c = ch(i);
+      if (c === '"' || c === "'" || s.startsWith('concat(', i)) {
+        const v = literal();
+        return v != null && literalOk(v) ? 'lit' : null;
+      }
+      if (/^[0-9]$/.test(c)) {
+        const m = /^\d+/.exec(s.slice(i));
+        i += m[0].length;
+        return 'num:' + m[0];
+      }
+      for (const fn of XPATH_TEXT) {
+        if (s.startsWith(fn, i)) {
+          i += fn.length;
+          return 'ok';
+        }
+      }
+      if (c === '/') {
+        return steps(false) ? 'ok' : null;
+      }
+      return steps(true) ? 'ok' : null;
+    }
+    function predicate() { // em "["
+      i++;
+      const a = operand();
+      if (a == null) {
+        return false;
+      }
+      skip();
+      if (ch(i) === '=') {
+        i++;
+        const b = operand();
+        if (b == null) {
+          return false;
+        }
+        for (const x of [a, b]) {
+          if (x.startsWith('num:') && !literalOk(x.slice(4))) {
+            return false; // número comparado é VALOR (P1-02)
+          }
+        }
+      } else if (a === 'lit') {
+        return false;
+      }
+      skip();
+      if (ch(i) !== ']') {
+        return false;
+      }
+      i++;
+      return true;
+    }
+    if (ch(0) !== '/') {
+      return false;
+    }
+    while (i < n) {
+      if (ch(i) !== '/') {
+        return false;
+      }
+      i += ch(i + 1) === '/' ? 2 : 1;
+      if (!nodeTest()) {
+        return false;
+      }
+      while (ch(i) === '[') {
+        if (!predicate()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  const SEM_TAG = /^[A-Za-z][A-Za-z0-9._-]*/;
+  const SEM_KEYS = ['text', 'label', 'name', 'role'];
+
+  function semanticPredicate(p) {
+    if (p.includes('{')) {
+      return false;
+    }
+    if (/^nth-(of-type|child) \d+$/.test(p)) {
+      return true;
+    }
+    let m = /^has child <([^>]*)> "(.*)"$/.exec(p);
+    if (m) {
+      return tagOk(m[1]) && literalOk(m[2]);
+    }
+    m = /^has (\S+)$/.exec(p);
+    if (m) {
+      return attributeNameOk(m[1]);
+    }
+    m = /^([A-Za-z_:][A-Za-z0-9_:.-]*)=(.*)$/.exec(p);
+    if (m) {
+      let v = m[2];
+      if (v.length >= 2 && v.startsWith('"') && v.endsWith('"')) {
+        v = v.slice(1, -1);
+      }
+      return (SEM_KEYS.includes(m[1]) || attributeNameOk(m[1])) && literalOk(v);
+    }
+    return false;
+  }
+
+  /** Notação semântica do motor: "tag {predicado} … >> tag {…}". Valor sem aspas é julgado INTEIRO, até o "}". */
+  function semanticSafe(s) {
+    const n = s.length;
+    let i = 0;
+    function sstep() {
+      if (s[i] === '*') {
+        i++;
+      } else {
+        const m = SEM_TAG.exec(s.slice(i));
+        if (!m || !tagOk(m[0])) {
+          return false;
+        }
+        i += m[0].length;
+      }
+      while (s.startsWith(' {', i)) {
+        const e = s.indexOf('}', i + 2);
+        if (e < 0 || !semanticPredicate(s.slice(i + 2, e))) {
+          return false;
+        }
+        i = e + 1;
+      }
+      return true;
+    }
+    if (!sstep()) {
+      return false;
+    }
+    while (i < n) {
+      if (!s.startsWith(' >> ', i)) {
+        return false;
+      }
+      i += 4;
+      if (!sstep()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** Uma expressão de localizador só é transportável se for INTEIRAMENTE analisada e tudo nela passar na política. */
   function expressionSafe(expr) {
     if (expr == null || expr === '') {
       return true;
     }
     const s = String(expr);
-    const lits = [];
-    let m;
-    QUOTED.lastIndex = 0;
-    while ((m = QUOTED.exec(s))) {
-      lits.push(m[1] != null ? m[1] : m[2]);
+    if (s.length > MAX_EXPR || EXPR_CONTROL.test(s)) {
+      return false;
     }
-    const unquoted = s.replace(QUOTED, ' ');
-    CSS_TOKEN.lastIndex = 0;
-    while ((m = CSS_TOKEN.exec(unquoted))) {
-      lits.push(m[1]);
-    }
-    PAIR.lastIndex = 0;
-    while ((m = PAIR.exec(unquoted))) {
-      lits.push(m[1]);
-    }
-    return lits.every(literalOk);
+    return cssSafe(s) || xpathSafe(s) || semanticSafe(s);
   }
 
   /*
@@ -384,7 +885,7 @@
 
   root.NekkoraCapturePolicy = Object.freeze({
     VERSION, WITHHELD, HOLE, MAX_LEN, STRUCTURAL, IDENTIFIERS, IDREFS, NAMING, DESCRIPTIVE, URLS,
-    clean, terms, vocabularyOnly, interfaceText, identifier, classes, urlTemplate, expressionSafe, attribute, isCarrier,
-    title: interfaceText,
+    NEUTRAL_TAG, clean, terms, vocabularyOnly, interfaceText, identifier, classes, urlTemplate, expressionSafe, attribute, isCarrier,
+    tagName, title: interfaceText,
   });
 })(globalThis);

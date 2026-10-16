@@ -173,9 +173,14 @@ public final class HtmlSnapshot {
         out.add(null); // reserva posição (pré-ordem)
         boolean hidden = hiddenAncestor || isHiddenSelf(e);
         List<String> children = new ArrayList<>();
+        List<Integer> positions = new ArrayList<>();
+        int light = 0;
 
         for (Element child : e.children()) {
             String ct = child.tagName().toLowerCase(Locale.ROOT);
+            if (!(ct.equals("template") && child.hasAttr("shadowrootmode"))) {
+                light++; // o template declarativo vira shadow root: não é filho elemento na página
+            }
             if (ct.equals("template") && child.hasAttr("shadowrootmode")) {
                 String mode = child.attr("shadowrootmode");
                 boolean open = mode.equals("open");
@@ -183,8 +188,14 @@ public final class HtmlSnapshot {
                         open ? null : "shadow root fechado: encapsulamento intencional"));
                 if (open) {
                     Document content = Jsoup.parseBodyFragment(child.html());
+                    int inShadow = 0;
                     for (Element sc : content.body().children()) {
+                        inShadow++;
+                        if (SKIP.contains(sc.tagName().toLowerCase(Locale.ROOT))) {
+                            continue;
+                        }
                         children.add(emit(sc, id, frameId, "shadow:" + id, hidden, out, frameInfos, shadows, frameCounter));
+                        positions.add(inShadow);
                     }
                 }
                 continue;
@@ -212,6 +223,7 @@ public final class HtmlSnapshot {
                 continue;
             }
             children.add(emit(child, id, frameId, scopeId, hidden, out, frameInfos, shadows, frameCounter));
+            positions.add(light);
         }
         if ((tag.equals("iframe") || tag.equals("frame")) && e.hasAttr("data-fixture-frame")) {
             FrameSpec spec = frames.get(e.attr("data-fixture-frame"));
@@ -222,6 +234,7 @@ public final class HtmlSnapshot {
                     spec != null && spec.accessible() ? frameEpochs.computeIfAbsent(frameName, k -> "fr" + k.replaceAll("[^a-z0-9]", "")) : null));
             if (spec != null && spec.accessible()) {
                 children.add(emit(spec.doc().selectFirst("html"), id, fid, "doc:" + fid, hidden, out, frameInfos, shadows, frameCounter));
+                positions.add(1);
             }
         }
 
@@ -265,7 +278,7 @@ public final class HtmlSnapshot {
         int rev = revisions.getOrDefault(e, 0) + (prev != null && !prev.equals(own) ? 1 : 0);
         revisions.put(e, rev);
         out.set(index, new RawNode(id, parentId, children, tag, frameId, scopeId, attrs, own, state,
-                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed, segments(e, children, own), null, null, null, rev));
+                new Rect(0, index * 10.0, 100, 20), labelIds(e), null, exposed, segments(e, children, own), null, null, null, rev, positions));
         return id;
     }
 

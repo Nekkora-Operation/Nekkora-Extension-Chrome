@@ -23,7 +23,7 @@
       "locators": [
         {
           "strategy": "ID",
-          "description": "id \"entrar\"",
+          "description": "button {id=entrar}",
           "css": "#entrar",
           "xpath": "//*[@id='entrar']",
           "matchCount": 1,
@@ -33,7 +33,7 @@
         },
         {
           "strategy": "ROLE_NAME",
-          "description": "botão \"Entrar\"",
+          "description": "* {role=button} {name=\"Entrar\"}",
           "css": null,
           "xpath": "//button[normalize-space()='Entrar']",
           "matchCount": 1,

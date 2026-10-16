@@ -179,7 +179,11 @@ class LocatorEngineTest {
         assertEquals("SHADOW_ROOT", s.primary().scope().type());
         // CHROME-SECURITY-001: "host" não é identificador do vocabulário — o hospedeiro é citado só pelo que a política permite
         assertFalse(s.primary().scope().chain().get(0).css().contains("#host"), s.primary().scope().chain().get(0).css());
-        assertTrue(s.primary().scope().chain().get(0).css().contains("nk-card"));
+        // 2ª revisão dos PRs #7: "nk-card" não é do catálogo HTML nem do vocabulário — o hospedeiro é citado pela posição real
+        // entre os irmãos (:nth-child, informada pela página), sem o nome, e continua único
+        assertFalse(s.primary().scope().chain().get(0).css().contains("nk-card"), s.primary().scope().chain().get(0).css());
+        assertEquals("html > body > :nth-child(1)", s.primary().scope().chain().get(0).css());
+        assertEquals(1, s.primary().scope().chain().get(0).matchCount());
         assertEquals(null, s.primary().xpath(), "XPath não atravessa shadow root");
         String fb = a.semantics().all().stream().filter(c -> c.name().name().equals("No frame")).findFirst().orElseThrow().nodeId();
         LocatorSet f = a.locators().generate(fb);

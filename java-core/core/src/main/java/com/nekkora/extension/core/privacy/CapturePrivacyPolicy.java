@@ -443,9 +443,6 @@ public final class CapturePrivacyPolicy {
 
     // ------------------------------------------------------------------------------------------ expressões de localizador
 
-    private static final Pattern QUOTED = Pattern.compile("'([^']*)'|\"([^\"]*)\"");
-    private static final Pattern CSS_TOKEN = Pattern.compile("[#.](-?[A-Za-z_][A-Za-z0-9_-]*)");
-    private static final Pattern PAIR = Pattern.compile("\\b[A-Za-z][A-Za-z0-9-]*=([^\\s,}\\]\"'()/\\[][^\\s,}\\]\"'()]*)");
     /** P1-02: número como VALOR (literal) só até 2 dígitos; posições (nth-of-type(12), [12], {nth-of-type 12}) não são literais. */
     private static final Pattern DIGITS = Pattern.compile("\\d{1,2}");
 
@@ -453,27 +450,605 @@ public final class CapturePrivacyPolicy {
         return v.isEmpty() || DIGITS.matcher(v).matches() || v.equals(HOLE) || vocabularyOnly(v);
     }
 
-    /** Uma expressão de localizador (CSS, XPath ou descrição) só é transportável se TODO literal passar na política. */
+    // ------------------------------------------------------------------------------ nomes de elemento (2ª revisão dos PRs #7)
+
+    public static final String ELEMENTS_RESOURCE = "contracts/privacy/html-elements.json";
+    /** Marcador neutro de um nome de elemento retido (nunca é o nome real e nunca entra em localizador). */
+    public static final String NEUTRAL_TAG = "custom-element";
+    private static final Set<String> ELEMENTS = Set.copyOf(jsonStrings(readResource(ELEMENTS_RESOURCE), "elements"));
+    private static final Pattern CUSTOM_TAG = Pattern.compile("[a-z][a-z0-9._-]*-[a-z0-9._-]*");
+
+    private static String asciiLower(String v) {
+        StringBuilder sb = new StringBuilder(v.length());
+        for (int k = 0; k < v.length(); k++) {
+            char c = v.charAt(k);
+            sb.append(c >= 'A' && c <= 'Z' ? (char) (c + 32) : c);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Nome de elemento transportável. O nome de um componente é escolhido pelo desenvolvedor e pode carregar dado de
+     * negócio ({@code <ficha-cliente-joao>}): só atravessa se for do catálogo fechado HTML/SVG/MathML (contrato
+     * {@value #ELEMENTS_RESOURCE}) ou se o nome personalizado INTEIRO for identificador do vocabulário (como id e classe).
+     * Senão vai o marcador neutro {@value #NEUTRAL_TAG}: o motor sabe que há um elemento, sem o nome.
+     */
+    public static String tagName(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String s = asciiLower(raw);
+        if (s.isEmpty()) {
+            return null;
+        }
+        if (!s.equals(NEUTRAL_TAG) && (ELEMENTS.contains(s) || (CUSTOM_TAG.matcher(s).matches() && identifier(s) != null))) {
+            return s;
+        }
+        return NEUTRAL_TAG;
+    }
+
+    /** O nome foi retido pela política (marcador neutro): não existe na página com esse nome. */
+    public static boolean tagWithheld(String tag) {
+        return NEUTRAL_TAG.equals(tag);
+    }
+
+    /** Nome de elemento aceito DENTRO de um localizador: "*", ou um nome que a política mantém (nunca o marcador neutro). */
+    public static boolean tagSafe(String t) {
+        if (t == null) {
+            return false;
+        }
+        String s = asciiLower(t);
+        return t.equals("*") || (!s.equals(NEUTRAL_TAG) && s.equals(tagName(s)));
+    }
+
+    private static final Pattern ATTR_NAME = Pattern.compile("[a-z_:][a-z0-9_:.-]*");
+    private static final Set<String> KNOWN_ATTRIBUTES = Set.of("class", "value", "style", "data-sitekey");
+
+    /** Nome de atributo aceito num localizador: nome que a política conhece, ou personalizado inteiro do vocabulário. */
+    public static boolean attributeNameSafe(String name) {
+        if (name == null) {
+            return false;
+        }
+        String s = asciiLower(name);
+        if (s.length() > MAX_LEN || !ATTR_NAME.matcher(s).matches()) {
+            return false;
+        }
+        return STRUCTURAL_ATTRIBUTES.contains(s) || IDENTIFIERS.contains(s) || IDREFS.contains(s) || NAMING.contains(s)
+                || DESCRIPTIVE.contains(s) || URLS.contains(s) || PRESENCE.contains(s) || KNOWN_ATTRIBUTES.contains(s)
+                || identifier(s) != null;
+    }
+
+    // ------------------------------------------------------------------------------ expressões (2ª revisão dos PRs #7)
+    /*
+     * Análise ESTRITA da expressão pronta (CSS, XPath ou notação semântica). As barreiras que só recebem a expressão
+     * serializada (service worker, host, Studio) não podem depender de o produtor ter gerado o localizador certo: a
+     * expressão inteira precisa ser reconhecida pela gramática, e todo nome de elemento, nome de atributo e literal
+     * (depois de decodificar os escapes) precisa passar na política. O que não for analisável é recusado inteiro.
+     */
+    private static final int MAX_EXPR = 4000;
+
+    /** Uma expressão de localizador só é transportável se for INTEIRAMENTE analisada e tudo nela passar na política. */
     public static boolean expressionSafe(String expr) {
         if (expr == null || expr.isEmpty()) {
             return true;
         }
-        List<String> lits = new ArrayList<>();
-        Matcher m = QUOTED.matcher(expr);
-        while (m.find()) {
-            lits.add(m.group(1) != null ? m.group(1) : m.group(2));
+        if (expr.length() > MAX_EXPR || EXPR_CONTROL.matcher(expr).find()) {
+            return false;
         }
-        String unquoted = QUOTED.matcher(expr).replaceAll(" ");
-        m = CSS_TOKEN.matcher(unquoted);
-        while (m.find()) {
-            lits.add(m.group(1));
+        return new Css(expr).safe() || new XPath(expr).safe() || semanticSafe(expr);
+    }
+
+    private static final String CSS_WS = " \t\n\r\f";
+    private static final Set<String> CSS_PSEUDO = Set.of("first-child", "last-child", "only-child", "first-of-type", "last-of-type",
+            "only-of-type", "checked", "disabled", "enabled", "required", "optional", "read-only", "read-write", "empty", "root");
+    private static final Set<String> CSS_NTH = Set.of("nth-child", "nth-last-child", "nth-of-type", "nth-last-of-type");
+    private static final Pattern NTH_ARG = Pattern.compile(" *(odd|even|[+-]?\\d+|[+-]?\\d*n( *[+-] *\\d+)?) *");
+    /** Controle, separador de linha e DEL: nenhum produtor os emite; a expressão inteira é recusada. */
+    private static final Pattern EXPR_CONTROL = Pattern.compile("[\\u0000-\\u001f\\u007f\\u0085\\u2028\\u2029]");
+
+    /** Seletor CSS (compostos com combinadores; sem vírgula, comentário, namespace, ::, nem :not/:is/:has). */
+    private static final class Css {
+        private final String s;
+        private final int n;
+        private int i;
+
+        Css(String s) {
+            this.s = s;
+            this.n = s.length();
         }
-        m = PAIR.matcher(unquoted);
-        while (m.find()) {
-            lits.add(m.group(1));
+
+        private char ch(int k) {
+            return k < n ? s.charAt(k) : '\0';
         }
-        for (String l : lits) {
-            if (!literalOk(l)) {
+
+        private static boolean hex(char c) {
+            return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+        }
+
+        private static boolean alpha(char c) {
+            return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
+        }
+
+        private boolean ws() {
+            int st = i;
+            while (i < n && CSS_WS.indexOf(s.charAt(i)) >= 0) {
+                i++;
+            }
+            return i > st;
+        }
+
+        private String escape() { // em "\"
+            i++;
+            char c = ch(i);
+            if (i >= n || c == '\n' || c == '\r' || c == '\f') {
+                return null;
+            }
+            if (hex(c)) {
+                StringBuilder h = new StringBuilder();
+                while (i < n && h.length() < 6 && hex(s.charAt(i))) {
+                    h.append(s.charAt(i++));
+                }
+                if (ch(i) == '\r' && ch(i + 1) == '\n') {
+                    i += 2;
+                } else if (i < n && CSS_WS.indexOf(ch(i)) >= 0) {
+                    i++;
+                }
+                int cp = Integer.parseInt(h.toString(), 16);
+                return cp == 0 || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) ? "�" : new String(Character.toChars(cp));
+            }
+            int cp = s.codePointAt(i);
+            i += Character.charCount(cp);
+            return new String(Character.toChars(cp));
+        }
+
+        private boolean identStart(int k) {
+            if (k >= n) {
+                return false;
+            }
+            char c = s.charAt(k);
+            if (c == '\\' || alpha(c) || c >= 0x80) {
+                return true;
+            }
+            if (c != '-' || k + 1 >= n) {
+                return false;
+            }
+            char d = s.charAt(k + 1);
+            return d == '-' || d == '\\' || alpha(d) || d >= 0x80;
+        }
+
+        private String ident() { // valor DECODIFICADO ou null
+            if (!identStart(i)) {
+                return null;
+            }
+            StringBuilder out = new StringBuilder();
+            while (i < n) {
+                char c = s.charAt(i);
+                if (c == '\\') {
+                    String e = escape();
+                    if (e == null) {
+                        return null;
+                    }
+                    out.append(e);
+                } else if (alpha(c) || (c >= '0' && c <= '9') || c == '-' || c >= 0x80) {
+                    out.append(c);
+                    i++;
+                } else {
+                    break;
+                }
+            }
+            return out.toString();
+        }
+
+        private String string() { // valor DECODIFICADO ou null
+            char q = s.charAt(i++);
+            StringBuilder out = new StringBuilder();
+            while (i < n) {
+                char c = s.charAt(i);
+                if (c == q) {
+                    i++;
+                    return out.toString();
+                }
+                if (c == '\n' || c == '\r' || c == '\f') {
+                    return null;
+                }
+                if (c == '\\') {
+                    if (ch(i + 1) == '\n' && i + 1 < n) {
+                        i += 2;
+                        continue;
+                    }
+                    String e = escape();
+                    if (e == null) {
+                        return null;
+                    }
+                    out.append(e);
+                    continue;
+                }
+                out.append(c);
+                i++;
+            }
+            return null;
+        }
+
+        private boolean attributeSelector() { // em "["
+            i++;
+            ws();
+            String name = ident();
+            if (name == null || !attributeNameSafe(name)) {
+                return false;
+            }
+            ws();
+            if (i < n && ch(i) == ']') {
+                i++;
+                return true;
+            }
+            if (i < n && ch(i) == '=') {
+                i++;
+            } else if (i + 1 < n && "~|^$*".indexOf(ch(i)) >= 0 && ch(i + 1) == '=') {
+                i += 2;
+            } else {
+                return false;
+            }
+            ws();
+            String v = i < n && (ch(i) == '"' || ch(i) == '\'') ? string() : ident();
+            if (v == null || !literalOk(v)) {
+                return false;
+            }
+            ws();
+            if (i < n && "iIsS".indexOf(ch(i)) >= 0) {
+                i++;
+                ws();
+            }
+            if (i >= n || ch(i) != ']') {
+                return false;
+            }
+            i++;
+            return true;
+        }
+
+        private boolean pseudo() { // em ":"
+            i++;
+            if (i < n && ch(i) == ':') {
+                return false;
+            }
+            String p = ident();
+            if (p == null) {
+                return false;
+            }
+            String name = asciiLower(p);
+            if (i < n && ch(i) == '(') {
+                if (!CSS_NTH.contains(name)) {
+                    return false;
+                }
+                int close = s.indexOf(')', i);
+                if (close < 0 || !NTH_ARG.matcher(asciiLower(s.substring(i + 1, close))).matches()) {
+                    return false;
+                }
+                i = close + 1;
+                return true;
+            }
+            return CSS_PSEUDO.contains(name);
+        }
+
+        private boolean compound() {
+            boolean any = false;
+            if (i < n && ch(i) == '*') {
+                i++;
+                any = true;
+            } else if (identStart(i)) {
+                String t = ident();
+                if (t == null || !tagSafe(t)) {
+                    return false;
+                }
+                any = true;
+            }
+            for (;;) {
+                char c = i < n ? ch(i) : '\0';
+                if (c == '#' || c == '.') {
+                    i++;
+                    String v = ident();
+                    if (v == null || !literalOk(v)) {
+                        return false;
+                    }
+                } else if (c == '[') {
+                    if (!attributeSelector()) {
+                        return false;
+                    }
+                } else if (c == ':') {
+                    if (!pseudo()) {
+                        return false;
+                    }
+                } else {
+                    break;
+                }
+                any = true;
+            }
+            return any;
+        }
+
+        boolean safe() {
+            ws();
+            if (!compound()) {
+                return false;
+            }
+            for (;;) {
+                boolean hadWs = ws();
+                if (i >= n) {
+                    return true;
+                }
+                char c = s.charAt(i);
+                if (c == '>' || c == '+' || c == '~') {
+                    i++;
+                    ws();
+                    if (!compound()) {
+                        return false;
+                    }
+                } else if (hadWs) {
+                    if (!compound()) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private static final Pattern XPATH_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9._-]*");
+    private static final List<String> XPATH_TEXT = List.of("normalize-space(.)", "normalize-space()", "text()");
+
+    /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::). */
+    private static final class XPath {
+        private final String s;
+        private final int n;
+        private int i;
+
+        XPath(String s) {
+            this.s = s;
+            this.n = s.length();
+        }
+
+        private char ch(int k) {
+            return k < n ? s.charAt(k) : '\0';
+        }
+
+        private void skip() {
+            while (i < n && s.charAt(i) == ' ') {
+                i++;
+            }
+        }
+
+        private String name() {
+            Matcher m = XPATH_NAME.matcher(s).region(i, n);
+            if (!m.lookingAt()) {
+                return null;
+            }
+            i = m.end();
+            return m.group();
+        }
+
+        private boolean nodeTest() {
+            if (i < n && ch(i) == '*') {
+                i++;
+                return true;
+            }
+            String t = name();
+            return t != null && tagSafe(t);
+        }
+
+        private String quoted() {
+            char q = ch(i);
+            int e = s.indexOf(q, i + 1);
+            if (e < 0) {
+                return null;
+            }
+            String v = s.substring(i + 1, e);
+            i = e + 1;
+            return v;
+        }
+
+        private String literal() { // valor (concat: a concatenação, julgada inteira) ou null
+            if (ch(i) == '"' || ch(i) == '\'') {
+                return quoted();
+            }
+            i += "concat(".length();
+            StringBuilder out = new StringBuilder();
+            for (;;) {
+                skip();
+                if (i >= n || (ch(i) != '"' && ch(i) != '\'')) {
+                    return null;
+                }
+                String v = quoted();
+                if (v == null) {
+                    return null;
+                }
+                out.append(v);
+                skip();
+                if (i < n && ch(i) == ',') {
+                    i++;
+                } else if (i < n && ch(i) == ')') {
+                    i++;
+                    return out.toString();
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        private boolean step(boolean axis) {
+            if (axis && s.startsWith("ancestor::", i)) {
+                i += "ancestor::".length();
+            }
+            if (i < n && ch(i) == '@') {
+                i++;
+                String a = name();
+                return a != null && attributeNameSafe(a);
+            }
+            if (!nodeTest()) {
+                return false;
+            }
+            while (i < n && ch(i) == '[') {
+                if (!predicate()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean steps(boolean first) { // passos separados por / ou //
+            if (first && !step(true)) {
+                return false;
+            }
+            while (i < n && ch(i) == '/') {
+                i += ch(i + 1) == '/' ? 2 : 1;
+                if (!step(false)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private String operand() { // "ok", "lit", "num:<dígitos>" ou null
+            skip();
+            char c = ch(i);
+            if (i < n && (c == '"' || c == '\'' || s.startsWith("concat(", i))) {
+                String v = literal();
+                return v != null && literalOk(v) ? "lit" : null;
+            }
+            if (i < n && c >= '0' && c <= '9') {
+                int st = i;
+                while (i < n && ch(i) >= '0' && ch(i) <= '9') {
+                    i++;
+                }
+                return "num:" + s.substring(st, i);
+            }
+            for (String fn : XPATH_TEXT) {
+                if (s.startsWith(fn, i)) {
+                    i += fn.length();
+                    return "ok";
+                }
+            }
+            if (i < n && c == '/') {
+                return steps(false) ? "ok" : null;
+            }
+            return steps(true) ? "ok" : null;
+        }
+
+        private boolean predicate() { // em "["
+            i++;
+            String a = operand();
+            if (a == null) {
+                return false;
+            }
+            skip();
+            if (i < n && ch(i) == '=') {
+                i++;
+                String b = operand();
+                if (b == null) {
+                    return false;
+                }
+                for (String x : new String[]{a, b}) {
+                    if (x.startsWith("num:") && !literalOk(x.substring(4))) {
+                        return false; // número comparado é VALOR (P1-02)
+                    }
+                }
+            } else if (a.equals("lit")) {
+                return false;
+            }
+            skip();
+            if (i >= n || ch(i) != ']') {
+                return false;
+            }
+            i++;
+            return true;
+        }
+
+        boolean safe() {
+            if (n == 0 || s.charAt(0) != '/') {
+                return false;
+            }
+            while (i < n) {
+                if (s.charAt(i) != '/') {
+                    return false;
+                }
+                i += ch(i + 1) == '/' ? 2 : 1;
+                if (!nodeTest()) {
+                    return false;
+                }
+                while (i < n && ch(i) == '[') {
+                    if (!predicate()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    private static final Pattern SEM_TAG = Pattern.compile("[A-Za-z][A-Za-z0-9._-]*");
+    private static final Pattern SEM_NTH = Pattern.compile("nth-(of-type|child) \\d+");
+    private static final Pattern SEM_CHILD = Pattern.compile("has child <([^>]*)> \"(.*)\"");
+    private static final Pattern SEM_HAS = Pattern.compile("has (\\S+)");
+    private static final Pattern SEM_PAIR = Pattern.compile("([A-Za-z_:][A-Za-z0-9_:.-]*)=(.*)");
+    private static final Set<String> SEM_KEYS = Set.of("text", "label", "name", "role");
+
+    private static boolean semanticPredicate(String p) {
+        if (p.indexOf('{') >= 0) {
+            return false;
+        }
+        if (SEM_NTH.matcher(p).matches()) {
+            return true;
+        }
+        Matcher m = SEM_CHILD.matcher(p);
+        if (m.matches()) {
+            return tagSafe(m.group(1)) && literalOk(m.group(2));
+        }
+        m = SEM_HAS.matcher(p);
+        if (m.matches()) {
+            return attributeNameSafe(m.group(1));
+        }
+        m = SEM_PAIR.matcher(p);
+        if (m.matches()) {
+            String v = m.group(2);
+            if (v.length() >= 2 && v.startsWith("\"") && v.endsWith("\"")) {
+                v = v.substring(1, v.length() - 1);
+            }
+            return (SEM_KEYS.contains(m.group(1)) || attributeNameSafe(m.group(1))) && literalOk(v);
+        }
+        return false;
+    }
+
+    /** Notação semântica do motor: "tag {predicado} … >> tag {…}". Valor sem aspas é julgado INTEIRO, até o "}". */
+    private static boolean semanticSafe(String s) {
+        int n = s.length();
+        int[] i = {0};
+        java.util.function.BooleanSupplier sstep = () -> {
+            if (i[0] < n && s.charAt(i[0]) == '*') {
+                i[0]++;
+            } else {
+                Matcher m = SEM_TAG.matcher(s).region(i[0], n);
+                if (!m.lookingAt() || !tagSafe(m.group())) {
+                    return false;
+                }
+                i[0] = m.end();
+            }
+            while (s.startsWith(" {", i[0])) {
+                int e = s.indexOf('}', i[0] + 2);
+                if (e < 0 || !semanticPredicate(s.substring(i[0] + 2, e))) {
+                    return false;
+                }
+                i[0] = e + 1;
+            }
+            return true;
+        };
+        if (!sstep.getAsBoolean()) {
+            return false;
+        }
+        while (i[0] < n) {
+            if (!s.startsWith(" >> ", i[0])) {
+                return false;
+            }
+            i[0] += 4;
+            if (!sstep.getAsBoolean()) {
                 return false;
             }
         }

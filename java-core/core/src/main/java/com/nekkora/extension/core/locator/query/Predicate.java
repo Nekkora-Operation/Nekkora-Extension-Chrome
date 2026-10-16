@@ -147,6 +147,33 @@ public sealed interface Predicate {
         }
     }
 
+    /**
+     * Posição entre TODOS os irmãos elemento ({@code :nth-child(n)} / {@code *[n]}), base 1. Usada só em passo sem tag
+     * ({@code *}), para um elemento cujo nome foi retido pela política (2ª revisão dos PRs #7): a posição vem da página
+     * ({@code childPositions}), não da contagem do motor, porque a captura não descreve todos os filhos.
+     */
+    record NthChild(int position) implements Predicate {
+        @Override
+        public boolean test(RawNode node, EvalContext ctx) {
+            return ctx.nthChild(node) == position;
+        }
+
+        @Override
+        public String css() {
+            return ":nth-child(" + position + ")";
+        }
+
+        @Override
+        public String xpath() {
+            return Integer.toString(position);
+        }
+
+        @Override
+        public String describe() {
+            return "nth-child " + position;
+        }
+    }
+
     /** Controle cujo label (associado por {@code for} ou por envolvimento) tem o texto informado. */
     record LabelTextEquals(String text, boolean wrapping) implements Predicate {
         @Override

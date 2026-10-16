@@ -50,6 +50,9 @@ test('SEC001-065/067 — vetores compartilhados: texto de interface, identificad
   for (const v of vectors.carriers) {
     assert.equal(P.isCarrier(v.tag, v.role, v.hasHref), v.out, 'isCarrier ' + v.tag + '/' + v.role);
   }
+  for (const v of vectors.tags) {
+    assert.equal(P.tagName(v.in), v.out, 'tagName ' + JSON.stringify(v.in));
+  }
 });
 
 test('SEC001-001/002/018/019 — os marcadores do laboratório nunca passam, nem em forma transformada', () => {
@@ -137,4 +140,42 @@ test('SEC001-089 (P1-02) — número em localizador: posição estrutural passa;
   assert.equal(CP.expressionSafe('html >> body >> div {nth-of-type 123} >> button {nth-of-type 1}'), true);
   assert.equal(CP.expressionSafe("input[maxlength='12']"), true, 'número curto de atributo estrutural');
   assert.equal(CP.expressionSafe("//li[normalize-space()='Item 12']"), true);
+});
+
+const elementsSource = JSON.parse(readFileSync(new URL('../../contracts/privacy/html-elements.json', import.meta.url), 'utf8'));
+
+test('SEC001-091 — catálogo de elementos gerado idêntico à fonte única (html-elements.json)', () => {
+  const { NekkoraVocabulary } = load();
+  assert.equal(NekkoraVocabulary.elementsVersion, elementsSource.version);
+  assert.deepEqual([...NekkoraVocabulary.elements].sort(), [...elementsSource.elements].sort(), 'rode node scripts/gen-ui-vocabulary.mjs');
+  assert.equal(NekkoraVocabulary.elements.has(elementsSource.neutral), false, 'o marcador neutro não é elemento do catálogo');
+});
+
+test('SEC001-090 (2ª revisão) — operadores CSS e expressões não analisáveis: recusadas inteiras; posições continuam', () => {
+  const CP = load().NekkoraCapturePolicy;
+  // reprodução da revisão: estes eram aceitos (a lista de literais ficava vazia => aprovado)
+  for (const e of ['button[data-client^=joao-oliveira]', 'button[data-client~=joao-oliveira]', 'button[data-client|=joao-oliveira]',
+    'button[data-client$=joao-oliveira]', 'input[aria-label*=gumercindo-tavares]', 'input[aria-label *= gumercindo-tavares]',
+    '#\\6a oao-oliveira', 'button /* joao oliveira */', 'button {aria-label=Consultar Joao Oliveira}', 'button[data-joao-oliveira]',
+    'ficha-cliente-joao > button', '//ficha-cliente-joao/button', 'ficha-cliente-joao >> button', 'button:not(.btn)', 'button, a', '[data-client']) {
+    assert.equal(CP.expressionSafe(e), false, e);
+  }
+  // operadores reconhecidos com literal da política e posições estruturais continuam
+  for (const e of ["input[aria-label*='Consultar']", 'input[aria-label^="Consultar"]', 'button[data-client="Consultar" i]',
+    'html > body > main:nth-of-type(1) > button', 'button:nth-child(2n+1)', '//html/body/div[123]/button[1]',
+    'html >> body >> div {nth-of-type 123} >> button {nth-of-type 1}', 'painel-cliente > button']) {
+    assert.equal(CP.expressionSafe(e), true, e);
+  }
+});
+
+test('SEC001-091 (2ª revisão) — nome de componente fora do catálogo e do vocabulário vira o marcador neutro', () => {
+  const CP = load().NekkoraCapturePolicy;
+  assert.equal(CP.tagName('ficha-cliente-teodolinda'), CP.NEUTRAL_TAG);
+  assert.equal(CP.tagName('eustaquio'), CP.NEUTRAL_TAG, 'elemento desconhecido sem hífen');
+  assert.equal(CP.tagName('nk-open-card'), CP.NEUTRAL_TAG, 'prefixo fora do vocabulário');
+  assert.equal(CP.tagName('painel-cliente'), 'painel-cliente', 'nome inteiro do vocabulário');
+  assert.equal(CP.tagName('BUTTON'), 'button');
+  assert.equal(CP.tagName('foreignObject'), 'foreignobject');
+  assert.equal(CP.tagName('\u212Abd'), CP.NEUTRAL_TAG, 'sem dobra Unicode para um nome do catálogo');
+  assert.equal(CP.expressionSafe('custom-element > button'), false, 'o marcador neutro nunca é localizador');
 });

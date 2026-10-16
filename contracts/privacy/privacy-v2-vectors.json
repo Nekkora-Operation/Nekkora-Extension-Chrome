@@ -1,7 +1,7 @@
 {
  "policy": "nekkora-privacy/2",
  "vocabulary": "nekkora-ui-vocabulary/1",
- "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4).",
+ "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4). tags: nome de elemento (contrato nekkora-html-elements/1; fora dele e do vocabulário => \"custom-element\").",
  "interfaceText": [
   {
    "in": "Entrar",
@@ -574,6 +574,278 @@
   {
    "in": null,
    "out": true
+  },
+  {
+   "in": "button[data-client^=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client~=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client|=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-client$=joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "input[aria-label*=gumercindo-tavares]",
+   "out": false
+  },
+  {
+   "in": "input[aria-label *= gumercindo-tavares]",
+   "out": false
+  },
+  {
+   "in": "button[data-client=joao-oliveira i]",
+   "out": false
+  },
+  {
+   "in": "button[data-client=\"Consultar\" i]",
+   "out": true
+  },
+  {
+   "in": "input[aria-label*='Consultar']",
+   "out": true
+  },
+  {
+   "in": "input[aria-label^=\"Consultar\"]",
+   "out": true
+  },
+  {
+   "in": "button[data-client=\"Salvar\\\" joao oliveira\"]",
+   "out": false
+  },
+  {
+   "in": "#\\6a oao-oliveira",
+   "out": false
+  },
+  {
+   "in": ".\\63 liente-joao",
+   "out": false
+  },
+  {
+   "in": "#\\70 esquisar",
+   "out": true
+  },
+  {
+   "in": "button\\:joao",
+   "out": false
+  },
+  {
+   "in": "button:not([data-client=joao-oliveira])",
+   "out": false
+  },
+  {
+   "in": "button:not(.btn)",
+   "out": false
+  },
+  {
+   "in": "button:contains(joao)",
+   "out": false
+  },
+  {
+   "in": "button::after",
+   "out": false
+  },
+  {
+   "in": "button[data-client=joao-oliveira],a",
+   "out": false
+  },
+  {
+   "in": "button, a",
+   "out": false
+  },
+  {
+   "in": "button /* joao oliveira */",
+   "out": false
+  },
+  {
+   "in": "button[data-joao-oliveira]",
+   "out": false
+  },
+  {
+   "in": "button[data-testid]",
+   "out": true
+  },
+  {
+   "in": "button[aria-label]",
+   "out": true
+  },
+  {
+   "in": "[data-client",
+   "out": false
+  },
+  {
+   "in": "button)",
+   "out": false
+  },
+  {
+   "in": "ficha-cliente-joao > button",
+   "out": false
+  },
+  {
+   "in": "eustaquio button",
+   "out": false
+  },
+  {
+   "in": "painel-cliente > button",
+   "out": true
+  },
+  {
+   "in": "div > *",
+   "out": true
+  },
+  {
+   "in": "*:nth-of-type(2)",
+   "out": true
+  },
+  {
+   "in": "button:nth-child(2n+1)",
+   "out": true
+  },
+  {
+   "in": "li:first-child",
+   "out": true
+  },
+  {
+   "in": "html > body > main:nth-of-type(1) > button",
+   "out": true
+  },
+  {
+   "in": "form ~ p + input",
+   "out": true
+  },
+  {
+   "in": "//ficha-cliente-joao/button",
+   "out": false
+  },
+  {
+   "in": "//button[@data-client=joao]",
+   "out": false
+  },
+  {
+   "in": "//button[starts-with(@data-client,'Consultar')]",
+   "out": false
+  },
+  {
+   "in": "//button[contains(@data-client,'joao')]",
+   "out": false
+  },
+  {
+   "in": "//*[@id='pesquisar']",
+   "out": true
+  },
+  {
+   "in": "//*[@id=\"pesquisar\"]",
+   "out": true
+  },
+  {
+   "in": "//button[@data-testid='salvar'][2]",
+   "out": true
+  },
+  {
+   "in": "//label[normalize-space(.)='Nome']/ancestor::form",
+   "out": false
+  },
+  {
+   "in": "//input[ancestor::label[normalize-space(.)=\"Nome\"]]",
+   "out": true
+  },
+  {
+   "in": "//section[h2[normalize-space(.)=\"Pagamentos\"]]//button",
+   "out": true
+  },
+  {
+   "in": "//section[h2[normalize-space(.)=\"Pagamentos de Joao\"]]//button",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space(.)=concat(\"Salvar\",'\"',\"agora\")]",
+   "out": false
+  },
+  {
+   "in": "//button[normalize-space(.)=concat(\"Salvar\",'\"',\"Joao\")]",
+   "out": false
+  },
+  {
+   "in": "//button | //a",
+   "out": false
+  },
+  {
+   "in": "button {aria-label=Consultar Joao Oliveira}",
+   "out": false
+  },
+  {
+   "in": "button {aria-label=Consultar}",
+   "out": true
+  },
+  {
+   "in": "button {data-client=joao}",
+   "out": false
+  },
+  {
+   "in": "ficha-cliente-joao >> button",
+   "out": false
+  },
+  {
+   "in": "* {has data-testid} >> button {nth-of-type 2}",
+   "out": true
+  },
+  {
+   "in": "* {has data-joao-oliveira}",
+   "out": false
+  },
+  {
+   "in": "section {has child <h2> \"Pagamentos\"} >> button",
+   "out": true
+  },
+  {
+   "in": "section {has child <ficha-joao> \"Pagamentos\"} >> button",
+   "out": false
+  },
+  {
+   "in": "button {label=\"Nome\"}",
+   "out": true
+  },
+  {
+   "in": "button {text=\"Salvar\"}",
+   "out": true
+  },
+  {
+   "in": "button {role=button} {name=\"Salvar\"}",
+   "out": true
+  },
+  {
+   "in": "button {role=gumercindo}",
+   "out": false
+  },
+  {
+   "in": "button {nth-of-type 123}",
+   "out": true
+  },
+  {
+   "in": "button {joao oliveira}",
+   "out": false
+  },
+  {
+   "in": "html >> body >> * {nth-child 3} >> button {nth-of-type 1}",
+   "out": true
+  },
+  {
+   "in": "html > body > *:nth-child(3) > button:nth-of-type(1)",
+   "out": true
+  },
+  {
+   "in": "/html/body/*[3]/button[1]",
+   "out": true
+  },
+  {
+   "in": "* {nth-child joao}",
+   "out": false
   }
  ],
  "attributes": [
@@ -1154,6 +1426,64 @@
    "role": "BUTTON extra",
    "hasHref": false,
    "out": true
+  }
+ ],
+ "tags": [
+  {
+   "in": "button",
+   "out": "button"
+  },
+  {
+   "in": "BUTTON",
+   "out": "button"
+  },
+  {
+   "in": "svg",
+   "out": "svg"
+  },
+  {
+   "in": "foreignObject",
+   "out": "foreignobject"
+  },
+  {
+   "in": "math",
+   "out": "math"
+  },
+  {
+   "in": "painel-cliente",
+   "out": "painel-cliente"
+  },
+  {
+   "in": "ficha-cliente-teodolinda",
+   "out": "custom-element"
+  },
+  {
+   "in": "ficha-cliente-joao",
+   "out": "custom-element"
+  },
+  {
+   "in": "nk-open-card",
+   "out": "custom-element"
+  },
+  {
+   "in": "eustaquio",
+   "out": "custom-element"
+  },
+  {
+   "in": "custom-element",
+   "out": "custom-element"
+  },
+  {
+   "in": "cliente-48291736455",
+   "out": "custom-element"
+  },
+  {
+   "in": "",
+   "out": null
+  },
+  {
+   "in": null,
+   "out": null
   }
  ]
 }

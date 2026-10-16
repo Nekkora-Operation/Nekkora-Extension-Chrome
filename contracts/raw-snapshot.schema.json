@@ -380,7 +380,8 @@
         },
         "tag": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): nome do catálogo nekkora-html-elements/1 ou nome personalizado inteiro do vocabulário; senão o marcador neutro 'custom-element' (o nome real não atravessa)."
         },
         "frameId": {
           "type": "string"
@@ -553,6 +554,17 @@
               "pattern": "^[A-Za-z0-9:._-]{1,80}$"
             }
           }
+        },
+        "childPositions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "CHROME-SECURITY-001 (2ª revisão dos PRs #7): posição (base 1) de cada filho de childIds entre TODOS os filhos elemento do pai na página (:nth-child real, inclusive os não descritos); 0 = desconhecida. Fato estrutural, sem conteúdo."
         },
         "textRevision": {
           "type": [

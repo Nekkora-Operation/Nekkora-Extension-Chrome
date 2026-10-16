@@ -8,6 +8,8 @@ const out = new URL('../chrome-extension/src/shared/ui-vocabulary.js', import.me
 const v = JSON.parse(readFileSync(src, 'utf8'));
 // CHROME-SECURITY-001 (P1-01): regras fechadas por atributo estrutural, da fonte única contracts/privacy/structural-attributes.json
 const st = JSON.parse(readFileSync(new URL('../contracts/privacy/structural-attributes.json', import.meta.url), 'utf8'));
+// CHROME-SECURITY-001 (2ª revisão dos PRs #7): catálogo fechado de nomes de elemento, de contracts/privacy/html-elements.json
+const el = JSON.parse(readFileSync(new URL('../contracts/privacy/html-elements.json', import.meta.url), 'utf8'));
 const body = `/*
  * GERADO por scripts/gen-ui-vocabulary.mjs a partir de contracts/privacy/ui-vocabulary.json — não editar à mão.
  * ${v.version}: vocabulário FECHADO de metadados de interface (CHROME-SECURITY-001). ${v.terms.length} termos.
@@ -19,9 +21,11 @@ const body = `/*
   root.NekkoraVocabulary = Object.freeze({
     version: ${JSON.stringify(v.version)},
     terms: new Set(${JSON.stringify(v.terms)}),
+    elements: new Set(${JSON.stringify(el.elements)}),
+    elementsVersion: ${JSON.stringify(el.version)},
     structural: Object.freeze({ version: ${JSON.stringify(st.version)}, rules: ${JSON.stringify(st.rules)}, languages: ${JSON.stringify(st.languages)}, scripts: ${JSON.stringify(st.scripts)} }),
   });
 })(globalThis);
 `;
 writeFileSync(out, body);
-console.log(`ui-vocabulary.js: ${v.terms.length} termos (${v.version}); ${Object.keys(st.rules).length} atributos estruturais (${st.version})`);
+console.log(`ui-vocabulary.js: ${v.terms.length} termos (${v.version}); ${Object.keys(st.rules).length} atributos estruturais (${st.version}); ${el.elements.length} elementos (${el.version})`);

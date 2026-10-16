@@ -135,9 +135,12 @@ public final class SnapshotPrivacy {
         String keptText = eligible ? CapturePrivacyPolicy.clean(own) : "";
         List<String> segs = eligible ? n.textSegments() : null;
         boolean suppressed = Boolean.TRUE.equals(n.textSuppressed()) || !own.isBlank() && !eligible;
-        return new RawNode(n.id(), n.parentId(), n.childIds(), n.tag(), n.frameId(), n.scopeId(), attrs, keptText, n.state(), n.rect(),
+        // 2ª revisão dos PRs #7: nome de elemento fora do catálogo HTML/SVG/MathML e do vocabulário => marcador neutro
+        String tag = CapturePrivacyPolicy.tagName(n.tag());
+        return new RawNode(n.id(), n.parentId(), n.childIds(), tag == null ? CapturePrivacyPolicy.NEUTRAL_TAG : tag, n.frameId(), n.scopeId(),
+                attrs, keptText, n.state(), n.rect(),
                 n.labelIds(), n.scroll(), null, segs, present ? Boolean.TRUE : n.textPresent(), suppressed ? Boolean.TRUE : null,
-                refs == null ? n.refs() : refs, n.textRevision());
+                refs == null ? n.refs() : refs, n.textRevision(), n.childPositions());
     }
 
     /** Estado de uma passada: portadores aprovados e alvos de aria-labelledby. */

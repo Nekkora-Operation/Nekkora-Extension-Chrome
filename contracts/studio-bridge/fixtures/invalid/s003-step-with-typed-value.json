@@ -24,7 +24,7 @@
       "locators": [
         {
           "strategy": "LABEL",
-          "description": "campo \"Senha\"",
+          "description": "input {label=\"Senha\"}",
           "css": null,
           "xpath": "//input[@type='password']",
           "matchCount": 1,

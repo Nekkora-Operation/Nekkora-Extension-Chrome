@@ -74,6 +74,9 @@ public final class PrivacyCanaries {
         // página 13 — atributos estruturais (revisão dos PRs #7: P1-01 valores fora do vocabulário do atributo; P1-02 número longo)
         c("gumercindo", "SEC001-088 valor arbitrário em atributo estrutural (role, autocomplete, target, rel, lang…)");
         c("48291736455", "SEC001-089 número longo em atributo estrutural e em localizador");
+        // página 15 — componentes (2ª revisão dos PRs #7: nome de elemento personalizado/desconhecido)
+        c("teodolinda", "SEC001-091 nome de elemento personalizado (tag)");
+        c("eustaquio", "SEC001-091 nome de elemento desconhecido (tag)");
         // página 6 — tabela
         c("sarmento", "SEC001-038 legenda/cabeçalho de tabela");
         c("barbacena", "SEC001-037 rowTexts");

@@ -218,4 +218,49 @@ class SnapshotPrivacyTest {
         }
         assertTrue(interactive >= 8, "controles continuam classificados: " + interactive);
     }
+
+    @Test
+    @DisplayName("SEC001-091 (2ª revisão) — nome de componente: marcador neutro no snapshot, '*' nos localizadores, alvo ainda localizável")
+    void customElementNamesNeverReachTheEngine() {
+        HtmlSnapshot h = HtmlSnapshot.of("""
+                <main>
+                  <ficha-cliente-teodolinda id=ficha><button id=consultar-ficha type=button>Consultar</button></ficha-cliente-teodolinda>
+                  <eustaquio><button type=button>Salvar</button></eustaquio>
+                  <acao-teodolinda-ramos role=button tabindex=0>Salvar</acao-teodolinda-ramos>
+                  <secao-teodolinda><cartao-teodolinda-viana id=cartao><template shadowrootmode=open>
+                    <button id=no-cartao type=button>Abrir</button></template></cartao-teodolinda-viana></secao-teodolinda>
+                  <painel-cliente id=painel><button id=no-painel type=button>Abrir</button></painel-cliente>
+                </main>""");
+        RawSnapshot raw = h.capture();
+        assertTrue(raw.nodes().stream().anyMatch(n -> n.tag().contains("teodolinda")), "o produtor antigo/hostil manda o nome cru");
+        RawSnapshot s = SnapshotPrivacy.apply(raw);
+        for (RawNode n : s.nodes()) {
+            assertFalse(n.tag().contains("teodolinda") || n.tag().contains("eustaquio"), n.tag());
+        }
+        assertEquals(CapturePrivacyPolicy.NEUTRAL_TAG, byId(s, h, "#ficha").tag());
+        assertEquals("painel-cliente", byId(s, h, "#painel").tag(), "nome inteiro do vocabulário continua");
+        PageAnalysis a = new PageAnalyzer().analyze(s);
+        StringBuilder all = new StringBuilder();
+        for (RawNode n : a.model().inDocumentOrder()) {
+            for (LocatorDescriptor l : a.locators().generate(n.id()).all()) {
+                all.append(l.semantic()).append(' ').append(l.css()).append(' ').append(l.xpath()).append('\n');
+                assertTrue(CapturePrivacyPolicy.expressionSafe(l.css()) && CapturePrivacyPolicy.expressionSafe(l.xpath())
+                        && CapturePrivacyPolicy.expressionSafe(l.semantic()), "localizador transportável: " + l.semantic() + " | " + l.css() + " | " + l.xpath());
+                for (String part : new String[]{l.css(), l.xpath(), l.semantic()}) {
+                    assertFalse(part != null && part.contains(CapturePrivacyPolicy.NEUTRAL_TAG), "o marcador neutro nunca vira seletor: " + part);
+                }
+            }
+        }
+        assertFalse(all.toString().contains("teodolinda"), all.toString());
+        // o controle dentro do componente continua localizável de forma única pelo id do vocabulário
+        assertTrue(a.locators().generate(h.idOf("#consultar-ficha")).all().stream().anyMatch(LocatorDescriptor::unique));
+        // o componente sem identificador transportável: só "*" (sem posição); a falta de localizador seguro é declarada adiante
+        assertTrue(a.locators().generate(h.idOf("#painel")).all().stream().anyMatch(l -> "painel-cliente".equals(l.css())
+                || (l.css() != null && l.css().startsWith("painel-cliente"))), "componente do vocabulário segue localizável pelo nome");
+    }
+
+    private static RawNode byId(RawSnapshot s, HtmlSnapshot h, String css) {
+        String id = h.idOf(css);
+        return s.nodes().stream().filter(n -> n.id().equals(id)).findFirst().orElseThrow();
+    }
 }

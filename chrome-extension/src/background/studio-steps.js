@@ -485,10 +485,22 @@ export function createStepPipeline(deps) {
     return v && p ? p.title(String(v)) : null;
   }
 
-  /** Expressão de localizador transportável (todos os literais pela política). */
+  /** Expressão dentro do limite do contrato (500); maior que isso não é cortada, é descartada. */
+  function fits(v) {
+    return v == null || String(v).length <= 500;
+  }
+
+  /** Expressão de localizador transportável (analisada inteira pela política). */
   function expressionOk(v) {
     const p = policy();
     return !!p && p.expressionSafe(v == null ? '' : String(v));
+  }
+
+  /** Nome de elemento (2ª revisão dos PRs #7): catálogo HTML/SVG/MathML ou nome inteiro do vocabulário; senão o marcador neutro. */
+  function tag(v) {
+    const p = policy();
+    const t = p && typeof v === 'string' && v !== 'unknown' && TAG.test(v) ? p.tagName(v) : null;
+    return t || 'unknown';
   }
 
   /** Papel ARIA: só valores da regra fechada do atributo role (P1-01); senão nada. */
@@ -510,7 +522,7 @@ export function createStepPipeline(deps) {
         kind: 'UNKNOWN',
         role: roleOk(desc.role),
         name: name(desc.name),
-        tag: TAG.test(desc.tag || '') ? desc.tag : 'unknown',
+        tag: tag(desc.tag),
         htmlId: safeAttr(desc.htmlId, sensitive),
         htmlName: safeAttr(desc.htmlName, sensitive),
         sensitive,
@@ -526,15 +538,17 @@ export function createStepPipeline(deps) {
     // Um localizador só vai ao Studio se TODA a expressão (CSS, XPath e descrição) tiver só literais da política;
     // senão é descartado e a limitação é declarada — nunca reescrito nem "consertado".
     const offered = (d.locators || []).slice(0, 5).map((l, i) => ({ l, i }));
-    const kept = offered.filter(({ l }) => expressionOk(l.css) && expressionOk(l.xpath) && expressionOk(l.description));
+    // expressão longa demais é descartada, nunca cortada: cortada deixaria de ser analisável (2ª revisão dos PRs #7)
+    const kept = offered.filter(({ l }) => expressionOk(l.css) && expressionOk(l.xpath) && expressionOk(l.description)
+      && fits(l.css) && fits(l.xpath));
     if (kept.length < offered.length) {
       c.notes.push('LOCATORS_WITHHELD');
     }
     const locators = kept.map(({ l, i }) => ({
       strategy: STRATEGIES.has(l.strategy) ? l.strategy : 'ATTRIBUTE',
-      description: l.description ? String(l.description).slice(0, 200) : '',
-      css: l.css ? String(l.css).slice(0, 500) : null,
-      xpath: l.xpath ? String(l.xpath).slice(0, 500) : null,
+      description: l.description && fits(l.description) ? String(l.description) : '',
+      css: l.css ? String(l.css) : null,
+      xpath: l.xpath ? String(l.xpath) : null,
       matchCount: Math.max(0, Number(l.matchCount) || 0),
       matchesTarget: !!l.matchesTarget,
       stability: STABILITY.has(l.stability) ? l.stability : 'UNKNOWN',
@@ -560,14 +574,14 @@ export function createStepPipeline(deps) {
       kind: KIND.test(d.kind || '') ? d.kind : 'UNKNOWN',
       role: roleOk(d.role),
       name: name(d.name),
-      tag: TAG.test(d.tag || '') ? d.tag : 'unknown',
+      tag: tag(d.tag),
       htmlId: safeAttr(d.htmlId, sensitive),
       htmlName: safeAttr(d.htmlName, sensitive),
       sensitive,
       locators,
       preferredLocator: preferred,
       accessPath: (d.accessPath || []).filter((s) => PATH_TYPES.has(s.type)).slice(0, 12).map((s) => ({
-        type: s.type, label: name(s.label), locator: s.locator && expressionOk(s.locator) ? String(s.locator).slice(0, 500) : null,
+        type: s.type, label: name(s.label), locator: s.locator && fits(s.locator) && expressionOk(s.locator) ? String(s.locator) : null,
         restriction: s.restriction ? String(s.restriction).slice(0, 40) : null })),
       context: (d.context || []).filter((a) => RELATIONS.has(a.relation)).slice(0, 4).map((a) => ({
         relation: a.relation, kind: KIND.test(a.kind || '') ? a.kind : 'UNKNOWN', name: name(a.name) })),

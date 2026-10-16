@@ -117,4 +117,53 @@ class StepPrivacyTest {
         StepPrivacy.reapply(q);
         assertTrue(q.toString().contains("div[123]"), q.toString());
     }
+
+    @Test
+    void sec001SegundaRevisaoOperadoresCssValorSemAspasENomeDeComponente() throws Exception {
+        // 2ª revisão dos PRs #7: payload adversarial — operadores CSS além de "=", escape CSS, valor sem aspas na notação
+        // semântica, construção não reconhecida e nome de componente com dado de pessoa
+        String[][] forged = {
+            {"button[data-client^=joao-oliveira]", null, ""},
+            {"button[data-client~=joao-oliveira]", null, ""},
+            {"input[aria-label*=gumercindo-tavares]", null, ""},
+            {"#\\6a oao-oliveira", null, ""},
+            {"button:not([data-client=joao-oliveira])", null, ""},
+            {null, "//ficha-cliente-joao/button", ""},
+            {null, null, "button {aria-label=Consultar Joao Oliveira}"},
+        };
+        for (String[] f : forged) {
+            ObjectNode p = step();
+            ObjectNode e = (ObjectNode) p.get("element");
+            e.put("tag", "ficha-cliente-joao");
+            ObjectNode l = (ObjectNode) e.get("locators").get(0);
+            if (f[0] == null) {
+                l.putNull("css");
+            } else {
+                l.put("css", f[0]);
+            }
+            if (f[1] == null) {
+                l.putNull("xpath");
+            } else {
+                l.put("xpath", f[1]);
+            }
+            l.put("description", f[2]);
+            ((ObjectNode) e.get("accessPath").get(0)).put("locator", "ficha-cliente-joao[data-x~=joao]");
+            StepPrivacy.reapply(p);
+            String json = p.toString();
+            for (String s : new String[]{"joao", "gumercindo", "6a oao"}) {
+                assertFalse(json.contains(s), s + " em " + json);
+            }
+            assertEquals("custom-element", e.get("tag").asText());
+            assertTrue(p.get("notes").toString().contains("LOCATORS_WITHHELD"), p.get("notes").toString());
+            assertTrue(BridgeContract.valid(m.createObjectNode().put("protocol", "nekkora-bridge/1").put("kind", "event")
+                    .put("type", "studio.recording.step").put("seq", 1).set("payload", p)), "continua no contrato");
+        }
+        // operador reconhecido com literal da política e posição estrutural continuam
+        ObjectNode q = step();
+        ((ObjectNode) ((ObjectNode) q.get("element")).get("locators").get(0)).put("css", "input[aria-label*='Entrar']");
+        ((ObjectNode) ((ObjectNode) q.get("element")).get("locators").get(1)).put("xpath", "//html/body/div[123]/button[1]");
+        StepPrivacy.reapply(q);
+        assertTrue(q.toString().contains("aria-label*='Entrar'") && q.toString().contains("div[123]"), q.toString());
+        assertEquals("button", q.at("/element/tag").asText());
+    }
 }

@@ -131,7 +131,11 @@ class ComplexComponentsIT extends LabIT {
         assertEquals("SHADOW_ROOT", s.at("/inspection/locators/primary/scope/type").asText());
         // CHROME-SECURITY-001: o id "cartao-aberto" não é do vocabulário → o hospedeiro do shadow é localizado pela estrutura
         String hostCss = s.at("/inspection/locators/primary/scope/chain/0/css").asText();
-        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(hostCss) && hostCss.contains("nk-open-card"), hostCss);
+        // 2ª revisão dos PRs #7: "nk-open-card" não é do catálogo HTML nem do vocabulário → nem o NOME do componente atravessa;
+        // o hospedeiro é citado pela posição real entre os irmãos (:nth-child, informada pela página) e a concordância ao vivo
+        // abaixo prova que o caminho continua funcionando no navegador
+        assertTrue(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.expressionSafe(hostCss) && !hostCss.contains("nk-open-card")
+                && hostCss.contains(":nth-child("), hostCss);
         assertFalse(hostCss.contains("cartao-aberto"), hostCss);
         assertTrue(s.at("/inspection/locators/primary/xpath").isNull(), "XPath não atravessa shadow root");
         assertLiveAgreement(s);
