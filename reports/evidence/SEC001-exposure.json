@@ -1,55 +1,55 @@
 {
   "Página 7 — Shadow DOM" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 6 — tabela" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 5 — URLs" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 9 — dinâmica" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 13 — atributos estruturais" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 4 — atributos" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 1 — texto livre" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 8 — iframes" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 3 — elementos" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 12 — recuperação" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 11 — exportação" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 2 — formulários" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "Página 10 — navegação" : {
-    "count" : 0,
-    "byDestination" : { }
+    "byDestination" : { },
+    "count" : 0
   },
   "notes" : [ ]
 }

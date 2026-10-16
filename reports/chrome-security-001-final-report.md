@@ -7,6 +7,74 @@
 Branches: extensão `feat/chrome-security-001` (base `main` `8f3326b`) e Studio `feat/chrome-security-001-studio-guards`
 (base `main` `250778f`). Documentação técnica em `docs/chrome-security-001/` (21 documentos).
 
+## Revisão técnica dos PRs #7 (2026-10-16): correções e homologação
+
+A revisão aprovou a arquitetura da `nekkora-privacy/2` e pediu três coisas antes da integração.
+
+| Item | Reprodução antes da correção | Correção | Commit |
+|---|---|---|---|
+| **P1-01**: atributos estruturais aceitavam texto arbitrário com forma técnica | página 13 do laboratório no Chrome real: **13 exposições**. `role="gumercindo-tavares"`, `autocomplete`, `target`, `rel`, `lang`, `aria-*` e um número de 11 dígitos chegaram ao snapshot, ao motor, ao PageMap, ao registro e ao `storage.session` (`SEC001-exposure-p1-reproducao.json`); os testes novos falharam contra a política anterior | regra **fechada por atributo** (`contracts/privacy/structural-attributes.json`, 100 atributos) em JS, Java e Studio; fora da regra, só presença. Caminho novo achado: o `role` das etapas saía cru do recorder e agora passa pela mesma regra nas quatro barreiras | `7f2b0dc` (extensão), `ac373ec` (Studio) |
+| **P1-02**: localizadores aceitavam números de qualquer comprimento | `input[type="48291736455"]` gerado pelo motor (mesma reprodução) | número como **valor** só até 2 dígitos; posições (`nth-of-type(123)`, `[123]`) aceitas; verificação também na representação **estruturada** (`LocatorPrivacy`); testes adversariais nas quatro barreiras | `7f2b0dc`, `ac373ec` |
+| **D7**: continuidade técnica do nó | — | campo `continuity` separado da resolução lógica; prova pela época do registro de nós + frame + escopo + tipo; `AMBIGUOUS` lógico preservado; nunca preenche `resolvedNodeId`, nunca gera localizador nem autoriza ação | `5db09c7` |
+
+**Execução da regressão.** A 5ª rodada completa foi **interrompida pelo sistema por falta de memória**, durante o G3, antes
+de terminar. Até ali, o G1 passou, e o G2 teve **uma falha real**: `Chrome003FrameIT.pageMap`, porque a conversão para o
+contrato legado 0.1.0 não removia os campos aditivos da D7. A conversão foi corrigida (`5db09c7`), e o teste isolado
+**passou antes** de a regressão recomeçar. Por autorização da responsável, a regressão foi reexecutada **em grupos
+sequenciais**. Entre os grupos, só os processos de teste foram encerrados (Chrome for Testing, chromedriver, JVMs do
+surefire e do Maven, Native Host aberto pela extensão de teste), e a memória livre foi conferida, ficando entre 8,5 e
+8,7 GB. Nenhum teste foi removido nem teve a expectativa alterada para passar.
+
+| Verificação (commit) | Resultado |
+|---|---|
+| `Chrome003FrameIT.pageMap` isolado (`5db09c7`) | 1/1 |
+| Chrome real, G1–G7 sequenciais (`5db09c7`) | **249/249**: G1 34, G2 55, G3 47, G4 23, G5 27, G6 41, G7 22 |
+| Unidade Java (núcleo + host) / Node (`5db09c7`) | 268 / 144, 0 falhas |
+| Studio Windows `./mvnw clean verify` (`ac373ec`) | **343/343**, BUILD SUCCESS |
+| Studio Linux `tools/golden-linux.sh verify` (`ac373ec`) | **343/343**, golden screenshots preservados |
+| Homologação real (extensão `5db09c7`, Studio `ac373ec` + roteiro `ddc4705`) | **42/42** e compatibilidade **5/5** |
+| Privacidade, 13 cenários × todos os destinos auditados | **0 exposições** |
+
+**Métricas da D7, sem somar conceitos diferentes** (34 páginas, 359 interativos, página inalterada):
+
+| Métrica | Antes da D7 | Após a D7 |
+|---|---:|---:|
+| Reidentificação lógica (`RESOLVED`) | 178 | **178** (143 `AMBIGUOUS`, 38 `INSUFFICIENT_EVIDENCE`) |
+| Continuidade técnica comprovada (`LIVE_NODE_CONTINUITY`) | não medida | **359** |
+| Continuidade interrompida (`CONTINUITY_BROKEN`) | não medida | **0** na página inalterada; nos cenários de mudança, ver abaixo |
+| Continuidade não comprovada (`NOT_PROVEN`) | não medida | **0** |
+| Identificações incorretas (resolvido para outro elemento) | 0 | **0** |
+| Exposições nos destinos auditados | 0 | **0** |
+
+A continuidade **não** aumenta a reidentificação lógica: 178 continua 178. Os casos de mudança foram verificados um a
+um, e em todos o resultado lógico é independente da continuidade:
+
+- dois indistinguíveis que permanecem: `AMBIGUOUS` + `LIVE`;
+- remoção e criação na mesma posição: `BROKEN/NODE_GONE`;
+- re-renderização: `BROKEN` + `RESOLVED` lógico no objeto novo;
+- virtualização: `LIVE` + `ROW_CONTENT_CHANGED`, sem `RESOLVED`;
+- navegação: `BROKEN`;
+- iframe recarregado: `BROKEN/FRAME_GONE`;
+- reinicialização do registro com o id reaproveitado por outro elemento: `BROKEN/REGISTRY_EPOCH_CHANGED`;
+- mudança de tipo: `BROKEN/TYPE_CHANGED`;
+- reinício do Native Host: `LIVE` mantida, `AMBIGUOUS` mantido.
+
+**Garantias da D7 comprovadas na homologação real (cenário 9):**
+
+- `ROW_CONTENT_CHANGED` sai de contadores de revisão mantidos na página, sem nenhum texto ou identificador da linha no
+  resultado;
+- com `LIVE_NODE_CONTINUITY`, a resolução lógica ficou `AMBIGUOUS`, `resolvedNodeId`/`updatedLocators`/`updatedIdentity`
+  ficaram nulos e nenhum alvo confirmado foi destacado;
+- no código, nenhum componente da extensão, do host ou do Studio consome `continuity`. Os caminhos que destacam ou agem
+  exigem `status = RESOLVED`.
+
+**Achado da homologação:** a primeira repetição falhou em 7 verificações. Os canários estavam num `targets/registry.json`
+**da linha de base**, gravado no diretório de dados real pelo cenário 8b anterior, que roda o host antigo. A versão nova
+não lê esse arquivo. Daí em diante, o roteiro usa um diretório de dados **próprio** (`NEKKORA_DATA_DIR`) e varre só o que
+a execução produziu. O arquivo antigo **não foi apagado** (regra: não apagar arquivos automaticamente) e continua no
+diretório de dados do usuário. Ele tem só dados fictícios do laboratório, e a remoção segue o procedimento de
+`storage-and-retention.md`.
+
 ## 1. Linhas de base
 
 | Item | Valor na base |
@@ -74,6 +142,8 @@ Em resumo: **12/12** cenários com exposição; o Studio recebia nome privado em
 | `979599c` | captura na origem, `SnapshotPrivacy` no host, motor com relações por id de nó, URL como modelo |
 | `fb297f2` | etapas (SW e host), títulos (D4), frames, Bridge `client.privacy`, PageMap 0.3.0, `registry-v2` |
 | `b1d10b7` | identidade sem invenção (característica do próprio elemento obrigatória), nome nunca parcial, ajustes da 1ª regressão |
+| `7f2b0dc` | revisão dos PRs #7: P1-01 (regra fechada por atributo estrutural) e P1-02 (números em localizadores, `LocatorPrivacy`) |
+| `5db09c7` | revisão dos PRs #7: D7 (continuidade técnica do nó, separada da identidade lógica) e conversão legada do PageMap |
 | `68816db`, `afeaa38` e seguintes | categorias de atributos (frames, mídia, `slot`/`part`/`is`, `srcdoc`), `textRevision`, rótulos estruturais, opções por posição, hooks de teste só em DEV, `render` no vocabulário, deduplicação de relações, adaptação da regressão, medições e documentação |
 
 Studio (`feat/chrome-security-001-studio-guards`): `CapturePrivacy` (cópia gerada da política Java, verificada pelos
@@ -215,6 +285,8 @@ STUDIO-005 continuam preservados.
 | RawSnapshot | aditivo |
 | `nekkora-bridge/1` | aditivo (`client.privacy`, notas novas) |
 | `nekkora-ui-vocabulary` | 1 (novo) |
+| `nekkora-structural-attributes` | 1 (novo, revisão dos PRs #7) |
+| RawSnapshot / PageMap 0.3.0 | `registryEpoch`, `anchor`, `continuity` (D7, aditivos) |
 
 Não há downgrade silencioso: uma política ausente ou desconhecida nunca vale como garantia.
 
@@ -282,7 +354,7 @@ Detalhes em `docs/chrome-security-001/performance.md` (mesmas classes nos dois b
 
 ## 23. Limitações conhecidas
 
-`docs/chrome-security-001/known-limitations.md` (19 itens). Os mais visíveis no uso:
+`docs/chrome-security-001/known-limitations.md` (23 itens). Os mais visíveis no uso:
 
 - nomes de etapa genéricos quando o nome do controle não é do vocabulário;
 - linhas de tabela, filiais e frames que só se distinguiam por texto passam a ser declarados ambíguos;
@@ -311,7 +383,12 @@ Nenhum destes riscos é zero:
 8. **Studio antigo:** um Studio anterior a esta branch aceita o que recebe. A proteção dele depende das barreiras da
    extensão e do host.
 9. **Manutenção do vocabulário:** cada inclusão é uma decisão de segurança. Uma revisão descuidada amplia o que
-   atravessa.
+   atravessa. O mesmo vale para as listas fechadas do contrato `nekkora-structural-attributes/1`.
+10. **Uso indevido da continuidade técnica:** um consumidor futuro que trate `LIVE_NODE_CONTINUITY` como alvo
+    confirmado reabriria o caso da virtualização. Hoje nenhum componente consome o campo. Qualquer uso novo deve passar
+    por revisão.
+11. **Nomes de elementos personalizados** (tags com hífen, como `ficha-cliente`) entram em localizadores como estrutura
+    e não passam pelo vocabulário. Um nome de componente montado com dado de negócio atravessaria.
 
 ## 25. Critérios de liberação para dados reais
 
@@ -357,8 +434,8 @@ revisão:
 | CA-021 | A STUDIO-004 continua funcionando | suíte do Studio (editor) aprovada no Windows e no Linux |
 | CA-022 | A STUDIO-005 continua funcionando | `Studio005EvidenceIT` 16/16; modo estrito preservado |
 | CA-023 | Os contratos são versionados corretamente | `nekkora-privacy/2`, PageMap 0.3.0, aditivos no RawSnapshot e no Bridge (§19) |
-| CA-024 | As suítes existentes permanecem aprovadas | §20 (nenhum teste removido) |
-| CA-025 | A matriz SEC001 passa integralmente | `ChromeSecurity001IT`, `CapturePrivacyPolicyTest`, `SnapshotPrivacyTest`, `capture-policy.test.js`, `CapturePrivacyTest` (Studio) |
-| CA-026 | A homologação real é aprovada | §21: 38/38 e 5/5 |
+| CA-024 | As suítes existentes permanecem aprovadas | revisão dos PRs #7: Chrome 249/249, Java 268, Node 144, Studio 343/343 no Windows e no Linux (nenhum teste removido) |
+| CA-025 | A matriz SEC001 passa integralmente | `ChromeSecurity001IT` 13/13 (inclui a página 13: SEC001-088/089), `CapturePrivacyPolicyTest`, `SnapshotPrivacyTest`, `LocatorPrivacyTest`, `capture-policy.test.js`, `CapturePrivacyTest` (Studio) |
+| CA-026 | A homologação real é aprovada | revisão dos PRs #7: 42/42 (com o cenário 9 da D7) e 5/5 |
 | CA-027 | Os riscos residuais são documentados | §24 |
 | CA-028 | Os PRs são entregues sem merge | PRs abertos para revisão, sem merge |

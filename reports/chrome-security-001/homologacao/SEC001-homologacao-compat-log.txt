@@ -1,6 +1,6 @@
 Tela: java.awt.Rectangle[x=0,y=0,width=1920,height=1032] · java 21.0.12
 Modo: COMPATIBILIDADE (extensão e host da linha de base, Studio novo)
-Canários verificados: 60
+Canários verificados: 62
 Native Host instalado pelo script oficial (install-host.ps1)
 Chrome for Testing: 155.0.8059.39
 OK    Conexão autenticada Studio ⇄ host ⇄ extensão
