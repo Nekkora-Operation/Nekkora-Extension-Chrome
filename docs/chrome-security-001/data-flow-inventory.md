@@ -108,3 +108,41 @@ e os logs do host ficaram limpos nesse cenário. Os logs, porém, tinham caminho
 - **`storage.session['inspection:<aba>']`** guarda a inspeção completa (consequência de D1).
 - **Classe CSS, `aria-description`, `aria-valuetext`, `alt`, `href`/`action`/`formaction`** viraram os casos
   SEC001-081 a 085, e o título do documento virou o SEC001-086.
+- **Hooks de teste em PRD (fase 13):** `testHooks.read`, e `interaction.observe` com `readHooks`, liam os valores que a
+  página expõe em `window.nekkoraTestHooks` também em PRD, e qualquer página pode declarar o marcador `__nekkoraLab`.
+  Os dois passaram a ser recusados fora de DEV (`MODE_RESTRICTED`, `config-mode.test.js`).
+
+## 4. Estado final na branch `feat/chrome-security-001`
+
+Medição final: `ChromeSecurity001IT` **12/12 cenários sem nenhuma exposição** nos destinos SNAP, MOTOR, REG, PM, LOG-SW,
+SES, LOC, STUDIO e LOG-HOST, com busca por transformações (sem acento, minúsculas, hífen, `%20`, entidades, escapes e
+trechos). A linha de base (`8f3326b`) tinha 12/12 cenários com exposição. Cobertura total não é prometida: a busca
+encontra só os marcadores plantados e as transformações conhecidas.
+
+| # | Fluxo | Tratamento final |
+|---|---|---|
+| 1–3 | texto próprio, segmentos, `<title>` de SVG | só atravessa metadado de interface do vocabulário dentro de um portador (botão, link, rótulo, legenda, papel interativo). O resto vai como `textPresent`/`textSuppressed`, sem conteúdo |
+| 4 | valor de pesquisa | eliminado (`exposedValue` só `null`) |
+| 5 | contenteditable | inalterado (presença e tamanho) |
+| 6 | atributos | categorias fechadas: estruturais com valor fechado; identificadores (`id`, `name`, `data-testid`…, `slot`, `part`, `is`) só do vocabulário; nomeadores pela política de texto; URLs como presença ou modelo (`src` de frame e script); `srcdoc`/`download` só presença; `data-*` e atributos personalizados só presença, e só se o nome passar |
+| 7 | relações por id | resolvidas na página em ids de nó temporários (`refs`). Nenhum valor de id privado nem hash atravessa |
+| 8 | títulos | documento e frame só se forem do vocabulário (D4) |
+| 9 | URLs | origem + modelo do caminho; segmentos fora do vocabulário viram `{…}`; nomes de parâmetro só do vocabulário, sem valores; sem fragmento (D3) |
+| 10 | mutações | a mesma política da captura (o delta é uma captura parcial) |
+| 11–13 | comparação, resolução, interação | sem textos nem valores (`[omitido]`, nome do atributo, estados fechados, posição da opção) |
+| 14 | nome acessível | calculado sobre entrada filtrada; nome incompleto não sai parcial (vazio, com as fontes preservadas como relação) |
+| 15, 34 | assinatura e registro persistido | só o que passou pela política; `targets/registry-v2.json`, sem ler nem apagar o antigo (procedimento em `storage-and-retention.md`) |
+| 16 | localizadores | toda expressão passa por `expressionSafe`; sem expressão segura, `SAFE_LOCATOR_UNAVAILABLE`/`LOCATORS_WITHHELD` |
+| 17 | caminho de acesso e contexto | rótulos pela política; frames sem título viram modelo de URL |
+| 18–21 | descritor, referência, opção e contexto da etapa | `StepPrivacy` (SW e host): nome, ids, localizadores, contexto e URL pela política; `OPTION_WITHHELD` |
+| 22 | aba | título só do vocabulário; o Studio identifica a aba pelo host |
+| 23 | evidências | URL de documento e de navegação como modelo |
+| 24, 30 | log do SW e erros | lista fechada de campos por tipo de evento |
+| 25–27 | difusão, inspeção e fila em `storage.session` | só recebem o que já passou pela política. Nenhum texto é guardado no SW |
+| 29 | metadados de frames | modelo de URL; `frames.list` (URLs cruas) só em DEV |
+| 31–32 | erros e log do host | forma fechada de ids, linha/coluna no lugar do token, `LogSafety` |
+| 33 | exportação | PageMap 0.3.0 com `privacy` declarada; 0.2.0 congelado |
+| 35 | Bridge | 3ª barreira (`StepPrivacy`/`EvidencePrivacy` no host com a política v2); `client.privacy` no `hello` |
+| 36 | Studio | 4ª barreira (`RecordedStep.guard`, `CapturePrivacy`): revalida tudo e avisa quando a extensão não declara a v2 |
+| 37 | painel e realce | mostram só o que o motor recebeu |
+| 38 | hooks de teste | só DEV |

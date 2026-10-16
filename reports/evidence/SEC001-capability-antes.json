@@ -1,0 +1,500 @@
+{
+  "rotulo" : "antes",
+  "paginas" : 34,
+  "totais" : {
+    "bytesPageMap" : 4057282,
+    "bytesSnapshot" : 678798,
+    "comNome" : 350,
+    "elementosClassificados" : 925,
+    "interativos" : 359,
+    "principalUnico" : 359,
+    "principalVerificavel" : 297,
+    "semNenhumUnico" : 0
+  },
+  "resolucaoNaPaginaInalterada" : {
+    "AMBIGUOUS" : 4,
+    "RESOLVED" : 355
+  },
+  "capturaMsMedianaDasPaginas" : 9.1231,
+  "capturaMsSomaDasMedianas" : 337,
+  "porPagina" : {
+    "/lab/simple/form-basics.html" : {
+      "elementosClassificados" : 55,
+      "interativos" : 26,
+      "comNome" : 26,
+      "principalUnico" : 26,
+      "principalVerificavel" : 24,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 26
+      },
+      "capturaMsMediana" : 27.7,
+      "bytesSnapshot" : 39828,
+      "bytesPageMap" : 291898
+    },
+    "/lab/intermediate/forms-groups.html" : {
+      "elementosClassificados" : 34,
+      "interativos" : 16,
+      "comNome" : 16,
+      "principalUnico" : 16,
+      "principalVerificavel" : 15,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 16
+      },
+      "capturaMsMediana" : 12.4,
+      "bytesSnapshot" : 24953,
+      "bytesPageMap" : 194311
+    },
+    "/lab/intermediate/tables.html" : {
+      "elementosClassificados" : 51,
+      "interativos" : 9,
+      "comNome" : 9,
+      "principalUnico" : 9,
+      "principalVerificavel" : 8,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 9
+      },
+      "capturaMsMediana" : 10.8,
+      "bytesSnapshot" : 29782,
+      "bytesPageMap" : 172476
+    },
+    "/lab/intermediate/widgets.html" : {
+      "elementosClassificados" : 43,
+      "interativos" : 24,
+      "comNome" : 22,
+      "principalUnico" : 24,
+      "principalVerificavel" : 23,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 24
+      },
+      "capturaMsMediana" : 11.1,
+      "bytesSnapshot" : 30784,
+      "bytesPageMap" : 199815
+    },
+    "/lab/complex/dropdowns.html" : {
+      "elementosClassificados" : 42,
+      "interativos" : 33,
+      "comNome" : 30,
+      "principalUnico" : 33,
+      "principalVerificavel" : 12,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 33
+      },
+      "capturaMsMediana" : 10.4,
+      "bytesSnapshot" : 30616,
+      "bytesPageMap" : 276549
+    },
+    "/lab/complex/duplicated-ids.html" : {
+      "elementosClassificados" : 57,
+      "interativos" : 16,
+      "comNome" : 16,
+      "principalUnico" : 16,
+      "principalVerificavel" : 15,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "AMBIGUOUS" : 2,
+        "RESOLVED" : 14
+      },
+      "capturaMsMediana" : 11.1,
+      "bytesSnapshot" : 38310,
+      "bytesPageMap" : 213268
+    },
+    "/lab/complex/dynamic-ids.html" : {
+      "elementosClassificados" : 17,
+      "interativos" : 8,
+      "comNome" : 8,
+      "principalUnico" : 8,
+      "principalVerificavel" : 7,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 8
+      },
+      "capturaMsMediana" : 8.8,
+      "bytesSnapshot" : 14289,
+      "bytesPageMap" : 78856
+    },
+    "/lab/complex/rerender.html" : {
+      "elementosClassificados" : 20,
+      "interativos" : 8,
+      "comNome" : 8,
+      "principalUnico" : 8,
+      "principalVerificavel" : 7,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 8
+      },
+      "capturaMsMediana" : 9.1,
+      "bytesSnapshot" : 16929,
+      "bytesPageMap" : 76354
+    },
+    "/lab/complex/responsive.html" : {
+      "elementosClassificados" : 12,
+      "interativos" : 6,
+      "comNome" : 6,
+      "principalUnico" : 6,
+      "principalVerificavel" : 5,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 6
+      },
+      "capturaMsMediana" : 8.9,
+      "bytesSnapshot" : 11307,
+      "bytesPageMap" : 44311
+    },
+    "/lab/complex/shadow-iframes.html" : {
+      "elementosClassificados" : 19,
+      "interativos" : 6,
+      "comNome" : 6,
+      "principalUnico" : 6,
+      "principalVerificavel" : 5,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 6
+      },
+      "capturaMsMediana" : 11.3,
+      "bytesSnapshot" : 19850,
+      "bytesPageMap" : 83758
+    },
+    "/lab/chrome002/accessible-names.html" : {
+      "elementosClassificados" : 54,
+      "interativos" : 21,
+      "comNome" : 21,
+      "principalUnico" : 21,
+      "principalVerificavel" : 20,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 21
+      },
+      "capturaMsMediana" : 10.7,
+      "bytesSnapshot" : 35074,
+      "bytesPageMap" : 224622
+    },
+    "/lab/chrome002/continuous.html" : {
+      "elementosClassificados" : 33,
+      "interativos" : 16,
+      "comNome" : 16,
+      "principalUnico" : 16,
+      "principalVerificavel" : 15,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "AMBIGUOUS" : 2,
+        "RESOLVED" : 14
+      },
+      "capturaMsMediana" : 9.2,
+      "bytesSnapshot" : 25534,
+      "bytesPageMap" : 146094
+    },
+    "/lab/chrome002/iframes.html" : {
+      "elementosClassificados" : 22,
+      "interativos" : 9,
+      "comNome" : 9,
+      "principalUnico" : 9,
+      "principalVerificavel" : 8,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 9
+      },
+      "capturaMsMediana" : 10.4,
+      "bytesSnapshot" : 19830,
+      "bytesPageMap" : 97043
+    },
+    "/lab/chrome002/recording.html" : {
+      "elementosClassificados" : 22,
+      "interativos" : 6,
+      "comNome" : 6,
+      "principalUnico" : 6,
+      "principalVerificavel" : 5,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 6
+      },
+      "capturaMsMediana" : 9.1,
+      "bytesSnapshot" : 14831,
+      "bytesPageMap" : 74257
+    },
+    "/lab/chrome002/shadow-dynamic.html" : {
+      "elementosClassificados" : 14,
+      "interativos" : 8,
+      "comNome" : 8,
+      "principalUnico" : 8,
+      "principalVerificavel" : 6,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 8
+      },
+      "capturaMsMediana" : 9.0,
+      "bytesSnapshot" : 14107,
+      "bytesPageMap" : 59451
+    },
+    "/lab/chrome003/contas.html" : {
+      "elementosClassificados" : 7,
+      "interativos" : 3,
+      "comNome" : 3,
+      "principalUnico" : 3,
+      "principalVerificavel" : 3,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 3
+      },
+      "capturaMsMediana" : 7.8,
+      "bytesSnapshot" : 5725,
+      "bytesPageMap" : 36082
+    },
+    "/lab/chrome003/filial.html" : {
+      "elementosClassificados" : 2,
+      "interativos" : 1,
+      "comNome" : 1,
+      "principalUnico" : 1,
+      "principalVerificavel" : 0,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 1
+      },
+      "capturaMsMediana" : 8.5,
+      "bytesSnapshot" : 2894,
+      "bytesPageMap" : 9402
+    },
+    "/lab/chrome003/financeiro.html" : {
+      "elementosClassificados" : 18,
+      "interativos" : 7,
+      "comNome" : 7,
+      "principalUnico" : 7,
+      "principalVerificavel" : 6,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 7
+      },
+      "capturaMsMediana" : 9.4,
+      "bytesSnapshot" : 15598,
+      "bytesPageMap" : 95461
+    },
+    "/lab/chrome003/frames.html" : {
+      "elementosClassificados" : 66,
+      "interativos" : 19,
+      "comNome" : 19,
+      "principalUnico" : 19,
+      "principalVerificavel" : 13,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 19
+      },
+      "capturaMsMediana" : 12.3,
+      "bytesSnapshot" : 56400,
+      "bytesPageMap" : 281376
+    },
+    "/lab/chrome003/pagamentos.html" : {
+      "elementosClassificados" : 7,
+      "interativos" : 3,
+      "comNome" : 3,
+      "principalUnico" : 3,
+      "principalVerificavel" : 2,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 3
+      },
+      "capturaMsMediana" : 8.4,
+      "bytesSnapshot" : 6418,
+      "bytesPageMap" : 34241
+    },
+    "/lab/chrome003/painel.html" : {
+      "elementosClassificados" : 2,
+      "interativos" : 1,
+      "comNome" : 1,
+      "principalUnico" : 1,
+      "principalVerificavel" : 0,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 1
+      },
+      "capturaMsMediana" : 7.6,
+      "bytesSnapshot" : 2895,
+      "bytesPageMap" : 9529
+    },
+    "/lab/chrome003/relatorios.html" : {
+      "elementosClassificados" : 6,
+      "interativos" : 2,
+      "comNome" : 2,
+      "principalUnico" : 2,
+      "principalVerificavel" : 1,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 2
+      },
+      "capturaMsMediana" : 7.6,
+      "bytesSnapshot" : 7829,
+      "bytesPageMap" : 24477
+    },
+    "/lab/studio003/consulta.html" : {
+      "elementosClassificados" : 52,
+      "interativos" : 21,
+      "comNome" : 21,
+      "principalUnico" : 21,
+      "principalVerificavel" : 20,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 21
+      },
+      "capturaMsMediana" : 10.1,
+      "bytesSnapshot" : 32845,
+      "bytesPageMap" : 237194
+    },
+    "/lab/studio003/login.html" : {
+      "elementosClassificados" : 21,
+      "interativos" : 6,
+      "comNome" : 6,
+      "principalUnico" : 6,
+      "principalVerificavel" : 5,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 6
+      },
+      "capturaMsMediana" : 8.1,
+      "bytesSnapshot" : 13845,
+      "bytesPageMap" : 81700
+    },
+    "/lab/studio003/frames.html" : {
+      "elementosClassificados" : 19,
+      "interativos" : 5,
+      "comNome" : 5,
+      "principalUnico" : 5,
+      "principalVerificavel" : 4,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 5
+      },
+      "capturaMsMediana" : 9.4,
+      "bytesSnapshot" : 16154,
+      "bytesPageMap" : 73139
+    },
+    "/lab/studio005/login-erro.html" : {
+      "elementosClassificados" : 17,
+      "interativos" : 6,
+      "comNome" : 6,
+      "principalUnico" : 6,
+      "principalVerificavel" : 5,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 6
+      },
+      "capturaMsMediana" : 8.4,
+      "bytesSnapshot" : 12320,
+      "bytesPageMap" : 71720
+    },
+    "/lab/studio005/pesquisa.html" : {
+      "elementosClassificados" : 11,
+      "interativos" : 3,
+      "comNome" : 3,
+      "principalUnico" : 3,
+      "principalVerificavel" : 2,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 3
+      },
+      "capturaMsMediana" : 8.4,
+      "bytesSnapshot" : 8496,
+      "bytesPageMap" : 32397
+    },
+    "/lab/studio005/validacao.html" : {
+      "elementosClassificados" : 15,
+      "interativos" : 4,
+      "comNome" : 4,
+      "principalUnico" : 4,
+      "principalVerificavel" : 3,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 4
+      },
+      "capturaMsMediana" : 7.9,
+      "bytesSnapshot" : 10613,
+      "bytesPageMap" : 57321
+    },
+    "/lab/chrome-security-001/formularios.html" : {
+      "elementosClassificados" : 49,
+      "interativos" : 21,
+      "comNome" : 20,
+      "principalUnico" : 21,
+      "principalVerificavel" : 19,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 21
+      },
+      "capturaMsMediana" : 9.4,
+      "bytesSnapshot" : 29484,
+      "bytesPageMap" : 249539
+    },
+    "/lab/chrome-security-001/elementos.html" : {
+      "elementosClassificados" : 18,
+      "interativos" : 7,
+      "comNome" : 7,
+      "principalUnico" : 7,
+      "principalVerificavel" : 6,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 7
+      },
+      "capturaMsMediana" : 8.1,
+      "bytesSnapshot" : 12289,
+      "bytesPageMap" : 64951
+    },
+    "/lab/chrome-security-001/atributos.html" : {
+      "elementosClassificados" : 23,
+      "interativos" : 9,
+      "comNome" : 8,
+      "principalUnico" : 9,
+      "principalVerificavel" : 7,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 9
+      },
+      "capturaMsMediana" : 8.2,
+      "bytesSnapshot" : 15937,
+      "bytesPageMap" : 74334
+    },
+    "/lab/chrome-security-001/tabela.html" : {
+      "elementosClassificados" : 23,
+      "interativos" : 3,
+      "comNome" : 3,
+      "principalUnico" : 3,
+      "principalVerificavel" : 2,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 3
+      },
+      "capturaMsMediana" : 7.8,
+      "bytesSnapshot" : 14732,
+      "bytesPageMap" : 66397
+    },
+    "/lab/chrome-security-001/exportacao.html" : {
+      "elementosClassificados" : 16,
+      "interativos" : 4,
+      "comNome" : 4,
+      "principalUnico" : 4,
+      "principalVerificavel" : 3,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 4
+      },
+      "capturaMsMediana" : 8.8,
+      "bytesSnapshot" : 11263,
+      "bytesPageMap" : 55632
+    },
+    "/clientes?nome=ana&status=ativo" : {
+      "elementosClassificados" : 58,
+      "interativos" : 22,
+      "comNome" : 20,
+      "principalUnico" : 22,
+      "principalVerificavel" : 21,
+      "semNenhumUnico" : 0,
+      "resolucao" : {
+        "RESOLVED" : 22
+      },
+      "capturaMsMediana" : 10.7,
+      "bytesSnapshot" : 37037,
+      "bytesPageMap" : 269327
+    }
+  }
+}
