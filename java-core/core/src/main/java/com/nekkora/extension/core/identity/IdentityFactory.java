@@ -97,7 +97,8 @@ public final class IdentityFactory {
         DocumentInfo doc = graph.model().snapshot().document();
         return new TargetIdentity(idGenerator.get(), TargetIdentity.SCHEMA_VERSION, clock.get(), originOf(doc),
                 sig, discriminators, lookalikes.size(), set, nodeId, doc == null ? null : doc.pageSessionId(),
-                captureId, history, warnings, com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
+                captureId, history, warnings, com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node),
+                NodeAnchor.of(graph, node));
     }
 
     private static String chainKey(ContextGraph graph, RawNode node) {

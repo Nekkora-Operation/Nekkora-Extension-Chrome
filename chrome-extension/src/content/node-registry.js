@@ -11,10 +11,20 @@
   let refs = new Map();
   let counter = 0;
   let prefix = '';
+  /*
+   * D7 (CHROME-SECURITY-001): ÉPOCA deste registro — token aleatório renovado a cada instância do content script (novo
+   * documento, frame recarregado) e a cada reinicialização dos mapas (configurePrefix). Mesmo id + mesma época = mesmo
+   * objeto DOM; sem a mesma época o id NÃO prova continuidade (os contadores recomeçam).
+   */
+  const newEpoch = () => Math.random().toString(36).slice(2, 12).replace(/[^a-z0-9]/g, '') || 'e0';
+  let epoch = newEpoch();
   const pageSessionId = 'ps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
 
   NS.registry = {
     pageSessionId,
+    epoch() {
+      return epoch;
+    },
     idFor(el) {
       let id = ids.get(el);
       if (!id) {
@@ -38,6 +48,7 @@
       ids = new WeakMap();
       refs = new Map();
       counter = 0;
+      epoch = newEpoch(); // ids recomeçam: continuidade anterior invalidada
     },
     prefix() {
       return prefix;

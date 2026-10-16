@@ -40,6 +40,27 @@ O vocabulário só se aplica a **metadado de interface elegível**. Conteúdo de
 
 O texto do portador é verificado **inteiro**, sem as subárvores de valor (`select`, `option`, `textarea`, contenteditable). Se a verificação falhar, nenhum pedaço dele sai. O mesmo vale para o nome acessível composto de várias fontes: se alguma fonte teve texto retido, o nome inteiro é retido e as fontes (estrutura) continuam.
 
+### Atributos estruturais: regra fechada por atributo (revisão dos PRs #7, P1-01)
+
+A forma técnica do valor **não basta**. `role="cliente-joao"` ou `autocomplete="joao oliveira"` têm forma técnica e
+mesmo assim são texto arbitrário. Cada atributo estrutural tem uma regra **fechada** no contrato versionado
+`contracts/privacy/structural-attributes.json` (`nekkora-structural-attributes/1`, 100 atributos, gerado por
+`scripts/gen-structural-attributes.py`), a mesma em JS, Java e Studio:
+
+| Tipo de regra | Exemplos | Valor aceito |
+|---|---|---|
+| booleano | `disabled`, `required`, `checked`, `open` | vazio, o próprio nome, `true`/`false` |
+| enumeração | `type`, `inputmode`, `target`, `aria-current`, `aria-haspopup` | um valor da lista do atributo |
+| tokens | `role`, `autocomplete`, `rel`, `sandbox`, `accept` | cada item da lista do atributo |
+| inteiro | `tabindex`, `colspan`, `maxlength`, `aria-setsize` | até 5 dígitos |
+| decimal | `min`, `max`, `step`, `aria-valuenow` | até 5 dígitos inteiros e 4 decimais |
+| dimensão | `width`, `height` | até 5 dígitos, `px`/`%` opcionais |
+| idioma | `lang`, `hreflang`, `srclang` | código ISO 639-1 (lista fechada) + escrita/região opcionais |
+| só presença | `allow` | nunca o valor |
+
+Fora da regra, o atributo vai **só como presença** (valor vazio). O papel ARIA das etapas (recorder, service worker,
+host e Studio) passa pela mesma regra do `role`. Antes, ele saía cru do descritor do recorder.
+
 ### Fonte de nome retida
 
 Quando um atributo de nome (`aria-label`, `title`, `placeholder`, `alt`, `aria-roledescription`, `aria-placeholder`,

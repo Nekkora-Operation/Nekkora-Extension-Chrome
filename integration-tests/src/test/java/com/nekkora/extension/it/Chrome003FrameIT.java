@@ -498,6 +498,25 @@ class Chrome003FrameIT extends FrameIT {
                 t.remove("suppressed");
             }
         }
+        // D7 (revisão dos PRs #7): época do registro de nós, âncora e continuidade técnica são aditivos da 0.3.0
+        for (JsonNode f : legacy.at("/document/frames")) {
+            if (f instanceof ObjectNode o) {
+                o.remove("registryEpoch");
+            }
+        }
+        for (JsonNode t : legacy.path("targets")) {
+            if (t instanceof ObjectNode o) {
+                o.remove("anchor");
+            }
+        }
+        for (JsonNode r : legacy.path("resolutions")) {
+            if (r instanceof ObjectNode o) {
+                o.remove("continuity");
+                if (o.path("updatedIdentity") instanceof ObjectNode u) {
+                    u.remove("anchor");
+                }
+            }
+        }
         Contracts.assertValid("v0.1.0/page-map.schema.json", stripDocumentIds(legacy));
         evidence("F003-020-pagemap-sections.json", Map.of("version", map.get("version"), "frameGraphCounts", map.at("/frameGraph/counts"),
                 "accessPaths", map.get("accessPaths").size(), "protection", map.at("/protection/status"), "readiness", map.at("/readiness/status")));

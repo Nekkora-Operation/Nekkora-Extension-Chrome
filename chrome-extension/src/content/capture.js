@@ -581,7 +581,7 @@
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
         fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: CP.urlTemplate(doc.location.href), accessible: true, reason: null,
-          title: CP.title(doc.title || ''), readyState: doc.readyState };
+          title: CP.title(doc.title || ''), readyState: doc.readyState, registryEpoch: NS.registry.epoch() };
         out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid });
       } else {
         fi = { frameId: src.placeholderPrefix + hostId, parentFrameId: parentFrame, hostNodeId: hostId,
@@ -687,7 +687,7 @@
 
   function rootFrameInfo() {
     return { frameId: src.rootFrame, parentFrameId: null, hostNodeId: null, url: CP.urlTemplate(location.href), accessible: true, reason: null,
-      title: CP.title(document.title || ''), readyState: document.readyState };
+      title: CP.title(document.title || ''), readyState: document.readyState, registryEpoch: NS.registry.epoch() };
   }
 
   /** URL de recurso como MODELO (origem + caminho do vocabulário) + NOMES de parâmetros do vocabulário. */

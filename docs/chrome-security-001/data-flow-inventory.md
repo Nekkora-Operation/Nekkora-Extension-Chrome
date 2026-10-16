@@ -112,9 +112,17 @@ e os logs do host ficaram limpos nesse cenário. Os logs, porém, tinham caminho
   página expõe em `window.nekkoraTestHooks` também em PRD, e qualquer página pode declarar o marcador `__nekkoraLab`.
   Os dois passaram a ser recusados fora de DEV (`MODE_RESTRICTED`, `config-mode.test.js`).
 
+- **Revisão dos PRs #7 (P1-01):** valores de atributos estruturais (`role`, `autocomplete`, `type`, `target`, `rel`,
+  `lang`, `aria-*`, numéricos) só eram verificados pela forma técnica, e `role="gumercindo-tavares"` ou um número de 11
+  dígitos atravessavam até o snapshot, motor, PageMap, registro e `storage.session` (13 exposições reproduzidas na página
+  13, `SEC001-exposure-p1-reproducao.json`). No mesmo levantamento apareceu o **papel ARIA das etapas**, que saía cru do
+  descritor do recorder (`getAttribute('role')`) sem passar por nenhuma barreira.
+- **Revisão dos PRs #7 (P1-02):** literais só de dígitos eram aceitos em qualquer comprimento em localizadores
+  (`input[type="48291736455"]` chegou a ser gerado).
+
 ## 4. Estado final na branch `feat/chrome-security-001`
 
-Medição final: `ChromeSecurity001IT` **12/12 cenários sem nenhuma exposição** nos destinos SNAP, MOTOR, REG, PM, LOG-SW,
+Medição final: `ChromeSecurity001IT` **13/13 cenários sem nenhuma exposição** (12 originais + página 13 da revisão) nos destinos SNAP, MOTOR, REG, PM, LOG-SW,
 SES, LOC, STUDIO e LOG-HOST, com busca por transformações (sem acento, minúsculas, hífen, `%20`, entidades, escapes e
 trechos). A linha de base (`8f3326b`) tinha 12/12 cenários com exposição. Cobertura total não é prometida: a busca
 encontra só os marcadores plantados e as transformações conhecidas.
@@ -146,3 +154,7 @@ encontra só os marcadores plantados e as transformações conhecidas.
 | 36 | Studio | 4ª barreira (`RecordedStep.guard`, `CapturePrivacy`): revalida tudo e avisa quando a extensão não declara a v2 |
 | 37 | painel e realce | mostram só o que o motor recebeu |
 | 38 | hooks de teste | só DEV |
+| 39 | papel ARIA das etapas | regra fechada do `role` no recorder, no service worker, no host e no Studio |
+| 40 | valores de atributos estruturais | regra fechada por atributo (`nekkora-structural-attributes/1`); fora dela, só presença |
+| 41 | números em localizadores | valor só até 2 dígitos; posição aceita; verificação também na representação estruturada (`LocatorPrivacy`) |
+| 42 | continuidade técnica (D7) | âncora sem texto (época do registro, frame, escopo, tipo, revisões); resultado separado da identidade lógica |

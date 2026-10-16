@@ -61,6 +61,9 @@ public final class TargetResolver {
         List<String> evidence = new ArrayList<>();
         IdentitySignature expected = identity.signature();
 
+        // D7: continuidade TÉCNICA do objeto ancorado — avaliada à parte; nunca vira resolução lógica
+        TechnicalContinuity continuity = TechnicalContinuity.evaluate(identity.anchor(), graph);
+
         // 1) Escopo
         ScopeResolution scope = resolveScopes(identity, graph, session);
         List<String> diagnostics = new ArrayList<>(scope.diagnostics());
@@ -68,7 +71,7 @@ public final class TargetResolver {
             ResolutionStatus st = scope.unavailable() ? ResolutionStatus.SCOPE_UNAVAILABLE : ResolutionStatus.NOT_FOUND;
             evidence.add(scope.description());
             return result(identity, captureId, st, null, 0, false, scope.description(), List.of(), List.of(), Map.of(), evidence, null, null,
-                    diagnostics);
+                    diagnostics, continuity);
         }
 
         // 2) Localizadores registrados
@@ -227,7 +230,7 @@ public final class TargetResolver {
                 diagnostics.add("TARGET_AMBIGUOUS");
             }
             return result(identity, captureId, status, null, best, false, scope.description(), checks, evaluations, Map.of(), evidence, null, null,
-                    diagnostics);
+                    diagnostics, continuity);
         }
 
         RawNode node = graph.model().node(chosen.nodeId());
@@ -256,9 +259,10 @@ public final class TargetResolver {
                 identity.registeredAt(), identity.origin(), identity.signature(), identity.discriminators(),
                 identity.lookalikeCount(), updated, node.id(), doc == null ? null : doc.pageSessionId(), captureId,
                 history, identity.warnings(),
-                identity.frameChain() == null ? null : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node));
+                identity.frameChain() == null ? null : com.nekkora.extension.core.frames.FrameIdentities.chainFor(graph, node),
+                com.nekkora.extension.core.identity.NodeAnchor.of(graph, node));
         return result(identity, captureId, status, node.id(), chosen.score(), replaced, scope.description(), checks,
-                evaluations, changes, evidence, updated, updatedIdentity, diagnostics);
+                evaluations, changes, evidence, updated, updatedIdentity, diagnostics, continuity);
     }
 
     /** Características que identificam o PRÓPRIO elemento (não só onde ele está). */
@@ -470,9 +474,9 @@ public final class TargetResolver {
                                            double score, boolean replaced, String scope, List<LocatorCheck> checks,
                                            List<CandidateEvaluation> candidates, Map<String, List<String>> changes,
                                            List<String> evidence, LocatorSet updated, TargetIdentity updatedIdentity,
-                                           List<String> diagnostics) {
+                                           List<String> diagnostics, TechnicalContinuity continuity) {
         return new ResolutionResult(TargetIdentity.SCHEMA_VERSION, identity.targetId(), captureId, status, nodeId, score,
-                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity, diagnostics);
+                replaced, scope, checks, candidates, changes, evidence, updated, updatedIdentity, diagnostics, continuity);
     }
 
     private static double round(double v) {

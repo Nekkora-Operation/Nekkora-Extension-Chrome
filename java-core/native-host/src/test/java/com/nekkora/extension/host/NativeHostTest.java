@@ -174,6 +174,33 @@ class NativeHostTest {
         assertTrue(export.at("/payload/pageMap/evidence").size() >= 3);
     }
 
+    private String withEpoch(String epoch) throws Exception {
+        ObjectNode snap = (ObjectNode) mapper.readTree(snapshot);
+        ((ObjectNode) snap.get("frames").get(0)).put("registryEpoch", epoch);
+        return snap.toString();
+    }
+
+    @Test
+    void d7ContinuidadeTecnicaSobreviveAoReinicioDoHostSemVirarIdentidadeLogica() throws Exception {
+        // CHROME-SECURITY-001, D7: a âncora técnica é persistida com o alvo; depois do reinício do Native Host, o mesmo
+        // documento (mesma época do registro de nós) mantém a continuidade — e ela continua separada da resolução lógica
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep1") + "}").get("ok").asBoolean());
+        JsonNode reg = call("target.register", "{\"tabKey\":\"t1\",\"nodeId\":\"n16\"}");
+        String targetId = reg.at("/payload/targetId").asText();
+        host = new NativeHost(new DataDirectory(dataDir)); // reinício do Native Host (mesmo diretório de dados)
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep1") + "}").get("ok").asBoolean());
+        JsonNode res = call("target.resolve", "{\"tabKey\":\"t1\",\"targetId\":\"" + targetId + "\"}");
+        assertTrue(res.get("ok").asBoolean(), res.toString());
+        assertEquals("LIVE_NODE_CONTINUITY", res.at("/payload/result/continuity/status").asText(), res.toString());
+        assertEquals("n16", res.at("/payload/result/continuity/nodeId").asText());
+        assertTrue(res.at("/payload/result/continuity/limitations").toString().contains("LOGICAL_IDENTITY_NOT_REVALIDATED"));
+        // mesmo id de nó em OUTRA época (documento recarregado / registro reiniciado): nada é presumido
+        assertTrue(call("snapshot.submit", "{\"tabKey\":\"t1\",\"snapshot\":" + withEpoch("ep2") + "}").get("ok").asBoolean());
+        JsonNode res2 = call("target.resolve", "{\"tabKey\":\"t1\",\"targetId\":\"" + targetId + "\"}");
+        assertEquals("CONTINUITY_BROKEN", res2.at("/payload/result/continuity/status").asText(), res2.toString());
+        assertTrue(res2.at("/payload/result/continuity/limitations/0").asText().startsWith("REGISTRY_EPOCH_CHANGED"));
+    }
+
     @Test
     void sec001RegistroAntigoNaoELidoNemApagado() throws Exception {
         // CHROME-SECURITY-001 (SEC001-073): registro de versão anterior, com texto da página, fica no disco intocado e fora da memória

@@ -40,7 +40,17 @@ public record TargetIdentity(
         String lastCaptureId,
         Map<String, List<String>> attributeHistory,
         List<String> warnings,
-        List<com.nekkora.extension.core.frames.FrameIdentity> frameChain) {
+        List<com.nekkora.extension.core.frames.FrameIdentity> frameChain,
+        NodeAnchor anchor) {
+
+    /** Construtor CHROME-003 (sem âncora técnica — D7). */
+    public TargetIdentity(String targetId, String schemaVersion, String registeredAt, String origin, IdentitySignature signature,
+                          Set<IdentityFeature> discriminators, int lookalikeCount, LocatorSet locators, String lastNodeId,
+                          String lastPageSessionId, String lastCaptureId, Map<String, List<String>> attributeHistory,
+                          List<String> warnings, List<com.nekkora.extension.core.frames.FrameIdentity> frameChain) {
+        this(targetId, schemaVersion, registeredAt, origin, signature, discriminators, lookalikeCount, locators, lastNodeId,
+                lastPageSessionId, lastCaptureId, attributeHistory, warnings, frameChain, null);
+    }
 
     /** Construtor CHROME-001/002 (sem cadeia de frames). */
     public TargetIdentity(String targetId, String schemaVersion, String registeredAt, String origin, IdentitySignature signature,

@@ -19,3 +19,16 @@
 17. **IDs dinâmicos.** IDs com sufixo numérico longo (ou qualquer id fora do vocabulário) não chegam ao motor. O histórico de atributos registra que o id existia, sem o valor, e a troca de id deixa de ser observável por ele.
 18. **Frames identificados só por título.** Iframes irmãos que só se distinguiam pelo título ou por um id fora do vocabulário ("Filial Norte"/"Filial Sul") ficam indistinguíveis: a resolução declara `AMBIGUOUS`/`INSUFFICIENT_EVIDENCE` e nunca escolhe o frame irmão. Quando o contêiner tem identificador do vocabulário (`#compras`), o frame continua sendo distinguido.
 19. **Chaves de consulta do catálogo de proteção.** O único nome de parâmetro exigido por uma assinatura (`render`, reCAPTCHA v3) foi acrescentado ao vocabulário com revisão manual, na seção de termos de fornecedores. Outros parâmetros de fornecedor (por exemplo `k`, a chave do site) continuam fora: o parâmetro some do modelo da URL.
+
+20. **Continuidade técnica não é identidade lógica (D7).** `LIVE_NODE_CONTINUITY` diz que o mesmo objeto DOM continua
+    identificável, não que ele ainda representa o mesmo registro de negócio. Mudanças de **atributos** (sem texto) não
+    entram nas revisões de conteúdo: um nó reaproveitado só por atributos aparece como continuidade sem
+    `CONTENT_CHANGED`. Por isso a continuidade nunca autoriza uso automático.
+21. **Época por content script.** Iframes de mesma origem capturados pelo documento principal usam a época do
+    principal. A recarga do iframe é detectada pela troca do frame (`FRAME_GONE`) ou dos nós (`NODE_GONE`). Iframes com
+    content script próprio têm época própria.
+22. **Valores estruturais legítimos fora da lista.** Um valor válido em HTML que não esteja na regra fechada (MIME raro,
+    idioma ISO 639-2/3, `autocomplete` com `section-*`) vai só como presença. Para ampliar a lista é preciso revisão
+    versionada do contrato.
+23. **Números longos legítimos em localizadores.** Um atributo com número de mais de 2 dígitos como valor (por exemplo
+    `[data-page='100']`) deixa de ser localizador transportável. Posições continuam.

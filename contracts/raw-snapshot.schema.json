@@ -143,6 +143,14 @@
               "string",
               "null"
             ]
+          },
+          "registryEpoch": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9]{1,16}$",
+            "description": "D7 (CHROME-SECURITY-001): época do registro de nós do content script que produziu o documento; mesmo id de nó só prova o mesmo objeto DOM dentro da mesma época"
           }
         }
       }

@@ -43,7 +43,17 @@ public record ResolutionResult(
         List<String> evidence,
         LocatorSet updatedLocators,
         TargetIdentity updatedIdentity,
-        List<String> diagnostics) {
+        List<String> diagnostics,
+        TechnicalContinuity continuity) {
+
+    /** Construtor CHROME-003 (sem continuidade técnica — D7). */
+    public ResolutionResult(String schemaVersion, String targetId, String captureId, ResolutionStatus status, String resolvedNodeId,
+                            double score, boolean nodeReplaced, String scope, List<LocatorCheck> locatorChecks,
+                            List<CandidateEvaluation> candidates, Map<String, List<String>> attributeChanges, List<String> evidence,
+                            LocatorSet updatedLocators, TargetIdentity updatedIdentity, List<String> diagnostics) {
+        this(schemaVersion, targetId, captureId, status, resolvedNodeId, score, nodeReplaced, scope, locatorChecks, candidates,
+                attributeChanges, evidence, updatedLocators, updatedIdentity, diagnostics, null);
+    }
 
     /** Construtor CHROME-001/002 (sem diagnósticos detalhados). */
     public ResolutionResult(String schemaVersion, String targetId, String captureId, ResolutionStatus status, String resolvedNodeId,

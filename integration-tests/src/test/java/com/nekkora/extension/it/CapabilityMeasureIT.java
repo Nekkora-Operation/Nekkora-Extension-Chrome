@@ -56,6 +56,8 @@ class CapabilityMeasureIT extends LabIT {
         Map<String, Object> perPage = new LinkedHashMap<>();
         Map<String, Long> total = new TreeMap<>();
         Map<String, Long> statuses = new TreeMap<>();
+        // D7: continuidade TÉCNICA contada à parte — nunca somada à reidentificação lógica
+        Map<String, Long> continuity = new TreeMap<>();
         List<Double> captureMs = new ArrayList<>();
         for (String path : CORPUS) {
             Page p = open(path);
@@ -114,6 +116,8 @@ class CapabilityMeasureIT extends LabIT {
                     JsonNode sel = lab.call("page.select", p, "nodeId", id);
                     JsonNode r = lab.call("target.resolve", p, "targetId", sel.at("/identity/targetId").asText()).get("result");
                     status = r.path("status").asText("?");
+                    String c = r.path("continuity").isObject() ? r.at("/continuity/status").asText("?") : "AUSENTE (build sem D7)";
+                    continuity.merge(c, 1L, Long::sum);
                     if ("RESOLVED".equals(status) && !id.equals(r.path("resolvedNodeId").asText())) {
                         status = "RESOLVED_OTHER"; // nunca deveria ocorrer: contado à parte para tornar visível
                     }
@@ -150,6 +154,7 @@ class CapabilityMeasureIT extends LabIT {
         out.put("paginas", CORPUS.size());
         out.put("totais", total);
         out.put("resolucaoNaPaginaInalterada", statuses);
+        out.put("continuidadeTecnicaNaPaginaInalterada", continuity);
         out.put("capturaMsMedianaDasPaginas", captureMs.get(captureMs.size() / 2));
         out.put("capturaMsSomaDasMedianas", Math.round(captureMs.stream().mapToDouble(Double::doubleValue).sum()));
         out.put("porPagina", perPage);

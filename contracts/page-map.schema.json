@@ -436,6 +436,13 @@
         },
         "readyState": {
           "$ref": "#/$defs/str"
+        },
+        "registryEpoch": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9]{1,16}$"
         }
       }
     },
@@ -1843,6 +1850,9 @@
               }
             }
           ]
+        },
+        "anchor": {
+          "$ref": "#/$defs/NodeAnchor"
         }
       }
     },
@@ -2000,6 +2010,9 @@
               "TARGET_AMBIGUOUS"
             ]
           }
+        },
+        "continuity": {
+          "$ref": "#/$defs/TechnicalContinuity"
         }
       }
     },
@@ -3153,6 +3166,93 @@
           ]
         },
         "basis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "NodeAnchor": {
+      "description": "D7 (CHROME-SECURITY-001): âncora TÉCNICA do alvo (objeto DOM observado), não identidade lógica.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "nodeId",
+        "frameId",
+        "scopeId",
+        "tag",
+        "compatibility",
+        "contentRevision",
+        "rowRevision"
+      ],
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "frameId": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "registryEpoch": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9]{1,16}$"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "compatibility": {
+          "type": "string"
+        },
+        "contentRevision": {
+          "type": "integer"
+        },
+        "rowNodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "rowRevision": {
+          "type": "integer"
+        }
+      }
+    },
+    "TechnicalContinuity": {
+      "description": "D7: continuidade técnica do objeto DOM, separada da resolução lógica; nunca autoriza uso do elemento como alvo confirmado.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "proof",
+        "limitations"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "LIVE_NODE_CONTINUITY",
+            "CONTINUITY_BROKEN",
+            "NOT_PROVEN"
+          ]
+        },
+        "nodeId": {
+          "$ref": "#/$defs/str"
+        },
+        "proof": {
           "type": "array",
           "items": {
             "type": "string"

@@ -221,7 +221,7 @@ public final class SnapshotPrivacy {
         List<FrameInfo> out = new ArrayList<>(frames.size());
         for (FrameInfo f : frames) {
             out.add(new FrameInfo(f.frameId(), f.parentFrameId(), f.hostNodeId(), CapturePrivacyPolicy.urlTemplate(f.url()), f.accessible(),
-                    f.reason(), CapturePrivacyPolicy.title(f.title()), f.readyState()));
+                    f.reason(), CapturePrivacyPolicy.title(f.title()), f.readyState(), f.registryEpoch()));
         }
         return out;
     }
