@@ -14,7 +14,7 @@ let loaded = false;
 
 /** Comandos expostos somente em DEV. */
 export const DEV_ONLY = new Set(['page.capture', 'session.forceFull', 'page.compare', 'target.resolve', 'pagemap.export', 'page.rawSnapshot', 'session.debug', 'page.highlightFrame',
-  'studio.tabRef']);
+  'studio.tabRef', 'frames.list']); // frames.list: URLs cruas do navegador — diagnóstico de teste, nunca em PRD (CHROME-SECURITY-001)
 
 export async function loadConfig() {
   if (loaded) {

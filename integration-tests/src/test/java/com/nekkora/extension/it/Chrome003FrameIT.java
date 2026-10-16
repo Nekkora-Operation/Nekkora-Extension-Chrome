@@ -40,13 +40,13 @@ class Chrome003FrameIT extends FrameIT {
                 "ELEMENT_BELONGS_TO_DOCUMENT", "ELEMENT_BELONGS_TO_FRAME", "SHADOW_ROOT_BELONGS_TO_DOCUMENT")) {
             assertTrue(relationTypes(g).contains(t), t + " em " + relationTypes(g));
         }
-        JsonNode pag = requireFrame(g, "Pagamentos");
-        JsonNode fin = requireFrame(g, "Financeiro");
+        JsonNode pag = requireFrame(p, g, "Pagamentos");
+        JsonNode fin = requireFrame(p, g, "Financeiro");
         assertEquals(2, pag.get("depth").asInt());
         assertEquals(fin.get("frameId").asText(), pag.get("parentFrameId").asText(), "Pagamentos é filho de Financeiro");
         assertEquals(fin.get("documentId").asText(), pag.get("parentDocumentId").asText());
         assertTrue(fin.get("childFrameIds").toString().contains(pag.get("frameId").asText()));
-        JsonNode widget = requireFrame(g, "Widget de suporte");
+        JsonNode widget = requireFrame(p, g, "Widget de suporte");
         assertTrue(widget.get("insideShadowRoot").asBoolean(), "iframe hospedado dentro de shadow root (cenário D)");
         assertEquals(1, g.at("/counts/shadowRootsClosed").asInt(), "shadow root fechado declarado, conteúdo não inventado");
     }
@@ -101,23 +101,23 @@ class Chrome003FrameIT extends FrameIT {
     void declaredEffectiveOrigin() {
         Page p = openActive(DYNAMIC, 5);
         JsonNode g = graph(p);
-        JsonNode blank = requireFrame(g, "Rascunho");
+        JsonNode blank = requireFrame(p, g, "Rascunho");
         assertEquals("ABOUT_BLANK", blank.get("documentKind").asText());
         assertTrue(blank.get("declaredSrc").isNull(), "nenhum src declarado");
         assertEquals("about:blank", blank.get("effectiveUrl").asText());
         assertEquals("http://127.0.0.1:" + BrowserLab.PORT, blank.get("origin").asText(), "about:blank herda a origem do pai");
-        JsonNode srcdoc = requireFrame(g, "Resumo");
+        JsonNode srcdoc = requireFrame(p, g, "Resumo");
         assertEquals("SRCDOC", srcdoc.get("documentKind").asText());
         assertTrue(srcdoc.get("srcdoc").asBoolean());
-        JsonNode pag = requireFrame(g, "Pagamentos");
+        JsonNode pag = requireFrame(p, g, "Pagamentos");
         assertEquals(pag.get("declaredSrc").asText(), pag.get("effectiveUrl").asText());
 
         act(p, "navegar");
         JsonNode after = waitGraph(p, x -> {
-            JsonNode f = frameTitled(x, "Pagamentos");
+            JsonNode f = frameTitled(p, x, "Pagamentos");
             return f != null && f.get("effectiveUrl").asText().endsWith("/widget.html");
         }, "navegação interna refletida na URL efetiva");
-        JsonNode nav = requireFrame(after, "Pagamentos");
+        JsonNode nav = requireFrame(p, after, "Pagamentos");
         evidence("F003-003-declared-vs-effective.json", Map.of("before", pag, "after", nav, "aboutBlank", blank, "srcdoc", srcdoc));
         assertTrue(nav.get("declaredSrc").asText().endsWith("/pagamentos.html"), "src declarado inalterado");
         assertTrue(nav.get("effectiveUrl").asText().endsWith("/widget.html"), "URL efetiva = documento atual");
@@ -247,7 +247,7 @@ class Chrome003FrameIT extends FrameIT {
         String id = idIn(p, "button[type=submit]", "FRAME", "#f-pedidos");
         String t = selectNode(p, id).at("/identity/targetId").asText();
         act(p, "remover");
-        JsonNode g = waitGraph(p, x -> frameTitled(x, "Pedidos") == null, "frame removido do grafo");
+        JsonNode g = waitGraph(p, x -> frameTitled(p, x, "Pedidos") == null, "frame removido do grafo");
         JsonNode r = resolve(p, t);
         evidence("F003-010-removed-frame.json", Map.of("resolution", r, "graph", g.get("counts")));
         assertNotEquals("RESOLVED", r.get("status").asText(), "o Salvar do iframe Cadastro (mesma URL) não é aceito no lugar");
@@ -258,16 +258,16 @@ class Chrome003FrameIT extends FrameIT {
     @DisplayName("F003-011 — Cenário H: iframe recriado por re-renderização de SPA ⇒ invalidado, identificado, validado e reconstruído")
     void scenarioH() {
         Page p = openActive(DYNAMIC, 5);
-        String hostBefore = requireFrame(graph(p), "Cadastro").get("hostNodeId").asText();
+        String hostBefore = requireFrame(p, graph(p), "Cadastro").get("hostNodeId").asText();
         String id = idIn(p, "button[type=submit]", "FRAME", "#spa-root iframe");
         String t = selectNode(p, id).at("/identity/targetId").asText();
         act(p, "spa");
         JsonNode g = waitGraph(p, x -> {
-            JsonNode f = frameTitled(x, "Cadastro");
+            JsonNode f = frameTitled(p, x, "Cadastro");
             return f != null && !hostBefore.equals(f.get("hostNodeId").asText()) && "INSPECTED".equals(f.get("status").asText());
         }, "iframe recriado e reinventariado");
         JsonNode r = resolve(p, t);
-        evidence("F003-011-spa-replaced-frame.json", Map.of("resolution", r, "frame", requireFrame(g, "Cadastro")));
+        evidence("F003-011-spa-replaced-frame.json", Map.of("resolution", r, "frame", requireFrame(p, g, "Cadastro")));
         assertEquals("RESOLVED", r.get("status").asText(), r.toString());
         assertNotEquals(id, r.get("resolvedNodeId").asText(), "nó novo (documento do frame reconstruído)");
         assertEquals(idIn(p, "button[type=submit]", "FRAME", "#spa-root iframe"), r.get("resolvedNodeId").asText());
@@ -279,10 +279,10 @@ class Chrome003FrameIT extends FrameIT {
     void scenarioI() {
         Page p = openActive(DYNAMIC, 5);
         JsonNode g = waitGraph(p, x -> {
-            JsonNode f = frameTitled(x, "Rascunho");
+            JsonNode f = frameTitled(p, x, "Rascunho");
             return f != null && f.path("browser").isObject();
         }, "about:blank associado ao frame do Chrome");
-        JsonNode f = requireFrame(g, "Rascunho");
+        JsonNode f = requireFrame(p, g, "Rascunho");
         assertEquals("URL_MATCH", f.at("/browser/mapping").asText());
         assertEquals("NO_CONTENT_SCRIPT", f.at("/browser/inspection").asText(), "sem content script (sem match_about_blank): capturado pelo pai");
         assertEquals("INSPECTED", f.get("status").asText());
@@ -298,7 +298,7 @@ class Chrome003FrameIT extends FrameIT {
     void srcdoc() {
         Page p = openActive(DYNAMIC, 5);
         JsonNode g = graph(p);
-        JsonNode f = requireFrame(g, "Resumo");
+        JsonNode f = requireFrame(p, g, "Resumo");
         assertEquals("SRCDOC", f.get("documentKind").asText());
         assertEquals("about:srcdoc", f.get("effectiveUrl").asText());
         JsonNode map = exportMap(p);
@@ -317,10 +317,10 @@ class Chrome003FrameIT extends FrameIT {
     void scenarioJ() {
         Page p = openActive(ORIGINS, 5);
         JsonNode g = waitGraph(p, x -> {
-            JsonNode f = frameTitled(x, "Parceiro externo");
+            JsonNode f = frameTitled(p, x, "Parceiro externo");
             return f != null && f.path("browser").isObject();
         }, "frame externo com metadados do Chrome");
-        JsonNode f = requireFrame(g, "Parceiro externo");
+        JsonNode f = requireFrame(p, g, "Parceiro externo");
         evidence("F003-014-no-permission.json", f);
         assertEquals("PERMISSION_DENIED", f.get("status").asText());
         assertEquals("NO_PERMISSION", f.at("/browser/inspection").asText());
@@ -337,11 +337,11 @@ class Chrome003FrameIT extends FrameIT {
     void sandbox() {
         Page p = openActive(ORIGINS, 5);
         JsonNode g = graph(p);
-        JsonNode closed = requireFrame(g, "Conteúdo isolado");
+        JsonNode closed = requireFrame(p, g, "Conteúdo isolado");
         assertEquals("SANDBOX_RESTRICTED", closed.get("status").asText());
         assertEquals("null", closed.get("origin").asText(), "origem opaca");
         assertEquals("allow-scripts", closed.get("sandbox").asText());
-        JsonNode same = requireFrame(g, "Isolado com mesma origem");
+        JsonNode same = requireFrame(p, g, "Isolado com mesma origem");
         assertEquals("INSPECTED", same.get("status").asText());
         assertTrue(same.get("elementCount").asInt() > 0);
         assertTrue(diagnose(p).at("/readiness/obstacles").toString().contains("SANDBOXED_FRAME"));
@@ -351,9 +351,9 @@ class Chrome003FrameIT extends FrameIT {
     @DisplayName("F003-016 — Outra origem permitida com iframe aninhado e Shadow DOM: trajetória entre documentos de origens diferentes")
     void otherOriginNested() {
         Page p = openActive(ORIGINS, 5);
-        JsonNode g = waitGraph(p, x -> frameTitled(x, "Gráficos") != null && "INSPECTED".equals(frameTitled(x, "Gráficos").get("status").asText()),
+        JsonNode g = waitGraph(p, x -> frameTitled(p, x, "Gráficos") != null && "INSPECTED".equals(frameTitled(p, x, "Gráficos").get("status").asText()),
                 "frame aninhado de outra origem inventariado");
-        JsonNode rel = requireFrame(g, "Relatórios");
+        JsonNode rel = requireFrame(p, g, "Relatórios");
         assertEquals("ATTACHED", rel.at("/browser/inspection").asText(), "capturado pelo content script do próprio frame");
         assertTrue(rel.get("origin").asText().endsWith(":" + (BrowserLab.PORT + 1)));
         String nodeId = null;
@@ -380,18 +380,18 @@ class Chrome003FrameIT extends FrameIT {
     void loadingFrame() {
         Page p = openActive(DYNAMIC, 5);
         act(p, "lento");
-        JsonNode loading = waitGraph(p, x -> frameTitled(x, "Relatório lento") != null, "frame lento declarado");
-        JsonNode f = requireFrame(loading, "Relatório lento");
+        JsonNode loading = waitGraph(p, x -> frameTitled(p, x, "Relatório lento") != null, "frame lento declarado");
+        JsonNode f = requireFrame(p, loading, "Relatório lento");
         JsonNode d = diagnose(p);
         evidence("F003-017-loading.json", Map.of("frame", f, "readiness", d.get("readiness")));
         assertEquals("LOADING", f.get("status").asText(), f.toString());
         assertTrue(d.at("/readiness/obstacles").toString().contains("FRAME_LOADING"));
         assertEquals("LOW", d.at("/readiness/confidence").asText());
         JsonNode done = waitGraph(p, x -> {
-            JsonNode y = frameTitled(x, "Relatório lento");
+            JsonNode y = frameTitled(p, x, "Relatório lento");
             return y != null && "INSPECTED".equals(y.get("status").asText()) && y.get("elementCount").asInt() > 0;
         }, "frame carregado e inventariado");
-        assertEquals("NETWORK", requireFrame(done, "Relatório lento").get("documentKind").asText());
+        assertEquals("NETWORK", requireFrame(p, done, "Relatório lento").get("documentKind").asText());
     }
 
     @Test
@@ -400,11 +400,11 @@ class Chrome003FrameIT extends FrameIT {
         Page p = openActive(DYNAMIC, 5);
         int full = session(p).get("fullCaptures").asInt();
         act(p, "inserir");
-        waitGraph(p, x -> frameTitled(x, "Inserido 1") != null && "INSPECTED".equals(frameTitled(x, "Inserido 1").get("status").asText()), "iframe inserido");
+        waitGraph(p, x -> frameTitled(p, x, "Inserido 1") != null && "INSPECTED".equals(frameTitled(p, x, "Inserido 1").get("status").asText()), "iframe inserido");
         act(p, "mudar-src");
-        waitGraph(p, x -> frameTitled(x, "Pedidos") != null && frameTitled(x, "Pedidos").get("effectiveUrl").asText().endsWith("/widget.html"), "src trocado");
+        waitGraph(p, x -> frameTitled(p, x, "Pedidos") != null && frameTitled(p, x, "Pedidos").get("effectiveUrl").asText().endsWith("/widget.html"), "src trocado");
         act(p, "navegar");
-        JsonNode g = waitGraph(p, x -> frameTitled(x, "Pagamentos") != null && frameTitled(x, "Pagamentos").get("effectiveUrl").asText().endsWith("/widget.html"),
+        JsonNode g = waitGraph(p, x -> frameTitled(p, x, "Pagamentos") != null && frameTitled(p, x, "Pagamentos").get("effectiveUrl").asText().endsWith("/widget.html"),
                 "navegação interna");
         JsonNode s = session(p);
         evidence("F003-018-continuous.json", Map.of("session", s, "frames", titles(g)));

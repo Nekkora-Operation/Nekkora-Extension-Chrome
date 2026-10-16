@@ -58,8 +58,8 @@ class Real001PilotIT extends FrameIT {
         Page p = openUrl(siteA());
         activate(p);
         waitGraph(p, g -> {
-            JsonNode b = frameTitled(g, "Parceiro autorizado");
-            return b != null && "INSPECTED".equals(b.path("status").asText()) && frameTitled(g, "Parceiro sem autorização") != null;
+            JsonNode b = frameTitled(p, g, "Parceiro autorizado");
+            return b != null && "INSPECTED".equals(b.path("status").asText()) && frameTitled(p, g, "Parceiro sem autorização") != null;
         }, "iframes do parceiro inventariados");
         return p;
     }
@@ -151,7 +151,7 @@ class Real001PilotIT extends FrameIT {
     void frameWithoutPermission() {
         Page p = openSiteActive();
         JsonNode g = graph(p);
-        JsonNode x = requireFrame(g, "Parceiro sem autorização");
+        JsonNode x = requireFrame(p, g, "Parceiro sem autorização");
         evidence("R001-03-frame-without-permission.json", x);
         assertEquals("PERMISSION_DENIED", x.get("status").asText(), x.toString());
         assertEquals(0, x.path("elementCount").asInt());
@@ -167,7 +167,7 @@ class Real001PilotIT extends FrameIT {
     @DisplayName("R001-04 — Iframe de outra origem AUTORIZADA: anexado pelo próprio content script, trajetória e reencontro")
     void frameWithPermission() {
         Page p = openSiteActive();
-        JsonNode b = requireFrame(graph(p), "Parceiro autorizado");
+        JsonNode b = requireFrame(p, graph(p), "Parceiro autorizado");
         assertEquals("ATTACHED", b.at("/browser/inspection").asText(), b.toString());
         assertFalse(b.toString().contains("SID-SECRETO"), "URL do frame sanitizada no grafo");
         String nodeId = nodeByName(p, "Aceitar oferta");
@@ -258,7 +258,7 @@ class Real001PilotIT extends FrameIT {
             // Frame: retirar o acesso ao parceiro durante a sessão ⇒ frame deixa de ser inspecionado (sem presunção).
             lab.siteAccess(pattern(BrowserLab.SITE_B), false);
             JsonNode g = waitGraph(p, x -> {
-                JsonNode b = frameTitled(x, "Parceiro autorizado");
+                JsonNode b = frameTitled(p, x, "Parceiro autorizado");
                 return b != null && "PERMISSION_DENIED".equals(b.path("status").asText());
             }, "frame revogado declarado sem permissão");
             assertEquals("ACTIVE", session(p).get("status").asText(), "a página continua autorizada");
@@ -267,7 +267,7 @@ class Real001PilotIT extends FrameIT {
             BrowserLab.waitUntil(Duration.ofSeconds(15), () -> "INACTIVE".equals(inspection(p).get("state").asText()), "inspeção encerrada");
             JsonNode st = inspection(p);
             JsonNode ended = lastEnded(p);
-            evidence("R001-09-revocation.json", Map.of("frameAfterRevoke", requireFrame(g, "Parceiro autorizado"), "inspection", st, "lastEnded", ended,
+            evidence("R001-09-revocation.json", Map.of("frameAfterRevoke", requireFrame(p, g, "Parceiro autorizado"), "inspection", st, "lastEnded", ended,
                     "access", access(p)));
             assertEquals("PERMISSION_REVOKED", st.at("/error/code").asText(), st.toString());
             assertEquals("PERMISSION_REVOKED", ended.get("reason").asText());

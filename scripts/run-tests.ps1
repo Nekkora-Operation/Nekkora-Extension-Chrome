@@ -25,6 +25,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Testes unitários falharam' }
   } else {
     & .\mvnw.cmd -q install -DskipTests
+    # Sem isto, uma falha de compilação seguia em silêncio e a homologação rodava com os JARs anteriores.
+    if ($LASTEXITCODE -ne 0) { throw 'Build falhou: a homologação não roda com artefatos antigos' }
   }
   if ($Suite -eq 'real') {
     # Página real: somente as classes *LiveWebIT (excluídas da suíte padrão por dependerem de internet).

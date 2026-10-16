@@ -12,7 +12,7 @@ final class Payloads {
      */
     private static final java.util.Set<String> IDENTIFIERS = java.util.Set.of("tabKey", "captureId", "baseCaptureId", "beforeCaptureId",
             "afterCaptureId", "nodeId", "hostNodeId", "targetId", "sessionId", "operationId", "source");
-    private static final java.util.regex.Pattern IDENTIFIER = java.util.regex.Pattern.compile("[A-Za-z0-9:._-]{1,160}");
+    private static final java.util.regex.Pattern IDENTIFIER = java.util.regex.Pattern.compile("[A-Za-z0-9:._+-]{1,160}"); // "+": captura com frame anexado (cap-…+x12)
 
     private Payloads() {
     }

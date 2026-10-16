@@ -89,7 +89,7 @@ class Chrome002ExportIT extends SessionIT {
         assertEquals("SYNCHRONIZED", r.get("syncState").asText());
         JsonNode map = r.get("pageMap");
         Contracts.assertValid("page-map.schema.json", map);
-        assertTrue(map.toString().contains("Tarefa 3"), "mutação incorporada ao mapa exportado");
+        assertExportedState(p, map, "li", "Tarefa 3", "mutação incorporada ao mapa exportado");
         assertEquals(1, session(p).get("fullCaptures").asInt(), "exportação sem captura completa");
         deactivate(p);
     }
@@ -109,7 +109,7 @@ class Chrome002ExportIT extends SessionIT {
         JsonNode map = assertExported(r);
         assertEquals("rec-022", r.get("recordingId").asText());
         assertFalse(r.get("duplicate").asBoolean());
-        assertTrue(map.toString().contains("Detalhar 2"), "estado final da página exportado");
+        assertExportedState(p, map, "tr", "Detalhar 2", "estado final da página exportado");
         // Finalizar a gravação libera a sessão (nenhum outro consumidor).
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> session(p).isMissingNode() || session(p).isNull(), "sessão liberada");
         assertEquals("RECORDING_FINISHED", lastEnded(p).get("reason").asText());
@@ -159,7 +159,7 @@ class Chrome002ExportIT extends SessionIT {
         lab.js(p, "document.getElementById('adicionar-linha').onclick(); document.getElementById('nome').setAttribute('placeholder', 'Nome completo (pendente)');");
         JsonNode r = recording("finished", "rec-024", p);
         JsonNode map = assertExported(r);
-        assertTrue(map.toString().contains("Detalhar 1"), "linha inserida antes da finalização");
+        assertExportedState(p, map, "tr", "Detalhar 1", "linha inserida antes da finalização");
         assertTrue(map.toString().contains("Nome completo (pendente)"), "atributo alterado antes da finalização");
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nekkora.extension.it.support.BrowserLab;
+import com.nekkora.extension.it.support.Policy;
 import com.nekkora.extension.it.support.BrowserLab.Page;
 import com.nekkora.extension.it.support.SessionIT;
 import org.junit.jupiter.api.AfterAll;
@@ -51,6 +52,19 @@ class Chrome002DynamicIT extends SessionIT {
         return lab.call("pagemap.export", p, "returnPageMap", true).get("pageMap");
     }
 
+    /**
+     * Botões #pagar no documento principal ({@code main}) ou nos frames — pelo id do desenvolvedor (do vocabulário), não
+     * pelo nome: "Pagar no frame" é texto fora do vocabulário (CHROME-SECURITY-001).
+     */
+    private static long pagar(JsonNode map, boolean main) {
+        return Policy.count(map, e -> "pagar".equals(e.at("/attributes/id").asText()) && "f0".equals(e.path("frameId").asText()) == main);
+    }
+
+    /** Frames da cobertura do mapa. */
+    private static int coveredFrames(JsonNode map) {
+        return map.at("/coverage/frames").size();
+    }
+
     /** Elementos do PageMap cujo nome acessível é exatamente {@code name}. */
     private static int named(JsonNode map, String name) {
         int n = 0;
@@ -91,17 +105,21 @@ class Chrome002DynamicIT extends SessionIT {
         sync(p);
         JsonNode sel = selectNode(p, idIn(p, "#confirmar", "SHADOW_HOST", "#painel"));
         assertEquals("BUTTON", sel.at("/inspection/classification/kind").asText());
-        assertEquals("Confirmar painel", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Confirmar painel"), sel.at("/inspection/classification/name/name").asText());
         JsonNode nested = selectNode(p, idIn(p, "#confirmar", "SHADOW_HOST", "#externo", "SHADOW_HOST", "#interno"));
-        assertEquals("Confirmar painel", nested.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Confirmar painel"), nested.at("/inspection/classification/name/name").asText());
         act(p, "alterar");
         sync(p);
         JsonNode extra = selectNode(p, idIn(p, "#extra", "SHADOW_HOST", "#painel"));
-        assertEquals("Botão interno novo", extra.at("/inspection/classification/name/name").asText());
-        assertTrue(elementTexts(exportMap(p)).contains("Painel alterado"), "texto alterado dentro do shadow root");
+        assertEquals(Policy.name("Botão interno novo"), extra.at("/inspection/classification/name/name").asText());
+        // texto alterado dentro do shadow root: chega como FATO de mudança ([omitido]), nunca como conteúdo
+        JsonNode afterShadow = exportMap(p);
+        assertTrue(afterShadow.path("mutations").toString().contains(com.nekkora.extension.core.privacy.CapturePrivacyPolicy.WITHHELD),
+                "mudança de texto no shadow root registrada");
+        assertFalse(afterShadow.toString().contains("Painel alterado"), "conteúdo alterado retido");
         // Slots: conteúdo projetado inventariado.
         JsonNode slotted = select(p, "#com-slot button");
-        assertEquals("Ação projetada", slotted.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Ação projetada"), slotted.at("/inspection/classification/name/name").asText());
         assertEquals(1, session(p).get("fullCaptures").asInt(), "somente deltas");
         deactivate(p);
     }
@@ -157,7 +175,7 @@ class Chrome002DynamicIT extends SessionIT {
         assertTrue(latencyMs <= 3000, "latência de detecção: " + latencyMs);
         assertTrue(diagnostics(p).at("/tracker/shadowRootsDiscovered").asInt() >= 1);
         JsonNode sel = selectNode(p, id[0]);
-        assertEquals("Botão do shadow tardio", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Botão do shadow tardio"), sel.at("/inspection/classification/name/name").asText());
         // Shadow root fechado criado dinamicamente continua declarado (sem conteúdo).
         act(p, "fechado");
         sync(p);
@@ -207,7 +225,7 @@ class Chrome002DynamicIT extends SessionIT {
         activate(p);
         waitAttached(p, "outra=1");
         JsonNode sel = selectIn(p, "#pagar", "FRAME", "#f-mesma");
-        assertEquals("Pagar no frame", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Pagar no frame"), sel.at("/inspection/classification/name/name").asText());
         assertFalse(sel.at("/inspection/nodeId").asText().startsWith("x"), "nó do documento principal");
         JsonNode f = sessionFrame(p, chromeFrameId(p, "mesma=1"));
         assertEquals("CAPTURED_BY_PARENT", f.get("status").asText(), "o content script do frame não duplica o inventário");
@@ -228,11 +246,11 @@ class Chrome002DynamicIT extends SessionIT {
         assertTrue(nodeId.startsWith("x" + fid + "n"), nodeId);
         JsonNode sel = selectNode(p, nodeId);
         assertEquals("BUTTON", sel.at("/inspection/classification/kind").asText());
-        assertEquals("Pagar no frame", sel.at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Pagar no frame"), sel.at("/inspection/classification/name/name").asText());
         BrowserLab.waitUntil(Duration.ofSeconds(5), () -> lab.call("page.diagnostics", p, "frameId", fid).at("/highlight/overlayPresent").asBoolean(), "destaque desenhado dentro do frame");
         // Shadow DOM dentro do frame de outra origem
         JsonNode shadow = lab.call("page.idFor", p, "css", "#acao-shadow", "frameId", fid, "scope", Map.of("chain", List.of(Map.of("kind", "SHADOW_HOST", "css", "#cartao-frame"))));
-        assertEquals("Ação no shadow do frame", selectNode(p, shadow.at("/nodeIds/0").asText()).at("/inspection/classification/name/name").asText());
+        assertEquals(Policy.name("Ação no shadow do frame"), selectNode(p, shadow.at("/nodeIds/0").asText()).at("/inspection/classification/name/name").asText());
         // Mutação dentro do frame → delta da fonte do frame
         lab.focus(p);
         lab.driver().switchTo().frame(lab.driver().findElement(By.id("f-outra")));
@@ -240,10 +258,18 @@ class Chrome002DynamicIT extends SessionIT {
         lab.driver().switchTo().defaultContent();
         sync(p);
         JsonNode map = exportMap(p);
-        assertTrue(elementTexts(map).contains("Item do frame 1"), "delta do frame incorporado");
+        // delta do frame incorporado: a lista do frame no mapa tem os mesmos itens que a página (o texto do item fica retido)
+        lab.focus(p);
+        lab.driver().switchTo().frame(lab.driver().findElement(By.id("f-outra")));
+        long liveItems = ((Number) ((org.openqa.selenium.JavascriptExecutor) lab.driver()).executeScript("return document.querySelectorAll('li').length")).longValue();
+        lab.driver().switchTo().defaultContent();
+        String framePrefix = "c" + fid;
+        assertEquals(liveItems, Policy.count(map, e -> "li".equals(e.path("tag").asText()) && e.path("frameId").asText().startsWith(framePrefix)
+                && !e.path("frameId").asText().startsWith(framePrefix + "f")), "delta do frame incorporado");
+        assertFalse(map.toString().contains("Item do frame"), "texto do item retido");
         // Ids duplicados entre documentos: um botão #pagar por documento inspecionado, nenhum repetido.
-        assertEquals(1, named(map, "Pagar (página principal)"));
-        assertEquals(3, named(map, "Pagar no frame"), "mesma origem + outra origem + neto (sandbox e sem permissão excluídos)");
+        assertEquals(1, pagar(map, true));
+        assertEquals(3, pagar(map, false), "mesma origem + outra origem + neto (sandbox e sem permissão excluídos)");
         lab.writeEvidence("C002-030-frames.json", M.writerWithDefaultPrettyPrinter().writeValueAsString(framesList(p)));
         lab.screenshot(p, "C002-030-iframe-other-origin-highlight");
         deactivate(p);
@@ -257,22 +283,31 @@ class Chrome002DynamicIT extends SessionIT {
         waitAttached(p, "outra=1");
         act(p, "inserir");
         waitAttached(p, "dinamico=1");
+        // CHROME-SECURITY-001: as URLs dos frames chegam como modelo (o valor "dinamico=1" não atravessa) — inserção, remoção e
+        // substituição são verificadas pela cobertura, pela fonte do frame e pelos nós de cada documento
         JsonNode withDynamic = exportMap(p);
-        assertTrue(frameUrls(withDynamic).contains("dinamico=1"));
-        int withFrame = named(withDynamic, "Pagar no frame");
+        assertFalse(withDynamic.toString().contains("dinamico=1"), "valor de parâmetro da URL do frame retido");
+        int framesWithDynamic = coveredFrames(withDynamic);
+        long withFrame = pagar(withDynamic, false);
+        String dynamicSource = "c" + chromeFrameId(p, "dinamico=1");
+        assertTrue(Policy.count(withDynamic, e -> e.path("frameId").asText().equals(dynamicSource)) > 0, "documento do frame inserido no mapa");
         act(p, "remover");
         sync(p);
         JsonNode afterRemoval = exportMap(p);
-        assertFalse(frameUrls(afterRemoval).contains("dinamico=1"), "frame removido descartado do estado: " + frameUrls(afterRemoval));
-        int before = named(afterRemoval, "Pagar no frame");
+        assertEquals(framesWithDynamic - 1, coveredFrames(afterRemoval), "frame removido descartado do estado");
+        assertEquals(0, Policy.count(afterRemoval, e -> e.path("frameId").asText().equals(dynamicSource)), "nós do frame removido descartados");
+        long before = pagar(afterRemoval, false);
         assertEquals(withFrame - 1, before, "nós do frame removido descartados");
+        String oldSource = "c" + chromeFrameId(p, "outra=1");
         act(p, "substituir");
         waitAttached(p, "outra=2");
         sync(p);
         JsonNode replaced = exportMap(p);
-        assertTrue(frameUrls(replaced).contains("outra=2"), frameUrls(replaced));
-        assertFalse(frameUrls(replaced).contains("outra=1"), "documento anterior do frame descartado: " + frameUrls(replaced));
-        assertEquals(before, named(replaced, "Pagar no frame"), "substituição sem duplicar nós");
+        String newSource = "c" + chromeFrameId(p, "outra=2");
+        assertTrue(Policy.count(replaced, e -> e.path("frameId").asText().equals(newSource)) > 0, "documento novo do frame no mapa");
+        assertEquals(0, Policy.count(replaced, e -> e.path("frameId").asText().equals(oldSource) && !oldSource.equals(newSource)),
+                "documento anterior do frame descartado");
+        assertEquals(before, pagar(replaced, false), "substituição sem duplicar nós");
         deactivate(p);
     }
 
@@ -324,11 +359,15 @@ class Chrome002DynamicIT extends SessionIT {
         JsonNode sel = select(p, css);
         JsonNode name = sel.at("/inspection/classification/name");
         String chrome = chromeName(p, css);
+        // CHROME-SECURITY-001: o motor só recebe metadado de interface do vocabulário controlado — o nome dele é o do Chrome
+        // quando esse nome passa INTEIRO na política, e vazio quando não passa (nunca parcial, nunca outro texto)
+        String expectedEngine = com.nekkora.extension.core.privacy.CapturePrivacyPolicy.interfaceText(expected);
         ObjectNode row = ACC_TABLE.addObject();
         row.put("element", css).put("expected", expected).put("nekkora", name.get("name").asText()).put("chrome", chrome)
+                .put("policy", expectedEngine == null ? "WITHHELD" : "VOCABULARY")
                 .put("source", name.get("source").asText()).put("confidence", name.path("confidence").asText())
                 .put("agreesWithChrome", name.get("name").asText().equals(chrome.trim().replaceAll("\\s+", " ")));
-        assertEquals(expected, name.get("name").asText(), css + " " + name);
+        assertEquals(expectedEngine == null ? "" : expectedEngine, name.get("name").asText(), css + " " + name);
         // O Chrome não apara espaços de fronteira em alguns casos (ex.: texto após ícone aria-hidden): compara normalizado.
         assertEquals(expected, chrome.trim().replaceAll("\\s+", " "), "referência do Chrome para " + css);
         assertTrue(name.has("confidence"), "confiança registrada");
@@ -347,7 +386,8 @@ class Chrome002DynamicIT extends SessionIT {
     void accnameMultiple() {
         Page p = open(ACC);
         JsonNode n = compareName(p, "#b-multiplo", "Remessa internacional");
-        assertEquals(2, n.get("sourceNodeIds").size(), "duas fontes registradas");
+        // "Remessa internacional" não é do vocabulário: nome retido INTEIRO (nenhuma das duas fontes vira nome parcial)
+        assertEquals(0, n.get("sourceNodeIds").size(), "nome retido não aponta fontes: " + n);
         compareName(p, "#b-self", "Enviar internacional");
     }
 
@@ -386,7 +426,8 @@ class Chrome002DynamicIT extends SessionIT {
             compareName(p, e.getKey(), e.getValue());
         }
         JsonNode described = select(p, "#c-descrito").at("/inspection/classification/name");
-        assertEquals("Usaremos para notificações", described.get("description").asText());
+        // descrição acessível é texto livre da página (aria-describedby): nunca atravessa
+        assertEquals("", described.get("description").asText());
     }
 
     // ------------------------------------------------------------------------------- reencontro

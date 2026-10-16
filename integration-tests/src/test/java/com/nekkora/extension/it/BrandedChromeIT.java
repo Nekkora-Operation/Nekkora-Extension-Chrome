@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -261,7 +262,11 @@ class BrandedChromeIT {
         // 7. Exportação DEV (manual) — contrato válido, estado incremental incluído.
         JsonNode map = call("pagemap.export", Map.of("tabId", tabId, "returnPageMap", true)).get("pageMap");
         Contracts.assertValid("page-map.schema.json", map);
-        assertTrue(map.toString().contains("Tarefa 3"));
+        // CHROME-SECURITY-001: o item inserido está no mapa (mesma quantidade de itens que a página real); o texto dele não
+        driver.switchTo().window(page);
+        long liveItems = ((Number) ((JavascriptExecutor) driver).executeScript("return document.querySelectorAll('li').length")).longValue();
+        assertEquals(liveItems, com.nekkora.extension.it.support.Policy.countTag(map, "li"), "estado incremental incluído");
+        assertFalse(map.toString().contains("Tarefa 3"), "texto do item retido");
         // 8. Desativação pelo painel nativo e liberação de recursos.
         harnessAsync("window.nekkora.panel('panel.click', {id: 'btn-inspect'}).then(done);");
         BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "INACTIVE".equals(call("inspection.state", Map.of("tabId", tabId)).get("state").asText()), "desativado");

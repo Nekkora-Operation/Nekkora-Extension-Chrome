@@ -102,7 +102,7 @@ class Chrome003IntegratedIT extends FrameIT {
     @DisplayName("I003-04 — Outra origem permitida: Relatórios → Gráficos → Shadow DOM → Exportar gráfico")
     void relatorios() {
         Page p = openActive(ORIGINS, 5);
-        waitGraph(p, x -> frameTitled(x, "Gráficos") != null && "INSPECTED".equals(frameTitled(x, "Gráficos").get("status").asText()), "Gráficos");
+        waitGraph(p, x -> frameTitled(p, x, "Gráficos") != null && "INSPECTED".equals(frameTitled(p, x, "Gráficos").get("status").asText()), "Gráficos");
         String id = null;
         for (JsonNode e : exportMap(p).get("elements")) {
             if ("Exportar gráfico".equals(e.at("/text/accessibleName").asText())) {
@@ -118,10 +118,10 @@ class Chrome003IntegratedIT extends FrameIT {
     @DisplayName("I003-05 — SPA: Salvar do iframe Cadastro após re-renderização (frame reconstruído)")
     void spa() {
         Page p = openActive(DYNAMIC, 5);
-        String before = requireFrame(graph(p), "Cadastro").get("hostNodeId").asText();
+        String before = requireFrame(p, graph(p), "Cadastro").get("hostNodeId").asText();
         act(p, "spa");
-        waitGraph(p, x -> frameTitled(x, "Cadastro") != null && !before.equals(frameTitled(x, "Cadastro").get("hostNodeId").asText())
-                && "INSPECTED".equals(frameTitled(x, "Cadastro").get("status").asText()), "Cadastro recriado");
+        waitGraph(p, x -> frameTitled(p, x, "Cadastro") != null && !before.equals(frameTitled(p, x, "Cadastro").get("hostNodeId").asText())
+                && "INSPECTED".equals(frameTitled(p, x, "Cadastro").get("status").asText()), "Cadastro recriado");
         run("I003-05", p, idIn(p, "button[type=submit]", "FRAME", "#spa-root iframe"), new Expect("BUTTON", "Salvar",
                 List.of("MAIN_DOCUMENT", "IFRAME", "ELEMENT"), 6, "MANAGEABLE", "NOT_OBSERVED"));
     }

@@ -392,9 +392,9 @@ for (const evt of ['onHistoryStateUpdated', 'onReferenceFragmentUpdated']) {
       return;
     }
     const kind = evt === 'onHistoryStateUpdated' ? 'SPA_ROUTE' : 'FRAGMENT';
-    broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraPrivacy.sanitizeUrl(d.url), at: Date.now(), transitionType: d.transitionType });
+    broadcast('navigation', { tabId: d.tabId, kind, url: globalThis.NekkoraCapturePolicy.urlTemplate(d.url), at: Date.now(), transitionType: d.transitionType });
     ready.then(() => {
-      studioRecording.onNavigation(d.tabId, kind, globalThis.NekkoraPrivacy.sanitizeUrl(d.url));
+      studioRecording.onNavigation(d.tabId, kind, globalThis.NekkoraCapturePolicy.urlTemplate(d.url));
       return capture.onNavigation(d.tabId, kind);
     }).catch(() => {});
   }, HTTP_FILTER);

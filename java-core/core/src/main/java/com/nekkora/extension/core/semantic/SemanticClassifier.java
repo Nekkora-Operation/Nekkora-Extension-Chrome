@@ -123,6 +123,12 @@ public final class SemanticClassifier {
             role = landmarkRole(node, explicitRole);
         }
         AccessibleName name = names.compute(node, kind, role, model);
+        if (!name.name().isEmpty() && incompleteName(node, name, model)) {
+            // CHROME-SECURITY-001: parte das fontes do nome é texto da página retido pela política — um nome PARCIAL
+            // enganaria (e contraria a validação integral): o nome inteiro é retido e a limitação registrada
+            evidence.add("nome acessível retido: parte das fontes ficou fora da política de privacidade");
+            name = new AccessibleName("", NameSource.NONE, List.of(), "", List.of(), "NONE");
+        }
         if (kind.category() == ElementCategory.INTERACTIVE && name.name().isEmpty() && kind != ElementKind.OPTION) {
             uncertainties.add("Controle sem nome acessível");
         }
@@ -353,6 +359,20 @@ public final class SemanticClassifier {
             return ElementKind.TEXT;
         }
         return ElementKind.GENERIC_CONTAINER;
+    }
+
+    /** O nome veio (também) de alguma fonte com texto retido? Conteúdo do próprio nó, rótulos e referências. */
+    private static boolean incompleteName(RawNode node, AccessibleName name, PageModel model) {
+        if (name.source() == NameSource.CONTENT && model.textSuppressedWithin(node)) {
+            return true;
+        }
+        for (String id : name.sourceNodeIds()) {
+            RawNode s = model.find(id).orElse(null);
+            if (s != null && model.textSuppressedWithin(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ElementKind refineText(RawNode node, ElementKind kind, CrossReferences refs, List<String> evidence) {

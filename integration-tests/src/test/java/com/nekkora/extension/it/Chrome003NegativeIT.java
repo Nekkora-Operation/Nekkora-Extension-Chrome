@@ -89,7 +89,7 @@ class Chrome003NegativeIT extends FrameIT {
         Page p = openActive(DYNAMIC, 5);
         String t = selectNode(p, idIn(p, "button[type=submit]", "FRAME", "#f-pedidos")).at("/identity/targetId").asText();
         act(p, "mudar-src");
-        waitGraph(p, x -> frameTitled(x, "Pedidos") != null && frameTitled(x, "Pedidos").get("effectiveUrl").asText().endsWith("/widget.html"),
+        waitGraph(p, x -> frameTitled(p, x, "Pedidos") != null && frameTitled(p, x, "Pedidos").get("effectiveUrl").asText().endsWith("/widget.html"),
                 "documento do frame substituído");
         JsonNode r = resolve(p, t);
         evidence("N003-F-frame-document-changed.json", r);
@@ -111,9 +111,9 @@ class Chrome003NegativeIT extends FrameIT {
     @DisplayName("N003-H — Permissão da página não se estende ao frame: nenhum content script no frame de 127.0.0.2")
     void noContentScriptInUnpermittedFrame() {
         Page p = openActive(ORIGINS, 5);
-        JsonNode g = waitGraph(p, x -> frameTitled(x, "Parceiro externo") != null && frameTitled(x, "Parceiro externo").path("browser").isObject(),
+        JsonNode g = waitGraph(p, x -> frameTitled(p, x, "Parceiro externo") != null && frameTitled(p, x, "Parceiro externo").path("browser").isObject(),
                 "metadados do frame externo");
-        int frameId = requireFrame(g, "Parceiro externo").at("/browser/browserFrameId").asInt();
+        int frameId = requireFrame(p, g, "Parceiro externo").at("/browser/browserFrameId").asInt();
         JsonNode r = lab.callRaw("page.diagnostics", Map.of("tabId", p.tabId(), "frameId", frameId));
         assertFalse(r.path("ok").asBoolean(), "content script presente no frame sem permissão: " + r);
     }

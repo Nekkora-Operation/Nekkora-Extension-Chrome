@@ -164,6 +164,25 @@ class SnapshotPrivacyTest {
     }
 
     @Test
+    @DisplayName("SEC001-078 — sem texto, a resolução não inventa identidade: trocar o campo por um botão não confirma OUTRO campo")
+    void resolutionNeverInventsIdentity() {
+        // NegativeCasesIT.caseC no Chrome real: o rótulo "E-mail de contato" e o id "email-contato" ficam fora do vocabulário;
+        // só sobrava um texto de contexto, e o campo "Nome" era confirmado no lugar do e-mail
+        HtmlSnapshot h = HtmlSnapshot.of("""
+                <form id=cadastro><label for=campo-principal>Nome</label><input id=campo-principal name=campoPrincipal>
+                <label for=email-contato>E-mail de contato</label><input id=email-contato type=email name=emailContato></form>""");
+        var before = com.nekkora.extension.core.testing.Engine.analyze(SnapshotPrivacy.apply(h.capture()));
+        String email = h.idOf(h.dom().selectFirst("#email-contato"));
+        var id = com.nekkora.extension.core.testing.Engine.register(before, email);
+        h.dom().selectFirst("#email-contato").replaceWith(org.jsoup.Jsoup.parse("<button type=button id=email-contato>Enviar e-mail</button>")
+                .selectFirst("button"));
+        var r = com.nekkora.extension.core.testing.Engine.resolve(id, com.nekkora.extension.core.testing.Engine.analyze(SnapshotPrivacy.apply(h.capture())));
+        String other = h.idOf(h.dom().selectFirst("#campo-principal"));
+        assertFalse(other.equals(r.resolvedNodeId()), "o campo Nome NÃO pode ser confirmado como o alvo: " + r.evidence());
+        assertFalse(r.status() == com.nekkora.extension.core.resolve.ResolutionStatus.RESOLVED, r.status() + " " + r.evidence());
+    }
+
+    @Test
     @DisplayName("SEC001-044/074 — o motor continua localizando: localizadores do snapshot filtrado só têm literais transportáveis")
     void engineStillLocatesSafely() {
         PageAnalysis a = new PageAnalyzer().analyze(sanitized());

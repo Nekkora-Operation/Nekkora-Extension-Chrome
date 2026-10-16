@@ -260,6 +260,11 @@ public final class TargetResolver {
                 evaluations, changes, evidence, updated, updatedIdentity, diagnostics);
     }
 
+    /** Características que identificam o PRÓPRIO elemento (não só onde ele está). */
+    static final java.util.Set<IdentityFeature> IDENTITY_BEARING = java.util.EnumSet.of(IdentityFeature.TEST_ATTRIBUTE, IdentityFeature.ROW_KEY,
+            IdentityFeature.ROW_TEXTS, IdentityFeature.LABEL, IdentityFeature.NAME, IdentityFeature.TEXT, IdentityFeature.NAME_ATTRIBUTE,
+            IdentityFeature.ID_ATTRIBUTE, IdentityFeature.COLUMN);
+
     private static String verdict(TargetIdentity identity, List<FeatureResult> features, double score, List<String> reasons) {
         boolean disqualified = false;
         if (outcome(features, IdentityFeature.NAME) == FeatureOutcome.MISMATCH) {
@@ -293,6 +298,13 @@ public final class TargetResolver {
         }
         if (disqualified) {
             return "DISQUALIFIED";
+        }
+        // CHROME-SECURITY-001: sem texto da página, uma identidade pode ficar com quase nenhuma característica e a razão da
+        // pontuação ficar alta com evidência mínima (ex.: só um texto de contexto). Confirmar exige ao menos UMA
+        // característica do PRÓPRIO elemento; contêiner, contexto e tipo, sozinhos, não provam que é o mesmo elemento.
+        if (features.stream().noneMatch(r -> IDENTITY_BEARING.contains(r.feature()) && r.outcome() == FeatureOutcome.MATCH)) {
+            reasons.add("nenhuma característica de identidade do próprio elemento confirmada (só contêiner, contexto ou tipo)");
+            unproven = true;
         }
         if (!identity.discriminators().isEmpty() && !anyDiscriminatorMatch) {
             reasons.add("nenhum discriminador confirmado");

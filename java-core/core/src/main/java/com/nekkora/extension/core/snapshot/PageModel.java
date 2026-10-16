@@ -27,6 +27,8 @@ public final class PageModel {
     private final Map<String, List<String>> nodesByScope;    // scope -> nodes
     private final Map<String, String> textCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, String> visibleTextCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, Boolean> suppressedCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Set<String> VALUE_SUBTREES = java.util.Set.of("select", "option", "optgroup", "datalist", "textarea");
 
     private PageModel(RawSnapshot snapshot) {
         this.snapshot = snapshot;
@@ -287,6 +289,28 @@ public final class PageModel {
     /** Todas as ocorrências de um IDREF (permite detectar referências ambíguas por id duplicado). */
     public List<RawNode> resolveIdRefAll(RawNode from, String idValue) {
         return byIdAttribute(from.scopeId(), idValue);
+    }
+
+    /**
+     * CHROME-SECURITY-001: a subárvore do nó (sem subárvores de VALOR — listas, áreas de texto, editores) tem texto retido
+     * pela política? Um nome composto dela estaria incompleto. Memorizado por nó (O(n) no total).
+     */
+    public boolean textSuppressedWithin(RawNode node) {
+        Boolean cached = suppressedCache.get(node.id());
+        if (cached != null) {
+            return cached;
+        }
+        boolean r = Boolean.TRUE.equals(node.textSuppressed());
+        if (!r) {
+            for (RawNode c : children(node)) {
+                if (!VALUE_SUBTREES.contains(c.tag()) && !"true".equals(c.attr("contenteditable")) && textSuppressedWithin(c)) {
+                    r = true;
+                    break;
+                }
+            }
+        }
+        suppressedCache.put(node.id(), r);
+        return r;
     }
 
     public boolean isHidden(RawNode node) {
