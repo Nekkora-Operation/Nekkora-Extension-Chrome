@@ -117,7 +117,7 @@
       for (const k of ['debug', 'debugReview', 'debugCandidate']) {
         NS.highlighter.hide(k);
       }
-      const kind = a.style === 'review' ? 'debugReview' : a.style === 'candidate' ? 'debugCandidate' : 'debug';
+      const kind = a.style === 'review' ? 'debugReview' : a.style === 'candidate' ? 'debugCandidate' : 'debug'; // 'confirmed' e 'selected': sólido
       NS.highlighter.show(kind, el, typeof a.label === 'string' ? a.label.slice(0, 60) : '', a.nodeId);
       const r = el.getBoundingClientRect();
       const o = NS.capture.frameOffset(el);

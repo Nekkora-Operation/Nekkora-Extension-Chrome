@@ -40,8 +40,12 @@ const KIND = /^[A-Z_]{1,40}$/;
 const REQUEST_RETENTION = 50;
 const OPS_RETENTION = 20;
 
-/** Rótulos curtos do destaque (desenhados DENTRO da página pelo overlay; nunca atravessam limite). Só códigos. */
-const LABELS = { confirmed: 'Nekkora · alvo da etapa', review: 'Nekkora · requer revisão', candidate: 'Nekkora · candidato' };
+/**
+ * O destaque do debug NÃO tem etiqueta dentro da página (decisão D-S009-09): qualquer texto sobreposto cobre conteúdo da
+ * página (homologação G2: cobria o rótulo do campo e, ao lado, os botões vizinhos). O estilo da caixa diz o estado —
+ * sólido (alvo/selecionado), tracejado (requer revisão), pontilhado (candidato) — e a explicação fica na janela do Studio.
+ */
+const LABELS = { confirmed: '', review: '', candidate: '', selected: '' };
 
 /**
  * Fábrica (dependências injetáveis para os testes em Node).
@@ -428,6 +432,15 @@ export function createStudioDebug(deps) {
     }
   }
 
+  async function clearSelection(s) {
+    const live = capture.get(s.tabId);
+    const frames = [0, ...(live ? Object.values(live.frames || {}).filter((f) => f.status === 'ATTACHED').map((f) => f.frameId) : [])];
+    for (const f of frames) {
+      await toContent(s.tabId, 'cs.clearHighlight', { kind: 'selection' }, f).catch(() => {});
+      await toContent(s.tabId, 'cs.clearHighlight', { kind: 'hover' }, f).catch(() => {});
+    }
+  }
+
   async function stopInspector(s) {
     const live = capture.get(s.tabId);
     const frames = [0, ...(live ? Object.values(live.frames || {}).filter((f) => f.status === 'ATTACHED').map((f) => f.frameId) : [])];
@@ -499,7 +512,7 @@ export function createStudioDebug(deps) {
     const element = steps.elementRefOf({ descriptor: {}, interaction: { sensitive: false } }, c);
     const state = await host('debug.node.state', { tabKey: tabKey(s.tabId), captureId: d.captureId, nodeId, actionType }, { timeoutMs: 5000 })
       .catch(() => null);
-    const box = await mark(s, nodeId, 'confirmed');
+    const box = await mark(s, nodeId, 'selected');
     if (s.pageEpoch !== epoch || s.state === 'ENDED') {
       return; // a página mudou antes de terminar: nada é entregue como escolhido
     }
@@ -576,7 +589,8 @@ export function createStudioDebug(deps) {
     s.picking = false;
     const requestId = s.pickRequestId;
     s.pickRequestId = null;
-    stopInspector(s).catch(() => {});
+    // o inspetor desenha a própria caixa de seleção no clique: ela sai, o debug mostra a sua
+    stopInspector(s).then(() => clearSelection(s)).catch(() => {});
     describeAndEmit(s, nodeId, requestId, s.pickAction || 'UNKNOWN', 'BROWSER_SELECTION').catch(() => {
       changed(s, s.reason); // a seleção falhou: o Studio vê o estado (picking=false) e pode tentar de novo
     });

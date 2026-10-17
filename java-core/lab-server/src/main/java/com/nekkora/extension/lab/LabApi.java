@@ -40,6 +40,10 @@ final class LabApi {
         return switch (path) {
             case "/api/clientes" -> new Response(200, clientes(q), delay);
             case "/api/cidades" -> new Response(200, cidades(q), delay);
+            // STUDIO-009: caso "Consulta de registro" — o ORÁCULO do laboratório vive aqui, no servidor (não na página)
+            case "/api/studio009/consulta" -> new Response(200, Studio009.consulta(q.getOrDefault("codigo", "")), delay);
+            case "/api/studio009/estado" -> new Response(200, Studio009.estado(), 0);
+            case "/api/studio009/reset" -> new Response(200, Studio009.reset(), 0);
             default -> new Response(404, "{\"error\":\"rota inexistente\"}", 0);
         };
     }
