@@ -440,12 +440,16 @@ class Studio010SafeCaptureIT extends SessionIT {
 
     /** Página do login com a thread ocupada (preparação lenta) + uma 2ª aba do laboratório na MESMA janela. */
     private Page[] slowWithSecondTab() throws Exception {
+        return slowWithSecondTab(700);
+    }
+
+    private Page[] slowWithSecondTab(int busyMs) throws Exception {
         Page a = page(LOGIN);
         Page b = lab.openTab(a, CONSULTA);
         opened.add(b);
         lab.focus(a);
         assertEquals("visible", lab.js(a, "return document.visibilityState"), "a aba A está à frente");
-        lab.js(a, "window.nkLenta(true)");
+        lab.js(a, "window.nkLenta(true, " + busyMs + ")");
         return new Page[] {a, b};
     }
 
@@ -475,11 +479,11 @@ class Studio010SafeCaptureIT extends SessionIT {
     @Test
     @DisplayName("R1-02 troca de aba no meio de uma preparação demorada: ACTIVE_TAB_CHANGED; depois, captura limpa na aba original funciona")
     void trocaDuranteAPreparacao() throws Exception {
-        Page[] t = slowWithSecondTab();
+        Page[] t = slowWithSecondTab(2500); // cada mensagem ao content script espera até 2,5 s: preparação de vários segundos
         String cid = id("cap");
         assertTrue(arm(t[0], cid, LOGIN_STEPS).path("ok").asBoolean());
         gesture(t[0]);
-        Thread.sleep(900); // já dentro da preparação (página ocupada)
+        Thread.sleep(1200); // já dentro da preparação (página ocupada)
         lab.focus(t[1]);
         JsonNode e = captured(cid);
         noImage(e);

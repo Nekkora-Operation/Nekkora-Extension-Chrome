@@ -23,6 +23,12 @@ Nenhuma permissão de host nova. Recusados: `<all_urls>`, `debugger`, captura de
 | host `PddVisualPrivacy` | 3ª barreira: reabre o PNG, confere dimensões, política, tamanho e refaz a verificação de pixels antes de repassar ao Studio |
 | `contracts/studio-bridge.schema.json` | `PddArmPayload`, `PddArmResult`, `PddCaptureRef`, `PddCancelResult`, `PddCapturedPayload` |
 
+**Identidade da aba (revisão R1, D-S010-15).** `captureVisibleTab` captura a aba ATIVA da janela. A aba armada é
+conferida no início da preparação, logo antes e logo depois da captura e antes de publicar; `chrome.tabs.onActivated`,
+`onDetached` e `onAttached` invalidam a captura em andamento (ida e volta A→B→A inclusive). Divergência →
+`ACTIVE_TAB_CHANGED`, imagem bruta descartada sem decodificar. `studio.pdd.capture.cancel` vale também com a captura em
+andamento (`CANCELLED`, nada publicado).
+
 A imagem bruta vive só dentro de `shoot()` no service worker; `close()` e anulação das referências no `finally`.
 Nunca vai a `chrome.storage`, log, Native Messaging, disco, área de transferência ou relatório.
 
@@ -34,7 +40,8 @@ dessa cor nas imagens sanitizadas (detector estreito: exclui franjas de ClearTyp
 
 ## Testes
 
-- `test/studio-pdd.test.js` (8): sanitizador, armação, gesto, uso único, página mudando, regiões incoerentes, navegação.
+- `test/studio-pdd.test.js` (15, sendo 7 da revisão R1): sanitizador, armação, gesto, uso único, página mudando, regiões incoerentes, navegação.
 - `PddVisualPrivacyTest` (6): 3ª barreira.
-- `Studio010SafeCaptureIT` (7, Chrome real, gesto pelo teclado do sistema): login, sentinelas por classe, modal,
+- `Studio010SafeCaptureIT` (12, sendo 5 da revisão R1 — troca depois do gesto, troca durante preparação demorada, 2ª aba do
+  laboratório, ida e volta, cancelar em andamento; abas na MESMA janela, página com a thread ocupada; Chrome real, gesto pelo teclado do sistema): login, sentinelas por classe, modal,
   página mudando, negativas, zoom 150%, página rolada. Imagens sanitizadas em `reports/evidence/S010-*-sanitizado.png`.
