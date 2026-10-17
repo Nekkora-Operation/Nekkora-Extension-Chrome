@@ -29,7 +29,10 @@ public final class BridgeContract {
             // STUDIO-003: entrega confiável das etapas gravadas e rota de sessão lógica
             "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
             // STUDIO-005: entrega confiável das evidências observadas
-            "studio.recording.evidence.ack", "studio.recording.evidence.sync");
+            "studio.recording.evidence.ack", "studio.recording.evidence.sync",
+            // STUDIO-009 (guided-debug/1): inspeção, destaque e seleção — nunca ações na página
+            "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
+            "studio.debug.status", "studio.debug.renew");
     /** Eventos da extensão que podem ser repassados ao Studio. */
     public static final Set<String> FORWARDED_EVENTS = Set.of("studio.recording.started", "studio.recording.paused", "studio.recording.resumed",
             "studio.recording.modeChanged", "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded",
@@ -37,7 +40,9 @@ public final class BridgeContract {
             // STUDIO-003: etapa gravada (validada contra o schema estrito antes de sair do host)
             "studio.recording.step",
             // STUDIO-005: evidência observada (privacidade reaplicada e schema estrito antes de sair do host)
-            "studio.recording.evidence");
+            "studio.recording.evidence",
+            // STUDIO-009: elemento escolhido no navegador e mudança de estado da sessão de debug
+            "studio.debug.picked", "studio.debug.changed");
 
     private BridgeContract() {
     }

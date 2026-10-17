@@ -1,0 +1,36 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.debug.inspect",
+  "id": "c-90",
+  "seq": 90,
+  "payload": {
+    "debugId": "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63",
+    "requestId": "rq-1",
+    "stepRef": "6f0c8d2e-1a3b-4c5d-9e7f-0a1b2c3d4e5f",
+    "actionType": "FILL",
+    "targetId": "tgt-3f6c1a",
+    "descriptor": {
+      "kind": "SEARCH_INPUT",
+      "tag": "input",
+      "name": "Código do registro",
+      "htmlId": "registro-codigo",
+      "htmlName": null,
+      "locators": [
+        {
+          "strategy": "ID",
+          "css": "#registro-codigo",
+          "xpath": null,
+          "description": ""
+        }
+      ],
+      "accessPath": [
+        {
+          "type": "MAIN_DOCUMENT",
+          "locator": null
+        }
+      ]
+    },
+    "highlight": true
+  }
+}

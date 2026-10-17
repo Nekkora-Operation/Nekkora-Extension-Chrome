@@ -172,6 +172,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         if (ok) {
             resp.set("payload", msg.path("payload").isObject() ? msg.get("payload") : mapper.createObjectNode());
             resp.putNull("error");
+            if (p.type().startsWith("studio.debug.")) {
+                DebugPrivacy.reapply(p.type(), resp.get("payload")); // STUDIO-009: barreira do debug guiado
+            }
         } else {
             resp.putNull("payload");
             resp.set("error", errorNode(msg.path("error")));
@@ -199,6 +202,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         }
         if ("studio.recording.evidence".equals(type)) {
             EvidencePrivacy.reapply(ev.get("payload")); // idem para as evidências observadas (STUDIO-005)
+        }
+        if (type.startsWith("studio.debug.")) {
+            DebugPrivacy.reapply(type, ev.get("payload")); // STUDIO-009: idem para o debug guiado
         }
         titles(ev.get("payload"));
         ev.put("seq", 1);

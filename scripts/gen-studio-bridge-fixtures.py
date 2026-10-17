@@ -366,6 +366,104 @@ fixtures_invalid["s005-start-unknown-evidence-capability"] = _cmd5("studio.recor
     "capabilities": ["steps/1", "evidence/2"], "routeRef": "route-1"})
 fixtures_invalid["s005-evidence-as-lifecycle-payload"] = _ev5("studio.recording.degraded", _evidence5())
 
+# ---------------------------------------------------------------------------------------- STUDIO-009: guided-debug/1
+DBG = "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63"
+
+
+def _cmd9(type_, payload, seq=90, id_="c-90"):
+    return {"protocol": P, "kind": "command", "type": type_, "id": id_, "seq": seq, "payload": payload}
+
+
+def _resp9(type_, payload, seq=91, id_="c-90"):
+    return {"protocol": P, "kind": "response", "type": type_, "id": id_, "seq": seq, "ok": True, "payload": payload, "error": None}
+
+
+def _ev9(type_, payload, seq=92):
+    return {"protocol": P, "kind": "event", "type": type_, "seq": seq, "payload": payload}
+
+
+DEBUG_SESSION = {"debugId": DBG, "protocol": "guided-debug/1", "state": "ACTIVE", "tab": {"tabRef": TAB, "title": "Consulta", "host": "127.0.0.1"},
+                 "pageEpoch": 1, "picking": False, "lease": {"leaseMs": 30000, "expiresInMs": 29000}, "reason": None}
+DESCRIPTOR = {"kind": "SEARCH_INPUT", "tag": "input", "name": "Código do registro", "htmlId": "registro-codigo", "htmlName": None,
+              "locators": [{"strategy": "ID", "css": "#registro-codigo", "xpath": None, "description": ""}],
+              "accessPath": [{"type": "MAIN_DOCUMENT", "locator": None}]}
+CHECKS_OK = {"identity": "PASS", "unique": "PASS", "visible": "PASS", "enabled": "PASS", "editable": "PASS", "kindMatchesAction": "PASS",
+             "frameReachable": "NOT_APPLICABLE", "shadowReachable": "NOT_APPLICABLE"}
+BOX = {"x": 120, "y": 210, "width": 320, "height": 32, "viewportWidth": 1280, "viewportHeight": 720, "devicePixelRatio": 1.0, "screenX": 128,
+       "screenY": 311}
+STEP_REF = "6f0c8d2e-1a3b-4c5d-9e7f-0a1b2c3d4e5f"
+INSPECT_OK = {"debug": DEBUG_SESSION, "requestId": "rq-1", "stepRef": STEP_REF, "observedAt": "2026-10-17T12:00:03.000Z",
+              "pageEpoch": 1, "identitySource": "TARGET_ID", "status": "RESOLVED", "score": 0.93, "reasons": [], "checks": CHECKS_OK,
+              "element": {"kind": "SEARCH_INPUT", "name": "Código do registro", "tag": "input", "sensitive": False},
+              "candidates": [{"candidateRef": "cand-1-1", "verdict": "CONFIRMED", "score": 0.93, "kind": "SEARCH_INPUT",
+                              "name": "Código do registro", "chosen": True}],
+              "highlighted": True, "box": BOX, "continuity": "NOT_PROVEN"}
+INSPECT_AMBIGUOUS = dict(INSPECT_OK, requestId="rq-2", identitySource="DESCRIPTOR", status="AMBIGUOUS", score=0.71,
+                         reasons=["DESCRIPTOR_ONLY", "TARGET_AMBIGUOUS"],
+                         checks=dict(CHECKS_OK, identity="FAIL", unique="FAIL", visible="UNKNOWN", enabled="UNKNOWN", editable="UNKNOWN",
+                                     kindMatchesAction="UNKNOWN"),
+                         element=None,
+                         candidates=[{"candidateRef": "cand-2-1", "verdict": "CONFIRMED", "score": 0.71, "kind": "BUTTON", "name": "Consultar",
+                                      "chosen": False},
+                                     {"candidateRef": "cand-2-2", "verdict": "CONFIRMED", "score": 0.71, "kind": "BUTTON", "name": "Consultar",
+                                      "chosen": False}],
+                         highlighted=False, box=None, continuity=None)
+PICKED_ELEMENT = dict(element_button, name="Consultar", htmlId="consultar",
+                      locators=[{"strategy": "TEST_ATTRIBUTE", "description": "", "css": "[data-testid=\"consultar\"]", "xpath": None, "matchCount": 1,
+                                 "matchesTarget": True, "stability": "HEURISTIC_STABLE", "validation": "LIVE"}],
+                      accessPath=[{"type": "MAIN_DOCUMENT", "label": "", "locator": None, "restriction": None}], context=[],
+                      correlation={"targetId": "tgt-8d02b7", "nodeId": "n31", "captureId": "cap-40", "documentId": "doc:f0"})
+PICKED = {"debugId": DBG, "requestId": "rq-5", "pageEpoch": 1, "observedAt": "2026-10-17T12:00:09.000Z", "origin": "BROWSER_SELECTION",
+          "element": PICKED_ELEMENT,
+          "checks": dict(CHECKS_OK, identity="NOT_APPLICABLE", unique="NOT_APPLICABLE", editable="NOT_APPLICABLE", kindMatchesAction="NOT_APPLICABLE"),
+          "box": BOX}
+INSPECT_CMD = {"debugId": DBG, "requestId": "rq-1", "stepRef": STEP_REF, "actionType": "FILL", "targetId": "tgt-3f6c1a", "descriptor": DESCRIPTOR,
+               "highlight": True}
+fixtures_valid.update({
+    "s009-command-debug-start": _cmd9("studio.debug.start", {"debugId": DBG, "operationId": "op-d1", "tabRef": TAB, "leaseMs": 30000,
+                                                             "capabilities": ["guided-debug/1"]}),
+    "s009-response-debug-start": _resp9("studio.debug.start", {"debug": DEBUG_SESSION, "duplicate": False}),
+    "s009-command-debug-inspect": _cmd9("studio.debug.inspect", INSPECT_CMD),
+    "s009-command-debug-inspect-descriptor": _cmd9("studio.debug.inspect", dict(INSPECT_CMD, requestId="rq-2", actionType="CLICK", targetId=None)),
+    "s009-response-debug-inspect-resolved": _resp9("studio.debug.inspect", INSPECT_OK),
+    "s009-response-debug-inspect-ambiguous": _resp9("studio.debug.inspect", INSPECT_AMBIGUOUS),
+    "s009-command-debug-highlight": _cmd9("studio.debug.highlight", {"debugId": DBG, "requestId": "rq-3", "candidateRef": "cand-2-2"}),
+    "s009-command-debug-highlight-clear": _cmd9("studio.debug.highlight", {"debugId": DBG, "requestId": "rq-4", "candidateRef": None}),
+    "s009-response-debug-highlight": _resp9("studio.debug.highlight", {"debug": DEBUG_SESSION, "requestId": "rq-3", "highlighted": True, "box": BOX}),
+    "s009-command-debug-pick-start": _cmd9("studio.debug.pick", {"debugId": DBG, "requestId": "rq-5", "action": "START", "candidateRef": None,
+                                                                 "actionType": "FILL"}),
+    "s009-command-debug-pick-adopt": _cmd9("studio.debug.pick", {"debugId": DBG, "requestId": "rq-6", "action": "ADOPT_CANDIDATE",
+                                                                 "candidateRef": "cand-2-1", "actionType": "CLICK"}),
+    "s009-response-debug-pick": _resp9("studio.debug.pick", {"debug": dict(DEBUG_SESSION, picking=True), "requestId": "rq-5", "picking": True}),
+    "s009-event-debug-picked": _ev9("studio.debug.picked", PICKED),
+    "s009-event-debug-changed": _ev9("studio.debug.changed", {"debug": dict(DEBUG_SESSION, state="DEGRADED", pageEpoch=2, reason="NAVIGATED")}),
+    "s009-command-debug-finish": _cmd9("studio.debug.finish", {"debugId": DBG, "operationId": "op-d2"}),
+    "s009-response-debug-finish": _resp9("studio.debug.finish", {"debug": dict(DEBUG_SESSION, state="ENDED", reason="FINISHED",
+                                                                               lease={"leaseMs": 30000, "expiresInMs": 0}), "duplicate": False}),
+    "s009-command-debug-status": _cmd9("studio.debug.status", {"debugId": DBG}),
+    "s009-command-debug-renew": _cmd9("studio.debug.renew", {"debugId": DBG}),
+})
+
+fixtures_invalid.update({
+    "s009-debug-inspect-with-script": _cmd9("studio.debug.inspect", dict(INSPECT_CMD, script="document.querySelector('#x').click()")),
+    "s009-debug-execute-command": _cmd9("studio.debug.execute", {"debugId": DBG, "js": "alert(1)"}),
+    "s009-debug-start-without-capability": _cmd9("studio.debug.start", {"debugId": DBG, "operationId": "op-d1", "tabRef": TAB, "leaseMs": 30000,
+                                                                        "capabilities": []}),
+    "s009-debug-start-chrome-tab-id": _cmd9("studio.debug.start", {"debugId": DBG, "operationId": "op-d1", "tabRef": 1234, "leaseMs": 30000,
+                                                                   "capabilities": ["guided-debug/1"]}),
+    "s009-debug-inspect-with-value": _cmd9("studio.debug.inspect", dict(INSPECT_CMD, descriptor=dict(DESCRIPTOR, value="12345"))),
+    "s009-debug-result-free-text-evidence": _resp9("studio.debug.inspect", dict(INSPECT_OK, evidence=["Candidato n41 é plausível: nome \"Ana Souza\""])),
+    "s009-debug-result-unknown-reason": _resp9("studio.debug.inspect", dict(INSPECT_OK, reasons=["LOOKS_RIGHT_TO_ME"])),
+    "s009-debug-result-human-confirmed": _resp9("studio.debug.inspect", dict(INSPECT_OK, status="HUMAN_CONFIRMED")),
+    "s009-debug-result-element-with-text": _resp9("studio.debug.inspect", dict(INSPECT_OK, element=dict(INSPECT_OK["element"], text="Ana Souza"))),
+    "s009-debug-result-pagemap": _resp9("studio.debug.inspect", dict(INSPECT_OK, pageMap={"schemaVersion": "0.3.0", "nodes": []})),
+    "s009-debug-candidate-node-id": _resp9("studio.debug.inspect", dict(INSPECT_OK, candidates=[dict(INSPECT_OK["candidates"][0], nodeId="n41")])),
+    "s009-debug-picked-with-typed-value": _ev9("studio.debug.picked", dict(PICKED, value="12345")),
+    "s009-debug-changed-free-reason": _ev9("studio.debug.changed", {"debug": dict(DEBUG_SESSION, reason="a página foi para /cliente/123")}),
+    "s009-debug-pick-unknown-action": _cmd9("studio.debug.pick", {"debugId": DBG, "requestId": "rq-9", "action": "CLICK_IT", "candidateRef": None,
+                                                                  "actionType": "CLICK"}),
+})
+
 for name, body in fixtures_valid.items():
     with open(os.path.join(valid, name + ".json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(body, f, ensure_ascii=False, indent=2)

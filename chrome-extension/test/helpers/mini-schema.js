@@ -38,8 +38,13 @@ export function errors(s, v, at = '$') {
     }
   }
   if (s.$ref) {
-    const name = s.$ref.replace('#/$defs/', '');
-    return out.concat(errors(schema.$defs[name], v, at));
+    // ponteiro local dentro de $defs (ex.: #/$defs/StepEventPayload/properties/notes)
+    const parts = s.$ref.replace('#/$defs/', '').split('/');
+    let target = schema.$defs[parts[0]];
+    for (const part of parts.slice(1)) {
+      target = target[part];
+    }
+    return out.concat(errors(target, v, at));
   }
   if (s.type !== undefined) {
     const types = Array.isArray(s.type) ? s.type : [s.type];

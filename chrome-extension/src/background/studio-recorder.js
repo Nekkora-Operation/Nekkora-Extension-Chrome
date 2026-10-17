@@ -6,5 +6,7 @@ import { client, host, toContent, tabKey, frameOfNode, broadcast, withLock, erro
 import * as capture from './capture-session.js';
 import * as policy from './access-policy.js';
 import { createStudioRecorder } from './studio-recording.js';
+import { currentCapture } from './inspection.js';
 
-export const recorder = createStudioRecorder({ client, broadcast, withLock, errorInfo, capture, policy, host, toContent, tabKey, frameOfNode });
+export const recorder = createStudioRecorder({ client, broadcast, withLock, errorInfo, capture, policy, host, toContent, tabKey, frameOfNode,
+  currentCapture });

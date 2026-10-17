@@ -27,6 +27,7 @@
 import { HostError } from './native-client.js';
 import { createStepPipeline } from './studio-steps.js';
 import { createEvidencePipeline } from './studio-evidence.js';
+import { createStudioDebug } from './studio-debug.js';
 import '../shared/feedback-rules.js';
 
 const PROTOCOL = 'nekkora-nm/1';
@@ -105,6 +106,28 @@ export function createStudioRecorder(deps) {
       degrade(r, 'STEP_BACKLOG_FULL');
     },
   });
+
+  /**
+   * STUDIO-009 (guided-debug/1): debug guiado — inspeção e destaque numa aba autorizada, com o mesmo canal, a mesma
+   * referência opaca de aba e as mesmas barreiras das etapas. Nunca coexiste com uma gravação na mesma aba.
+   */
+  const debug = createStudioDebug({
+    client, broadcast, capture, policy, steps, chrome: chromeApi,
+    host: deps.host || (() => Promise.reject(new HostError('HOST_UNAVAILABLE', 'sem host'))),
+    toContent: deps.toContent || (() => Promise.reject(new Error('sem content'))),
+    tabKey: deps.tabKey, frameOfNode: deps.frameOfNode,
+    currentCapture: deps.currentCapture || (() => Promise.reject(new HostError('CAPTURE_FAILED', 'sem captura'))),
+    now: deps.now ? () => deps.now() : undefined,
+    tabs: {
+      tabOf: (ref) => (refToTab.has(ref) ? refToTab.get(ref) : null),
+      refOf: (tabId) => refOf(tabId),
+      recordingOn: (tabId) => Array.from(recordings.values()).some((r) => r.tabId === tabId && !TERMINAL.has(r.state)),
+      title: (tab) => safeTitle(tab && tab.title),
+      host: (url) => hostOf(url),
+    },
+  });
+  /** Comandos do debug que só leem estado/prazo (fora da fila do debug). */
+  const DEBUG_UNQUEUED = new Set(['studio.debug.status', 'studio.debug.renew']);
 
   function consumerOf(recordingId) {
     return 'studio-recorder:' + recordingId;
@@ -505,6 +528,7 @@ export function createStudioRecorder(deps) {
     }
     const before = captureCounters(capture.get(tabId));
     try {
+      debug.onRecordingStarted(tabId); // o debug guiado não coexiste com a gravação na mesma aba
       await capture.acquire(tabId, consumerOf(p.recordingId));
     } catch (e) {
       const info = errorInfo(e);
@@ -916,6 +940,7 @@ export function createStudioRecorder(deps) {
   }
 
   function checkLeases() {
+    debug.checkLeases();
     for (const r of recordings.values()) {
       if (!TERMINAL.has(r.state) && now() >= r.leaseExpiresAt) {
         expireIfDue(r.recordingId);
@@ -976,6 +1001,7 @@ export function createStudioRecorder(deps) {
   }
 
   function onTabRemoved(tabId) {
+    debug.onTabRemoved(tabId).catch(() => {});
     for (const r of recordings.values()) {
       if (r.tabId === tabId && !TERMINAL.has(r.state)) {
         degrade(r, 'TAB_CLOSED');
@@ -991,6 +1017,7 @@ export function createStudioRecorder(deps) {
 
   /** Permissão revogada: gravações pausadas naquela origem também ficam DEGRADED (não podem ser retomadas). */
   async function onPermissionsRemoved() {
+    await debug.onPermissionsRemoved().catch(() => {});
     for (const r of recordings.values()) {
       if (TERMINAL.has(r.state) || r.attached) {
         continue; // as acompanhadas são encerradas pela política central (capture.end) e degradadas pelo hook
@@ -1009,7 +1036,9 @@ export function createStudioRecorder(deps) {
     const reply = (body) => client.post({ protocol: PROTOCOL, type: 'studio.reply', id: msg.id, ...body }).catch(() => {});
     try {
       await ready;
-      const fn = typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(COMMANDS, msg.command) ? COMMANDS[msg.command] : null;
+      const isDebug = typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(debug.COMMANDS, msg.command);
+      const fn = isDebug ? debug.COMMANDS[msg.command]
+        : typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(COMMANDS, msg.command) ? COMMANDS[msg.command] : null;
       if (!fn) {
         throw fail('UNKNOWN_COMMAND', 'Comando não permitido.');
       }
@@ -1019,9 +1048,11 @@ export function createStudioRecorder(deps) {
         throw fail('NOT_CONTROLLER', 'Controlador ausente.');
       }
       const payload = msg.payload || {};
-      const result = UNQUEUED.has(msg.command)
-        ? await fn(payload, controller)
-        : await withLock(LOCK, () => fn(payload, controller));
+      const result = isDebug
+        ? (DEBUG_UNQUEUED.has(msg.command) ? await fn(payload, controller) : await withLock('studio-debug', () => fn(payload, controller)))
+        : UNQUEUED.has(msg.command)
+          ? await fn(payload, controller)
+          : await withLock(LOCK, () => fn(payload, controller));
       await reply({ ok: true, payload: result, error: null });
     } catch (e) {
       const info = errorInfo(e);
@@ -1037,7 +1068,7 @@ export function createStudioRecorder(deps) {
 
   const KNOWN_CODES = new Set(['BAD_REQUEST', 'UNKNOWN_COMMAND', 'COMMAND_NOT_ALLOWED', 'TAB_NOT_FOUND', 'ORIGIN_NOT_ALLOWED', 'RECORDING_NOT_FOUND',
     'RECORDING_ALREADY_ACTIVE', 'RECORDING_ENDED', 'INVALID_STATE', 'NOT_CONTROLLER', 'INVALID_MODE', 'CAPTURE_FAILED', 'OPERATION_CONFLICT',
-    'TIMEOUT', 'INTERNAL_ERROR']);
+    'TIMEOUT', 'INTERNAL_ERROR', 'DEBUG_NOT_FOUND', 'DEBUG_ENDED', 'CANDIDATE_EXPIRED']);
 
   /** Visão para diagnóstico (painel/harness): sem segredos; ids técnicos ficam fora da interface do painel. */
   function list() {
@@ -1047,6 +1078,7 @@ export function createStudioRecorder(deps) {
 
   /** Reinício do service worker: restaura registros e referências; expira concessões vencidas; reconcilia abas. */
   async function restore() {
+    await debug.restore();
     try {
       const all = await chromeApi.storage.session.get(null);
       const refs = all[REFS_KEY] || {};
@@ -1115,6 +1147,7 @@ export function createStudioRecorder(deps) {
 
   /** Navegação (SPA ou novo documento) na aba de uma gravação: contexto posterior das etapas e consolidação. */
   function onNavigation(tabId, kind, url) {
+    debug.onPageChanged(tabId, 'NAVIGATED');
     const r = recordingOfTab(tabId);
     if (r) {
       steps.navigation(r, kind, url);
@@ -1143,6 +1176,7 @@ export function createStudioRecorder(deps) {
     capture.on('onStatus', onCaptureStatus);
     // Documento substituído / nova base / frame anexado: os sensores acompanham o documento atual.
     capture.on('onDocumentReplaced', (rec, data) => {
+      debug.onPageChanged(rec.tabId, 'DOCUMENT_REPLACED');
       const r = recordingOfTab(rec.tabId);
       if (r) {
         steps.documentReplaced(r, 0);
@@ -1175,5 +1209,5 @@ export function createStudioRecorder(deps) {
   }
 
   return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, evidenceMetrics, steps, evidence,
-    tabRef: refOf };
+    tabRef: refOf, debug };
 }

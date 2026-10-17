@@ -105,6 +105,37 @@
       NS.highlighter.show(a.kind || 'selection', el, a.label || '', a.nodeId);
       return { ok: true };
     },
+    /**
+     * STUDIO-009 (debug guiado): destaque rosa pelo overlay (pointer-events:none, shadow fechado) — nenhum evento é
+     * disparado no elemento, nada é rolado, nenhum estilo da página muda. Devolve a caixa em px do viewport principal.
+     */
+    'cs.debug.mark': (a) => {
+      const el = NS.registry.elementFor(a.nodeId);
+      if (!el || !el.isConnected) {
+        return { ok: false, error: 'NODE_NOT_CONNECTED' };
+      }
+      for (const k of ['debug', 'debugReview', 'debugCandidate']) {
+        NS.highlighter.hide(k);
+      }
+      const kind = a.style === 'review' ? 'debugReview' : a.style === 'candidate' ? 'debugCandidate' : 'debug';
+      NS.highlighter.show(kind, el, typeof a.label === 'string' ? a.label.slice(0, 60) : '', a.nodeId);
+      const r = el.getBoundingClientRect();
+      const o = NS.capture.frameOffset(el);
+      return { ok: true, box: { x: r.left + o.x, y: r.top + o.y, width: r.width, height: r.height,
+        viewportWidth: document.documentElement.clientWidth, viewportHeight: document.documentElement.clientHeight } };
+    },
+    'cs.debug.unmark': () => {
+      for (const k of ['debug', 'debugReview', 'debugCandidate']) {
+        NS.highlighter.hide(k);
+      }
+      return { ok: true };
+    },
+    /** Geometria da janela (documento principal) para a posição aproximada na tela. Sem conteúdo da página. */
+    'cs.debug.viewport': () => ({
+      screenX: window.screenX, screenY: window.screenY, chromeLeft: Math.max(0, Math.round((window.outerWidth - window.innerWidth) / 2)),
+      chromeTop: Math.max(0, window.outerHeight - window.innerHeight), innerWidth: window.innerWidth, innerHeight: window.innerHeight,
+      devicePixelRatio: window.devicePixelRatio,
+    }),
     /** Remove a camada de destaque do documento (desativação da inspeção). */
     'cs.overlay.destroy': () => {
       NS.highlighter.destroy();
