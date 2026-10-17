@@ -409,6 +409,26 @@ public final class BrowserLab {
         return out;
     }
 
+    /**
+     * STUDIO-009: captura SEM valores digitados, nem fictícios — cobre todo campo editável (documento, iframes da mesma
+     * origem e shadow roots abertos) durante a captura e remove a cobertura em seguida.
+     */
+    public Path screenshotMasked(Page p, String name) throws IOException {
+        js(p, "const walk = (root, ox, oy) => { for (const e of root.querySelectorAll('*')) {"
+                + " if (e.shadowRoot) walk(e.shadowRoot, ox, oy);"
+                + " if (e.tagName === 'IFRAME') { try { const d = e.contentDocument; if (d) { const f = e.getBoundingClientRect(); walk(d, ox + f.left + e.clientLeft, oy + f.top + e.clientTop); } } catch (x) {} }"
+                + " const t = (e.type || '').toLowerCase();"
+                + " if (e.matches('textarea, [contenteditable=\"true\"], [contenteditable=\"\"]') || e.tagName === 'INPUT' && !['button','submit','reset','checkbox','radio','image','hidden'].includes(t)) {"
+                + "   const b = e.getBoundingClientRect(); if (b.width > 0 && b.height > 0) { const m = document.createElement('div'); m.className = 'nk-mascara-evidencia';"
+                + "   m.style.cssText = `position:fixed;left:${ox + b.left + 2}px;top:${oy + b.top + 2}px;width:${b.width - 4}px;height:${b.height - 4}px;background:#9AA0A6;z-index:2147483646;pointer-events:none`;"
+                + "   document.documentElement.appendChild(m); } } } }; walk(document, 0, 0);");
+        try {
+            return screenshot(p, name);
+        } finally {
+            js(p, "document.querySelectorAll('.nk-mascara-evidencia').forEach(m => m.remove());");
+        }
+    }
+
     public Path writeEvidence(String name, String content) throws IOException {
         Path out = evidence.resolve(name);
         Files.writeString(out, content, StandardCharsets.UTF_8);

@@ -195,7 +195,7 @@ class Studio009GuidedDebugIT extends SessionIT {
         assertEquals(0, counts(p).path("submit").asInt(), "o formulário não foi enviado");
         assertEquals(0, oracle("/api/studio009/estado").path("total").asInt(), "oráculo: nenhuma consulta feita");
         assertTrue(boxes(p).at("/debug/visible").asBoolean(), "elemento escolhido destacado");
-        lab.screenshot(p, "S009-G2-01-selecao-sem-acao");
+        lab.screenshotMasked(p, "S009-G2-01-selecao-sem-acao");
     }
 
     @Test
@@ -221,7 +221,7 @@ class Studio009GuidedDebugIT extends SessionIT {
         assertEquals(before, interactions(p), "destacar não gerou clique/foco/entrada");
         assertEquals(overs, counts(p).path("mouseover").asInt(), "nem hover sintético");
         assertEquals(0, oracle("/api/studio009/estado").path("total").asInt());
-        lab.screenshot(p, "S009-G2-02-destaque-campo");
+        lab.screenshotMasked(p, "S009-G2-02-destaque-campo");
     }
 
     @Test
@@ -360,8 +360,11 @@ class Studio009GuidedDebugIT extends SessionIT {
         assertEquals(1, oracle("/api/studio009/estado").path("total").asInt(), "a ação não idempotente NÃO foi repetida");
         BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "ATIVO".equals(lab.js(p, "return document.getElementById('resultado').getAttribute('data-situacao')")),
                 "resultado observável no laboratório");
-        lab.screenshot(p, "S009-G6-01-sonda-resultado");
-        lab.writeEvidence("S009-G6-01-oraculo.json", state.toPrettyString());
+        lab.screenshotMasked(p, "S009-G6-01-sonda-resultado");
+        // só a contagem e a CHAVE do catálogo: nenhum valor (nem fictício) vai para a evidência
+        lab.writeEvidence("S009-G6-01-oraculo.json", M.createObjectNode().put("total", state.path("total").asInt())
+                .put("chaveDoCatalogo", "lab:registro-ativo").put("codigoConfereComOCatalogo", "REG-0001".equals(state.at("/consultas/0/codigo").asText()))
+                .toPrettyString());
     }
 
     @Test
@@ -401,7 +404,7 @@ class Studio009GuidedDebugIT extends SessionIT {
         assertEquals("BROWSER_SELECTION", picked.path("origin").asText());
         assertEquals(0, ((Number) lab.js(p, "const c = document.querySelector('iframe').contentWindow.__nk009; return c.click + c.focusin + c.input")).intValue(),
                 "nada acionado dentro do quadro");
-        lab.screenshot(p, "S009-G8-01-selecao-iframe");
+        lab.screenshotMasked(p, "S009-G8-01-selecao-iframe");
         studio.call("studio.debug.finish", studio.obj().put("debugId", debugId).put("operationId", id("op")));
 
         Page sh = variant("shadow-aberto");
