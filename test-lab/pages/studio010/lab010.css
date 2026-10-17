@@ -1,0 +1,13 @@
+/* STUDIO-010 — laboratório do PDD visual (dados 100% fictícios). Texto SENSÍVEL usa a cor-sentinela #E6007E:
+   uma captura sanitizada nunca pode conter um pixel dessa cor. Rótulos de interface seguros usam #1F2328. */
+body { font: 15px/1.5 system-ui, sans-serif; margin: 24px; color: #1F2328; background: #FFFFFF; }
+h1 { font-size: 22px; margin: 0 0 8px; }
+.nota { color: #57606A; font-size: 13px; }
+form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; padding: 14px; border: 1px solid #D0D7DE; border-radius: 6px; max-width: 640px; }
+.campo label { display: block; font-weight: 600; }
+input, textarea, select { padding: 6px 8px; width: 220px; font: inherit; color: #E6007E; }
+button { padding: 6px 16px; font: inherit; color: #1F2328; background: #F6F8FA; border: 1px solid #D0D7DE; border-radius: 6px; }
+.sentinela, .sentinela * { color: #E6007E !important; }
+.resultado { margin-top: 12px; padding: 10px 14px; background: #F6F8FA; border-radius: 6px; max-width: 612px; }
+table { border-collapse: collapse; margin-top: 8px; }
+td, th { border: 1px solid #D0D7DE; padding: 4px 8px; }

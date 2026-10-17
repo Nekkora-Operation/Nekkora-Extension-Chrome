@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Resultado</title><link rel="stylesheet" href="lab010.css"></head>
+<body>
+<!-- STUDIO-010 — resultado FICTÍCIO: conteúdo de negócio (titular, CPF, situação) em cor-sentinela; deve sair OPACO. -->
+<h1>Resultado</h1>
+<div class="resultado sentinela" role="status">
+  <table><tr><th>Registro</th><th>Titular</th><th>CPF</th><th>Situação</th></tr>
+  <tr><td id="reg">REG-4321</td><td>Ana Souza</td><td>123.456.789-09</td><td>ATIVO</td></tr></table>
+</div>
+<p><button id="nova" type="button">Nova consulta</button> <a id="sair" href="login.html">Sair</a></p>
+<script>
+  const c = sessionStorage.getItem('nk010');
+  if (c) document.getElementById('reg').textContent = c;
+  document.getElementById('nova').addEventListener('click', () => { location.href = 'consulta.html'; });
+</script>
+</body>
+</html>

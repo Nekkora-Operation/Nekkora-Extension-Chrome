@@ -206,6 +206,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         if (type.startsWith("studio.debug.")) {
             DebugPrivacy.reapply(type, ev.get("payload")); // STUDIO-009: idem para o debug guiado
         }
+        if ("studio.pdd.captured".equals(type)) {
+            ev.set("payload", PddVisualPrivacy.reapply(ev.get("payload"))); // STUDIO-010: verificação de pixels refeita no host
+        }
         titles(ev.get("payload"));
         ev.put("seq", 1);
         if (!BridgeContract.valid(ev)) {

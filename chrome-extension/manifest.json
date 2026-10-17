@@ -19,6 +19,12 @@
       "32": "icons/icon32.png"
     }
   },
+  "commands": {
+    "nk-pdd-capturar": {
+      "suggested_key": { "default": "Alt+Shift+K" },
+      "description": "Capturar a tela para o PDD (Nekkora Studio, laboratório)"
+    }
+  },
   "side_panel": {
     "default_path": "src/ui/panel.html"
   },
@@ -32,7 +38,8 @@
     "storage",
     "scripting",
     "webNavigation",
-    "alarms"
+    "alarms",
+    "activeTab"
   ],
   "host_permissions": [
     "http://127.0.0.1/*",

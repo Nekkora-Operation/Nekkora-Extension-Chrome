@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Entrar</title><link rel="stylesheet" href="lab010.css"></head>
+<body>
+<!-- STUDIO-010 — tela de autenticação FICTÍCIA. Nenhum dado real; nada é enviado a lugar nenhum. -->
+<h1 class="sentinela">Portal de Ana Souza</h1>
+<p class="nota sentinela">Ambiente fictício · usuário ana.souza · CPF 123.456.789-09</p>
+<form id="login" aria-label="Entrar">
+  <div class="campo"><label for="usuario">Usuário</label><input id="usuario" name="usuario" autocomplete="off"></div>
+  <div class="campo"><label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="off"></div>
+  <button id="entrar" type="submit">Entrar</button>
+</form>
+<script>
+  document.getElementById('login').addEventListener('submit', (e) => { e.preventDefault(); location.href = 'consulta.html'; });
+  // STUDIO-010 R1 (testes): window.nkLenta(true) ocupa a thread da página ~93% do tempo, sem mudar o DOM — a preparação
+  // da captura (mensagens ao content script) fica lenta e dá tempo de trocar de aba no meio dela.
+  window.nkLenta = (on, ms = 700) => {
+    clearInterval(window.nkLentaId);
+    if (!on) return;
+    const busy = () => { const t = performance.now(); while (performance.now() - t < ms) { /* ocupado */ } };
+    setTimeout(busy, 0); // já ocupa a thread agora, não só depois do 1º período
+    window.nkLentaId = setInterval(busy, ms + 50);
+  };
+</script>
+</body>
+</html>

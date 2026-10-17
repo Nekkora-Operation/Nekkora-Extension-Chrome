@@ -35,7 +35,8 @@
         "HANDSHAKE_TIMEOUT", "FRAME_TOO_LARGE", "EXTENSION_UNAVAILABLE", "TIMEOUT", "TAB_NOT_FOUND", "ORIGIN_NOT_ALLOWED",
         "RECORDING_NOT_FOUND", "RECORDING_ALREADY_ACTIVE", "RECORDING_ENDED", "INVALID_STATE", "NOT_CONTROLLER",
         "INVALID_MODE", "CAPTURE_FAILED", "OPERATION_CONFLICT", "INTERNAL_ERROR",
-        "DEBUG_NOT_FOUND", "DEBUG_ENDED", "CANDIDATE_EXPIRED", "PROBE_NOT_ALLOWED"
+        "DEBUG_NOT_FOUND", "DEBUG_ENDED", "CANDIDATE_EXPIRED", "PROBE_NOT_ALLOWED",
+        "VISUAL_CAPTURE_NOT_ALLOWED"
       ]
     },
     "Error": {
@@ -308,7 +309,8 @@
         "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
         "studio.recording.evidence.ack", "studio.recording.evidence.sync",
         "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
-        "studio.debug.status", "studio.debug.renew", "studio.debug.probe"
+        "studio.debug.status", "studio.debug.renew", "studio.debug.probe",
+        "studio.pdd.capture.arm", "studio.pdd.capture.cancel"
       ]
     },
     "Command": {
@@ -341,7 +343,9 @@
         { "if": { "properties": { "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.debug.finish" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugFinishPayload" } } } },
         { "if": { "properties": { "type": { "enum": ["studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugRef" } } } },
-        { "if": { "properties": { "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbePayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbePayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.capture.arm" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddArmPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCaptureRef" } } } }
       ]
     },
     "StartPayload": {
@@ -442,7 +446,9 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.inspect" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugInspectResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.highlight" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugHighlightResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbeResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbeResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.capture.arm" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddArmResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCancelResult" } } } }
       ]
     },
     "StatusResult": {
@@ -569,7 +575,8 @@
         "studio.recording.started", "studio.recording.paused", "studio.recording.resumed", "studio.recording.modeChanged",
         "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded", "studio.recording.recovered",
         "studio.recording.failed", "studio.recording.expired", "studio.recording.step", "studio.recording.evidence",
-        "studio.debug.picked", "studio.debug.changed"
+        "studio.debug.picked", "studio.debug.changed",
+        "studio.pdd.captured"
       ]
     },
     "Event": {
@@ -590,7 +597,8 @@
         { "if": { "properties": { "type": { "const": "studio.recording.step" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StepEventPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.evidence" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceEventPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.debug.picked" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickedPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.debug.changed" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugChangedPayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.debug.changed" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugChangedPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.captured" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCapturedPayload" } } } }
       ]
     },
     "DisconnectedPayload": {
@@ -1114,6 +1122,104 @@
         "valueKey": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^lab:[a-z0-9-]{1,40}$" }] },
         "authorization": { "const": "LAB_PROBE" }
       }
+    },
+    "PddArmPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "STUDIO-010 (pdd-capture/1): arma UMA captura visual sanitizada (política nekkora-visual/1) para um bloco do PDD. Só aba LAB; a captura só acontece com o gesto do atalho no Chrome. Nenhum valor, texto ou localizador livre: as etapas levam só a referência opaca, o targetId e o descritor recuperável já persistido.",
+      "required": ["captureId", "tabRef", "steps", "leaseMs"],
+      "properties": {
+        "captureId": { "$ref": "#/$defs/Id" },
+        "tabRef": { "type": "string", "pattern": "^t-[A-Za-z0-9_-]{6,40}$" },
+        "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 120000 },
+        "steps": {
+          "type": "array", "minItems": 1, "maxItems": 32,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["stepRef", "targetId", "descriptor", "actionType"],
+            "properties": {
+              "stepRef": { "$ref": "#/$defs/Id" },
+              "targetId": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
+              "descriptor": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugDescriptor" }] },
+              "actionType": { "enum": ["CLICK", "FILL", "SELECT_OPTION", "CHECK", "UNCHECK", "PRESS_KEY", "NAVIGATE", "WAIT_FOR", "OBSERVE", "UNKNOWN"] }
+            }
+          }
+        }
+      }
+    },
+    "PddCaptureRef": {
+      "type": "object", "additionalProperties": false, "required": ["captureId"],
+      "properties": { "captureId": { "$ref": "#/$defs/Id" } }
+    },
+    "PddArmResult": {
+      "type": "object", "additionalProperties": false, "required": ["captureId", "armed", "duplicate", "shortcut"],
+      "properties": {
+        "captureId": { "$ref": "#/$defs/Id" },
+        "armed": { "type": "boolean" },
+        "duplicate": { "type": "boolean" },
+        "shortcut": { "type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9+ ]*$", "description": "Atalho configurado no Chrome (ex.: Alt+Shift+K); vazio se o usuário o removeu." }
+      }
+    },
+    "PddCancelResult": {
+      "type": "object", "additionalProperties": false, "required": ["captureId", "cancelled"],
+      "properties": { "captureId": { "type": "string", "maxLength": 80 }, "cancelled": { "type": "boolean" } }
+    },
+    "PddCapturedPayload": {
+      "type": "object",
+      "description": "STUDIO-010: resultado da captura armada. CAPTURED = PNG JÁ sanitizado por lista de permissão (fora dos portadores, só as cores sintéticas; reverificado no host), regiões só por tipo e retângulo (px do dispositivo), anotações normalizadas por etapa; FAILED = só o código. Nenhum texto da página, valor ou URL.",
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256", "regions", "annotations", "limitations"],
+          "properties": {
+            "captureId": { "$ref": "#/$defs/Id" },
+            "status": { "const": "CAPTURED" },
+            "policy": { "const": "nekkora-visual/1" },
+            "observedAt": { "type": "string", "maxLength": 40 },
+            "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "devicePixelRatio": { "type": "number", "minimum": 0.25, "maximum": 4 },
+            "png": { "type": "string", "maxLength": 200000, "pattern": "^[A-Za-z0-9+/]+={0,2}$" },
+            "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "regions": {
+              "type": "array", "maxItems": 128,
+              "items": {
+                "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
+                "properties": {
+                  "kind": { "enum": ["CARRIER", "FIELD"] },
+                  "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                  "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                }
+              }
+            },
+            "annotations": {
+              "type": "array", "maxItems": 32,
+              "items": {
+                "type": "object", "additionalProperties": false, "required": ["stepRef", "status", "x", "y", "width", "height", "reason"],
+                "properties": {
+                  "stepRef": { "$ref": "#/$defs/Id" },
+                  "status": { "enum": ["PLACED", "OMITTED"] },
+                  "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "width": { "type": "number", "minimum": 0, "maximum": 1 }, "height": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "reason": { "type": "string", "pattern": "^([A-Z][A-Z0-9_]{0,59})?$" }
+                }
+              }
+            },
+            "limitations": { "type": "array", "maxItems": 8, "items": { "enum": ["SOME_LABELS_HIDDEN", "FRAMES_HIDDEN"] } }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false, "required": ["captureId", "status", "code", "observedAt"],
+          "properties": {
+            "captureId": { "type": "string", "maxLength": 80 },
+            "status": { "const": "FAILED" },
+            "code": { "enum": ["VISUAL_CAPTURE_NOT_ALLOWED", "NOT_ARMED", "ARM_EXPIRED", "TAB_MISMATCH", "PAGE_CHANGED_DURING_CAPTURE", "GEOMETRY_MISMATCH",
+              "SANITIZATION_CHECK_FAILED", "SANITIZED_IMAGE_TOO_LARGE", "TAB_CLOSED", "PAGE_CHANGED", "PERMISSION_REVOKED", "CAPTURE_BUSY", "CAPTURE_DENIED",
+              "REGION_OUT_OF_VIEWPORT", "CARRIER_TOO_LARGE", "CARRIER_OVERLAPS_FIELD", "TOO_MANY_REGIONS", "REGION_KIND_UNKNOWN", "CONTENT_UNAVAILABLE",
+              "CANCELLED", "ACTIVE_TAB_CHANGED", "INTERNAL"] },
+            "observedAt": { "type": "string", "maxLength": 40 }
+          }
+        }
+      ]
     },
     "DebugProbeResult": {
       "type": "object",

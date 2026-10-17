@@ -9,6 +9,14 @@
   }
 
   let selected = null; // { nodeId, targetId, label }
+  /** STUDIO-010: estado da captura visual em curso (só contagem de mutações; nenhum conteúdo). */
+  const pdd = {
+    observer: null,
+    mutations: 0,
+    token() {
+      return [root.innerWidth, root.innerHeight, root.devicePixelRatio, Math.round(root.scrollX), Math.round(root.scrollY), this.mutations].join(':');
+    },
+  };
   const announced = new Map(); // token -> iframe hospedeiro (handshake de frames)
 
   /** Todos os iframes deste documento, de frames acessíveis e de shadow roots abertos. */
@@ -123,6 +131,109 @@
       const o = NS.capture.frameOffset(el);
       return { ok: true, box: { x: r.left + o.x, y: r.top + o.y, width: r.width, height: r.height,
         viewportWidth: document.documentElement.clientWidth, viewportHeight: document.documentElement.clientHeight } };
+    },
+    /**
+     * STUDIO-010 (PDD visual, política nekkora-visual/1): PLANO VISUAL do documento principal para a sanitização por
+     * lista de permissão. Devolve só geometria e tipos — nenhum texto sai daqui. Portador (pixels reais) apenas se:
+     * portador de nome pela nekkora-privacy/2, texto INTEIRO de interface do vocabulário, só texto/formatação inline por
+     * dentro, sem imagem de fundo nem pseudo-elemento com conteúdo, inteiro no viewport, no topo nos pontos de amostra.
+     * Campos editáveis entram só como moldura (o service worker desenha uma moldura sintética). Iframes, shadow DOM,
+     * títulos, parágrafos, tabelas, mensagens, imagens, SVG e canvas ficam de fora (opacos). Liga um observador de
+     * mutações: a ficha de layout ({@code cs.pdd.token}) muda se a página mudar até a captura.
+     */
+    'cs.pdd.plan': () => {
+      for (const k of ['debug', 'debugReview', 'debugCandidate', 'selection', 'hover']) {
+        NS.highlighter.hide(k); // o PDD não desenha nada na página
+      }
+      pdd.mutations = 0;
+      if (pdd.observer) {
+        pdd.observer.disconnect();
+      }
+      pdd.observer = new MutationObserver((list) => { pdd.mutations += list.length; });
+      pdd.observer.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true });
+      const vw = root.innerWidth;
+      const vh = root.innerHeight;
+      const regions = [];
+      const rejected = {};
+      const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
+      const policy = root.NekkoraCapturePolicy;
+      const fields = [];
+      for (const el of document.querySelectorAll('input, textarea, select, [contenteditable]')) {
+        const t = (el.getAttribute('type') || '').toLowerCase();
+        if (el.tagName === 'INPUT' && ['hidden', 'button', 'submit', 'reset', 'image'].includes(t)) {
+          continue;
+        }
+        if (el.getAttribute('contenteditable') === 'false') {
+          continue;
+        }
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < vw && r.top < vh) {
+          const x = Math.max(0, r.left), y = Math.max(0, r.top);
+          fields.push({ kind: 'FIELD', x, y, width: Math.min(vw, r.right) - x, height: Math.min(vh, r.bottom) - y });
+        }
+      }
+      const INLINE = new Set(['SPAN', 'B', 'STRONG', 'I', 'EM', 'SMALL', 'ABBR', 'U', 'S', 'SUB', 'SUP', 'MARK', 'BR']);
+      const pseudoText = (el) => ['::before', '::after'].some((p) => {
+        const c = getComputedStyle(el, p).content;
+        return c && c !== 'none' && c !== 'normal' && c !== '""' && c !== "''";
+      });
+      const clean = (el) => {
+        const cs = getComputedStyle(el);
+        if (cs.backgroundImage && cs.backgroundImage !== 'none') return false;
+        if (pseudoText(el)) return false;
+        for (const child of el.children) {
+          if (!INLINE.has(child.tagName) || !clean(child)) return false;
+        }
+        return true;
+      };
+      for (const el of document.querySelectorAll('button, summary, label, legend, a[href], [role]')) {
+        if (!policy || !policy.isCarrier(el.tagName.toLowerCase(), el.getAttribute('role'), el.hasAttribute('href'))) {
+          continue;
+        }
+        const r = el.getBoundingClientRect();
+        if (!(r.width > 0 && r.height > 0)) continue;
+        if (r.left < 0 || r.top < 0 || r.right > vw || r.bottom > vh) { reject('OUTSIDE_VIEWPORT'); continue; }
+        const cs = getComputedStyle(el);
+        if (cs.visibility !== 'visible' || Number(cs.opacity) === 0) { reject('NOT_VISIBLE'); continue; }
+        if (!policy.interfaceText(el.textContent || '')) { reject('TEXT_NOT_INTERFACE'); continue; }
+        if (!clean(el)) { reject('NOT_PLAIN_TEXT'); continue; }
+        const pts = [[r.left + r.width / 2, r.top + r.height / 2], [r.left + 2, r.top + 2], [r.right - 2, r.top + 2], [r.left + 2, r.bottom - 2],
+          [r.right - 2, r.bottom - 2]];
+        if (!pts.every(([x, y]) => { const top = document.elementFromPoint(x, y); return top && (top === el || el.contains(top)); })) {
+          reject('COVERED'); continue;
+        }
+        if (fields.some((f) => r.left < f.x + f.width && f.x < r.right && r.top < f.y + f.height && f.y < r.bottom)) {
+          reject('OVERLAPS_FIELD'); continue;
+        }
+        regions.push({ kind: 'CARRIER', x: r.left, y: r.top, width: r.width, height: r.height });
+      }
+      regions.push(...fields);
+      return { ok: true, viewport: { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY },
+        token: pdd.token(), regions, rejected, hasFrames: !!document.querySelector('iframe, frame, object, embed') };
+    },
+    /** Ficha do layout: muda com rolagem, tamanho, escala ou qualquer mutação desde o plano. */
+    'cs.pdd.token': () => ({ ok: true, token: pdd.token() }),
+    /** Retângulos (px CSS do viewport) dos nós já resolvidos pelo motor; nó desconectado ou fora do viewport → motivo. */
+    'cs.pdd.rects': (a) => {
+      const out = [];
+      for (const nodeId of (a && Array.isArray(a.nodeIds) ? a.nodeIds : []).slice(0, 32)) {
+        const el = NS.registry.elementFor(nodeId);
+        if (!el || !el.isConnected) { out.push({ nodeId, reason: 'NODE_NOT_CONNECTED' }); continue; }
+        const r = el.getBoundingClientRect();
+        if (!(r.width > 0 && r.height > 0) || r.left < 0 || r.top < 0 || r.right > root.innerWidth || r.bottom > root.innerHeight) {
+          out.push({ nodeId, reason: 'TARGET_OUTSIDE_VIEWPORT' });
+          continue;
+        }
+        out.push({ nodeId, x: r.left, y: r.top, width: r.width, height: r.height });
+      }
+      return { ok: true, rects: out, token: pdd.token() };
+    },
+    'cs.pdd.release': () => {
+      if (pdd.observer) {
+        pdd.observer.disconnect();
+        pdd.observer = null;
+      }
+      return { ok: true };
     },
     'cs.debug.unmark': () => {
       for (const k of ['debug', 'debugReview', 'debugCandidate']) {
