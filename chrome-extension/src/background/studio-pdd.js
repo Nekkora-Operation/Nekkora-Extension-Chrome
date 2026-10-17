@@ -9,6 +9,9 @@
  *   3. Resolução das etapas pelo motor (somente leitura, por identidade), plano visual do content script, ficha de
  *      layout, captureVisibleTab, ficha de novo (página mudou → descarta), sanitização por lista de permissão
  *      (visual-sanitizer.js), autoverificação de pixels.
+ *      captureVisibleTab captura a aba ATIVA da janela: a identidade da aba armada é conferida antes do plano, logo antes
+ *      e logo depois da captura (ativa na mesma janela, mesma janela, nenhuma troca de aba na janela desde o gesto —
+ *      inclusive A→B→A). Qualquer divergência descarta a imagem: ACTIVE_TAB_CHANGED.
  *   4. studio.pdd.captured — PNG JÁ sanitizado + regiões (tipo e retângulo) + anotações normalizadas; ou só o código da
  *      falha. A imagem bruta nunca é gravada, registrada, enviada nem guardada em storage: existe só dentro de
  *      shoot(), e é liberada no finally (inclusive em exceção).
@@ -24,7 +27,7 @@ export const SHORTCUT = 'nk-pdd-capturar';
 export const FAILURES = new Set(['VISUAL_CAPTURE_NOT_ALLOWED', 'NOT_ARMED', 'ARM_EXPIRED', 'TAB_MISMATCH', 'PAGE_CHANGED_DURING_CAPTURE',
   'GEOMETRY_MISMATCH', 'SANITIZATION_CHECK_FAILED', 'SANITIZED_IMAGE_TOO_LARGE', 'TAB_CLOSED', 'PAGE_CHANGED', 'PERMISSION_REVOKED', 'CAPTURE_BUSY',
   'CAPTURE_DENIED', 'REGION_OUT_OF_VIEWPORT', 'CARRIER_TOO_LARGE', 'CARRIER_OVERLAPS_FIELD', 'TOO_MANY_REGIONS', 'REGION_KIND_UNKNOWN', 'CONTENT_UNAVAILABLE',
-  'CANCELLED', 'INTERNAL']);
+  'CANCELLED', 'ACTIVE_TAB_CHANGED', 'INTERNAL']);
 const OMIT = new Set(['NOT_FOUND', 'AMBIGUOUS', 'IDENTITY_MISMATCH', 'STALE_TARGET', 'SCOPE_UNAVAILABLE', 'INSUFFICIENT_EVIDENCE', 'CONTEXT_UNAVAILABLE',
   'NODE_NOT_CONNECTED', 'TARGET_OUTSIDE_VIEWPORT', 'TARGET_IN_FRAME', 'NO_TARGET', 'RESOLUTION_FAILED']);
 
@@ -40,6 +43,7 @@ export function createStudioPdd(deps) {
   const now = () => (deps.now ? deps.now() : Date.now());
   let armed = null; // { captureId, controller, tabId, tabRef, steps, expiresAt }
   let running = false;
+  let inflight = null; // { captureId, controller, tabId, windowId, switched, cancelled } — do gesto até o evento
 
   const COMMANDS = {
     'studio.pdd.capture.arm': arm,
@@ -132,6 +136,10 @@ export function createStudioPdd(deps) {
       disarm('CANCELLED');
       return { captureId: p.captureId, cancelled: true };
     }
+    if (inflight && inflight.captureId === p.captureId && inflight.controller === controller) {
+      inflight.cancelled = true; // a captura em andamento termina em CANCELLED: nenhuma imagem é publicada
+      return { captureId: p.captureId, cancelled: true };
+    }
     return { captureId: typeof p.captureId === 'string' ? p.captureId.slice(0, 80) : '', cancelled: false };
   }
 
@@ -160,8 +168,10 @@ export function createStudioPdd(deps) {
     }
     armed = null; // uso único: daqui em diante o gesto foi consumido
     running = true;
+    inflight = { captureId: a.captureId, controller: a.controller, tabId: a.tabId, windowId: tab.windowId, switched: false, cancelled: false };
     try {
       const out = await shoot(a, tab);
+      await sameTab(); // conferência final: cancelamento ou troca durante a sanitização → nada é publicado
       postEvent(a.controller, out);
       return { captured: out.status === 'CAPTURED' };
     } catch (e) {
@@ -170,12 +180,32 @@ export function createStudioPdd(deps) {
       return { failed: code };
     } finally {
       running = false;
+      inflight = null;
       badge(a.tabId, '');
       toContent(a.tabId, 'cs.pdd.release', {}, 0).catch(() => {});
     }
   }
 
+  /**
+   * A aba armada continua sendo EXATAMENTE a aba ativa da janela do gesto, e nenhuma troca de aba aconteceu nessa
+   * janela desde o gesto (uma ida e volta A→B→A também conta: não se sabe qual aba a captura pegou)?
+   */
+  async function sameTab() {
+    const f = inflight;
+    if (!f) throw codeError('INTERNAL');
+    if (f.cancelled) throw codeError('CANCELLED');
+    if (f.switched) throw codeError('ACTIVE_TAB_CHANGED');
+    const t = await chromeApi.tabs.get(f.tabId).catch(() => null);
+    if (!t) throw codeError('TAB_CLOSED');
+    if (!t.active || t.windowId !== f.windowId) throw codeError('ACTIVE_TAB_CHANGED');
+    const act = await chromeApi.tabs.query({ active: true, windowId: f.windowId }).catch(() => null);
+    if (!Array.isArray(act) || act.length !== 1 || act[0].id !== f.tabId) throw codeError('ACTIVE_TAB_CHANGED');
+    if (f.cancelled) throw codeError('CANCELLED');
+    if (f.switched) throw codeError('ACTIVE_TAB_CHANGED');
+  }
+
   async function shoot(a, tab) {
+    await sameTab();
     const url = await policy.tabUrl(a.tabId).catch(() => null);
     if (policy.evaluate(url).kind !== 'LAB') throw codeError('VISUAL_CAPTURE_NOT_ALLOWED');
     // 1. alvos das etapas pelo motor (somente leitura, por identidade — nunca por localizador)
@@ -213,15 +243,17 @@ export function createStudioPdd(deps) {
     const nodeIds = [...resolved.values()].filter((x) => x.nodeId).map((x) => x.nodeId);
     const rects = nodeIds.length ? await toContent(a.tabId, 'cs.pdd.rects', { nodeIds }, 0).catch(() => null) : { ok: true, rects: [], token: plan.token };
     if (!rects || !rects.ok || rects.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
-    // 3. a imagem bruta: só aqui dentro
+    // 3. a imagem bruta: só aqui dentro, entre duas conferências da identidade da aba
     let raw = null;
     let decoded = null;
     try {
+      await sameTab();
       try {
         raw = await chromeApi.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
       } catch (e) {
         throw codeError('CAPTURE_DENIED');
       }
+      await sameTab(); // falhou → o finally descarta a imagem bruta sem decodificar
       const after = await toContent(a.tabId, 'cs.pdd.token', {}, 0).catch(() => null);
       if (!after || after.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
       decoded = await imaging.decode(raw);
@@ -270,6 +302,17 @@ export function createStudioPdd(deps) {
 
   function onTabRemoved(tabId) {
     if (armed && armed.tabId === tabId) disarm('TAB_CLOSED');
+    if (inflight && inflight.tabId === tabId) inflight.switched = true;
+  }
+
+  /** chrome.tabs.onActivated: qualquer troca de aba na janela da captura em andamento a invalida. */
+  function onTabActivated(info) {
+    if (inflight && info && (info.windowId === inflight.windowId || info.tabId === inflight.tabId)) inflight.switched = true;
+  }
+
+  /** chrome.tabs.onDetached/onAttached: a aba armada mudou de janela. */
+  function onTabMoved(tabId) {
+    if (inflight && inflight.tabId === tabId) inflight.switched = true;
   }
 
   function checkLease() {
@@ -277,10 +320,10 @@ export function createStudioPdd(deps) {
   }
 
   function state() {
-    return { armed: !!armed, running, captureId: armed ? armed.captureId : null };
+    return { armed: !!armed, running, captureId: armed ? armed.captureId : inflight ? inflight.captureId : null };
   }
 
-  return { COMMANDS, onShortcut, onPageChanged, onTabRemoved, checkLease, state };
+  return { COMMANDS, onShortcut, onPageChanged, onTabRemoved, onTabActivated, onTabMoved, checkLease, state };
 }
 
 function round6(v) {

@@ -259,8 +259,22 @@ public final class BrowserLab {
     // ------------------------------------------------------------------ páginas
 
     public Page open(String path) {
+        return open(path, null);
+    }
+
+    /** STUDIO-010: nova ABA na mesma janela de {@code sibling} (captureVisibleTab pega a aba ativa da janela). */
+    public Page openTab(Page sibling, String path) {
+        return open(path, sibling);
+    }
+
+    private Page open(String path, Page sibling) {
         String url = url(path);
-        driver.switchTo().newWindow(WindowType.WINDOW);
+        if (sibling == null) {
+            driver.switchTo().newWindow(WindowType.WINDOW);
+        } else {
+            driver.switchTo().window(sibling.handle());
+            driver.switchTo().newWindow(WindowType.TAB);
+        }
         driver.get(url);
         String handle = driver.getWindowHandle();
         String current = driver.getCurrentUrl();

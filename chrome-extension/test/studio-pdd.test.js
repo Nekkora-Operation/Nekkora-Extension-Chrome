@@ -82,6 +82,8 @@ let content;
 let captured;
 let decodeCalls;
 let lastPixels;
+let activeTab; // aba ativa da janela 9 (o que captureVisibleTab pegaria)
+let shots;
 
 function deps(over = {}) {
   return {
@@ -89,7 +91,11 @@ function deps(over = {}) {
     policy: { tabUrl: async (id) => urls.get(id), evaluate: (u) => ({ kind: u && u.startsWith('http://127.0.0.1') ? 'LAB' : 'AUTHORIZED' }) },
     tabs: { tabOf: (ref) => ({ 't-AbaLab0001': 1, 't-AbaSite002': 2 })[ref] ?? null, recordingOn: () => false },
     chrome: {
-      tabs: { get: async (id) => ({ id, windowId: 9 }), captureVisibleTab: async () => captured() },
+      tabs: {
+        get: async (id) => ({ id, windowId: 9, active: id === activeTab }),
+        query: async (q) => (q.active && q.windowId === 9 ? [{ id: activeTab, windowId: 9, active: true }] : []),
+        captureVisibleTab: async () => { shots++; return captured(); },
+      },
       action: { setBadgeText: async () => {} },
       commands: { getAll: async () => [{ name: 'nk-pdd-capturar', shortcut: 'Alt+Shift+K' }] },
     },
@@ -121,6 +127,8 @@ beforeEach(() => {
   clock = 1_000_000;
   decodeCalls = 0;
   lastPixels = null;
+  activeTab = 1;
+  shots = 0;
   captured = async () => 'data:image/png;base64,QlJVVEE=';
   content = (cmd) => {
     if (cmd === 'cs.pdd.plan') {
@@ -218,4 +226,145 @@ test('região incoerente (portador sobre campo) → falha sem imagem; navegaçã
   assert.deepEqual(events().map((e) => e.code), ['CARRIER_OVERLAPS_FIELD', 'PAGE_CHANGED', 'TAB_CLOSED', 'CANCELLED']);
   events().forEach(conform);
   assert.equal(pdd.state().armed, false);
+});
+
+// ------------------------------------------------------------------- R1 da revisão: identidade da aba na captura
+
+const ARM = (pdd, captureId = 'c1') => pdd.COMMANDS['studio.pdd.capture.arm']({ captureId, tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000 }, 'studio-a');
+
+function noImagePublished() {
+  assert.ok(events().every((e) => e.status === 'FAILED' && !('png' in e)), 'nenhuma imagem publicada');
+  assert.ok(!JSON.stringify(posted).includes('QlJVVEE='), 'a imagem bruta nunca sai');
+  events().forEach(conform);
+}
+
+/** Troca de aba simulada como o Chrome faz: a aba ativa muda e chrome.tabs.onActivated dispara. */
+function switchTo(pdd, tabId) {
+  activeTab = tabId;
+  pdd.onTabActivated({ tabId, windowId: 9 });
+}
+
+test('R1 troca de aba entre o gesto e a captura → ACTIVE_TAB_CHANGED; captureVisibleTab nem é chamado', async () => {
+  const pdd = createStudioPdd(deps());
+  const base = content;
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan') switchTo(pdd, 2);
+    return base(cmd, a);
+  };
+  await ARM(pdd);
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  assert.equal(shots, 0);
+  assert.deepEqual(events().map((e) => e.code), ['ACTIVE_TAB_CHANGED']);
+  noImagePublished();
+});
+
+test('R1 troca de aba durante uma preparação demorada (resolução das etapas) → ACTIVE_TAB_CHANGED, nada capturado', async () => {
+  const pdd = createStudioPdd(deps({
+    host: async (cmd, p) => {
+      await new Promise((r) => setTimeout(r, 30)); // preparação lenta
+      if (p.targetId === 'tgt-x') switchTo(pdd, 3); // outra aba do LABORATÓRIO
+      return { status: 'RESOLVED', resolvedNodeId: 'n1' };
+    },
+  }));
+  urls.set(3, 'http://127.0.0.1:18765/lab/studio010/consulta.html');
+  await ARM(pdd);
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  assert.equal(shots, 0);
+  noImagePublished();
+});
+
+test('R1 troca DURANTE captureVisibleTab (a imagem pode ser da outra aba) → descartada sem decodificar', async () => {
+  const pdd = createStudioPdd(deps());
+  captured = async () => {
+    switchTo(pdd, 3);
+    return 'data:image/png;base64,QlJVVEE=';
+  };
+  await ARM(pdd);
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  assert.equal(shots, 1);
+  assert.equal(decodeCalls, 0, 'a imagem bruta é descartada sem ser decodificada');
+  noImagePublished();
+});
+
+test('R1 segunda aba do laboratório: gesto nela → TAB_MISMATCH; aba ativa diferente sem evento → ACTIVE_TAB_CHANGED', async () => {
+  urls.set(3, 'http://127.0.0.1:18765/lab/studio010/consulta.html');
+  const pdd = createStudioPdd(deps());
+  await ARM(pdd, 'c1');
+  activeTab = 3;
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 3, windowId: 9 }), { failed: 'TAB_MISMATCH' });
+  // o Chrome entrega o gesto com a aba armada, mas a ativa já é outra (evento ainda não chegou): conferência direta
+  await ARM(pdd, 'c2');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  assert.equal(shots, 0);
+  noImagePublished();
+});
+
+test('R1 ida e volta A→B→A antes da captura → ACTIVE_TAB_CHANGED (não se sabe o que estava na tela)', async () => {
+  const pdd = createStudioPdd(deps());
+  const base = content;
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.rects') {
+      switchTo(pdd, 2);
+      switchTo(pdd, 1);
+    }
+    return base(cmd, a);
+  };
+  await ARM(pdd);
+  assert.equal(activeTab, 1);
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  assert.equal(shots, 0);
+  noImagePublished();
+  // depois disso, uma captura nova e limpa na aba original funciona
+  content = base;
+  await ARM(pdd, 'c2');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { captured: true });
+  assert.equal(events().at(-1).status, 'CAPTURED');
+});
+
+test('R1 aba armada movida para outra janela ou troca em OUTRA janela', async () => {
+  const pdd = createStudioPdd(deps());
+  const base = content;
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan') pdd.onTabMoved(1);
+    return base(cmd, a);
+  };
+  await ARM(pdd, 'c1');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'ACTIVE_TAB_CHANGED' });
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan') pdd.onTabActivated({ tabId: 40, windowId: 12 }); // outra janela: não afeta esta captura
+    return base(cmd, a);
+  };
+  await ARM(pdd, 'c2');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { captured: true });
+});
+
+test('R1 cancelar durante a captura (preparação ou sanitização) → CANCELLED, nenhuma imagem publicada', async () => {
+  const pdd = createStudioPdd(deps());
+  const base = content;
+  let cancelReply = null;
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan' && !cancelReply) {
+      cancelReply = pdd.COMMANDS['studio.pdd.capture.cancel']({ captureId: 'c1' }, 'studio-a');
+    }
+    return base(cmd, a);
+  };
+  await ARM(pdd, 'c1');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'CANCELLED' });
+  assert.deepEqual(await cancelReply, { captureId: 'c1', cancelled: true });
+  assert.equal(shots, 0);
+  // cancelamento depois da captura bruta, durante a codificação: ainda nada é publicado
+  content = base;
+  const d = deps();
+  const enc = d.imaging.encode;
+  let pdd2;
+  d.imaging.encode = async (px, w, h) => {
+    await pdd2.COMMANDS['studio.pdd.capture.cancel']({ captureId: 'c2' }, 'studio-a');
+    return enc(px, w, h);
+  };
+  pdd2 = createStudioPdd(d);
+  await ARM(pdd2, 'c2');
+  assert.deepEqual(await pdd2.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'CANCELLED' });
+  assert.deepEqual(events().map((e) => e.code), ['CANCELLED', 'CANCELLED']);
+  noImagePublished();
+  assert.equal(pdd2.state().running, false);
 });

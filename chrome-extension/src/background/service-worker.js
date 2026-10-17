@@ -492,3 +492,14 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.commands.onCommand.addListener((command, tab) => {
   ready.then(() => studioRecording.pdd.onShortcut(command, tab)).catch(() => {});
 });
+
+/** STUDIO-010: troca de aba (ou de janela) durante uma captura do PDD invalida a captura (captureVisibleTab pega a aba ativa). */
+chrome.tabs.onActivated.addListener((info) => {
+  ready.then(() => studioRecording.pdd.onTabActivated(info)).catch(() => {});
+});
+chrome.tabs.onDetached.addListener((tabId) => {
+  ready.then(() => studioRecording.pdd.onTabMoved(tabId)).catch(() => {});
+});
+chrome.tabs.onAttached.addListener((tabId) => {
+  ready.then(() => studioRecording.pdd.onTabMoved(tabId)).catch(() => {});
+});

@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Studio010SafeCaptureIT extends SessionIT {
 
     private static final String LOGIN = "/lab/studio010/login.html";
+    private static final String CONSULTA = "/lab/studio010/consulta.html";
     private static final String SENTINELAS = "/lab/studio010/sentinelas.html";
     private static final ObjectMapper M = new ObjectMapper();
     private static StudioBridgeLab studio;
@@ -433,5 +434,115 @@ class Studio010SafeCaptureIT extends SessionIT {
             assertEquals("TARGET_OUTSIDE_VIEWPORT", a.path("reason").asText(), a.toString());
         }
         assertEquals(0, sentinelPixels(image(e2)));
+    }
+
+    // ------------------------------------------------------------------- R1 da revisão: identidade da aba na captura
+
+    /** Página do login com a thread ocupada (preparação lenta) + uma 2ª aba do laboratório na MESMA janela. */
+    private Page[] slowWithSecondTab() throws Exception {
+        Page a = page(LOGIN);
+        Page b = lab.openTab(a, CONSULTA);
+        opened.add(b);
+        lab.focus(a);
+        assertEquals("visible", lab.js(a, "return document.visibilityState"), "a aba A está à frente");
+        lab.js(a, "window.nkLenta(true)");
+        return new Page[] {a, b};
+    }
+
+    private static void noImage(JsonNode e) {
+        assertEquals("FAILED", e.path("status").asText(), e.toString());
+        assertTrue(!e.has("png") && !e.has("regions"), "nenhuma imagem publicada: " + e);
+    }
+
+    @Test
+    @DisplayName("R1-01 troca de aba logo depois do gesto (preparação em andamento): ACTIVE_TAB_CHANGED, nenhuma imagem")
+    void trocaDepoisDoGesto() throws Exception {
+        Page[] t = slowWithSecondTab();
+        try {
+            String cid = id("cap");
+            assertTrue(arm(t[0], cid, LOGIN_STEPS).path("ok").asBoolean());
+            gesture(t[0]);
+            lab.focus(t[1]); // a aba B (laboratório, mesma janela) fica ativa antes da captura
+            assertEquals("visible", lab.js(t[1], "return document.visibilityState"));
+            JsonNode e = captured(cid);
+            noImage(e);
+            assertEquals("ACTIVE_TAB_CHANGED", e.path("code").asText());
+        } finally {
+            lab.js(t[0], "window.nkLenta(false)");
+        }
+    }
+
+    @Test
+    @DisplayName("R1-02 troca de aba no meio de uma preparação demorada: ACTIVE_TAB_CHANGED; depois, captura limpa na aba original funciona")
+    void trocaDuranteAPreparacao() throws Exception {
+        Page[] t = slowWithSecondTab();
+        String cid = id("cap");
+        assertTrue(arm(t[0], cid, LOGIN_STEPS).path("ok").asBoolean());
+        gesture(t[0]);
+        Thread.sleep(900); // já dentro da preparação (página ocupada)
+        lab.focus(t[1]);
+        JsonNode e = captured(cid);
+        noImage(e);
+        assertEquals("ACTIVE_TAB_CHANGED", e.path("code").asText());
+        lab.focus(t[0]);
+        lab.js(t[0], "window.nkLenta(false)");
+        String cid2 = id("cap");
+        assertTrue(arm(t[0], cid2, LOGIN_STEPS).path("ok").asBoolean());
+        gesture(t[0]);
+        JsonNode ok = captured(cid2);
+        assertEquals("CAPTURED", ok.path("status").asText(), ok.toString());
+        assertEquals(0, sentinelPixels(image(ok)));
+    }
+
+    @Test
+    @DisplayName("R1-03 segunda aba do laboratório: armada para A, gesto em B → TAB_MISMATCH, nada de B é capturado")
+    void segundaAbaDoLaboratorio() throws Exception {
+        Page a = page(LOGIN);
+        Page b = lab.openTab(a, CONSULTA);
+        opened.add(b);
+        String cid = id("cap");
+        assertTrue(arm(a, cid, LOGIN_STEPS).path("ok").asBoolean());
+        gesture(b);
+        JsonNode e = captured(cid);
+        noImage(e);
+        assertEquals("TAB_MISMATCH", e.path("code").asText());
+    }
+
+    @Test
+    @DisplayName("R1-04 ida e volta A→B→A durante a preparação: ACTIVE_TAB_CHANGED mesmo com A ativa no fim")
+    void idaEVolta() throws Exception {
+        Page[] t = slowWithSecondTab();
+        try {
+            String cid = id("cap");
+            assertTrue(arm(t[0], cid, LOGIN_STEPS).path("ok").asBoolean());
+            gesture(t[0]);
+            lab.focus(t[1]);
+            Thread.sleep(200);
+            lab.focus(t[0]); // de volta à aba armada
+            JsonNode e = captured(cid);
+            noImage(e);
+            assertEquals("ACTIVE_TAB_CHANGED", e.path("code").asText());
+        } finally {
+            lab.js(t[0], "window.nkLenta(false)");
+        }
+    }
+
+    @Test
+    @DisplayName("R1-05 cancelar depois do gesto, com a captura em andamento: cancelled=true, evento CANCELLED, nenhuma imagem")
+    void cancelarEmAndamento() throws Exception {
+        Page[] t = slowWithSecondTab();
+        try {
+            String cid = id("cap");
+            assertTrue(arm(t[0], cid, LOGIN_STEPS).path("ok").asBoolean());
+            gesture(t[0]);
+            Thread.sleep(300);
+            JsonNode c = studio.call("studio.pdd.capture.cancel", studio.obj().put("captureId", cid));
+            assertTrue(c.at("/payload/cancelled").asBoolean(), c.toString());
+            JsonNode e = captured(cid);
+            noImage(e);
+            assertEquals("CANCELLED", e.path("code").asText());
+        } finally {
+            lab.js(t[0], "window.nkLenta(false)");
+        }
     }
 }
