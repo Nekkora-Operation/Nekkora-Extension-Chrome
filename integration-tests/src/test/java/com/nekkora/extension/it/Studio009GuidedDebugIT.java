@@ -379,4 +379,63 @@ class Studio009GuidedDebugIT extends SessionIT {
         assertFalse(amb.at("/payload/performed").asBoolean(), amb.toString());
         assertEquals(0, oracle("/api/studio009/estado").path("total").asInt(), "oráculo: nenhuma consulta");
     }
+
+    @Test
+    @DisplayName("G8-01 seleção no navegador DENTRO de iframe (mesma origem) e de shadow aberto: elemento descrito, nada acionado")
+    void selecaoEmQuadroEShadow() throws Exception {
+        Page p = variant("iframe");
+        start(p);
+        String rq = id("rq");
+        JsonNode r = studio.call("studio.debug.pick", studio.obj().put("debugId", debugId).put("requestId", rq).put("action", "START").putNull("candidateRef")
+                .put("actionType", "FILL"));
+        assertTrue(r.at("/payload/picking").asBoolean(), r.toString());
+        lab.clickInFrame(p, By.tagName("iframe"), By.cssSelector("form input"));
+        JsonNode picked;
+        try {
+            picked = studio.awaitEvent(e -> "studio.debug.picked".equals(e.path("type").asText()) && rq.equals(e.at("/payload/requestId").asText()),
+                    Duration.ofSeconds(20)).get("payload");
+        } catch (AssertionError | RuntimeException e) {
+            throw new AssertionError("seleção no quadro não descrita: " + lab.call("studio.debugs", p), e);
+        }
+        assertEquals("SEARCH_INPUT", picked.at("/element/kind").asText(), picked.toString());
+        assertEquals("BROWSER_SELECTION", picked.path("origin").asText());
+        assertEquals(0, ((Number) lab.js(p, "const c = document.querySelector('iframe').contentWindow.__nk009; return c.click + c.focusin + c.input")).intValue(),
+                "nada acionado dentro do quadro");
+        lab.screenshot(p, "S009-G8-01-selecao-iframe");
+        studio.call("studio.debug.finish", studio.obj().put("debugId", debugId).put("operationId", id("op")));
+
+        Page sh = variant("shadow-aberto");
+        start(sh);
+        String rq2 = id("rq");
+        studio.call("studio.debug.pick", studio.obj().put("debugId", debugId).put("requestId", rq2).put("action", "START").putNull("candidateRef")
+                .put("actionType", "FILL"));
+        org.openqa.selenium.WebElement input = (org.openqa.selenium.WebElement) lab.js(sh, "return document.querySelector('nk-consulta').shadowRoot.querySelector('form input')");
+        lab.clickElement(sh, input);
+        JsonNode inShadow;
+        try {
+            inShadow = studio.awaitEvent(e -> "studio.debug.picked".equals(e.path("type").asText()) && rq2.equals(e.at("/payload/requestId").asText()),
+                    Duration.ofSeconds(20)).get("payload");
+        } catch (AssertionError | RuntimeException e) {
+            throw new AssertionError("seleção no shadow não descrita: " + lab.call("studio.debugs", sh), e);
+        }
+        assertEquals("SEARCH_INPUT", inShadow.at("/element/kind").asText(), inShadow.toString());
+        assertEquals(0, interactions(sh), "nada acionado no shadow");
+    }
+
+    @Test
+    @DisplayName("G8-02 navegar na aba do debug emite studio.debug.changed com época nova (o Studio verifica de novo); fechar a aba encerra com TAB_CLOSED")
+    void navegacaoEFechamentoAvisamOStudio() throws Exception {
+        Page p = variant("base");
+        start(p);
+        inspect(null, descriptor("SEARCH_INPUT", "input", "Código do registro", "registro-codigo", "#registro-codigo"), "FILL", true);
+        lab.js(p, "location.href = location.pathname + '?v=id-mudado&nova=1'");
+        JsonNode changed = studio.awaitEvent(e -> "studio.debug.changed".equals(e.path("type").asText())
+                && debugId.equals(e.at("/payload/debug/debugId").asText()) && e.at("/payload/debug/pageEpoch").asInt() >= 2, Duration.ofSeconds(20));
+        assertEquals("NAVIGATED", changed.at("/payload/debug/reason").asText(), changed.toString());
+        lab.close(p);
+        opened.remove(p);
+        JsonNode ended = studio.awaitEvent(e -> "studio.debug.changed".equals(e.path("type").asText())
+                && debugId.equals(e.at("/payload/debug/debugId").asText()) && "ENDED".equals(e.at("/payload/debug/state").asText()), Duration.ofSeconds(20));
+        assertEquals("TAB_CLOSED", ended.at("/payload/debug/reason").asText(), ended.toString());
+    }
 }

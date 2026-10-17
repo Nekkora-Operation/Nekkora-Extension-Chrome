@@ -378,6 +378,24 @@ public final class BrowserLab {
         new Actions(driver).scrollToElement(el).moveToElement(el).click().perform();
     }
 
+    /** Clique REAL de ponteiro num elemento já localizado (ex.: dentro de shadow root aberto). */
+    public void clickElement(Page p, WebElement el) {
+        focus(p);
+        new Actions(driver).scrollToElement(el).moveToElement(el).click().perform();
+    }
+
+    /** Clique REAL de ponteiro num elemento dentro de um iframe (mesma origem ou não). */
+    public void clickInFrame(Page p, By frame, By by) {
+        focus(p);
+        try {
+            driver.switchTo().frame(driver.findElement(frame));
+            WebElement el = driver.findElement(by);
+            new Actions(driver).scrollToElement(el).moveToElement(el).click().perform();
+        } finally {
+            driver.switchTo().defaultContent();
+        }
+    }
+
     public Object js(Page p, String script, Object... args) {
         focus(p);
         return ((JavascriptExecutor) driver).executeScript(script, args);

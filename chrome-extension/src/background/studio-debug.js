@@ -324,6 +324,12 @@ export function createStudioDebug(deps) {
     s.marked = null;
   }
 
+  /** Código de uma falha interna (diagnóstico): nunca mensagem livre. */
+  function failureCode(e) {
+    const c = e && (e.code || (e.error && e.error.code));
+    return typeof c === 'string' && /^[A-Z][A-Z0-9_]{0,59}$/.test(c) ? c : 'INTERNAL';
+  }
+
   function clean(list, allowed) {
     return Array.from(new Set((list || []).filter((x) => allowed.has(x))));
   }
@@ -561,7 +567,10 @@ export function createStudioDebug(deps) {
         throw fail('CANDIDATE_EXPIRED', 'O candidato pertence a uma página anterior: inspecione de novo.');
       }
       const result = remember(s, p.requestId, { debug: view(s), requestId: p.requestId, picking: false });
-      describeAndEmit(s, c.nodeId, p.requestId, p.actionType, 'ADOPTED_CANDIDATE').catch(() => {});
+      describeAndEmit(s, c.nodeId, p.requestId, p.actionType, 'ADOPTED_CANDIDATE').catch((e) => {
+        s.pickFailure = failureCode(e);
+        changed(s, s.reason);
+      });
       return result;
     }
     throw fail('BAD_REQUEST', 'action inválida');
@@ -668,7 +677,8 @@ export function createStudioDebug(deps) {
     s.pickRequestId = null;
     // o inspetor desenha a própria caixa de seleção no clique: ela sai, o debug mostra a sua
     stopInspector(s).then(() => clearSelection(s)).catch(() => {});
-    describeAndEmit(s, nodeId, requestId, s.pickAction || 'UNKNOWN', 'BROWSER_SELECTION').catch(() => {
+    describeAndEmit(s, nodeId, requestId, s.pickAction || 'UNKNOWN', 'BROWSER_SELECTION').catch((e) => {
+      s.pickFailure = failureCode(e); // diagnóstico local (só código; nunca vai ao Studio)
       changed(s, s.reason); // a seleção falhou: o Studio vê o estado (picking=false) e pode tentar de novo
     });
     return true;
@@ -741,7 +751,7 @@ export function createStudioDebug(deps) {
 
   function list() {
     return Array.from(sessions.values()).map((s) => ({ debugId: s.debugId, tabId: s.tabId, state: s.state, pageEpoch: s.pageEpoch, picking: s.picking,
-      reason: s.reason, inspections: s.inspections }));
+      reason: s.reason, inspections: s.inspections, pickFailure: s.pickFailure || null }));
   }
 
   return { COMMANDS, onElementSelected, onPageChanged, onTabRemoved, onPermissionsRemoved, onRecordingStarted, restore, checkLeases, list, sessions,

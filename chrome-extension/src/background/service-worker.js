@@ -418,6 +418,14 @@ chrome.webNavigation.onCommitted.addListener((d) => {
     return;
   }
   broadcast('tab-navigated', { tabId: d.tabId });
+  // STUDIO-009: novo documento na aba do debug guiado = nova época, mesmo sem captura ativa (sem isso o Studio
+  // continuaria mostrando a verificação da página anterior); origem não permitida encerra a sessão
+  ready.then(async () => {
+    studioRecording.debug.onPageChanged(d.tabId, 'NAVIGATED');
+    if (!isAllowedUrl(d.url)) {
+      await studioRecording.debug.onPermissionsRemoved();
+    }
+  }).catch(() => {});
   if (!isAllowedUrl(d.url)) {
     ready.then(async () => {
       if (capture.isActive(d.tabId)) {
