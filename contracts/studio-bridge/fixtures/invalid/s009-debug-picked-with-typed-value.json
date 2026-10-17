@@ -1,0 +1,74 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.debug.picked",
+  "seq": 92,
+  "payload": {
+    "debugId": "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63",
+    "requestId": "rq-5",
+    "pageEpoch": 1,
+    "observedAt": "2026-10-17T12:00:09.000Z",
+    "origin": "BROWSER_SELECTION",
+    "element": {
+      "resolution": "RESOLVED",
+      "kind": "BUTTON",
+      "role": "button",
+      "name": "Consultar",
+      "tag": "button",
+      "htmlId": "consultar",
+      "htmlName": null,
+      "sensitive": false,
+      "locators": [
+        {
+          "strategy": "TEST_ATTRIBUTE",
+          "description": "",
+          "css": "[data-testid=\"consultar\"]",
+          "xpath": null,
+          "matchCount": 1,
+          "matchesTarget": true,
+          "stability": "HEURISTIC_STABLE",
+          "validation": "LIVE"
+        }
+      ],
+      "preferredLocator": 0,
+      "accessPath": [
+        {
+          "type": "MAIN_DOCUMENT",
+          "label": "",
+          "locator": null,
+          "restriction": null
+        }
+      ],
+      "context": [],
+      "lookalikes": 0,
+      "correlation": {
+        "targetId": "tgt-8d02b7",
+        "nodeId": "n31",
+        "captureId": "cap-40",
+        "documentId": "doc:f0"
+      }
+    },
+    "checks": {
+      "identity": "NOT_APPLICABLE",
+      "unique": "NOT_APPLICABLE",
+      "visible": "PASS",
+      "enabled": "PASS",
+      "editable": "NOT_APPLICABLE",
+      "kindMatchesAction": "NOT_APPLICABLE",
+      "frameReachable": "NOT_APPLICABLE",
+      "shadowReachable": "NOT_APPLICABLE"
+    },
+    "box": {
+      "x": 120,
+      "y": 210,
+      "width": 320,
+      "height": 32,
+      "viewportWidth": 1280,
+      "viewportHeight": 720,
+      "devicePixelRatio": 1.25,
+      "screenX": 128,
+      "screenY": 311
+    },
+    "value": "12345"
+  }
+}

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://nekkora.dev/contracts/native-protocol/1",
   "title": "Nekkora Native Messaging envelope (nekkora-nm/1)",
-  "description": "Mensagens trocadas entre a extensão e o host Java. Cada mensagem é enquadrada pelo Chrome (32 bits little-endian + JSON UTF-8). Saída do host <= 1 MiB por mensagem; mensagens maiores usam envelopes 'chunk'. CHROME-002: comandos capture.session.* (sessão de captura sequenciada), capture.pin, export.session e host.memory; códigos de recusa de delta. Mudança aditiva: nenhuma mensagem anterior deixou de ser válida. STUDIO-002 (aditivo): requisições studio.link.configure/studio.link.status e host.hold (operação longa controlada para testes de responsividade); mensagens iniciadas pelo HOST (studio.command, studio.link) e mensagens da extensão que não são requisições (studio.reply, studio.event) — roteadas pelo tipo, nunca confundidas com respostas. STUDIO-003 (aditivo): requisições recorder.element.describe/recorder.element.verify (referência compacta do elemento de uma etapa gravada) e o evento studio.recording.step (studio.event).",
+  "description": "Mensagens trocadas entre a extensão e o host Java. Cada mensagem é enquadrada pelo Chrome (32 bits little-endian + JSON UTF-8). Saída do host <= 1 MiB por mensagem; mensagens maiores usam envelopes 'chunk'. CHROME-002: comandos capture.session.* (sessão de captura sequenciada), capture.pin, export.session e host.memory; códigos de recusa de delta. Mudança aditiva: nenhuma mensagem anterior deixou de ser válida. STUDIO-002 (aditivo): requisições studio.link.configure/studio.link.status e host.hold (operação longa controlada para testes de responsividade); mensagens iniciadas pelo HOST (studio.command, studio.link) e mensagens da extensão que não são requisições (studio.reply, studio.event) — roteadas pelo tipo, nunca confundidas com respostas. STUDIO-003 (aditivo): requisições recorder.element.describe/recorder.element.verify (referência compacta do elemento de uma etapa gravada) e o evento studio.recording.step (studio.event). STUDIO-009 (aditivo): requisições debug.resolve (reencontro SOMENTE LEITURA para o debug guiado do Studio: por targetId registrado ou identidade transitória do descritor) e debug.node.state (verificações situadas de um nó).",
   "oneOf": [
     {
       "$ref": "#/$defs/Request"
@@ -81,7 +81,9 @@
             "studio.link.configure",
             "studio.link.status",
             "recorder.element.describe",
-            "recorder.element.verify"
+            "recorder.element.verify",
+            "debug.resolve",
+            "debug.node.state"
           ]
         },
         "payload": {

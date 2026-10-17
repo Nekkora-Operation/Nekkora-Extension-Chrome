@@ -176,6 +176,7 @@ const commands = {
   'studio.link.get': async () => studioLink.describe(),
   'studio.link.set': async (a) => studioLink.setEnabled(!!a.enabled),
   'studio.recordings': async () => studioRecording.list(),
+  'studio.debugs': async () => studioRecording.debug.list(),
   // DEV (testes): referência opaca da aba para o Studio — o título deixou de identificar a aba (CHROME-SECURITY-001, D4)
   'studio.tabRef': async (a) => ({ tabRef: studioRecording.tabRef(a.tabId) }),
   /** Medições do pipeline de etapas (harness/diagnóstico): contagens e latências, sem conteúdo da página. */
@@ -328,6 +329,10 @@ async function onContentEvent(msg, sender) {
     case 'delta':
       return capture.onDelta(tabId, frameId, msg.data);
     case 'element-selected':
+      // STUDIO-009: com a seleção do debug guiado armada nesta aba, o clique interceptado pertence ao debug
+      if (studioRecording.debug.onElementSelected(tabId, msg.data.nodeId)) {
+        return { ok: true };
+      }
       inspection.selectNode(tabId, msg.data.nodeId)
         .catch((e) => broadcast('error', { tabId, where: 'selection', ...errorInfo(e) }));
       return { ok: true };
@@ -413,6 +418,14 @@ chrome.webNavigation.onCommitted.addListener((d) => {
     return;
   }
   broadcast('tab-navigated', { tabId: d.tabId });
+  // STUDIO-009: novo documento na aba do debug guiado = nova época, mesmo sem captura ativa (sem isso o Studio
+  // continuaria mostrando a verificação da página anterior); origem não permitida encerra a sessão
+  ready.then(async () => {
+    studioRecording.debug.onPageChanged(d.tabId, 'NAVIGATED');
+    if (!isAllowedUrl(d.url)) {
+      await studioRecording.debug.onPermissionsRemoved();
+    }
+  }).catch(() => {});
   if (!isAllowedUrl(d.url)) {
     ready.then(async () => {
       if (capture.isActive(d.tabId)) {

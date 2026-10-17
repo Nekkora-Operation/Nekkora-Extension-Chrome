@@ -1,0 +1,29 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.debug.start",
+  "id": "c-90",
+  "seq": 91,
+  "ok": true,
+  "payload": {
+    "debug": {
+      "debugId": "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63",
+      "protocol": "guided-debug/1",
+      "state": "ACTIVE",
+      "tab": {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "Consulta",
+        "host": "127.0.0.1"
+      },
+      "pageEpoch": 1,
+      "picking": false,
+      "lease": {
+        "leaseMs": 30000,
+        "expiresInMs": 29000
+      },
+      "reason": null
+    },
+    "duplicate": false
+  },
+  "error": null
+}

@@ -1,0 +1,76 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.debug.inspect",
+  "id": "c-90",
+  "seq": 91,
+  "ok": true,
+  "payload": {
+    "debug": {
+      "debugId": "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63",
+      "protocol": "guided-debug/1",
+      "state": "ACTIVE",
+      "tab": {
+        "tabRef": "t-Q2f9LmZx7Kp1",
+        "title": "Consulta",
+        "host": "127.0.0.1"
+      },
+      "pageEpoch": 1,
+      "picking": false,
+      "lease": {
+        "leaseMs": 30000,
+        "expiresInMs": 29000
+      },
+      "reason": null
+    },
+    "requestId": "rq-1",
+    "stepRef": "6f0c8d2e-1a3b-4c5d-9e7f-0a1b2c3d4e5f",
+    "observedAt": "2026-10-17T12:00:03.000Z",
+    "pageEpoch": 1,
+    "identitySource": "TARGET_ID",
+    "status": "RESOLVED",
+    "score": 0.93,
+    "reasons": [],
+    "checks": {
+      "identity": "PASS",
+      "unique": "PASS",
+      "visible": "PASS",
+      "enabled": "PASS",
+      "editable": "PASS",
+      "kindMatchesAction": "PASS",
+      "frameReachable": "NOT_APPLICABLE",
+      "shadowReachable": "NOT_APPLICABLE"
+    },
+    "element": {
+      "kind": "SEARCH_INPUT",
+      "name": "Código do registro",
+      "tag": "input",
+      "sensitive": false,
+      "text": "Ana Souza"
+    },
+    "candidates": [
+      {
+        "candidateRef": "cand-1-1",
+        "verdict": "CONFIRMED",
+        "score": 0.93,
+        "kind": "SEARCH_INPUT",
+        "name": "Código do registro",
+        "chosen": true
+      }
+    ],
+    "highlighted": true,
+    "box": {
+      "x": 120,
+      "y": 210,
+      "width": 320,
+      "height": 32,
+      "viewportWidth": 1280,
+      "viewportHeight": 720,
+      "devicePixelRatio": 1.25,
+      "screenX": 128,
+      "screenY": 311
+    },
+    "continuity": "NOT_PROVEN"
+  },
+  "error": null
+}

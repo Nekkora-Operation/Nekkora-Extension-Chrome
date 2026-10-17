@@ -1,0 +1,11 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.debug.finish",
+  "id": "c-90",
+  "seq": 90,
+  "payload": {
+    "debugId": "dbg-5e0f2c1a-9b3d-4f6e-8a7c-2d1b0e9f4a63",
+    "operationId": "op-d2"
+  }
+}

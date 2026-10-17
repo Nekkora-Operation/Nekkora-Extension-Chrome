@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Consulta de registro</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 24px; color: #222; }
+  form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin: 12px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; max-width: 640px; }
+  label { display: block; font-weight: 600; }
+  input { padding: 6px 8px; width: 240px; }
+  button { padding: 6px 14px; }
+  .resultado { margin-top: 12px; padding: 8px 12px; background: #f4f4f4; border-radius: 6px; min-height: 24px; max-width: 616px; }
+  iframe { border: 1px dashed #999; width: 700px; height: 230px; display: block; margin: 8px 0; }
+  .nota { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+<!--
+  STUDIO-009 — laboratório "Consulta de registro" (dados 100% fictícios, origem local).
+  Variantes por ?v= (determinísticas): base, id-mudado, reordenado, duplicado, errado, oculto, desabilitado, rerender,
+  tardio, removido, iframe, iframe-aninhado, iframe-ambiguo, shadow-aberto, shadow-fechado, rotulo-suprimido, navegar.
+  O ORÁCULO é o servidor (/api/studio009/estado): conta as consultas efetivamente feitas, sem ler esta página.
+  window.__nk009 conta, no mundo da página, os eventos que os controles receberam (para provar que destacar não interage).
+-->
+<h1>Consulta de registro</h1>
+<p class="nota" id="variante"></p>
+<div id="raiz"></div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const v = params.get('v') || 'base';
+  const embed = params.get('embed');
+  document.getElementById('variante').textContent = 'Variante: ' + v + (embed ? ' (embutida)' : '');
+  const counts = { mouseover: 0, mouseenter: 0, pointerdown: 0, mousedown: 0, click: 0, focusin: 0, input: 0, change: 0, submit: 0, keydown: 0 };
+  window.__nk009 = counts;
+
+  function watch(el) {
+    for (const t of ['mouseover', 'mouseenter', 'pointerdown', 'mousedown', 'click', 'focusin', 'input', 'change', 'keydown']) {
+      el.addEventListener(t, () => { counts[t]++; });
+    }
+  }
+
+  function consultar(codigo, saida) {
+    saida.textContent = 'Consultando…';
+    fetch('/api/studio009/consulta?codigo=' + encodeURIComponent(codigo))
+      .then((r) => r.json())
+      .then((j) => {
+        saida.textContent = j.encontrado ? 'Registro encontrado: situação ' + j.registro.situacao : 'Nenhum registro encontrado';
+        saida.setAttribute('data-situacao', j.encontrado ? j.registro.situacao : 'NAO_ENCONTRADO');
+      })
+      .catch(() => { saida.textContent = 'Falha na consulta'; saida.setAttribute('data-situacao', 'FALHA'); });
+  }
+
+  /** Monta o formulário. opts: ids/rótulos/ordem/estado. Devolve o form. */
+  function formulario(root, opts) {
+    const o = Object.assign({ inputId: 'registro-codigo', inputName: 'codigo', buttonId: 'consultar', testId: 'consultar',
+      label: 'Código do registro', buttonText: 'Consultar', reverse: false, extraClear: true }, opts || {});
+    const form = document.createElement('form');
+    form.setAttribute('aria-label', 'Consulta');
+    const campo = document.createElement('div');
+    const label = document.createElement('label');
+    label.setAttribute('for', o.inputId);
+    label.textContent = o.label;
+    const input = document.createElement('input');
+    input.type = 'search';
+    input.id = o.inputId;
+    input.name = o.inputName;
+    input.autocomplete = 'off';
+    campo.append(label, input);
+    const botao = document.createElement('button');
+    botao.type = 'submit';
+    if (o.buttonId) botao.id = o.buttonId;
+    if (o.testId) botao.setAttribute('data-testid', o.testId);
+    botao.textContent = o.buttonText;
+    const limpar = document.createElement('button');
+    limpar.type = 'button';
+    limpar.textContent = 'Limpar';
+    if (o.clearId) limpar.id = o.clearId;
+    limpar.addEventListener('click', () => { input.value = ''; });
+    const resultado = document.createElement('div');
+    resultado.className = 'resultado';
+    resultado.setAttribute('role', 'status');
+    resultado.setAttribute('aria-label', 'Resultado da consulta');
+    resultado.id = o.resultId || 'resultado';
+    if (o.reverse) {
+      form.append(botao, limpar, campo);
+    } else {
+      form.append(campo, botao, limpar);
+    }
+    for (const el of [input, botao, limpar]) watch(el);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      counts.submit++;
+      consultar(input.value, resultado);
+    });
+    root.append(form, resultado);
+    return { form, input, botao, limpar, resultado };
+  }
+
+  function quadro(root, src, title) {
+    const f = document.createElement('iframe');
+    f.src = src;
+    f.title = title;
+    root.append(f);
+    return f;
+  }
+
+  const raiz = document.getElementById('raiz');
+  switch (v) {
+    case 'id-mudado':
+      formulario(raiz, { inputId: 'codigo-v2', inputName: 'codigo-v2', buttonId: 'btn-v2', testId: 'consultar-v2' });
+      break;
+    case 'reordenado':
+      formulario(raiz, { reverse: true });
+      break;
+    case 'duplicado': {
+      // dois formulários iguais, sem nada que os distinga: nenhum "primeiro encontrado" pode ser o alvo
+      formulario(raiz, { inputId: 'registro-codigo', buttonId: null, testId: null, resultId: 'resultado-1' });
+      formulario(raiz, { inputId: 'registro-codigo-b', inputName: 'codigo', buttonId: null, testId: null, resultId: 'resultado-2' });
+      break;
+    }
+    case 'errado':
+      // o endereço forte do botão (#consultar / data-testid) agora pertence ao botão Limpar
+      formulario(raiz, { buttonId: null, testId: null, clearId: 'consultar' }).limpar.setAttribute('data-testid', 'consultar');
+      break;
+    case 'oculto':
+      formulario(raiz).botao.style.display = 'none';
+      break;
+    case 'desabilitado':
+      formulario(raiz).botao.disabled = true;
+      break;
+    case 'rerender': {
+      const f = formulario(raiz);
+      let n = 0;
+      setInterval(() => {
+        const clone = f.botao.cloneNode(true);
+        watch(clone);
+        f.botao.replaceWith(clone);
+        f.botao = clone;
+        n++;
+        document.body.setAttribute('data-rerenders', String(n));
+      }, 1000);
+      break;
+    }
+    case 'tardio':
+      setTimeout(() => formulario(raiz), 1500);
+      break;
+    case 'removido': {
+      const f = formulario(raiz);
+      setTimeout(() => f.botao.remove(), 800);
+      setTimeout(() => f.form.insertBefore(f.botao, f.limpar), 4000);
+      break;
+    }
+    case 'iframe':
+      quadro(raiz, 'consulta.html?v=base&embed=1', 'Consulta');
+      break;
+    case 'iframe-aninhado':
+      quadro(raiz, 'consulta.html?v=iframe&embed=2', 'Consulta externa');
+      break;
+    case 'iframe-ambiguo':
+      quadro(raiz, 'consulta.html?v=base&embed=1', 'Consulta');
+      quadro(raiz, 'consulta.html?v=base&embed=1', 'Consulta');
+      break;
+    case 'shadow-aberto':
+    case 'shadow-fechado': {
+      const host = document.createElement('nk-consulta');
+      raiz.append(host);
+      const sr = host.attachShadow({ mode: v === 'shadow-aberto' ? 'open' : 'closed' });
+      formulario(sr);
+      break;
+    }
+    case 'rotulo-suprimido':
+      // rótulos com dado de pessoa fictícia: a privacy/2 os suprime — o debug deve declarar a limitação, não inventar
+      formulario(raiz, { label: 'Código do registro de Ana Souza', buttonText: 'Consultar Ana Souza', buttonId: null, testId: null });
+      break;
+    case 'navegar': {
+      formulario(raiz);
+      const a = document.createElement('a');
+      a.href = 'consulta.html?v=base&pagina=2';
+      a.id = 'nova-consulta';
+      a.textContent = 'Nova consulta';
+      raiz.append(a);
+      break;
+    }
+    default:
+      formulario(raiz);
+  }
+})();
+</script>
+</body>
+</html>

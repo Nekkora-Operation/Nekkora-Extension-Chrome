@@ -1,0 +1,64 @@
+{
+  "debug" : {
+    "debugId" : "dbg-555fca69-f6b0-4b66-a2e9-7f87461668c8",
+    "protocol" : "guided-debug/1",
+    "state" : "ACTIVE",
+    "tab" : {
+      "tabRef" : "t-O9KOA5LDmYxojZ",
+      "title" : "Consulta de registro",
+      "host" : "127.0.0.1"
+    },
+    "pageEpoch" : 1,
+    "picking" : false,
+    "lease" : {
+      "leaseMs" : 60000,
+      "expiresInMs" : 59988
+    },
+    "reason" : null
+  },
+  "requestId" : "rq-315d2ff7-2241-4aac-8932-a9a75ef27b5b",
+  "stepRef" : "step-c277b36c-537e-4b08-ba42-de6d26749371",
+  "observedAt" : "2026-10-17T19:03:58.841Z",
+  "pageEpoch" : 1,
+  "identitySource" : "TARGET_ID",
+  "status" : "RESOLVED",
+  "score" : 0.6,
+  "reasons" : [ "NODE_REPLACED", "ID_ATTRIBUTE_CHANGED" ],
+  "checks" : {
+    "identity" : "PASS",
+    "unique" : "PASS",
+    "visible" : "PASS",
+    "enabled" : "PASS",
+    "editable" : "NOT_APPLICABLE",
+    "kindMatchesAction" : "NOT_APPLICABLE",
+    "frameReachable" : "NOT_APPLICABLE",
+    "shadowReachable" : "NOT_APPLICABLE"
+  },
+  "element" : {
+    "kind" : "BUTTON",
+    "name" : "Consultar",
+    "tag" : "button",
+    "sensitive" : false
+  },
+  "candidates" : [ {
+    "candidateRef" : "cand-1-1",
+    "verdict" : "CONFIRMED",
+    "score" : 0.6,
+    "kind" : "BUTTON",
+    "name" : "Consultar",
+    "chosen" : true
+  } ],
+  "highlighted" : true,
+  "box" : {
+    "x" : 285,
+    "y" : 157,
+    "width" : 89,
+    "height" : 31,
+    "viewportWidth" : 1350,
+    "viewportHeight" : 749,
+    "devicePixelRatio" : 1,
+    "screenX" : 323,
+    "screenY" : 338
+  },
+  "continuity" : "CONTINUITY_BROKEN"
+}

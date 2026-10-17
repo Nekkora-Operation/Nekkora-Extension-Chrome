@@ -55,7 +55,7 @@ class BridgeContractTest {
         assertEquals(commands, host, "todo comando do contrato tem destino e nenhum outro é aceito");
         java.util.Set<String> events = new java.util.TreeSet<>();
         schema.at("/$defs/EventType/enum").forEach(n -> {
-            if (n.asText().startsWith("studio.recording.")) {
+            if (n.asText().startsWith("studio.recording.") || n.asText().startsWith("studio.debug.")) { // STUDIO-009: debug guiado
                 events.add(n.asText());
             }
         });

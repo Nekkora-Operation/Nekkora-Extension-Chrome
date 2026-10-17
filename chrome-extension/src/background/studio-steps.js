@@ -731,5 +731,7 @@ export function createStepPipeline(deps) {
   }
 
   return { enable, enabled, state, summary, discard, startSensors, startFrame, flush, stopSensors, setMode, accept, evidence, open,
-    documentReplaced, navigation, drain, ack, sync, route, awaitAcks, discardOutbox, metrics, build };
+    documentReplaced, navigation, drain, ack, sync, route, awaitAcks, discardOutbox, metrics, build,
+    // STUDIO-009: o debug guiado entrega o elemento escolhido pelas MESMAS barreiras de uma etapa gravada
+    elementRefOf: elementRef, interfaceName: name };
 }

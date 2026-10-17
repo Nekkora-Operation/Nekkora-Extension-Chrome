@@ -34,7 +34,8 @@
         "BAD_REQUEST", "UNKNOWN_COMMAND", "COMMAND_NOT_ALLOWED", "PROTOCOL_UNSUPPORTED", "AUTH_FAILED", "BRIDGE_BUSY",
         "HANDSHAKE_TIMEOUT", "FRAME_TOO_LARGE", "EXTENSION_UNAVAILABLE", "TIMEOUT", "TAB_NOT_FOUND", "ORIGIN_NOT_ALLOWED",
         "RECORDING_NOT_FOUND", "RECORDING_ALREADY_ACTIVE", "RECORDING_ENDED", "INVALID_STATE", "NOT_CONTROLLER",
-        "INVALID_MODE", "CAPTURE_FAILED", "OPERATION_CONFLICT", "INTERNAL_ERROR"
+        "INVALID_MODE", "CAPTURE_FAILED", "OPERATION_CONFLICT", "INTERNAL_ERROR",
+        "DEBUG_NOT_FOUND", "DEBUG_ENDED", "CANDIDATE_EXPIRED", "PROBE_NOT_ALLOWED"
       ]
     },
     "Error": {
@@ -305,7 +306,9 @@
         "studio.recording.start", "studio.recording.pause", "studio.recording.resume", "studio.recording.mode",
         "studio.recording.finish", "studio.recording.cancel", "studio.recording.status", "studio.recording.renew",
         "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
-        "studio.recording.evidence.ack", "studio.recording.evidence.sync"
+        "studio.recording.evidence.ack", "studio.recording.evidence.sync",
+        "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
+        "studio.debug.status", "studio.debug.renew", "studio.debug.probe"
       ]
     },
     "Command": {
@@ -331,7 +334,14 @@
         { "if": { "properties": { "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RoutePayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.evidence.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/AckPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.start" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugStartPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.inspect" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugInspectPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.highlight" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugHighlightPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.finish" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugFinishPayload" } } } },
+        { "if": { "properties": { "type": { "enum": ["studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugRef" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbePayload" } } } }
       ]
     },
     "StartPayload": {
@@ -427,7 +437,12 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.steps.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/SyncResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.route" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RouteResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.evidence.ack" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceAckResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceSyncResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.recording.evidence.sync" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceSyncResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.debug.start", "studio.debug.finish", "studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.inspect" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugInspectResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.highlight" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugHighlightResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbeResult" } } } }
       ]
     },
     "StatusResult": {
@@ -553,7 +568,8 @@
         "bridge.connected", "bridge.disconnected",
         "studio.recording.started", "studio.recording.paused", "studio.recording.resumed", "studio.recording.modeChanged",
         "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded", "studio.recording.recovered",
-        "studio.recording.failed", "studio.recording.expired", "studio.recording.step", "studio.recording.evidence"
+        "studio.recording.failed", "studio.recording.expired", "studio.recording.step", "studio.recording.evidence",
+        "studio.debug.picked", "studio.debug.changed"
       ]
     },
     "Event": {
@@ -572,7 +588,9 @@
         { "if": { "properties": { "type": { "const": "bridge.disconnected" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DisconnectedPayload" } } } },
         { "if": { "properties": { "type": { "pattern": "^studio\\.recording\\.", "not": { "enum": ["studio.recording.step", "studio.recording.evidence"] } } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/RecordingEventPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.recording.step" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/StepEventPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.recording.evidence" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceEventPayload" } } } }
+        { "if": { "properties": { "type": { "const": "studio.recording.evidence" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/EvidenceEventPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.picked" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickedPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.changed" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugChangedPayload" } } } }
       ]
     },
     "DisconnectedPayload": {
@@ -837,6 +855,287 @@
           },
           "description": "Chaves internas de correlação com o motor (nunca exibidas)."
         }
+      }
+    },
+    "DebugState": { "enum": ["ACTIVE", "DEGRADED", "ENDED"] },
+    "DebugReason": {
+      "enum": ["NAVIGATED", "DOCUMENT_REPLACED", "TAB_CLOSED", "PERMISSION_REVOKED", "EXTENSION_RESTARTED", "LEASE_EXPIRED", "CAPTURE_DEGRADED",
+        "CAPTURE_RECOVERED", "RECORDING_STARTED", "FINISHED"],
+      "description": "STUDIO-009: motivo da última mudança de estado da sessão de debug (nunca texto livre)."
+    },
+    "DebugSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "protocol", "state", "tab", "pageEpoch", "picking", "lease", "reason"],
+      "description": "STUDIO-009 (guided-debug/1): sessão de debug guiado numa aba autorizada (LAB/AUTHORIZED). Inspeciona e destaca; nunca clica, preenche, navega nem envia.",
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "protocol": { "const": "guided-debug/1" },
+        "state": { "$ref": "#/$defs/DebugState" },
+        "tab": { "$ref": "#/$defs/TabSummary" },
+        "pageEpoch": { "type": "integer", "minimum": 0, "description": "Contador de documentos da aba desde o início da sessão: muda com navegação e substituição de documento — um resultado de época anterior é velho." },
+        "picking": { "type": "boolean", "description": "Seleção no navegador armada (o inspetor intercepta o clique sem efetuar a ação do elemento)." },
+        "lease": { "type": "object", "additionalProperties": false, "required": ["leaseMs", "expiresInMs"], "properties": { "leaseMs": { "type": "integer", "minimum": 0 }, "expiresInMs": { "type": "integer", "minimum": 0 } } },
+        "reason": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugReason" }] }
+      }
+    },
+    "DebugRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId"],
+      "properties": { "debugId": { "$ref": "#/$defs/Id" } }
+    },
+    "DebugStartPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "operationId", "tabRef", "leaseMs", "capabilities"],
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "operationId": { "$ref": "#/$defs/Id" },
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 300000 },
+        "capabilities": { "type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": { "enum": ["guided-debug/1"] } }
+      }
+    },
+    "DebugFinishPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "operationId"],
+      "properties": { "debugId": { "$ref": "#/$defs/Id" }, "operationId": { "$ref": "#/$defs/Id" } }
+    },
+    "DebugActionType": { "enum": ["CLICK", "FILL", "SELECT_OPTION", "CHECK", "UNCHECK", "PRESS_KEY", "WAIT_FOR", "OBSERVE", "UNKNOWN"] },
+    "DebugDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "tag", "name", "htmlId", "htmlName", "locators", "accessPath"],
+      "description": "Descritor recuperável da etapa (a referência compacta que o Studio já guarda): só usado quando não há targetId utilizável. Nunca valores.",
+      "properties": {
+        "kind": { "type": "string", "pattern": "^[A-Z_]{1,40}$" },
+        "tag": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,40}$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "htmlId": { "type": ["string", "null"], "maxLength": 120 },
+        "htmlName": { "type": ["string", "null"], "maxLength": 120 },
+        "locators": {
+          "type": "array", "maxItems": 5,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["strategy", "css", "xpath", "description"],
+            "properties": {
+              "strategy": { "enum": ["TEST_ATTRIBUTE", "ID", "NAME", "LABEL", "ROLE_NAME", "CONTEXTUAL", "ROW_CONTEXT", "ATTRIBUTE", "TEXT", "XPATH_RELATIVE", "POSITIONAL"] },
+              "css": { "type": ["string", "null"], "maxLength": 500 },
+              "xpath": { "type": ["string", "null"], "maxLength": 500 },
+              "description": { "type": "string", "maxLength": 200 }
+            }
+          }
+        },
+        "accessPath": {
+          "type": "array", "maxItems": 12,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["type", "locator"],
+            "properties": { "type": { "enum": ["MAIN_DOCUMENT", "IFRAME", "SHADOW_ROOT", "ELEMENT"] }, "locator": { "type": ["string", "null"], "maxLength": 500 } }
+          }
+        }
+      }
+    },
+    "DebugInspectPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "stepRef", "actionType", "targetId", "descriptor", "highlight"],
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id", "description": "Idempotência: o mesmo requestId devolve o mesmo resultado sem repetir a análise." },
+        "stepRef": { "$ref": "#/$defs/Id", "description": "Etapa do Studio (opaca para a extensão): devolvida no resultado para correlação." },
+        "actionType": { "$ref": "#/$defs/DebugActionType" },
+        "targetId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
+        "descriptor": { "$ref": "#/$defs/DebugDescriptor" },
+        "highlight": { "type": "boolean" }
+      }
+    },
+    "DebugHighlightPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "candidateRef"],
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "candidateRef": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }], "description": "Candidato de uma inspeção desta mesma época; null limpa o destaque." }
+      }
+    },
+    "DebugPickPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "action", "candidateRef", "actionType"],
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "action": { "enum": ["START", "CANCEL", "ADOPT_CANDIDATE"], "description": "START: arma a seleção no navegador; CANCEL: desarma; ADOPT_CANDIDATE: descreve o candidato indicado (resultado no evento studio.debug.picked)." },
+        "candidateRef": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
+        "actionType": { "$ref": "#/$defs/DebugActionType" }
+      }
+    },
+    "DebugCheck": { "enum": ["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"] },
+    "DebugChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "unique", "visible", "enabled", "editable", "kindMatchesAction", "frameReachable", "shadowReachable"],
+      "properties": {
+        "identity": { "$ref": "#/$defs/DebugCheck" }, "unique": { "$ref": "#/$defs/DebugCheck" }, "visible": { "$ref": "#/$defs/DebugCheck" },
+        "enabled": { "$ref": "#/$defs/DebugCheck" }, "editable": { "$ref": "#/$defs/DebugCheck" }, "kindMatchesAction": { "$ref": "#/$defs/DebugCheck" },
+        "frameReachable": { "$ref": "#/$defs/DebugCheck" }, "shadowReachable": { "$ref": "#/$defs/DebugCheck" }
+      }
+    },
+    "DebugStatus": {
+      "enum": ["RESOLVED", "NOT_FOUND", "AMBIGUOUS", "IDENTITY_MISMATCH", "STALE_TARGET", "SCOPE_UNAVAILABLE", "INSUFFICIENT_EVIDENCE", "CONTEXT_UNAVAILABLE"],
+      "description": "Mesmos resultados do TargetResolver (só RESOLVED comprova a identidade) + CONTEXT_UNAVAILABLE (captura impossível, página mudando)."
+    },
+    "DebugReasonCode": {
+      "enum": ["TARGET_UNKNOWN_IN_REGISTRY", "DESCRIPTOR_ONLY", "DESCRIPTOR_CANNOT_CROSS_SCOPE", "INDISTINGUISHABLE_AT_REGISTRATION", "LOOKALIKES_PRESENT",
+        "NODE_REPLACED", "ID_ATTRIBUTE_CHANGED", "NAME_ATTRIBUTE_CHANGED", "KIND_INCOMPATIBLE_AT_ADDRESS", "FRAME_NOT_FOUND", "FRAME_AMBIGUOUS",
+        "FRAME_DOCUMENT_CHANGED", "FRAME_PERMISSION_DENIED", "FRAME_SANDBOX_RESTRICTED", "FRAME_LOADING", "SHADOW_ROOT_CLOSED", "SHADOW_HOST_NOT_FOUND",
+        "TARGET_NOT_MATERIALIZED", "TARGET_AMBIGUOUS", "HIDDEN", "OUT_OF_VIEWPORT", "DISABLED", "READ_ONLY", "INACCESSIBLE", "NOT_EDITABLE",
+        "KIND_UNUSUAL_FOR_ACTION", "PAGE_CHANGED_DURING_CHECK", "CAPTURE_UNAVAILABLE", "HIGHLIGHT_FAILED"]
+    },
+    "DebugBox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height", "viewportWidth", "viewportHeight", "devicePixelRatio", "screenX", "screenY"],
+      "description": "Caixa do destaque em px CSS do viewport + posição aproximada na tela (para a janela do Studio não cobrir o alvo).",
+      "properties": {
+        "x": { "type": "integer" }, "y": { "type": "integer" }, "width": { "type": "integer", "minimum": 0 }, "height": { "type": "integer", "minimum": 0 },
+        "viewportWidth": { "type": "integer", "minimum": 0 }, "viewportHeight": { "type": "integer", "minimum": 0 },
+        "devicePixelRatio": { "type": "number", "minimum": 0 }, "screenX": { "type": "integer" }, "screenY": { "type": "integer" }
+      }
+    },
+    "DebugCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateRef", "verdict", "score", "kind", "name", "chosen"],
+      "properties": {
+        "candidateRef": { "$ref": "#/$defs/Id" },
+        "verdict": { "enum": ["CONFIRMED", "VIABLE"] },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "kind": { "type": "string", "pattern": "^[A-Z_]{1,40}$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "chosen": { "type": "boolean" }
+      }
+    },
+    "DebugResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "duplicate"],
+      "properties": { "debug": { "$ref": "#/$defs/DebugSession" }, "duplicate": { "type": "boolean" } }
+    },
+    "DebugInspectResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "requestId", "stepRef", "observedAt", "pageEpoch", "identitySource", "status", "score", "reasons", "checks", "element", "candidates",
+        "highlighted", "box", "continuity"],
+      "properties": {
+        "debug": { "$ref": "#/$defs/DebugSession" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "stepRef": { "$ref": "#/$defs/Id" },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "pageEpoch": { "type": "integer", "minimum": 0 },
+        "identitySource": { "enum": ["TARGET_ID", "DESCRIPTOR"] },
+        "status": { "$ref": "#/$defs/DebugStatus" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reasons": { "type": "array", "maxItems": 16, "uniqueItems": true, "items": { "$ref": "#/$defs/DebugReasonCode" } },
+        "checks": { "$ref": "#/$defs/DebugChecks" },
+        "element": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugElement" }] },
+        "candidates": { "type": "array", "maxItems": 5, "items": { "$ref": "#/$defs/DebugCandidate" } },
+        "highlighted": { "type": "boolean", "description": "Destaque rosa feito pelo overlay (pointer-events:none): nenhuma interação com a página." },
+        "box": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugBox" }] },
+        "continuity": { "enum": ["LIVE_NODE_CONTINUITY", "CONTINUITY_BROKEN", "NOT_PROVEN", null], "description": "D7: continuidade técnica do nó — nunca identidade lógica." }
+      }
+    },
+    "DebugElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name", "tag", "sensitive"],
+      "description": "Resumo do elemento observado nesta verificação (sem localizador, sem identidade nova): o que o Studio mostra ao lado da etapa.",
+      "properties": {
+        "kind": { "type": "string", "pattern": "^[A-Z_]{1,40}$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "tag": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,40}$" },
+        "sensitive": { "type": "boolean" }
+      }
+    },
+    "DebugHighlightResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "requestId", "highlighted", "box"],
+      "properties": {
+        "debug": { "$ref": "#/$defs/DebugSession" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "highlighted": { "type": "boolean" },
+        "box": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugBox" }] }
+      }
+    },
+    "DebugPickResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "requestId", "picking"],
+      "properties": { "debug": { "$ref": "#/$defs/DebugSession" }, "requestId": { "$ref": "#/$defs/Id" }, "picking": { "type": "boolean" } }
+    },
+    "DebugPickedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "pageEpoch", "observedAt", "origin", "element", "checks", "box"],
+      "description": "STUDIO-009: elemento escolhido no navegador (ou candidato adotado). A ação do elemento NÃO foi efetuada. element segue as mesmas barreiras de uma etapa gravada; a identidade lógica nova vai em element.correlation.targetId.",
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "pageEpoch": { "type": "integer", "minimum": 0 },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "origin": { "enum": ["BROWSER_SELECTION", "ADOPTED_CANDIDATE"] },
+        "element": { "$ref": "#/$defs/ElementRef" },
+        "checks": { "$ref": "#/$defs/DebugChecks" },
+        "box": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugBox" }] },
+        "notes": { "$ref": "#/$defs/StepEventPayload/properties/notes", "description": "Limitações declaradas pelas barreiras (mesmo vocabulário das etapas gravadas)." }
+      }
+    },
+    "DebugChangedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug"],
+      "properties": { "debug": { "$ref": "#/$defs/DebugSession" } }
+    },
+    "DebugProbePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "stepRef", "operation", "targetId", "descriptor", "valueKey", "authorization"],
+      "description": "STUDIO-009 G6: sonda de interação ESTRITAMENTE de laboratório (origem LAB). O valor de preenchimento nunca trafega: só a CHAVE de um catálogo sintético da extensão (lab:...). Não é um executor: uma operação por pedido, nunca repetida automaticamente.",
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id", "description": "Idempotência: o mesmo requestId devolve o mesmo resultado e NÃO repete a operação." },
+        "stepRef": { "$ref": "#/$defs/Id" },
+        "operation": { "enum": ["FILL_FIXTURE", "CLICK", "PRESS_ENTER"] },
+        "targetId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
+        "descriptor": { "$ref": "#/$defs/DebugDescriptor" },
+        "valueKey": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^lab:[a-z0-9-]{1,40}$" }] },
+        "authorization": { "const": "LAB_PROBE" }
+      }
+    },
+    "DebugProbeResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "requestId", "stepRef", "observedAt", "pageEpoch", "status", "performed", "operation", "reasons", "after", "duplicate"],
+      "description": "Fatos separados: alvo reencontrado (status) ≠ operação efetuada (performed) ≠ resultado observado (after) ≠ sucesso de negócio (não existe aqui: quem confere é o oráculo do laboratório).",
+      "properties": {
+        "debug": { "$ref": "#/$defs/DebugSession" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "stepRef": { "$ref": "#/$defs/Id" },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "pageEpoch": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/DebugStatus" },
+        "performed": { "type": "boolean" },
+        "operation": { "enum": ["FILL_FIXTURE", "CLICK", "PRESS_ENTER"] },
+        "reasons": { "type": "array", "maxItems": 16, "uniqueItems": true, "items": { "enum": ["TARGET_NOT_RESOLVED", "NOT_EDITABLE", "DISABLED", "HIDDEN",
+          "UNKNOWN_FIXTURE", "PAGE_CHANGED_DURING_CHECK", "CAPTURE_UNAVAILABLE", "OPERATION_FAILED", "KIND_UNUSUAL_FOR_ACTION"] } },
+        "after": {
+          "type": "object", "additionalProperties": false, "required": ["domChanged", "navigated"],
+          "properties": { "domChanged": { "type": "boolean" }, "navigated": { "type": "boolean" } }
+        },
+        "duplicate": { "type": "boolean" }
       }
     }
   }

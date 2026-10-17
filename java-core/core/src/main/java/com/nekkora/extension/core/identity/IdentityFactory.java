@@ -156,7 +156,7 @@ public final class IdentityFactory {
         return value != null && heuristics.assess(value).level() == StabilityLevel.HEURISTIC_UNSTABLE;
     }
 
-    static String originOf(DocumentInfo doc) {
+    public static String originOf(DocumentInfo doc) {
         if (doc == null || doc.url() == null) {
             return null;
         }
