@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Consulta</title><link rel="stylesheet" href="lab010.css"></head>
+<body>
+<!-- STUDIO-010 — tela de consulta FICTÍCIA. O código digitado fica só nesta aba (sessionStorage). -->
+<h1 class="sentinela">Registros de Ana Souza</h1>
+<form id="consulta" aria-label="Consulta">
+  <div class="campo"><label for="codigo">Código do registro</label><input id="codigo" name="codigo" autocomplete="off"></div>
+  <button id="consultar" type="submit">Consultar</button>
+  <button id="limpar" type="button">Limpar</button>
+</form>
+<script>
+  document.getElementById('consulta').addEventListener('submit', (e) => {
+    e.preventDefault();
+    sessionStorage.setItem('nk010', document.getElementById('codigo').value);
+    location.href = 'resultado.html';
+  });
+  document.getElementById('limpar').addEventListener('click', () => { document.getElementById('codigo').value = ''; });
+</script>
+</body>
+</html>

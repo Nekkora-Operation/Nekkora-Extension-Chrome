@@ -422,6 +422,7 @@ chrome.webNavigation.onCommitted.addListener((d) => {
   // continuaria mostrando a verificação da página anterior); origem não permitida encerra a sessão
   ready.then(async () => {
     studioRecording.debug.onPageChanged(d.tabId, 'NAVIGATED');
+    studioRecording.pdd.onPageChanged(d.tabId);
     if (!isAllowedUrl(d.url)) {
       await studioRecording.debug.onPermissionsRemoved();
     }
@@ -482,4 +483,12 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+});
+
+/**
+ * STUDIO-010: o gesto do usuário no Chrome (atalho "Capturar a tela para o PDD") é a autorização da captura visual.
+ * Sem armação válida do Studio para a aba ativa, nada é capturado (studio-pdd.js).
+ */
+chrome.commands.onCommand.addListener((command, tab) => {
+  ready.then(() => studioRecording.pdd.onShortcut(command, tab)).catch(() => {});
 });

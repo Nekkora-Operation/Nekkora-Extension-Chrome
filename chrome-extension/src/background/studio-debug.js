@@ -755,5 +755,5 @@ export function createStudioDebug(deps) {
   }
 
   return { COMMANDS, onElementSelected, onPageChanged, onTabRemoved, onPermissionsRemoved, onRecordingStarted, restore, checkLeases, list, sessions,
-    consumerOf };
+    consumerOf, descriptorOf };
 }

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Entrar</title><link rel="stylesheet" href="lab010.css"></head>
+<body>
+<!-- STUDIO-010 — tela de autenticação FICTÍCIA. Nenhum dado real; nada é enviado a lugar nenhum. -->
+<h1 class="sentinela">Portal de Ana Souza</h1>
+<p class="nota sentinela">Ambiente fictício · usuário ana.souza · CPF 123.456.789-09</p>
+<form id="login" aria-label="Entrar">
+  <div class="campo"><label for="usuario">Usuário</label><input id="usuario" name="usuario" autocomplete="off"></div>
+  <div class="campo"><label for="senha">Senha</label><input id="senha" name="senha" type="password" autocomplete="off"></div>
+  <button id="entrar" type="submit">Entrar</button>
+</form>
+<script>
+  document.getElementById('login').addEventListener('submit', (e) => { e.preventDefault(); location.href = 'consulta.html'; });
+</script>
+</body>
+</html>

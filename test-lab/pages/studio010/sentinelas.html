@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Sentinelas</title>
+<link rel="stylesheet" href="lab010.css">
+<style>
+  .pseudo-antes::before { content: "CPF 123.456.789-09 "; color: #E6007E; }
+  .pseudo-depois::after { content: " ana.souza"; color: #E6007E; }
+  .fundo { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='20'><rect width='60' height='20' fill='%23E6007E'/></svg>"); }
+  .toast { position: absolute; left: 330px; top: 108px; width: 150px; padding: 4px; background: #FFF; border: 1px solid #E6007E; }
+  .grade { display: grid; grid-template-columns: repeat(3, 210px); gap: 10px; max-width: 680px; }
+  .caixa { border: 1px dashed #D0D7DE; padding: 6px; min-height: 40px; overflow: hidden; }
+  .caixa input, .caixa textarea, .caixa select { width: 170px; box-sizing: border-box; }
+  iframe { width: 200px; height: 70px; border: 1px solid #D0D7DE; }
+  dialog { color: #E6007E; }
+</style>
+</head>
+<body>
+<!--
+  STUDIO-010 — página ADVERSARIAL de privacidade visual (dados fictícios). Todo texto sensível usa a cor-sentinela #E6007E.
+  Controles positivos (rótulos de interface do vocabulário, em #1F2328): "Código do registro", "Consultar", "Sair".
+  ?v=modal abre um diálogo modal por cima de tudo; ?v=mudanca muda o DOM sem parar (captura deve ser recusada).
+-->
+<h2 class="sentinela">Consulta</h2>
+<p class="sentinela">Entrar</p>
+<div class="grade">
+  <div class="caixa"><label for="codigo">Código do registro</label><input id="codigo" value="REG-4321 Ana"></div>
+  <div class="caixa"><button id="consultar" type="button">Consultar</button> <a id="sair" href="#">Sair</a></div>
+  <div class="caixa"><label class="pseudo-antes" for="x1">Usuário</label><input id="x1" value="ana.souza"></div>
+  <div class="caixa"><button class="pseudo-depois" type="button">Entrar</button></div>
+  <div class="caixa"><button class="sentinela" type="button">Ana Souza</button></div>
+  <div class="caixa"><label class="sentinela">Senha <input type="password" value="S3nh@Lab"></label></div>
+  <div class="caixa"><button class="fundo" type="button">Salvar</button></div>
+  <div class="caixa"><button type="button">Abrir <img alt="" width="16" height="16" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23E6007E'/></svg>"></button></div>
+  <div class="caixa"><button type="button">Fechar <svg width="40" height="14"><text x="0" y="12" fill="#E6007E" font-size="12">Ana</text></svg></button></div>
+  <div class="caixa"><canvas id="cv" width="180" height="30"></canvas></div>
+  <div class="caixa"><svg width="180" height="30"><text x="0" y="20" fill="#E6007E" font-size="14">CPF 123.456.789-09</text></svg></div>
+  <div class="caixa sentinela"><table><tr><td>Ana Souza</td><td>123.456.789-09</td></tr></table></div>
+  <div class="caixa"><textarea>Observação de Ana Souza</textarea></div>
+  <div class="caixa"><select><option>Ana Souza</option></select></div>
+  <div class="caixa"><div contenteditable="true" class="sentinela">editável: ana.souza</div></div>
+  <div class="caixa"><button id="coberto" type="button">Limpar</button></div>
+  <div class="caixa"><iframe src="frame-sentinela.html" title="Quadro"></iframe></div>
+  <div class="caixa"><iframe id="externo" title="Externo"></iframe></div>
+  <div class="caixa"><nk-aberto></nk-aberto></div>
+  <div class="caixa"><nk-fechado></nk-fechado></div>
+  <div class="caixa"><img alt="" width="180" height="30" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='30'><text x='0' y='20' fill='%23E6007E' font-size='14'>Imagem: Ana Souza</text></svg>"></div>
+</div>
+<div class="toast sentinela" role="status">Aviso: Ana Souza</div>
+<div class="nota sentinela" title="Ana Souza">Dica: CPF 123.456.789-09</div>
+<script>
+  const v = new URLSearchParams(location.search).get('v') || 'todas';
+  const cv = document.getElementById('cv').getContext('2d');
+  cv.fillStyle = '#E6007E'; cv.font = '14px sans-serif'; cv.fillText('Canvas: Ana Souza', 0, 20);
+  // iframe de OUTRA origem (mesmo servidor, outro host mapeado para 127.0.0.1)
+  document.getElementById('externo').src = location.href.replace('127.0.0.1', 'site-x.nekkora.test').replace('sentinelas.html', 'frame-sentinela.html').split('?')[0];
+  // o "toast" cobre o botão Limpar: o botão não pode ser portador (amostragem do topo)
+  const b = document.getElementById('coberto').getBoundingClientRect();
+  const t = document.querySelector('.toast');
+  t.style.left = (b.left + window.scrollX - 4) + 'px';
+  t.style.top = (b.top + window.scrollY - 2) + 'px';
+  class Aberto extends HTMLElement { connectedCallback() { const r = this.attachShadow({ mode: 'open' });
+    r.innerHTML = '<span style="color:#E6007E">Sombra: Ana</span> <button type="button">Consultar</button>'; } }
+  class Fechado extends HTMLElement { connectedCallback() { const r = this.attachShadow({ mode: 'closed' });
+    r.innerHTML = '<span style="color:#E6007E">Fechada: Ana</span> <button type="button">Consultar</button>'; } }
+  customElements.define('nk-aberto', Aberto);
+  customElements.define('nk-fechado', Fechado);
+  if (v === 'modal') {
+    const d = document.createElement('dialog');
+    d.textContent = 'Modal: Ana Souza 123.456.789-09';
+    document.body.append(d);
+    d.showModal();
+  }
+  if (v === 'mudanca') {
+    let n = 0;
+    setInterval(() => { document.querySelector('.nota').setAttribute('data-n', String(++n)); }, 20);
+  }
+</script>
+</body>
+</html>

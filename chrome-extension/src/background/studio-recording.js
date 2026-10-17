@@ -28,6 +28,7 @@ import { HostError } from './native-client.js';
 import { createStepPipeline } from './studio-steps.js';
 import { createEvidencePipeline } from './studio-evidence.js';
 import { createStudioDebug } from './studio-debug.js';
+import { createStudioPdd } from './studio-pdd.js';
 import '../shared/feedback-rules.js';
 
 const PROTOCOL = 'nekkora-nm/1';
@@ -126,6 +127,25 @@ export function createStudioRecorder(deps) {
       host: (url) => hostOf(url),
     },
   });
+  /**
+   * STUDIO-010 (pdd-capture/1): captura visual SANITIZADA para o PDD, só em aba LAB e só com o gesto do atalho no Chrome.
+   * Usa o resolvedor somente leitura do debug para posicionar os marcadores (por identidade, nunca por localizador).
+   */
+  const pdd = createStudioPdd({
+    client, policy, chrome: chromeApi,
+    host: deps.host || (() => Promise.reject(new HostError('HOST_UNAVAILABLE', 'sem host'))),
+    toContent: deps.toContent || (() => Promise.reject(new Error('sem content'))),
+    tabKey: deps.tabKey, frameOfNode: deps.frameOfNode,
+    currentCapture: deps.currentCapture || (() => Promise.reject(new HostError('CAPTURE_FAILED', 'sem captura'))),
+    descriptorOf: (d) => (d == null ? null : debug.descriptorOf(d)),
+    imaging: deps.imaging,
+    now: deps.now ? () => deps.now() : undefined,
+    tabs: {
+      tabOf: (ref) => (refToTab.has(ref) ? refToTab.get(ref) : null),
+      recordingOn: (tabId) => Array.from(recordings.values()).some((r) => r.tabId === tabId && !TERMINAL.has(r.state)),
+    },
+  });
+
   /** Comandos do debug que só leem estado/prazo (fora da fila do debug). */
   const DEBUG_UNQUEUED = new Set(['studio.debug.status', 'studio.debug.renew']);
 
@@ -941,6 +961,7 @@ export function createStudioRecorder(deps) {
 
   function checkLeases() {
     debug.checkLeases();
+    pdd.checkLease();
     for (const r of recordings.values()) {
       if (!TERMINAL.has(r.state) && now() >= r.leaseExpiresAt) {
         expireIfDue(r.recordingId);
@@ -1002,6 +1023,7 @@ export function createStudioRecorder(deps) {
 
   function onTabRemoved(tabId) {
     debug.onTabRemoved(tabId).catch(() => {});
+    pdd.onTabRemoved(tabId);
     for (const r of recordings.values()) {
       if (r.tabId === tabId && !TERMINAL.has(r.state)) {
         degrade(r, 'TAB_CLOSED');
@@ -1037,7 +1059,8 @@ export function createStudioRecorder(deps) {
     try {
       await ready;
       const isDebug = typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(debug.COMMANDS, msg.command);
-      const fn = isDebug ? debug.COMMANDS[msg.command]
+      const isPdd = typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(pdd.COMMANDS, msg.command);
+      const fn = isPdd ? pdd.COMMANDS[msg.command] : isDebug ? debug.COMMANDS[msg.command]
         : typeof msg.command === 'string' && Object.prototype.hasOwnProperty.call(COMMANDS, msg.command) ? COMMANDS[msg.command] : null;
       if (!fn) {
         throw fail('UNKNOWN_COMMAND', 'Comando não permitido.');
@@ -1048,7 +1071,7 @@ export function createStudioRecorder(deps) {
         throw fail('NOT_CONTROLLER', 'Controlador ausente.');
       }
       const payload = msg.payload || {};
-      const result = isDebug
+      const result = isPdd ? await withLock('studio-pdd', () => fn(payload, controller)) : isDebug
         ? (DEBUG_UNQUEUED.has(msg.command) ? await fn(payload, controller) : await withLock('studio-debug', () => fn(payload, controller)))
         : UNQUEUED.has(msg.command)
           ? await fn(payload, controller)
@@ -1068,7 +1091,8 @@ export function createStudioRecorder(deps) {
 
   const KNOWN_CODES = new Set(['BAD_REQUEST', 'UNKNOWN_COMMAND', 'COMMAND_NOT_ALLOWED', 'TAB_NOT_FOUND', 'ORIGIN_NOT_ALLOWED', 'RECORDING_NOT_FOUND',
     'RECORDING_ALREADY_ACTIVE', 'RECORDING_ENDED', 'INVALID_STATE', 'NOT_CONTROLLER', 'INVALID_MODE', 'CAPTURE_FAILED', 'OPERATION_CONFLICT',
-    'TIMEOUT', 'INTERNAL_ERROR', 'DEBUG_NOT_FOUND', 'DEBUG_ENDED', 'CANDIDATE_EXPIRED', 'PROBE_NOT_ALLOWED']);
+    'TIMEOUT', 'INTERNAL_ERROR', 'DEBUG_NOT_FOUND', 'DEBUG_ENDED', 'CANDIDATE_EXPIRED', 'PROBE_NOT_ALLOWED',
+    'VISUAL_CAPTURE_NOT_ALLOWED']);
 
   /** Visão para diagnóstico (painel/harness): sem segredos; ids técnicos ficam fora da interface do painel. */
   function list() {
@@ -1148,6 +1172,7 @@ export function createStudioRecorder(deps) {
   /** Navegação (SPA ou novo documento) na aba de uma gravação: contexto posterior das etapas e consolidação. */
   function onNavigation(tabId, kind, url) {
     debug.onPageChanged(tabId, 'NAVIGATED');
+    pdd.onPageChanged(tabId);
     const r = recordingOfTab(tabId);
     if (r) {
       steps.navigation(r, kind, url);
@@ -1177,6 +1202,7 @@ export function createStudioRecorder(deps) {
     // Documento substituído / nova base / frame anexado: os sensores acompanham o documento atual.
     capture.on('onDocumentReplaced', (rec, data) => {
       debug.onPageChanged(rec.tabId, 'DOCUMENT_REPLACED');
+      pdd.onPageChanged(rec.tabId);
       const r = recordingOfTab(rec.tabId);
       if (r) {
         steps.documentReplaced(r, 0);
@@ -1209,5 +1235,5 @@ export function createStudioRecorder(deps) {
   }
 
   return { onCommand, restore, reconcile, list, init, checkLeases, consumerOf, recordings, onSensor, onNavigation, stepMetrics, evidenceMetrics, steps, evidence,
-    tabRef: refOf, debug };
+    tabRef: refOf, debug, pdd };
 }

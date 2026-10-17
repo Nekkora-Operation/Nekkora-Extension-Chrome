@@ -429,6 +429,11 @@ public final class BrowserLab {
         }
     }
 
+    /** Pasta das evidências (STUDIO-010: só imagens JÁ sanitizadas são gravadas aqui). */
+    public Path evidenceDir() {
+        return evidence;
+    }
+
     public Path writeEvidence(String name, String content) throws IOException {
         Path out = evidence.resolve(name);
         Files.writeString(out, content, StandardCharsets.UTF_8);
