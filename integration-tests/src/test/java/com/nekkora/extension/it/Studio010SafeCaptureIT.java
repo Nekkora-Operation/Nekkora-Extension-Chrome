@@ -394,4 +394,44 @@ class Studio010SafeCaptureIT extends SessionIT {
             zoom(p, -3);
         }
     }
+
+    @Test
+    @DisplayName("G5-02 página rolada: marcadores no lugar relativo ao viewport; alvos fora da área visível → OMITTED (TARGET_OUTSIDE_VIEWPORT), nada vaza")
+    void rolagem() throws Exception {
+        Page p = page(LOGIN);
+        lab.js(p, "const s = document.createElement('div'); s.style.height = '1500px'; document.body.prepend(s);"
+                + " document.getElementById('usuario').value = 'ana.souza';");
+        lab.js(p, "scrollTo(0, document.getElementById('entrar').getBoundingClientRect().top + scrollY - 200)");
+        Thread.sleep(300);
+        assertTrue(((Number) lab.js(p, "return scrollY")).doubleValue() > 500, "página rolada: "
+                + lab.js(p, "return [scrollY, innerHeight, document.documentElement.scrollHeight, document.getElementById('entrar').getBoundingClientRect().top].join(' ')"));
+        String cid = id("cap");
+        assertTrue(arm(p, cid, LOGIN_STEPS).path("ok").asBoolean());
+        gesture(p);
+        JsonNode e = captured(cid);
+        assertEquals("CAPTURED", e.path("status").asText(), e.toString());
+        assertEquals(0, sentinelPixels(image(e)));
+        assertEquals(0, violations(image(e), e.path("regions")));
+        for (int i = 0; i < 3; i++) {
+            JsonNode a = e.path("annotations").get(i);
+            assertEquals("PLACED", a.path("status").asText(), a.toString());
+            @SuppressWarnings("unchecked")
+            List<Number> r = (List<Number>) lab.js(p, "const r = document.querySelector(arguments[0]).getBoundingClientRect();"
+                    + " return [r.left / innerWidth, r.top / innerHeight];", new String[] {"#usuario", "#senha", "#entrar"}[i]);
+            assertEquals(r.get(0).doubleValue(), a.path("x").asDouble(), 0.005);
+            assertEquals(r.get(1).doubleValue(), a.path("y").asDouble(), 0.005, "y relativo ao viewport (com a rolagem)");
+        }
+        lab.js(p, "scrollTo(0, 0)");
+        Thread.sleep(300);
+        String cid2 = id("cap");
+        assertTrue(arm(p, cid2, LOGIN_STEPS).path("ok").asBoolean());
+        gesture(p);
+        JsonNode e2 = captured(cid2);
+        assertEquals("CAPTURED", e2.path("status").asText(), e2.toString());
+        for (JsonNode a : e2.path("annotations")) {
+            assertEquals("OMITTED", a.path("status").asText(), a.toString());
+            assertEquals("TARGET_OUTSIDE_VIEWPORT", a.path("reason").asText(), a.toString());
+        }
+        assertEquals(0, sentinelPixels(image(e2)));
+    }
 }
