@@ -36,5 +36,5 @@ dessa cor nas imagens sanitizadas (detector estreito: exclui franjas de ClearTyp
 
 - `test/studio-pdd.test.js` (8): sanitizador, armação, gesto, uso único, página mudando, regiões incoerentes, navegação.
 - `PddVisualPrivacyTest` (6): 3ª barreira.
-- `Studio010SafeCaptureIT` (6, Chrome real, gesto pelo teclado do sistema): login, sentinelas por classe, modal,
-  página mudando, negativas, zoom 150%. Imagens sanitizadas em `reports/evidence/S010-*-sanitizado.png`.
+- `Studio010SafeCaptureIT` (7, Chrome real, gesto pelo teclado do sistema): login, sentinelas por classe, modal,
+  página mudando, negativas, zoom 150%, página rolada. Imagens sanitizadas em `reports/evidence/S010-*-sanitizado.png`.
