@@ -1068,7 +1068,7 @@ export function createStudioRecorder(deps) {
 
   const KNOWN_CODES = new Set(['BAD_REQUEST', 'UNKNOWN_COMMAND', 'COMMAND_NOT_ALLOWED', 'TAB_NOT_FOUND', 'ORIGIN_NOT_ALLOWED', 'RECORDING_NOT_FOUND',
     'RECORDING_ALREADY_ACTIVE', 'RECORDING_ENDED', 'INVALID_STATE', 'NOT_CONTROLLER', 'INVALID_MODE', 'CAPTURE_FAILED', 'OPERATION_CONFLICT',
-    'TIMEOUT', 'INTERNAL_ERROR', 'DEBUG_NOT_FOUND', 'DEBUG_ENDED', 'CANDIDATE_EXPIRED']);
+    'TIMEOUT', 'INTERNAL_ERROR', 'DEBUG_NOT_FOUND', 'DEBUG_ENDED', 'CANDIDATE_EXPIRED', 'PROBE_NOT_ALLOWED']);
 
   /** Visão para diagnóstico (painel/harness): sem segredos; ids técnicos ficam fora da interface do painel. */
   function list() {

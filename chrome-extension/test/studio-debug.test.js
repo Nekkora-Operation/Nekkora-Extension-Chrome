@@ -63,10 +63,13 @@ function fakeCapture() {
 }
 
 function fakePolicy() {
-  const urls = new Map([[1, 'http://127.0.0.1:18765/studio009/consulta.html'], [2, 'https://portal.exemplo.com/x']]);
+  const urls = new Map([[1, 'http://127.0.0.1:18765/studio009/consulta.html'], [2, 'https://portal.exemplo.com/x'], [3, 'https://consulta.nekkora.test/x']]);
   const evaluate = (url) => {
     if (!url) return { allowed: false, kind: null, reason: 'URL_UNAVAILABLE' };
-    return new URL(url).hostname === '127.0.0.1' ? { allowed: true, kind: 'LAB', reason: null } : { allowed: false, kind: null, reason: 'PERMISSION_REQUIRED' };
+    const h = new URL(url).hostname;
+    if (h === '127.0.0.1') return { allowed: true, kind: 'LAB', reason: null };
+    if (h === 'consulta.nekkora.test') return { allowed: true, kind: 'AUTHORIZED', reason: null };
+    return { allowed: false, kind: null, reason: 'PERMISSION_REQUIRED' };
   };
   return { urls, evaluate, isAllowedUrl: (u) => evaluate(u).allowed, tabUrl: async (tabId) => urls.get(tabId), onRemoved: () => {},
     async assertAllowed() { return {}; } };
@@ -117,6 +120,9 @@ function fakeContent(tabId, cmd, args) {
   if (cmd === 'cs.debug.viewport') {
     return { screenX: 0, screenY: 0, chromeLeft: 8, chromeTop: 100, innerWidth: 1280, innerHeight: 720, devicePixelRatio: 1 };
   }
+  if (cmd === 'cs.debug.probe') {
+    return { ok: true, domChanged: true };
+  }
   if (cmd === 'cs.verifyLocators') {
     return { checks: [] };
   }
@@ -165,7 +171,8 @@ const DESCRIPTOR = { kind: 'SEARCH_INPUT', tag: 'input', name: 'Pesquisar', html
 beforeEach(() => {
   store = {};
   clock = 1_000_000;
-  tabs = new Map([[1, { id: 1, title: 'Consulta', active: true }], [2, { id: 2, title: 'Portal', active: false }]]);
+  tabs = new Map([[1, { id: 1, title: 'Consulta', active: true }], [2, { id: 2, title: 'Portal', active: false }],
+    [3, { id: 3, title: 'Consulta', active: false }]]);
   capture = fakeCapture();
   resolveReply = RESOLVED;
   build();
@@ -370,4 +377,52 @@ test('payloads fora do contrato recusados antes de qualquer efeito: script, valo
     assert.equal(r.error.code, 'BAD_REQUEST', JSON.stringify(bad));
   }
   assert.equal(hostCalls.filter((c) => c.type === 'debug.resolve').length, 0);
+});
+
+function probePayload(over = {}) {
+  return { debugId: 'dbg-1', requestId: 'rq-p1', stepRef: 'step-1', operation: 'FILL_FIXTURE', targetId: 'tgt-1', descriptor: DESCRIPTOR,
+    valueKey: 'lab:registro-ativo', authorization: 'LAB_PROBE', ...over };
+}
+
+test('G6 sonda LAB: preenche com o valor do catálogo (nunca transportado), idempotente, fatos separados', async () => {
+  await startDebug();
+  const r = await send('studio.debug.probe', probePayload());
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(errors(schema.$defs.DebugProbeResult, r.payload), [], JSON.stringify(r.payload));
+  assert.equal(r.payload.performed, true);
+  assert.equal(r.payload.status, 'RESOLVED');
+  const call = contentCalls.find((c) => c.cmd === 'cs.debug.probe');
+  assert.equal(call.args.value, 'REG-0001', 'o valor sai do catálogo da extensão');
+  assert.ok(!JSON.stringify(posted).includes('REG-0001'), 'o valor nunca vai ao Studio');
+  assert.ok(!JSON.stringify(hostCalls).includes('REG-0001'), 'nem ao host');
+  const again = await send('studio.debug.probe', probePayload());
+  assert.equal(again.payload.duplicate, true);
+  assert.equal(contentCalls.filter((c) => c.cmd === 'cs.debug.probe').length, 1, 'o mesmo pedido NUNCA repete a ação');
+});
+
+test('G6 sonda: alvo não comprovado, campo não editável e chave desconhecida — nada é feito', async () => {
+  resolveReply = AMBIGUOUS;
+  await startDebug();
+  const amb = await send('studio.debug.probe', probePayload({ requestId: 'rq-p2' }));
+  assert.equal(amb.payload.performed, false);
+  assert.deepEqual(amb.payload.reasons, ['TARGET_NOT_RESOLVED']);
+  resolveReply = { ...RESOLVED, checks: { ...RESOLVED.checks, editable: 'FAIL' } };
+  const ro = await send('studio.debug.probe', probePayload({ requestId: 'rq-p3' }));
+  assert.equal(ro.payload.performed, false);
+  assert.ok(ro.payload.reasons.includes('NOT_EDITABLE'));
+  const unknown = await send('studio.debug.probe', probePayload({ requestId: 'rq-p4', valueKey: 'lab:nao-existe' }));
+  assert.equal(unknown.payload.performed, false);
+  assert.deepEqual(unknown.payload.reasons, ['UNKNOWN_FIXTURE']);
+  assert.equal(contentCalls.filter((c) => c.cmd === 'cs.debug.probe').length, 0);
+  const bad = await send('studio.debug.probe', probePayload({ requestId: 'rq-p5', valueKey: 'Ana Souza' }));
+  assert.equal(bad.error.code, 'BAD_REQUEST');
+});
+
+test('G6 sonda fora do laboratório (site autorizado) é recusada: PROBE_NOT_ALLOWED', async () => {
+  const ref = (await send('browser.tabs.list', {})).payload.tabs.find((t) => t.access === 'AUTHORIZED').tabRef;
+  const st = await send('studio.debug.start', { debugId: 'dbg-1', operationId: 'op-1', tabRef: ref, leaseMs: 30000, capabilities: ['guided-debug/1'] });
+  assert.equal(st.ok, true, JSON.stringify(st));
+  const r = await send('studio.debug.probe', probePayload());
+  assert.equal(r.error.code, 'PROBE_NOT_ALLOWED');
+  assert.equal(contentCalls.filter((c) => c.cmd === 'cs.debug.probe').length, 0);
 });

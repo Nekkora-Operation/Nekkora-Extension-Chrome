@@ -32,7 +32,7 @@ public final class BridgeContract {
             "studio.recording.evidence.ack", "studio.recording.evidence.sync",
             // STUDIO-009 (guided-debug/1): inspeção, destaque e seleção — nunca ações na página
             "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
-            "studio.debug.status", "studio.debug.renew");
+            "studio.debug.status", "studio.debug.renew", "studio.debug.probe");
     /** Eventos da extensão que podem ser repassados ao Studio. */
     public static final Set<String> FORWARDED_EVENTS = Set.of("studio.recording.started", "studio.recording.paused", "studio.recording.resumed",
             "studio.recording.modeChanged", "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded",

@@ -307,4 +307,76 @@ class Studio009GuidedDebugIT extends SessionIT {
         JsonNode exec = studio.call("studio.debug.execute", studio.obj().put("debugId", "x"));
         assertEquals("UNKNOWN_COMMAND", exec.at("/error/code").asText());
     }
+
+    // ------------------------------------------------------------------------------------------ G6: sonda de laboratório
+
+    private JsonNode probe(String targetId, ObjectNode descriptor, String operation, String valueKey, String requestId) {
+        ObjectNode pl = studio.obj().put("debugId", debugId).put("requestId", requestId).put("stepRef", id("step")).put("operation", operation);
+        if (targetId == null) {
+            pl.putNull("targetId");
+        } else {
+            pl.put("targetId", targetId);
+        }
+        pl.set("descriptor", descriptor);
+        if (valueKey == null) {
+            pl.putNull("valueKey");
+        } else {
+            pl.put("valueKey", valueKey);
+        }
+        pl.put("authorization", "LAB_PROBE");
+        return studio.call("studio.debug.probe", pl, Duration.ofSeconds(30));
+    }
+
+    @Test
+    @DisplayName("G6-01 sonda LAB: preencher com valor do catálogo e consultar — oráculo do servidor conta 1 consulta; repetir o pedido não repete a ação")
+    void sondaLaboratorio() throws Exception {
+        Page p = variant("base");
+        start(p);
+        String campo = pick(p, By.id("registro-codigo"), "FILL").at("/element/correlation/targetId").asText();
+        String botao = pick(p, By.cssSelector("[data-testid=consultar]"), "CLICK").at("/element/correlation/targetId").asText();
+        assertEquals(0, oracle("/api/studio009/estado").path("total").asInt(), "selecionar não consulta");
+        JsonNode fill = probe(campo, descriptor("SEARCH_INPUT", "input", "Código do registro", "registro-codigo", "#registro-codigo"), "FILL_FIXTURE",
+                "lab:registro-ativo", id("rq"));
+        assertTrue(fill.path("ok").asBoolean(), fill.toString());
+        assertTrue(fill.at("/payload/performed").asBoolean(), fill.toString());
+        assertFalse(fill.toString().contains("REG-0001"), "o valor nunca volta ao Studio");
+        assertEquals("REG-0001", lab.js(p, "return document.getElementById('registro-codigo').value"), "o campo do laboratório recebeu o valor sintético");
+        assertEquals(0, oracle("/api/studio009/estado").path("total").asInt(), "preencher não consulta");
+        String rq = id("rq");
+        JsonNode click = probe(botao, descriptor("BUTTON", "button", "Consultar", "consultar", "[data-testid=\"consultar\"]"), "CLICK", null, rq);
+        assertTrue(click.at("/payload/performed").asBoolean(), click.toString());
+        BrowserLab.waitUntil(Duration.ofSeconds(10), () -> {
+            try {
+                return oracle("/api/studio009/estado").path("total").asInt() == 1;
+            } catch (Exception e) {
+                return false;
+            }
+        }, "oráculo registra a consulta");
+        JsonNode state = oracle("/api/studio009/estado");
+        assertEquals("REG-0001", state.at("/consultas/0/codigo").asText());
+        JsonNode again = probe(botao, descriptor("BUTTON", "button", "Consultar", "consultar", "[data-testid=\"consultar\"]"), "CLICK", null, rq);
+        assertTrue(again.at("/payload/duplicate").asBoolean(), again.toString());
+        Thread.sleep(800);
+        assertEquals(1, oracle("/api/studio009/estado").path("total").asInt(), "a ação não idempotente NÃO foi repetida");
+        BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "ATIVO".equals(lab.js(p, "return document.getElementById('resultado').getAttribute('data-situacao')")),
+                "resultado observável no laboratório");
+        lab.screenshot(p, "S009-G6-01-sonda-resultado");
+        lab.writeEvidence("S009-G6-01-oraculo.json", state.toPrettyString());
+    }
+
+    @Test
+    @DisplayName("G6-02 sonda fora do laboratório (site autorizado): PROBE_NOT_ALLOWED, nada feito; alvo não comprovado: nada feito")
+    void sondaRecusada() throws Exception {
+        Page site = lab.openUrl(lab.externalUrl(BrowserLab.SITE_A, PAGE + "?v=base"));
+        opened.add(site);
+        start(site);
+        JsonNode r = probe(null, descriptor("BUTTON", "button", "Consultar", "consultar", "[data-testid=\"consultar\"]"), "CLICK", null, id("rq"));
+        assertEquals("PROBE_NOT_ALLOWED", r.at("/error/code").asText(), r.toString());
+        studio.call("studio.debug.finish", studio.obj().put("debugId", debugId).put("operationId", id("op")));
+        Page dup = variant("duplicado");
+        start(dup);
+        JsonNode amb = probe(null, descriptor("BUTTON", "button", "Consultar", null, null), "CLICK", null, id("rq"));
+        assertFalse(amb.at("/payload/performed").asBoolean(), amb.toString());
+        assertEquals(0, oracle("/api/studio009/estado").path("total").asInt(), "oráculo: nenhuma consulta");
+    }
 }

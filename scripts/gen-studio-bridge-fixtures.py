@@ -444,6 +444,26 @@ fixtures_valid.update({
     "s009-command-debug-renew": _cmd9("studio.debug.renew", {"debugId": DBG}),
 })
 
+PROBE_CMD = {"debugId": DBG, "requestId": "rq-p1", "stepRef": STEP_REF, "operation": "FILL_FIXTURE", "targetId": "tgt-3f6c1a", "descriptor": DESCRIPTOR,
+             "valueKey": "lab:registro-ativo", "authorization": "LAB_PROBE"}
+PROBE_RESULT = {"debug": DEBUG_SESSION, "requestId": "rq-p1", "stepRef": STEP_REF, "observedAt": "2026-10-17T12:01:00.000Z", "pageEpoch": 1,
+                "status": "RESOLVED", "performed": True, "operation": "FILL_FIXTURE", "reasons": [], "after": {"domChanged": True, "navigated": False},
+                "duplicate": False}
+fixtures_valid.update({
+    "s009-command-debug-probe-fill": _cmd9("studio.debug.probe", PROBE_CMD),
+    "s009-command-debug-probe-click": _cmd9("studio.debug.probe", dict(PROBE_CMD, requestId="rq-p2", operation="CLICK", valueKey=None)),
+    "s009-response-debug-probe": _resp9("studio.debug.probe", PROBE_RESULT),
+    "s009-response-debug-probe-refused": _resp9("studio.debug.probe", dict(PROBE_RESULT, status="AMBIGUOUS", performed=False,
+                                                                             reasons=["TARGET_NOT_RESOLVED"], after={"domChanged": False, "navigated": False})),
+})
+fixtures_invalid.update({
+    "s009-probe-with-literal-value": _cmd9("studio.debug.probe", dict(PROBE_CMD, value="REG-0001")),
+    "s009-probe-free-value-key": _cmd9("studio.debug.probe", dict(PROBE_CMD, valueKey="Ana Souza")),
+    "s009-probe-without-authorization": _cmd9("studio.debug.probe", {k: v for k, v in PROBE_CMD.items() if k != "authorization"}),
+    "s009-probe-script-operation": _cmd9("studio.debug.probe", dict(PROBE_CMD, operation="EXECUTE_SCRIPT")),
+    "s009-probe-result-with-value": _resp9("studio.debug.probe", dict(PROBE_RESULT, value="REG-0001")),
+    "s009-probe-result-business-success": _resp9("studio.debug.probe", dict(PROBE_RESULT, businessOutcome="SUCCESS")),
+})
 fixtures_invalid.update({
     "s009-debug-inspect-with-script": _cmd9("studio.debug.inspect", dict(INSPECT_CMD, script="document.querySelector('#x').click()")),
     "s009-debug-execute-command": _cmd9("studio.debug.execute", {"debugId": DBG, "js": "alert(1)"}),

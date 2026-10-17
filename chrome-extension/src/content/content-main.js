@@ -130,6 +130,50 @@
       }
       return { ok: true };
     },
+    /**
+     * STUDIO-009 G6 — sonda de LABORATÓRIO (o service worker só a envia para origem LAB e alvo reencontrado): preencher
+     * com o valor sintético recebido (nunca devolvido), clicar ou Enter. Eventos sintéticos, declarados como tal; o
+     * resultado diz só se a operação foi feita e se a página mudou — nenhum conteúdo da página volta.
+     */
+    'cs.debug.probe': async (a) => {
+      const el = NS.registry.elementFor(a.nodeId);
+      if (!el || !el.isConnected) {
+        return { ok: false, error: 'NODE_NOT_CONNECTED' };
+      }
+      let mutations = 0;
+      const mo = new MutationObserver((list) => { mutations += list.length; });
+      mo.observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true });
+      try {
+        if (a.operation === 'FILL_FIXTURE') {
+          if (typeof a.value !== 'string') {
+            return { ok: false, error: 'NO_VALUE' };
+          }
+          el.focus();
+          const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+          const setter = Object.getOwnPropertyDescriptor(proto, 'value');
+          if (setter && setter.set && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) {
+            setter.set.call(el, a.value);
+          } else {
+            return { ok: false, error: 'NOT_A_FIELD' };
+          }
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (a.operation === 'CLICK') {
+          el.click();
+        } else if (a.operation === 'PRESS_ENTER') {
+          el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }));
+          if (el.form && typeof el.form.requestSubmit === 'function') {
+            el.form.requestSubmit();
+          }
+        } else {
+          return { ok: false, error: 'UNKNOWN_OPERATION' };
+        }
+        await new Promise((r) => setTimeout(r, 400));
+        return { ok: true, domChanged: mutations > 0 };
+      } finally {
+        mo.disconnect();
+      }
+    },
     /** Geometria da janela (documento principal) para a posição aproximada na tela. Sem conteúdo da página. */
     'cs.debug.viewport': () => ({
       screenX: window.screenX, screenY: window.screenY, chromeLeft: Math.max(0, Math.round((window.outerWidth - window.innerWidth) / 2)),

@@ -1,10 +1,10 @@
 {
   "debug" : {
-    "debugId" : "dbg-711f2f52-6c88-4c59-9e99-6cb14edcc1e2",
+    "debugId" : "dbg-fc08802e-dfdb-4166-8126-af8212f20ca7",
     "protocol" : "guided-debug/1",
     "state" : "ACTIVE",
     "tab" : {
-      "tabRef" : "t-PRvNzDcCO4McLt",
+      "tabRef" : "t-tPSzNkNvtjp5RX",
       "title" : "Consulta de registro",
       "host" : "127.0.0.1"
     },
@@ -12,13 +12,13 @@
     "picking" : false,
     "lease" : {
       "leaseMs" : 60000,
-      "expiresInMs" : 59989
+      "expiresInMs" : 59986
     },
     "reason" : null
   },
-  "requestId" : "rq-71206920-dc7a-4890-b8d7-b7657d4ff3a1",
-  "stepRef" : "step-f8d0dfe5-90d5-4666-aa69-48a3456e2d17",
-  "observedAt" : "2026-10-17T15:31:07.774Z",
+  "requestId" : "rq-2e805adf-8299-4094-95e2-094ac8138acf",
+  "stepRef" : "step-ea2d8787-069d-4183-ac80-07e12102ca03",
+  "observedAt" : "2026-10-17T15:59:37.671Z",
   "pageEpoch" : 1,
   "identitySource" : "TARGET_ID",
   "status" : "RESOLVED",

@@ -35,7 +35,7 @@
         "HANDSHAKE_TIMEOUT", "FRAME_TOO_LARGE", "EXTENSION_UNAVAILABLE", "TIMEOUT", "TAB_NOT_FOUND", "ORIGIN_NOT_ALLOWED",
         "RECORDING_NOT_FOUND", "RECORDING_ALREADY_ACTIVE", "RECORDING_ENDED", "INVALID_STATE", "NOT_CONTROLLER",
         "INVALID_MODE", "CAPTURE_FAILED", "OPERATION_CONFLICT", "INTERNAL_ERROR",
-        "DEBUG_NOT_FOUND", "DEBUG_ENDED", "CANDIDATE_EXPIRED"
+        "DEBUG_NOT_FOUND", "DEBUG_ENDED", "CANDIDATE_EXPIRED", "PROBE_NOT_ALLOWED"
       ]
     },
     "Error": {
@@ -308,7 +308,7 @@
         "studio.recording.steps.ack", "studio.recording.steps.sync", "studio.recording.route",
         "studio.recording.evidence.ack", "studio.recording.evidence.sync",
         "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
-        "studio.debug.status", "studio.debug.renew"
+        "studio.debug.status", "studio.debug.renew", "studio.debug.probe"
       ]
     },
     "Command": {
@@ -340,7 +340,8 @@
         { "if": { "properties": { "type": { "const": "studio.debug.highlight" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugHighlightPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickPayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.debug.finish" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugFinishPayload" } } } },
-        { "if": { "properties": { "type": { "enum": ["studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugRef" } } } }
+        { "if": { "properties": { "type": { "enum": ["studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugRef" } } } },
+        { "if": { "properties": { "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbePayload" } } } }
       ]
     },
     "StartPayload": {
@@ -440,7 +441,8 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "enum": ["studio.debug.start", "studio.debug.finish", "studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.inspect" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugInspectResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.highlight" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugHighlightResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbeResult" } } } }
       ]
     },
     "StatusResult": {
@@ -1096,6 +1098,45 @@
       "additionalProperties": false,
       "required": ["debug"],
       "properties": { "debug": { "$ref": "#/$defs/DebugSession" } }
+    },
+    "DebugProbePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debugId", "requestId", "stepRef", "operation", "targetId", "descriptor", "valueKey", "authorization"],
+      "description": "STUDIO-009 G6: sonda de interação ESTRITAMENTE de laboratório (origem LAB). O valor de preenchimento nunca trafega: só a CHAVE de um catálogo sintético da extensão (lab:...). Não é um executor: uma operação por pedido, nunca repetida automaticamente.",
+      "properties": {
+        "debugId": { "$ref": "#/$defs/Id" },
+        "requestId": { "$ref": "#/$defs/Id", "description": "Idempotência: o mesmo requestId devolve o mesmo resultado e NÃO repete a operação." },
+        "stepRef": { "$ref": "#/$defs/Id" },
+        "operation": { "enum": ["FILL_FIXTURE", "CLICK", "PRESS_ENTER"] },
+        "targetId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
+        "descriptor": { "$ref": "#/$defs/DebugDescriptor" },
+        "valueKey": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^lab:[a-z0-9-]{1,40}$" }] },
+        "authorization": { "const": "LAB_PROBE" }
+      }
+    },
+    "DebugProbeResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["debug", "requestId", "stepRef", "observedAt", "pageEpoch", "status", "performed", "operation", "reasons", "after", "duplicate"],
+      "description": "Fatos separados: alvo reencontrado (status) ≠ operação efetuada (performed) ≠ resultado observado (after) ≠ sucesso de negócio (não existe aqui: quem confere é o oráculo do laboratório).",
+      "properties": {
+        "debug": { "$ref": "#/$defs/DebugSession" },
+        "requestId": { "$ref": "#/$defs/Id" },
+        "stepRef": { "$ref": "#/$defs/Id" },
+        "observedAt": { "$ref": "#/$defs/Instant" },
+        "pageEpoch": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/DebugStatus" },
+        "performed": { "type": "boolean" },
+        "operation": { "enum": ["FILL_FIXTURE", "CLICK", "PRESS_ENTER"] },
+        "reasons": { "type": "array", "maxItems": 16, "uniqueItems": true, "items": { "enum": ["TARGET_NOT_RESOLVED", "NOT_EDITABLE", "DISABLED", "HIDDEN",
+          "UNKNOWN_FIXTURE", "PAGE_CHANGED_DURING_CHECK", "CAPTURE_UNAVAILABLE", "OPERATION_FAILED", "KIND_UNUSUAL_FOR_ACTION"] } },
+        "after": {
+          "type": "object", "additionalProperties": false, "required": ["domChanged", "navigated"],
+          "properties": { "domChanged": { "type": "boolean" }, "navigated": { "type": "boolean" } }
+        },
+        "duplicate": { "type": "boolean" }
+      }
     }
   }
 }

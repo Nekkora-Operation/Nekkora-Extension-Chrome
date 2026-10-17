@@ -38,6 +38,15 @@ const CHECK_VALUES = new Set(['PASS', 'FAIL', 'UNKNOWN', 'NOT_APPLICABLE']);
 const CONTINUITY = new Set(['LIVE_NODE_CONTINUITY', 'CONTINUITY_BROKEN', 'NOT_PROVEN']);
 const KIND = /^[A-Z_]{1,40}$/;
 const REQUEST_RETENTION = 50;
+/**
+ * STUDIO-009 G6 — catálogo SINTÉTICO da sonda de laboratório (D-S009-08): o Studio envia só a CHAVE; o valor fica aqui e
+ * só é usado em origem LAB. Nada daqui atravessa o Bridge nem vai a logs.
+ */
+const LAB_FIXTURES = Object.freeze({ 'lab:registro-ativo': 'REG-0001', 'lab:registro-suspenso': 'REG-0003', 'lab:registro-encerrado': 'REG-0004',
+  'lab:registro-inexistente': 'REG-9999' });
+const PROBE_OPS = new Set(['FILL_FIXTURE', 'CLICK', 'PRESS_ENTER']);
+const PROBE_REASONS = new Set(['TARGET_NOT_RESOLVED', 'NOT_EDITABLE', 'DISABLED', 'HIDDEN', 'UNKNOWN_FIXTURE', 'PAGE_CHANGED_DURING_CHECK',
+  'CAPTURE_UNAVAILABLE', 'OPERATION_FAILED', 'KIND_UNUSUAL_FOR_ACTION']);
 const OPS_RETENTION = 20;
 
 /**
@@ -70,6 +79,7 @@ export function createStudioDebug(deps) {
     'studio.debug.finish': finish,
     'studio.debug.status': status,
     'studio.debug.renew': renew,
+    'studio.debug.probe': probe,
   };
 
   function now() {
@@ -418,6 +428,73 @@ export function createStudioDebug(deps) {
       throw fail('CANDIDATE_EXPIRED', 'O candidato não está mais na página.');
     }
     return remember(s, p.requestId, { debug: view(s), requestId: p.requestId, highlighted: true, box });
+  }
+
+  /**
+   * G6 — sonda de laboratório: UMA operação explicitamente autorizada (preencher com um valor do catálogo sintético,
+   * clicar ou Enter) sobre um alvo REENCONTRADO pelo motor, só em origem LAB. Idempotente por requestId: o mesmo pedido
+   * nunca repete a ação. O resultado separa os fatos e nunca diz "sucesso de negócio".
+   */
+  async function probe(p, controller) {
+    assertOnly(p, ['debugId', 'requestId', 'stepRef', 'operation', 'targetId', 'descriptor', 'valueKey', 'authorization']);
+    const s = live(owned(p.debugId, controller));
+    assertId(p.requestId, 'requestId');
+    assertId(p.stepRef, 'stepRef');
+    if (p.authorization !== 'LAB_PROBE' || !PROBE_OPS.has(p.operation)) {
+      throw fail('BAD_REQUEST', 'sonda inválida');
+    }
+    if (s.requests.has(p.requestId)) {
+      return { ...s.requests.get(p.requestId), duplicate: true }; // nunca repete uma ação não idempotente
+    }
+    if (p.targetId !== null && p.targetId !== undefined) {
+      assertId(p.targetId, 'targetId');
+    }
+    if (p.valueKey !== null && (typeof p.valueKey !== 'string' || !/^lab:[a-z0-9-]{1,40}$/.test(p.valueKey))) {
+      throw fail('BAD_REQUEST', 'valueKey inválida');
+    }
+    const url = await policy.tabUrl(s.tabId).catch(() => null);
+    if (policy.evaluate(url).kind !== 'LAB') {
+      throw fail('PROBE_NOT_ALLOWED', 'A sonda só existe no laboratório local.', { reason: 'NOT_LAB_ORIGIN' });
+    }
+    const descriptor = descriptorOf(p.descriptor);
+    const epoch = s.pageEpoch;
+    const result = (status, performed, reasons, after) => remember(s, p.requestId, {
+      debug: view(s), requestId: p.requestId, stepRef: p.stepRef, observedAt: new Date(now()).toISOString(), pageEpoch: epoch, status,
+      performed, operation: p.operation, reasons: clean(reasons, PROBE_REASONS), after: after || { domChanged: false, navigated: false }, duplicate: false,
+    });
+    const value = p.operation === 'FILL_FIXTURE' ? LAB_FIXTURES[p.valueKey] : null;
+    if (p.operation === 'FILL_FIXTURE' && !value) {
+      return result('CONTEXT_UNAVAILABLE', false, ['UNKNOWN_FIXTURE']);
+    }
+    let r;
+    try {
+      const cap = await currentCapture(s.tabId);
+      r = await host('debug.resolve', { tabKey: tabKey(s.tabId), captureId: cap.captureId, targetId: p.targetId || null,
+        actionType: p.operation === 'FILL_FIXTURE' ? 'FILL' : p.operation === 'PRESS_ENTER' ? 'PRESS_KEY' : 'CLICK', descriptor }, { timeoutMs: 10000 });
+    } catch (e) {
+      return result('CONTEXT_UNAVAILABLE', false, ['CAPTURE_UNAVAILABLE']);
+    }
+    const status = STATUSES.has(r.status) ? r.status : 'CONTEXT_UNAVAILABLE';
+    if (status !== 'RESOLVED' || !r.resolvedNodeId || s.pageEpoch !== epoch) {
+      return result(s.pageEpoch !== epoch ? 'CONTEXT_UNAVAILABLE' : status, false,
+        [s.pageEpoch !== epoch ? 'PAGE_CHANGED_DURING_CHECK' : 'TARGET_NOT_RESOLVED']); // nada é feito num alvo não comprovado
+    }
+    const checks = r.checks || {};
+    const blockers = [];
+    if (checks.visible === 'FAIL') blockers.push('HIDDEN');
+    if (checks.enabled === 'FAIL') blockers.push('DISABLED');
+    if (p.operation === 'FILL_FIXTURE' && checks.editable === 'FAIL') blockers.push('NOT_EDITABLE');
+    if (checks.kindMatchesAction === 'FAIL') blockers.push('KIND_UNUSUAL_FOR_ACTION');
+    if (blockers.length) {
+      return result(status, false, blockers);
+    }
+    const out = await toContent(s.tabId, 'cs.debug.probe', { nodeId: r.resolvedNodeId, operation: p.operation, value }, frameOfNode(r.resolvedNodeId))
+      .catch(() => null);
+    if (!out || !out.ok) {
+      return result(status, false, ['OPERATION_FAILED']);
+    }
+    await mark(s, r.resolvedNodeId, 'confirmed').catch(() => null);
+    return result(status, true, [], { domChanged: !!out.domChanged, navigated: s.pageEpoch !== epoch });
   }
 
   async function startInspector(s) {
