@@ -389,7 +389,7 @@ DESCRIPTOR = {"kind": "SEARCH_INPUT", "tag": "input", "name": "Código do regist
               "accessPath": [{"type": "MAIN_DOCUMENT", "locator": None}]}
 CHECKS_OK = {"identity": "PASS", "unique": "PASS", "visible": "PASS", "enabled": "PASS", "editable": "PASS", "kindMatchesAction": "PASS",
              "frameReachable": "NOT_APPLICABLE", "shadowReachable": "NOT_APPLICABLE"}
-BOX = {"x": 120, "y": 210, "width": 320, "height": 32, "viewportWidth": 1280, "viewportHeight": 720, "devicePixelRatio": 1.0, "screenX": 128,
+BOX = {"x": 120, "y": 210, "width": 320, "height": 32, "viewportWidth": 1280, "viewportHeight": 720, "devicePixelRatio": 1.25, "screenX": 128,
        "screenY": 311}
 STEP_REF = "6f0c8d2e-1a3b-4c5d-9e7f-0a1b2c3d4e5f"
 INSPECT_OK = {"debug": DEBUG_SESSION, "requestId": "rq-1", "stepRef": STEP_REF, "observedAt": "2026-10-17T12:00:03.000Z",
