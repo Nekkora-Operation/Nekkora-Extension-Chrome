@@ -1,0 +1,20 @@
+{
+  "steps" : [ "SELECT_OPTION:SELECT:NAME:0" ],
+  "optionChecks" : {
+    "Auditoria Carefy" : {
+      "matches" : 1,
+      "selected" : true
+    },
+    "status:Auditoria Carefy" : "RESOLVED",
+    "Auditoria médica" : {
+      "matches" : 1,
+      "selected" : false
+    },
+    "status:Auditoria médica" : "RESOLVED",
+    "Opção inexistente" : {
+      "matches" : 0,
+      "selected" : false
+    },
+    "status:Opção inexistente" : "RESOLVED"
+  }
+}

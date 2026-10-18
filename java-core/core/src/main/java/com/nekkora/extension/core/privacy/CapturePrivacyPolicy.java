@@ -314,6 +314,45 @@ public final class CapturePrivacyPolicy {
         return v != null && IDENT.matcher(v).matches() && vocabularyOnly(v) ? v : null;
     }
 
+    /** NEKKORA-STUDIO-012: atributos com identificador ESCRITO PELO DESENVOLVEDOR (lista técnica aplicável). */
+    public static final Set<String> DEV_IDENTIFIERS = Set.of("id", "name", "data-testid", "data-test", "data-test-id", "data-qa", "data-cy");
+    public static final String IDENTIFIER_TERMS_RESOURCE = "contracts/privacy/identifier-terms.json";
+    private static final Set<String> IDENTIFIER_TERMS = Set.copyOf(jsonStrings(readResource(IDENTIFIER_TERMS_RESOURCE), "terms"));
+
+    /**
+     * NEKKORA-STUDIO-012 ({@code nekkora-identifier-terms/1}, aprovado pela usuária): id/name/data-testid do desenvolvedor.
+     * Passa como em {@link #identifier(String)} ou, além disso, quando cada termo é do vocabulário, número de até 2 dígitos
+     * ou termo técnico da lista fechada (ds, txt, hdn, temp…), com PELO MENOS UM termo do vocabulário. Sem supressão parcial.
+     */
+    public static String developerIdentifier(String v) {
+        String plain = identifier(v);
+        if (plain != null || v == null || !IDENT.matcher(v).matches()) {
+            return plain;
+        }
+        List<String> t = terms(v);
+        if (t.isEmpty() || t.size() > MAX_TERMS) {
+            return null;
+        }
+        boolean word = false;
+        for (String x : t) {
+            if (VOCABULARY.contains(x)) {
+                word = true;
+            } else if (!SMALL_NUMBER.matcher(x).matches() && !IDENTIFIER_TERMS.contains(x)) {
+                return null;
+            }
+        }
+        return word ? v : null;
+    }
+
+    /** Valor na posição de identificador do desenvolvedor num localizador (#id, [name=…], @id, {id=…}). */
+    private static boolean developerLiteralOk(String v) {
+        return literalOk(v) || developerIdentifier(v) != null;
+    }
+
+    public static int identifierTermsSize() {
+        return IDENTIFIER_TERMS.size();
+    }
+
     /** Classes CSS: cada classe é um identificador independente; ficam só as que passam. */
     public static String classes(String v) {
         if (v == null) {
@@ -690,7 +729,7 @@ public final class CapturePrivacyPolicy {
             }
             ws();
             String v = i < n && (ch(i) == '"' || ch(i) == '\'') ? string() : ident();
-            if (v == null || !literalOk(v)) {
+            if (v == null || !(DEV_IDENTIFIERS.contains(asciiLower(name)) ? developerLiteralOk(v) : literalOk(v))) {
                 return false;
             }
             ws();
@@ -746,7 +785,7 @@ public final class CapturePrivacyPolicy {
                 if (c == '#' || c == '.') {
                     i++;
                     String v = ident();
-                    if (v == null || !literalOk(v)) {
+                    if (v == null || !(c == '#' ? developerLiteralOk(v) : literalOk(v))) {
                         return false;
                     }
                 } else if (c == '[') {
@@ -907,12 +946,23 @@ public final class CapturePrivacyPolicy {
             return true;
         }
 
-        private String operand() { // "ok", "lit", "num:<dígitos>" ou null
+        // "ok", "lit:<valor>" (julgado no predicado), "attr:<nome>" (só "@nome"), "num:<dígitos>" ou null
+        private String operand() {
             skip();
             char c = ch(i);
             if (i < n && (c == '"' || c == '\'' || s.startsWith("concat(", i))) {
                 String v = literal();
-                return v != null && literalOk(v) ? "lit" : null;
+                return v != null && developerLiteralOk(v) ? "lit:" + v : null;
+            }
+            if (i < n && c == '@') {
+                Matcher m = XPATH_NAME.matcher(s).region(i + 1, n);
+                if (m.lookingAt()) {
+                    char after = ch(m.end());
+                    if (after != '/' && after != '[' && attributeNameSafe(m.group())) {
+                        i = m.end();
+                        return "attr:" + asciiLower(m.group());
+                    }
+                }
             }
             if (i < n && c >= '0' && c <= '9') {
                 int st = i;
@@ -946,12 +996,19 @@ public final class CapturePrivacyPolicy {
                 if (b == null) {
                     return false;
                 }
-                for (String x : new String[]{a, b}) {
+                String[][] pairs = {{a, b}, {b, a}};
+                for (String[] p : pairs) {
+                    String x = p[0];
                     if (x.startsWith("num:") && !literalOk(x.substring(4))) {
                         return false; // número comparado é VALOR (P1-02)
                     }
+                    // literal: vocabulário; a lista técnica só quando comparado a @id/@name/@data-testid (STUDIO-012)
+                    if (x.startsWith("lit:") && !literalOk(x.substring(4))
+                            && !(p[1].startsWith("attr:") && DEV_IDENTIFIERS.contains(p[1].substring(5)))) {
+                        return false;
+                    }
                 }
-            } else if (a.equals("lit")) {
+            } else if (a.startsWith("lit:")) {
                 return false;
             }
             skip();
@@ -1009,10 +1066,13 @@ public final class CapturePrivacyPolicy {
         m = SEM_PAIR.matcher(p);
         if (m.matches()) {
             String v = m.group(2);
-            if (v.length() >= 2 && v.startsWith("\"") && v.endsWith("\"")) {
+            boolean quoted = v.length() >= 2 && v.startsWith("\"") && v.endsWith("\"");
+            if (quoted) {
                 v = v.substring(1, v.length() - 1);
             }
-            return (SEM_KEYS.contains(m.group(1)) || attributeNameSafe(m.group(1))) && literalOk(v);
+            // sem aspas = valor de ATRIBUTO ({id=…}, {name=…}); name="…" entre aspas é o NOME ACESSÍVEL (texto de interface)
+            boolean developer = !quoted && DEV_IDENTIFIERS.contains(m.group(1));
+            return (SEM_KEYS.contains(m.group(1)) || attributeNameSafe(m.group(1))) && (developer ? developerLiteralOk(v) : literalOk(v));
         }
         return false;
     }
@@ -1073,7 +1133,7 @@ public final class CapturePrivacyPolicy {
             return structuralValue(n, v);
         }
         if (IDENTIFIERS.contains(n)) {
-            return identifier(v);
+            return DEV_IDENTIFIERS.contains(n) ? developerIdentifier(v) : identifier(v);
         }
         if (n.equals("class")) {
             return classes(v);

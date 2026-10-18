@@ -184,9 +184,109 @@
     return { el: leaf, control: clickableSignal(leaf) ? 'AMBIGUOUS' : 'NONE' };
   }
 
+  // ------------------------------------------------------------------- alvo revelado pelo ponteiro (STUDIO-012)
+
+  const REVEALING = /(^|[;{\s])(display|visibility|opacity|max-height|height|clip|clip-path|transform)\s*:/i;
+  const hoverRuleCache = new WeakMap(); // Document -> { sheets, selectors }
+
+  /** Divide uma lista de seletores no nível de topo (vírgulas fora de parênteses/colchetes). */
+  function splitSelectors(text) {
+    const out = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (c === '(' || c === '[') {
+        depth++;
+      } else if (c === ')' || c === ']') {
+        depth--;
+      } else if (c === ',' && depth === 0) {
+        out.push(text.slice(start, i).trim());
+        start = i + 1;
+      }
+    }
+    out.push(text.slice(start).trim());
+    return out;
+  }
+
+  /**
+   * Seletores (sem o :hover) de regras da página que EXIBEM um elemento quando o ponteiro está sobre OUTRO — o :hover
+   * fica num composto anterior a um combinador (li:hover > ul, .menu:hover .sub). Regras com :hover no próprio alvo
+   * (a:hover { color }) não contam. Folhas de outra origem não são legíveis: ficam de fora (sem palpite).
+   */
+  function hoverSelectors(doc) {
+    const sheets = doc.styleSheets;
+    const cached = hoverRuleCache.get(doc);
+    if (cached && cached.sheets === sheets.length) {
+      return cached.selectors;
+    }
+    const selectors = [];
+    const visit = (rules) => {
+      for (const rule of rules) {
+        if (rule.cssRules && !rule.selectorText) {
+          visit(rule.cssRules); // @media, @supports
+          continue;
+        }
+        if (!rule.selectorText || !rule.selectorText.includes(':hover') || !REVEALING.test(rule.style ? rule.style.cssText : '')) {
+          continue;
+        }
+        for (const sel of splitSelectors(rule.selectorText)) {
+          const at = sel.lastIndexOf(':hover');
+          // depois do composto com :hover precisa vir um combinador e outro composto
+          const after = at < 0 ? '' : sel.slice(at + 6).replace(/^[^\s>+~]*/, '');
+          if (!/^[\s>+~]/.test(after) || !after.replace(/[\s>+~]/g, '')) {
+            continue; // :hover no último composto = estado do próprio alvo
+          }
+          selectors.push(sel.replace(/:hover/g, ''));
+        }
+      }
+    };
+    for (let i = 0; i < sheets.length && selectors.length < 200; i++) {
+      try {
+        visit(sheets[i].cssRules);
+      } catch (e) {
+        // folha de outra origem: ilegível
+      }
+    }
+    hoverRuleCache.set(doc, { sheets: sheets.length, selectors });
+    return selectors;
+  }
+
+  /** O alvo está num contêiner exibido pelo ponteiro sobre outro elemento? Só com evidência da própria página (regra CSS). */
+  function revealedByHover(el) {
+    const doc = el.ownerDocument;
+    const selectors = hoverSelectors(doc);
+    let c = parentOf(el);
+    for (let i = 0; c && i < MAX_DEPTH; i++, c = parentOf(c)) {
+      const tag = c.tagName.toLowerCase();
+      if (tag === 'body' || tag === 'html') {
+        break;
+      }
+      for (const s of selectors) {
+        try {
+          if (c.matches(s)) {
+            return true;
+          }
+        } catch (e) {
+          // seletor que matches() não aceita
+        }
+      }
+    }
+    // Menu aberto por SCRIPT (mouseover) não é distinguível, pelo estado, de um aberto por clique (aria-expanded é igual
+    // nos dois): sem evidência, nada é afirmado — limitação declarada na documentação.
+    return false;
+  }
+
   function targetInfo(r, event) {
     const el = r.el;
     const info = { key: NS.registry.idFor(el), control: r.control, sensitive: NS.sensitivity.isSensitive(el), viaLabel: !!r.viaLabel };
+    if (r.control === 'CLICKABLE' || r.control === 'AMBIGUOUS') {
+      try {
+        info.revealedByHover = revealedByHover(el);
+      } catch (e) {
+        info.revealedByHover = false;
+      }
+    }
     const form = el.form || (el.closest && el.closest('form'));
     if (form) {
       info.formKey = NS.registry.idFor(form);
@@ -220,7 +320,7 @@
     const role = el.getAttribute('role');
     const CP = root.NekkoraCapturePolicy;
     const sensitive = NS.sensitivity.isSensitive(el);
-    const ident = (v) => (v && !sensitive && CP ? CP.identifier(v) : null);
+    const ident = (v) => (v && !sensitive && CP ? CP.developerIdentifier(v) : null); // STUDIO-012: lista técnica de id/name
     let name = el.getAttribute('aria-label') || '';
     if (!name && el.labels && el.labels.length) {
       name = el.labels[0].textContent;
@@ -240,6 +340,8 @@
       role: role && CP ? CP.attribute('role', role, { tag: el.tagName }) || null : null, // P1-01: regra fechada do role
       htmlId: ident(el.id),
       htmlName: ident(el.getAttribute('name')),
+      idPresent: !!el.id, // STUDIO-012: só a PRESENÇA (estrutural), para explicar um id/name retido
+      namePresent: !!el.getAttribute('name'),
       name: CP ? CP.interfaceText(name) : null,
       sensitive: NS.sensitivity.isSensitive(el),
       inShadow: el.getRootNode() instanceof ShadowRoot,
@@ -380,29 +482,84 @@
     return [root, ...NS.capture.frameWindows()];
   }
 
-  function attach() {
-    for (const w of windows()) {
-      listen(w, 'focusin', noticeRoot, { capture: true, passive: true });
-      listen(w, 'pointerdown', noticeRoot, { capture: true, passive: true });
-      if (state.mode === 'CAPTURE_ONLY') {
-        for (const type of BLOCKED) {
-          listen(w, type, block, { capture: true });
-        }
-        for (const type of ['keydown', 'keypress', 'keyup']) {
-          listen(w, type, keys, { capture: true });
-        }
-        listen(w, 'pointermove', hover, { capture: true, passive: true });
-      } else {
-        for (const type of OBSERVED) {
-          listen(w, type, passive, { capture: true, passive: true });
-        }
+  function documentOf(w) {
+    try {
+      return w.document || null;
+    } catch (e) {
+      return null; // frame que deixou de ser acessível
+    }
+  }
+
+  /**
+   * Liga os sensores na janela de UM documento. NEKKORA-STUDIO-012: a chave é o DOCUMENTO, não a janela — o
+   * contentWindow de um iframe é o mesmo objeto antes e depois de o frame navegar, mas os ouvintes ficam no documento
+   * antigo; sem religar, as interações no documento novo do frame não eram observadas (o menu num iframe que recarrega,
+   * a tela de conteúdo carregada no outro iframe).
+   */
+  function attachWindow(w) {
+    const doc = documentOf(w);
+    if (!doc || state.docs.has(doc)) {
+      return;
+    }
+    state.docs.add(doc);
+    state.framesAttached += w === root ? 0 : 1;
+    listen(w, 'focusin', noticeRoot, { capture: true, passive: true });
+    listen(w, 'pointerdown', noticeRoot, { capture: true, passive: true });
+    if (state.mode === 'CAPTURE_ONLY') {
+      for (const type of BLOCKED) {
+        listen(w, type, block, { capture: true });
       }
-      listen(w, 'pagehide', onPageHide, { capture: true });
+      for (const type of ['keydown', 'keypress', 'keyup']) {
+        listen(w, type, keys, { capture: true });
+      }
+      listen(w, 'pointermove', hover, { capture: true, passive: true });
+    } else {
+      for (const type of OBSERVED) {
+        listen(w, type, passive, { capture: true, passive: true });
+      }
+    }
+    listen(w, 'pagehide', onPageHide, { capture: true });
+    // 'load' de iframe não propaga, mas passa pela fase de captura do documento que o contém
+    listen(doc, 'load', onFrameLoad, { capture: true, passive: true });
+  }
+
+  /** Iframe que (re)carregou: religa já se a janela é de um frame que a captura aceitou (o documento novo vem depois). */
+  function onFrameLoad(event) {
+    const t = event.target;
+    if (!state || !t || (t.tagName !== 'IFRAME' && t.tagName !== 'FRAME')) {
+      return;
+    }
+    if (NS.capture.frameWindows().includes(t.contentWindow)) {
+      attachWindow(t.contentWindow);
+    }
+  }
+
+  /** Documento de frame acessível inventariado pela captura (frame novo ou que navegou). */
+  function onFrameDocument() {
+    if (!state) {
+      return;
+    }
+    for (const w of NS.capture.frameWindows()) {
+      attachWindow(w);
     }
     for (const r of NS.capture.observableRoots()) {
       if (r instanceof ShadowRoot) {
         attachRoot(r);
       }
+    }
+  }
+
+  function attach() {
+    for (const w of windows()) {
+      attachWindow(w);
+    }
+    for (const r of NS.capture.observableRoots()) {
+      if (r instanceof ShadowRoot) {
+        attachRoot(r);
+      }
+    }
+    if (!state.unwatch && NS.capture.onFrameDocument) {
+      state.unwatch = NS.capture.onFrameDocument(onFrameDocument);
     }
   }
 
@@ -412,17 +569,28 @@
     }
     state.attached = [];
     state.roots = new WeakSet();
+    state.docs = new WeakSet();
+    if (state.unwatch) {
+      state.unwatch();
+      state.unwatch = null;
+    }
     NS.highlighter.hide('hover');
   }
 
-  /** Saída do documento: consolida o que estiver aberto (política explícita; a perda, se houver, é declarada pelo SW). */
-  function onPageHide() {
-    if (state) {
-      state.normalizer.flush('NAVIGATION');
-      syncOpen();
-      if (state.evidence && NS.feedbackObserver) {
-        NS.feedbackObserver.cut('WINDOW_CUT_BY_NAVIGATION');
-      }
+  /**
+   * Saída do documento: consolida o que estiver aberto (política explícita; a perda, se houver, é declarada pelo SW).
+   * Só um FRAME saindo (STUDIO-012): consolida o que estava aberto nele, mas as janelas de observação continuam — a
+   * navegação do frame é justamente a consequência do clique que elas observam.
+   */
+  function onPageHide(event) {
+    if (!state) {
+      return;
+    }
+    const frame = event && event.currentTarget && event.currentTarget !== root;
+    state.normalizer.flush(frame ? 'FLUSH' : 'NAVIGATION');
+    syncOpen();
+    if (!frame && state.evidence && NS.feedbackObserver) {
+      NS.feedbackObserver.cut('WINDOW_CUT_BY_NAVIGATION');
     }
   }
 
@@ -431,7 +599,8 @@
   }
 
   function create(epoch, mode, wantsEvidence) {
-    const s = { epoch, mode, attached: [], roots: new WeakSet(), open: false, normalizer: null, lastSeq: 0, wantsEvidence: !!wantsEvidence, evidence: false };
+    const s = { epoch, mode, attached: [], roots: new WeakSet(), docs: new WeakSet(), framesAttached: 0, unwatch: null, open: false, normalizer: null, lastSeq: 0,
+      wantsEvidence: !!wantsEvidence, evidence: false };
     s.normalizer = NS.normalizer.createNormalizer({
       mode,
       onInteraction: (i) => deliver(i),
@@ -509,7 +678,8 @@
       return { ok: true };
     },
     status() {
-      return state ? { active: true, epoch: state.epoch, mode: state.mode, lastSeq: state.lastSeq, listeners: state.attached.length, open: !!state.normalizer.openInteraction(),
+      return state ? { active: true, epoch: state.epoch, mode: state.mode, lastSeq: state.lastSeq, listeners: state.attached.length, framesAttached: state.framesAttached,
+        open: !!state.normalizer.openInteraction(),
         stats: state.normalizer.stats(), evidence: state.evidence, lastFeedback: feedbackSeq(),
         feedback: state.evidence ? NS.feedbackObserver.status() : null } : { active: false, listeners: 0 };
     },

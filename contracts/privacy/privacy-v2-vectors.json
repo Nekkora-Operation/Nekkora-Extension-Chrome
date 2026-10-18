@@ -1,7 +1,7 @@
 {
  "policy": "nekkora-privacy/2",
  "vocabulary": "nekkora-ui-vocabulary/1",
- "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4). tags: nome de elemento (contrato nekkora-html-elements/1; fora dele e do vocabulário => \"custom-element\").",
+ "note": "Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4). tags: nome de elemento (contrato nekkora-html-elements/1; fora dele e do vocabulário => \"custom-element\"). NEKKORA-STUDIO-012: developerIdentifiers e os casos finais de expressions/attributes cobrem nekkora-identifier-terms/1 (lista técnica só em id/name/data-testid).",
  "interfaceText": [
   {
    "in": "Entrar",
@@ -340,6 +340,92 @@
   {
    "in": "submitBtn",
    "out": "submitBtn"
+  }
+ ],
+ "developerIdentifiers": [
+  {
+   "in": "ds_login",
+   "out": "ds_login"
+  },
+  {
+   "in": "passwordTemp",
+   "out": "passwordTemp"
+  },
+  {
+   "in": "dsLogin",
+   "out": "dsLogin"
+  },
+  {
+   "in": "senhaTemp",
+   "out": "senhaTemp"
+  },
+  {
+   "in": "ctl00_txtNome",
+   "out": "ctl00_txtNome"
+  },
+  {
+   "in": "ddlEstado",
+   "out": "ddlEstado"
+  },
+  {
+   "in": "hdnPesquisar",
+   "out": "hdnPesquisar"
+  },
+  {
+   "in": "txtUsuario",
+   "out": "txtUsuario"
+  },
+  {
+   "in": "btn-pesquisar",
+   "out": "btn-pesquisar"
+  },
+  {
+   "in": "ds",
+   "out": null
+  },
+  {
+   "in": "hdn1",
+   "out": null
+  },
+  {
+   "in": "temp-2",
+   "out": null
+  },
+  {
+   "in": "dsJoao",
+   "out": null
+  },
+  {
+   "in": "cliente-anacleto-prudencio",
+   "out": null
+  },
+  {
+   "in": "ds_usuario_hermengarda",
+   "out": null
+  },
+  {
+   "in": "pedido_483192",
+   "out": null
+  },
+  {
+   "in": "tmp",
+   "out": null
+  },
+  {
+   "in": "ds Login",
+   "out": null
+  },
+  {
+   "in": "dsLogin@x",
+   "out": null
+  },
+  {
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "out": null
+  },
+  {
+   "in": "",
+   "out": null
   }
  ],
  "classes": [
@@ -858,6 +944,90 @@
   {
    "in": "* {nth-child joao}",
    "out": false
+  },
+  {
+   "in": "input#ds_login",
+   "out": true
+  },
+  {
+   "in": "input[name=\"passwordTemp\"]",
+   "out": true
+  },
+  {
+   "in": "input#dsLogin",
+   "out": true
+  },
+  {
+   "in": "#dsJoao",
+   "out": false
+  },
+  {
+   "in": "input[name=\"senhaTemp\"]",
+   "out": true
+  },
+  {
+   "in": "input[id='ctl00_txtNome']",
+   "out": true
+  },
+  {
+   "in": "input[data-testid=ddlEstado]",
+   "out": true
+  },
+  {
+   "in": ".dsLogin",
+   "out": false
+  },
+  {
+   "in": "input[title=\"dsLogin\"]",
+   "out": false
+  },
+  {
+   "in": "input[value='dsLogin']",
+   "out": false
+  },
+  {
+   "in": "//input[@id='dsLogin']",
+   "out": true
+  },
+  {
+   "in": "//input[@name='senhaTemp']",
+   "out": true
+  },
+  {
+   "in": "//input['dsLogin'=@id]",
+   "out": true
+  },
+  {
+   "in": "//input[@title='dsLogin']",
+   "out": false
+  },
+  {
+   "in": "//input[@id='dsJoao']",
+   "out": false
+  },
+  {
+   "in": "//input[normalize-space()='dsLogin']",
+   "out": false
+  },
+  {
+   "in": "input {id=dsLogin}",
+   "out": true
+  },
+  {
+   "in": "input {name=senhaTemp}",
+   "out": true
+  },
+  {
+   "in": "input {name=\"dsLogin\"}",
+   "out": false
+  },
+  {
+   "in": "input {title=dsLogin}",
+   "out": false
+  },
+  {
+   "in": "div#PanelForm > h3 > form > p > input#dsLogin",
+   "out": true
   }
  ],
  "attributes": [
@@ -1322,6 +1492,55 @@
    "tag": "a",
    "type": null,
    "out": "noopener noreferrer"
+  },
+  {
+   "name": "id",
+   "value": "dsLogin",
+   "tag": "input",
+   "type": "text",
+   "out": "dsLogin"
+  },
+  {
+   "name": "name",
+   "value": "senhaTemp",
+   "tag": "input",
+   "type": "password",
+   "out": "senhaTemp"
+  },
+  {
+   "name": "data-testid",
+   "value": "ddlEstado",
+   "tag": "select",
+   "type": null,
+   "out": "ddlEstado"
+  },
+  {
+   "name": "id",
+   "value": "dsJoao",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "class",
+   "value": "dsLogin",
+   "tag": "input",
+   "type": "text",
+   "out": null
+  },
+  {
+   "name": "slot",
+   "value": "dsLogin",
+   "tag": "div",
+   "type": null,
+   "out": null
+  },
+  {
+   "name": "title",
+   "value": "dsLogin",
+   "tag": "input",
+   "type": "text",
+   "out": "{…}"
   }
  ],
  "carriers": [

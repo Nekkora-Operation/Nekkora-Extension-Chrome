@@ -104,6 +104,49 @@
     return IDENT.test(s) && vocabularyOnly(s) ? s : null;
   }
 
+  /** NEKKORA-STUDIO-012: atributos com identificador ESCRITO PELO DESENVOLVEDOR (lista técnica aplicável). */
+  const DEV_IDENTIFIERS = new Set(['id', 'name', 'data-testid', 'data-test', 'data-test-id', 'data-qa', 'data-cy']);
+
+  function identifierTerms() {
+    return root.NekkoraVocabulary && root.NekkoraVocabulary.identifierTerms ? root.NekkoraVocabulary.identifierTerms : new Set();
+  }
+
+  /**
+   * NEKKORA-STUDIO-012 (nekkora-identifier-terms/1, aprovado pela usuária): id/name/data-testid do desenvolvedor. Passa
+   * como em {@link identifier} ou, além disso, quando cada termo é do vocabulário, número de até 2 dígitos ou termo
+   * técnico da lista fechada (ds, txt, hdn, temp…), com PELO MENOS UM termo do vocabulário. Sem supressão parcial.
+   */
+  function developerIdentifier(v) {
+    const plain = identifier(v);
+    if (plain != null || v == null) {
+      return plain;
+    }
+    const s = String(v);
+    if (!IDENT.test(s)) {
+      return null;
+    }
+    const t = terms(s);
+    if (!t.length || t.length > MAX_TERMS) {
+      return null;
+    }
+    const words = vocab();
+    const tech = identifierTerms();
+    let word = false;
+    for (const x of t) {
+      if (words.has(x)) {
+        word = true;
+      } else if (!/^\d{1,2}$/.test(x) && !tech.has(x)) {
+        return null;
+      }
+    }
+    return word ? s : null;
+  }
+
+  /** Valor na posição de identificador do desenvolvedor num localizador (#id, [name=…], @id, {id=…}). */
+  function developerLiteralOk(v) {
+    return literalOk(v) || developerIdentifier(v) != null;
+  }
+
   /** Classes CSS: cada classe é um identificador independente; ficam só as que passam. */
   function classes(v) {
     if (v == null) {
@@ -385,7 +428,7 @@
       }
       ws();
       const v = ch(i) === '"' || ch(i) === "'" ? string() : ident();
-      if (v == null || !literalOk(v)) {
+      if (v == null || !(DEV_IDENTIFIERS.has(asciiLower(name)) ? developerLiteralOk(v) : literalOk(v))) {
         return false;
       }
       ws();
@@ -439,7 +482,7 @@
         if (c === '#' || c === '.') {
           i++;
           const v = ident();
-          if (v == null || !literalOk(v)) {
+          if (v == null || !(c === '#' ? developerLiteralOk(v) : literalOk(v))) {
             return false;
           }
         } else if (c === '[') {
@@ -580,12 +623,21 @@
       }
       return true;
     }
-    function operand() { // 'ok', 'lit', 'num:<dígitos>' ou null
+    // 'ok', 'lit:<valor>' (julgado no predicado), 'attr:<nome>' (só "@nome"), 'num:<dígitos>' ou null
+    function operand() {
       skip();
       const c = ch(i);
       if (c === '"' || c === "'" || s.startsWith('concat(', i)) {
         const v = literal();
-        return v != null && literalOk(v) ? 'lit' : null;
+        return v != null && developerLiteralOk(v) ? 'lit:' + v : null;
+      }
+      if (c === '@') {
+        const m = XPATH_NAME.exec(s.slice(i + 1));
+        const after = m ? ch(i + 1 + m[0].length) : '';
+        if (m && after !== '/' && after !== '[' && attributeNameOk(m[0])) {
+          i += 1 + m[0].length;
+          return 'attr:' + asciiLower(m[0]);
+        }
       }
       if (/^[0-9]$/.test(c)) {
         const m = /^\d+/.exec(s.slice(i));
@@ -616,12 +668,16 @@
         if (b == null) {
           return false;
         }
-        for (const x of [a, b]) {
+        for (const [x, other] of [[a, b], [b, a]]) {
           if (x.startsWith('num:') && !literalOk(x.slice(4))) {
             return false; // número comparado é VALOR (P1-02)
           }
+          // literal: vocabulário; a lista técnica só quando comparado a @id/@name/@data-testid (STUDIO-012)
+          if (x.startsWith('lit:') && !literalOk(x.slice(4)) && !(DEV_IDENTIFIERS.has(other.slice(5)) && other.startsWith('attr:'))) {
+            return false;
+          }
         }
-      } else if (a === 'lit') {
+      } else if (a.startsWith('lit:')) {
         return false;
       }
       skip();
@@ -672,10 +728,13 @@
     m = /^([A-Za-z_:][A-Za-z0-9_:.-]*)=(.*)$/.exec(p);
     if (m) {
       let v = m[2];
-      if (v.length >= 2 && v.startsWith('"') && v.endsWith('"')) {
+      const quoted = v.length >= 2 && v.startsWith('"') && v.endsWith('"');
+      if (quoted) {
         v = v.slice(1, -1);
       }
-      return (SEM_KEYS.includes(m[1]) || attributeNameOk(m[1])) && literalOk(v);
+      // sem aspas = valor de ATRIBUTO ({id=…}, {name=…}); name="…" entre aspas é o NOME ACESSÍVEL (texto de interface)
+      const developer = !quoted && DEV_IDENTIFIERS.has(m[1]);
+      return (SEM_KEYS.includes(m[1]) || attributeNameOk(m[1])) && (developer ? developerLiteralOk(v) : literalOk(v));
     }
     return false;
   }
@@ -834,7 +893,7 @@
       return structuralValue(n, v);
     }
     if (IDENTIFIERS.has(n)) {
-      return identifier(v);
+      return DEV_IDENTIFIERS.has(n) ? developerIdentifier(v) : identifier(v);
     }
     if (n === 'class') {
       return classes(v);
@@ -886,6 +945,6 @@
   root.NekkoraCapturePolicy = Object.freeze({
     VERSION, WITHHELD, HOLE, MAX_LEN, STRUCTURAL, IDENTIFIERS, IDREFS, NAMING, DESCRIPTIVE, URLS,
     NEUTRAL_TAG, clean, terms, vocabularyOnly, interfaceText, identifier, classes, urlTemplate, expressionSafe, attribute, isCarrier,
-    tagName, title: interfaceText,
+    tagName, title: interfaceText, DEV_IDENTIFIERS, developerIdentifier,
   });
 })(globalThis);

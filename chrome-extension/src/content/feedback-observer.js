@@ -489,12 +489,26 @@
         epochOfLast = a.epoch;
         lastInEpoch = 0;
       }
-      st = { epoch: a.epoch, send: a.send, windows: [], tracked: new Map(), busyStart: new Map(), observers: [], timer: null, listeners: [] };
+      st = { epoch: a.epoch, send: a.send, windows: [], tracked: new Map(), busyStart: new Map(), observers: [], timer: null, listeners: [], docs: new WeakSet(),
+        unwatch: null };
       regionIds = new WeakMap();
-      for (const w of windowsOf()) {
-        w.addEventListener('invalid', onInvalid, { capture: true, passive: true });
-        st.listeners.push(w);
-      }
+      const listenAll = () => {
+        for (const w of windowsOf()) {
+          let doc = null;
+          try {
+            doc = w.document;
+          } catch (e) {
+            doc = null;
+          }
+          if (doc && !st.docs.has(doc)) { // STUDIO-012: por documento (o frame que navega recebe de novo)
+            st.docs.add(doc);
+            w.addEventListener('invalid', onInvalid, { capture: true, passive: true });
+            st.listeners.push(w);
+          }
+        }
+      };
+      listenAll();
+      st.unwatch = NS.capture.onFrameDocument ? NS.capture.onFrameDocument(() => st && listenAll()) : null;
       return true;
     },
     active() {
@@ -545,6 +559,9 @@
       disconnect();
       for (const w of st.listeners) {
         w.removeEventListener('invalid', onInvalid, { capture: true, passive: true });
+      }
+      if (st.unwatch) {
+        st.unwatch();
       }
       st = null;
       return lastInEpoch;

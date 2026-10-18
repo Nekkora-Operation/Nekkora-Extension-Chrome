@@ -194,6 +194,31 @@
    */
   const src = { name: 'top', rootFrame: 'f0', nestedPrefix: 'f', placeholderPrefix: 'x', configured: false };
 
+  /*
+   * NEKKORA-STUDIO-012: documento de frame ACESSÍVEL que a captura acabou de inventariar (iframe novo ou que navegou). Os
+   * sensores ligados por janela (Recorder, observador de consequências) se religam a ele: um ouvinte posto no
+   * contentWindow fica no documento ANTIGO quando o frame navega. Só documentos que a captura já aceitou são avisados —
+   * nenhum frame é alcançado por fora da política.
+   */
+  const frameDocWatchers = new Set();
+  const announcedFrameDocs = new WeakSet();
+
+  function frameDocumentSeen(doc) {
+    if (announcedFrameDocs.has(doc)) {
+      return;
+    }
+    announcedFrameDocs.add(doc);
+    for (const fn of frameDocWatchers) {
+      queueMicrotask(() => {
+        try {
+          fn(doc);
+        } catch (e) {
+          // um sensor com defeito não interrompe a captura
+        }
+      });
+    }
+  }
+
   function frameIdOf(doc) {
     if (doc === document) {
       return src.rootFrame;
@@ -590,6 +615,7 @@
       if (doc && doc.documentElement) {
         frameHosts.set(doc, el);
         frameWindows.set(fid, el.contentWindow);
+        frameDocumentSeen(doc);
         fi = { frameId: fid, parentFrameId: parentFrame, hostNodeId: hostId, url: CP.urlTemplate(doc.location.href), accessible: true, reason: null,
           title: CP.title(doc.title || ''), readyState: doc.readyState, registryEpoch: NS.registry.epoch() };
         out.push({ el: doc.documentElement, scopeId: 'doc:' + fid, frameId: fid, pos: 1 });
@@ -993,13 +1019,19 @@
     sanitizeUrl,
     observedRequests,
     frameWindows() {
-      return Array.from(frameWindows.values()).filter((w) => {
+      // a mesma janela pode estar sob dois frameIds (o frame navegou: id novo para o documento novo) — uma vez só
+      return Array.from(new Set(frameWindows.values())).filter((w) => {
         try {
           return !!w.document;
         } catch (e) {
           return false;
         }
       });
+    },
+    /** STUDIO-012: avisa (em microtarefa) cada documento de frame acessível inventariado; devolve a função que desliga. */
+    onFrameDocument(fn) {
+      frameDocWatchers.add(fn);
+      return () => frameDocWatchers.delete(fn);
     },
     /** Raízes que um MutationObserver precisa observar (documento, frames acessíveis, shadow roots abertos). */
     observableRoots() {

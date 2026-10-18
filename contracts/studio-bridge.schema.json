@@ -683,7 +683,8 @@
           "uniqueItems": true,
           "items": { "enum": ["AMBIGUOUS_TARGET", "OPTION_NOT_IDENTIFIED", "OPTION_NOT_CHOSEN", "OPTION_WITHOUT_PROVEN_COMBOBOX", "ELEMENT_UNRESOLVED",
             "NO_UNIQUE_LOCATOR", "INDISTINGUISHABLE_LOOKALIKES", "ACCESS_RESTRICTED", "LIVE_CHECK_UNAVAILABLE", "CROSS_FRAME_ORDER_BY_RECEPTION", "RESENT",
-            "OPTION_WITHHELD", "LOCATORS_WITHHELD", "SAFE_LOCATOR_UNAVAILABLE"] }
+            "OPTION_WITHHELD", "LOCATORS_WITHHELD", "SAFE_LOCATOR_UNAVAILABLE", "IDENTIFIER_WITHHELD", "REVEALED_BY_HOVER"],
+            "description": "NEKKORA-STUDIO-012 (aditivo): IDENTIFIER_WITHHELD = o elemento tem id/name, mas a política reteve o valor (só a presença); REVEALED_BY_HOVER = o alvo está num contêiner que uma regra :hover da própria página exibe com o ponteiro sobre OUTRO elemento (a reprodução precisa do mesmo gesto; nenhuma ação é inventada)." }
         },
         "events": { "type": "integer", "minimum": 1, "maximum": 100000, "description": "Eventos do navegador consolidados nesta etapa." }
       }
@@ -956,7 +957,9 @@
         "actionType": { "$ref": "#/$defs/DebugActionType" },
         "targetId": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/Id" }] },
         "descriptor": { "$ref": "#/$defs/DebugDescriptor" },
-        "highlight": { "type": "boolean" }
+        "highlight": { "type": "boolean" },
+        "expectedOption": { "type": ["string", "null"], "minLength": 1, "maxLength": 120,
+          "description": "NEKKORA-STUDIO-012 (opcional, aditivo): rótulo/valor da opção CONFIGURADO NO STUDIO para uma etapa SELECT_OPTION. A extensão só devolve a contagem de opções com esse texto e se a selecionada é uma delas (DebugInspectResult.option); nenhum texto da página sai." }
       }
     },
     "DebugHighlightPayload": {
@@ -1053,7 +1056,15 @@
         "candidates": { "type": "array", "maxItems": 5, "items": { "$ref": "#/$defs/DebugCandidate" } },
         "highlighted": { "type": "boolean", "description": "Destaque rosa feito pelo overlay (pointer-events:none): nenhuma interação com a página." },
         "box": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/DebugBox" }] },
-        "continuity": { "enum": ["LIVE_NODE_CONTINUITY", "CONTINUITY_BROKEN", "NOT_PROVEN", null], "description": "D7: continuidade técnica do nó — nunca identidade lógica." }
+        "continuity": { "enum": ["LIVE_NODE_CONTINUITY", "CONTINUITY_BROKEN", "NOT_PROVEN", null], "description": "D7: continuidade técnica do nó — nunca identidade lógica." },
+        "option": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "object", "additionalProperties": false, "required": ["matches", "selected"],
+              "properties": { "matches": { "type": "integer", "minimum": 0, "maximum": 9 }, "selected": { "type": "boolean" } } }
+          ],
+          "description": "NEKKORA-STUDIO-012: só quando o pedido trouxe expectedOption. matches = opções da lista com esse rótulo/valor (1 = inequívoca); selected = a selecionada agora é uma delas. null = não aplicável (lista personalizada) ou sem alvo."
+        }
       }
     },
     "DebugElement": {

@@ -87,6 +87,32 @@ o conteúdo "Consultar" seria nomeado "Consultar" por uma fonte de prioridade me
 Com a marca, o nome fica retido inteiro (fonte `ARIA_LABEL`, texto vazio). O mesmo vale para rótulos (`<label>`,
 `aria-labelledby`) cujo texto foi retido. A marca nunca vira literal de localizador nem título de frame.
 
+### Termos técnicos de identificador (`nekkora-identifier-terms/1`, NEKKORA-STUDIO-012)
+
+Revisão aprovada pela usuária em 2026-10-18. Fonte única: `contracts/privacy/identifier-terms.json`.
+
+**Para que serve.** Sistemas legados escrevem `id` e `name` em notação húngara, como `dsLogin`, `txtNome`, `ddlEstado`
+e `senhaTemp`. Esses identificadores são estáveis e únicos, mas eram retidos inteiros pelo vocabulário, e o Recorder
+caía em XPath posicional.
+
+**O que a lista é.** 48 termos técnicos (prefixos e sufixos de desenvolvedor). É FECHADA e versionada: não há expansão
+automática nem exceção por cliente.
+
+**Onde vale.** Só em identificadores escritos pelo desenvolvedor:
+- nos atributos `id`, `name`, `data-testid`, `data-test`, `data-test-id`, `data-qa` e `data-cy`;
+- nas posições equivalentes dos localizadores: `#id`, `[name="…"]`, `@id='…'` e `{id=…}`/`{name=…}` sem aspas.
+
+**Regra.**
+- O identificador passa se tiver forma técnica e TODOS os termos forem do vocabulário, números de até 2 dígitos ou
+  termos da lista.
+- É preciso ter ao menos UM termo do vocabulário.
+- Não há supressão parcial: `dsLogin` passa, `ds` sozinho e `dsJoao` não.
+- Texto de interface, classes, `title`, nome acessível (`name="…"` entre aspas), URLs e todos os demais atributos
+  continuam só com o vocabulário.
+
+**Na etapa.** Quando um `id`/`name` existe mas é retido, a etapa leva a nota `IDENTIFIER_WITHHELD`, que transporta só a
+PRESENÇA, nunca o valor.
+
 ## Relações entre elementos
 
 `for`, `aria-labelledby`, `aria-describedby`, `aria-controls`, `aria-owns`, `aria-activedescendant`, `aria-errormessage`, `list`, `form`, `headers`: a página resolve a relação em **ids temporários de nó** (`refs`). O valor do atributo (ids da página) não atravessa, e o atributo fica presente com valor vazio. Não há hash nem pseudônimo.
