@@ -1,0 +1,43 @@
+{
+  "steps" : [ "FILL:TEXT_INPUT:ID:0", "FILL:PASSWORD_INPUT:ID:0", "CLICK:BUTTON:ID:0", "CLICK:LINK:POSITIONAL:1", "CLICK:LINK:POSITIONAL:1", "SELECT_OPTION:SELECT:XPATH_RELATIVE:1", "CLICK:BUTTON:NAME:1" ],
+  "summary" : {
+    "state" : "COMPLETED",
+    "durationMs" : 5531,
+    "counters" : {
+      "segments" : 1,
+      "technicalCaptures" : 2,
+      "synchronizations" : 9,
+      "recoveries" : 1
+    },
+    "coverage" : {
+      "state" : "COMPLETE",
+      "framesAttached" : 0,
+      "framesUnavailable" : 0
+    },
+    "pageMapExported" : false,
+    "actionCapture" : "AVAILABLE",
+    "limitations" : [ "RECOVERIES_OCCURRED" ],
+    "steps" : {
+      "produced" : 7,
+      "acknowledged" : 7,
+      "rejected" : 0,
+      "unacknowledged" : 0,
+      "lost" : 0,
+      "discarded" : {
+        "UNTRUSTED" : 0,
+        "NON_INTERACTIVE" : 0,
+        "FOCUS_ONLY" : 0,
+        "PROGRAMMATIC_SUBMIT" : 0,
+        "PROGRAMMATIC_CHANGE" : 0,
+        "ABSORBED" : 1,
+        "AFTER_STOP" : 0,
+        "STALE_EPOCH" : 0,
+        "NOT_RECORDING" : 0
+      }
+    }
+  },
+  "optionChecksSemIdentidade" : {
+    "Auditoria Carefy" : null,
+    "status:Auditoria Carefy" : "AMBIGUOUS"
+  }
+}
