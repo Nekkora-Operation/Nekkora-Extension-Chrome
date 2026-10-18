@@ -178,8 +178,12 @@ test('lista de abas: referências opacas, host sem URL, título só do vocabulá
   assert.equal(list.length, 4);
   for (const t of list) {
     assert.match(t.tabRef, /^t-[A-Za-z0-9]{8,40}$/);
-    assert.deepEqual(Object.keys(t).sort(), ['access', 'active', 'host', 'recording', 'tabRef', 'title']);
+    assert.deepEqual(Object.keys(t).sort(), ['access', 'active', 'host', 'recording', 'tabRef', 'title', 'visualCapture']);
   }
+  // NEKKORA-E2E-001: perfil de captura visual do PDD — LAB na aba LAB; autorizada fora do perfil BENCHMARK → null
+  assert.equal(list.find((t) => t.access === 'LAB').visualCapture, 'LAB');
+  assert.equal(list.find((t) => t.access === 'AUTHORIZED').visualCapture, null);
+  assert.equal(list.find((t) => t.access === 'PERMISSION_REQUIRED').visualCapture, null);
   const lab = list.find((t) => t.access === 'LAB');
   assert.equal(lab.host, '127.0.0.1');
   // CHROME-SECURITY-001 (D4): o título só segue se for INTEIRO do vocabulário; um título com e-mail não segue, nem mascarado

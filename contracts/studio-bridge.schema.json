@@ -70,6 +70,7 @@
         "title": { "$ref": "#/$defs/TabSummary/properties/title" },
         "host": { "$ref": "#/$defs/TabSummary/properties/host" },
         "access": { "$ref": "#/$defs/Access" },
+        "visualCapture": { "enum": ["LAB", "BENCHMARK", null], "description": "NEKKORA-E2E-001 (aditivo): perfil de captura visual do PDD permitido nesta aba (nekkora-visual-capture-profile/1); null = captura recusada." },
         "active": { "type": "boolean", "description": "Aba ativa da sua janela." },
         "recording": { "type": "boolean", "description": "Já existe gravação do Studio nesta aba." }
       }

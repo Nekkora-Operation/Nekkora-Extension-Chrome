@@ -1,6 +1,7 @@
 // STUDIO-010 (pdd-capture/1, política nekkora-visual/1): sanitização de pixels por lista de permissão e máquina de
 // estados da captura (armar → gesto → resolver → plano → capturar → ficha → sanitizar → verificar → evento). A imagem
 // "bruta" destes testes é preenchida com uma cor-sentinela: qualquer vazamento aparece na verificação.
+import { visualProfile, BENCHMARK_ORIGINS } from '../src/background/visual-capture-profile.js';
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -88,8 +89,9 @@ let shots;
 function deps(over = {}) {
   return {
     client: { post: async (m) => posted.push(JSON.parse(JSON.stringify(m))), status: () => ({ connected: true }) },
-    policy: { tabUrl: async (id) => urls.get(id), evaluate: (u) => ({ kind: u && u.startsWith('http://127.0.0.1') ? 'LAB' : 'AUTHORIZED' }) },
-    tabs: { tabOf: (ref) => ({ 't-AbaLab0001': 1, 't-AbaSite002': 2 })[ref] ?? null, recordingOn: () => false },
+    policy: { tabUrl: async (id) => urls.get(id), evaluate: (u) => ({ allowed: !!u, origin: u ? new URL(u).origin : null,
+      kind: u && u.startsWith('http://127.0.0.1') ? 'LAB' : 'AUTHORIZED' }) },
+    tabs: { tabOf: (ref) => ({ 't-AbaLab0001': 1, 't-AbaSite002': 2, 't-AbaBench03': 3 })[ref] ?? null, recordingOn: () => false },
     chrome: {
       tabs: {
         get: async (id) => ({ id, windowId: 9, active: id === activeTab }),
@@ -367,4 +369,27 @@ test('R1 cancelar durante a captura (preparação ou sanitização) → CANCELLE
   assert.deepEqual(events().map((e) => e.code), ['CANCELLED', 'CANCELLED']);
   noImagePublished();
   assert.equal(pdd2.state().running, false);
+});
+
+
+// ---------------------------------------------------------------------------------------- NEKKORA-E2E-001: BENCHMARK
+test('perfil visual: LAB continua; BENCHMARK só origem exata autorizada; resto recusado', () => {
+  assert.equal(visualProfile({ allowed: true, kind: 'LAB', origin: 'http://127.0.0.1:18765' }), 'LAB');
+  assert.equal(visualProfile({ allowed: true, kind: 'AUTHORIZED', origin: 'https://rpachallenge.com' }), 'BENCHMARK');
+  for (const origin of ['https://www.rpachallenge.com', 'http://rpachallenge.com', 'https://rpachallenge.com:8443',
+    'https://rpachallenge.com.evil.test', 'https://en.wikipedia.org']) {
+    assert.equal(visualProfile({ allowed: true, kind: 'AUTHORIZED', origin }), null, origin);
+  }
+  assert.equal(visualProfile({ allowed: false, kind: null, reason: 'PERMISSION_REQUIRED', origin: 'https://rpachallenge.com' }), null);
+  assert.equal(visualProfile(null), null);
+  assert.ok(Object.isFrozen(BENCHMARK_ORIGINS));
+});
+
+test('armar: aba AUTORIZADA de benchmark aceita; autorizada fora do perfil recusada (VISUAL_CAPTURE_NOT_ALLOWED)', async () => {
+  urls.set(3, 'https://rpachallenge.com/');
+  const pdd = createStudioPdd(deps());
+  await assert.rejects(pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaSite002', steps: STEPS, leaseMs: 30000 }, 'studio-a'),
+    { code: 'VISUAL_CAPTURE_NOT_ALLOWED' });
+  const r = await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaBench03', steps: STEPS, leaseMs: 30000 }, 'studio-a');
+  assert.equal(r.armed, true);
 });

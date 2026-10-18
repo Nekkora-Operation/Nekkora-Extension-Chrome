@@ -86,6 +86,9 @@ public final class AttributeStrategies {
         @Override
         public List<LocatorCandidate> propose(TargetContext t) {
             NameSource src = t.classification().name().source();
+            if (src == NameSource.NONE) {
+                return siblingLabel(t);
+            }
             if (src != NameSource.LABEL_ELEMENT && src != NameSource.WRAPPING_LABEL) {
                 return List.of();
             }
@@ -102,6 +105,52 @@ public final class AttributeStrategies {
             }
             return out;
         }
+    }
+
+    private static final java.util.Set<String> CONTROLS = java.util.Set.of("input", "textarea", "select");
+
+    /**
+     * NEKKORA-E2E-001: campo SEM nome acessível cujo contêiner tem exatamente UM {@code <label>} (sem {@code for}) e
+     * exatamente UM controle — o próprio alvo. Formulários reais assim (rótulo irmão, sem associação) deixavam só o
+     * localizador posicional. A consulta é semântica e não posicional: contêiner com filho {@code <label>} de texto
+     * exato → filho {@code <tag>}. Ambiguidade (dois contêineres com o mesmo rótulo) é medida pelo motor como em
+     * qualquer candidato. O texto do rótulo passa pela mesma política de privacidade do snapshot.
+     */
+    static List<LocatorCandidate> siblingLabel(TargetContext t) {
+        var model = t.graph().model();
+        RawNode node = t.node();
+        if (!CONTROLS.contains(node.tag())) {
+            return List.of();
+        }
+        RawNode parent = model.parent(node).orElse(null);
+        if (parent == null || !parent.scopeId().equals(node.scopeId())) {
+            return List.of();
+        }
+        List<RawNode> labels = new ArrayList<>();
+        int controls = 0;
+        boolean self = false;
+        for (RawNode c : model.children(parent)) {
+            if (!c.scopeId().equals(node.scopeId())) {
+                continue;
+            }
+            if ("label".equals(c.tag())) {
+                labels.add(c);
+            } else if (CONTROLS.contains(c.tag())) {
+                controls++;
+                self |= c.id().equals(node.id());
+            }
+        }
+        if (labels.size() != 1 || controls != 1 || !self || labels.get(0).attr("for") != null) {
+            return List.of();
+        }
+        String text = model.textContent(labels.get(0));
+        if (!StepFactory.nonBlank(text) || text.length() > 120) {
+            return List.of();
+        }
+        return List.of(LocatorCandidate.of(LocatorStrategyKind.LABEL, LocatorQuery.of(
+                        LocatorStep.descendant(null, new Predicate.HasChildText("label", text)),
+                        LocatorStep.child(node.locatorTag())),
+                "rótulo irmão único (sem associação por for)"));
     }
 
     /** {@code tag} + texto normalizado. */

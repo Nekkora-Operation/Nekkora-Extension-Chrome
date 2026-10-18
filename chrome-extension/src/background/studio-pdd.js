@@ -17,6 +17,7 @@
  *      shoot(), e é liberada no finally (inclusive em exceção).
  */
 import { VISUAL_POLICY, MAX_PNG_BYTES, codeError, compose, deviceRegions, violations } from './visual-sanitizer.js';
+import { visualProfile } from './visual-capture-profile.js';
 
 const PROTOCOL = 'nekkora-nm/1';
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
@@ -121,8 +122,9 @@ export function createStudioPdd(deps) {
     const tab = tabId == null ? null : await chromeApi.tabs.get(tabId).catch(() => null);
     if (!tab) throw fail('TAB_NOT_FOUND', 'Aba não encontrada.');
     const url = await policy.tabUrl(tabId).catch(() => null);
-    if (policy.evaluate(url).kind !== 'LAB') {
-      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A captura de tela para o PDD só existe no laboratório local.', { reason: 'NOT_LAB_ORIGIN' });
+    if (!visualProfile(policy.evaluate(url))) {
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A captura de tela para o PDD só existe no laboratório local ou em origem de benchmark autorizada.',
+        { reason: 'NOT_LAB_ORIGIN' });
     }
     if (tabs.recordingOn && tabs.recordingOn(tabId)) throw fail('INVALID_STATE', 'Há uma gravação nesta aba.', { reason: 'RECORDING_ACTIVE' });
     armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs };
@@ -207,7 +209,7 @@ export function createStudioPdd(deps) {
   async function shoot(a, tab) {
     await sameTab();
     const url = await policy.tabUrl(a.tabId).catch(() => null);
-    if (policy.evaluate(url).kind !== 'LAB') throw codeError('VISUAL_CAPTURE_NOT_ALLOWED');
+    if (!visualProfile(policy.evaluate(url))) throw codeError('VISUAL_CAPTURE_NOT_ALLOWED');
     // 1. alvos das etapas pelo motor (somente leitura, por identidade — nunca por localizador)
     const resolved = new Map();
     let cap = null;
