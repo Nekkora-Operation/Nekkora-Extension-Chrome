@@ -1,5 +1,7 @@
 /*
  * STUDIO-010 — captura visual SANITIZADA para o PDD (capacidade pdd-capture/1, política nekkora-visual/1).
+ * STUDIO-012 PDD-01 — o Studio pode pedir a política nekkora-visual/2 (representação documental: estrutura redesenhada
+ * com paleta fechada + portadores); sem pedido, tudo segue exatamente como na v1.
  *
  * Máquina de estados (a concessão do activeTab sozinha não basta — ela persiste depois do gesto):
  *   1. studio.pdd.capture.arm  — o Studio arma UMA captura para um bloco: aba LAB, etapas (targetId + descritor),
@@ -16,7 +18,8 @@
  *      falha. A imagem bruta nunca é gravada, registrada, enviada nem guardada em storage: existe só dentro de
  *      shoot(), e é liberada no finally (inclusive em exceção).
  */
-import { VISUAL_POLICY, MAX_PNG_BYTES, codeError, compose, deviceRegions, violations } from './visual-sanitizer.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICIES, MAX_PNG_BYTES, codeError, compose, composeV2, deviceRegions, deviceRegionsV2, violations,
+  violationsV2 } from './visual-sanitizer.js';
 import { visualProfile } from './visual-capture-profile.js';
 
 const PROTOCOL = 'nekkora-nm/1';
@@ -28,7 +31,7 @@ export const SHORTCUT = 'nk-pdd-capturar';
 export const FAILURES = new Set(['VISUAL_CAPTURE_NOT_ALLOWED', 'NOT_ARMED', 'ARM_EXPIRED', 'TAB_MISMATCH', 'PAGE_CHANGED_DURING_CAPTURE',
   'GEOMETRY_MISMATCH', 'SANITIZATION_CHECK_FAILED', 'SANITIZED_IMAGE_TOO_LARGE', 'TAB_CLOSED', 'PAGE_CHANGED', 'PERMISSION_REVOKED', 'CAPTURE_BUSY',
   'CAPTURE_DENIED', 'REGION_OUT_OF_VIEWPORT', 'CARRIER_TOO_LARGE', 'CARRIER_OVERLAPS_FIELD', 'TOO_MANY_REGIONS', 'REGION_KIND_UNKNOWN', 'CONTENT_UNAVAILABLE',
-  'CANCELLED', 'ACTIVE_TAB_CHANGED', 'INTERNAL']);
+  'CANCELLED', 'ACTIVE_TAB_CHANGED', 'INTERNAL', 'REGION_ORDER', 'CARRIER_OVERLAPS_CONTENT']);
 const OMIT = new Set(['NOT_FOUND', 'AMBIGUOUS', 'IDENTITY_MISMATCH', 'STALE_TARGET', 'SCOPE_UNAVAILABLE', 'INSUFFICIENT_EVIDENCE', 'CONTEXT_UNAVAILABLE',
   'NODE_NOT_CONNECTED', 'TARGET_OUTSIDE_VIEWPORT', 'TARGET_IN_FRAME', 'NO_TARGET', 'RESOLUTION_FAILED']);
 
@@ -101,7 +104,10 @@ export function createStudioPdd(deps) {
   }
 
   async function arm(p, controller) {
-    assertOnly(p, ['captureId', 'tabRef', 'steps', 'leaseMs']);
+    assertOnly(p, ['captureId', 'tabRef', 'steps', 'leaseMs', 'policy']);
+    // STUDIO-012 PDD-01: o Studio pede a política; sem o campo, a v1 (Studios anteriores continuam iguais)
+    const visual = p.policy == null ? VISUAL_POLICY : p.policy;
+    if (!VISUAL_POLICIES.includes(visual)) throw fail('BAD_REQUEST', 'política visual inválida');
     if (typeof p.captureId !== 'string' || !ID.test(p.captureId)) throw fail('BAD_REQUEST', 'captureId inválido');
     if (typeof p.tabRef !== 'string' || !TAB_REF.test(p.tabRef)) throw fail('BAD_REQUEST', 'tabRef inválido');
     if (!Number.isInteger(p.leaseMs) || p.leaseMs < 5000 || p.leaseMs > 120000) throw fail('BAD_REQUEST', 'leaseMs inválido');
@@ -115,7 +121,7 @@ export function createStudioPdd(deps) {
         actionType: s.actionType };
     });
     if (armed && armed.captureId === p.captureId && armed.controller === controller) {
-      return { captureId: p.captureId, armed: true, duplicate: true, shortcut: await shortcut() };
+      return { captureId: p.captureId, armed: true, duplicate: true, shortcut: await shortcut(), ...(p.policy != null ? { policy: armed.policy } : {}) };
     }
     if (running || armed) throw fail('INVALID_STATE', 'Já há uma captura armada ou em andamento.', { reason: 'CAPTURE_BUSY' });
     const tabId = tabs.tabOf(p.tabRef);
@@ -127,9 +133,9 @@ export function createStudioPdd(deps) {
         { reason: 'NOT_LAB_ORIGIN' });
     }
     if (tabs.recordingOn && tabs.recordingOn(tabId)) throw fail('INVALID_STATE', 'Há uma gravação nesta aba.', { reason: 'RECORDING_ACTIVE' });
-    armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs };
+    armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs, policy: visual };
     badge(tabId, 'PDD');
-    return { captureId: p.captureId, armed: true, duplicate: false, shortcut: await shortcut() };
+    return { captureId: p.captureId, armed: true, duplicate: false, shortcut: await shortcut(), ...(p.policy != null ? { policy: visual } : {}) }; // sem o pedido: resposta da v1, igual
   }
 
   async function cancel(p, controller) {
@@ -240,8 +246,9 @@ export function createStudioPdd(deps) {
       }
     }
     // 2. plano visual + retângulos dos alvos, na MESMA ficha de layout
-    const plan = await toContent(a.tabId, 'cs.pdd.plan', {}, 0).catch(() => null);
-    if (!plan || !plan.ok) throw codeError('CONTENT_UNAVAILABLE');
+    const v2 = a.policy === VISUAL_POLICY_V2;
+    const plan = await toContent(a.tabId, 'cs.pdd.plan', v2 ? { policy: VISUAL_POLICY_V2 } : {}, 0).catch(() => null);
+    if (!plan || !plan.ok || (v2 && plan.policy !== VISUAL_POLICY_V2)) throw codeError('CONTENT_UNAVAILABLE');
     const nodeIds = [...resolved.values()].filter((x) => x.nodeId).map((x) => x.nodeId);
     const rects = nodeIds.length ? await toContent(a.tabId, 'cs.pdd.rects', { nodeIds }, 0).catch(() => null) : { ok: true, rects: [], token: plan.token };
     if (!rects || !rects.ok || rects.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
@@ -260,11 +267,12 @@ export function createStudioPdd(deps) {
       if (!after || after.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
       decoded = await imaging.decode(raw);
       raw = null;
-      const regions = deviceRegions(plan, decoded.width, decoded.height);
-      const pixels = compose(decoded.pixels, decoded.width, decoded.height, regions);
+      const regions = v2 ? deviceRegionsV2(plan, decoded.width, decoded.height) : deviceRegions(plan, decoded.width, decoded.height);
+      const pixels = v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
       decoded.release();
       decoded = { width: decoded.width, height: decoded.height, release() {} };
-      if (violations(pixels, decoded.width, decoded.height, regions) !== 0) throw codeError('SANITIZATION_CHECK_FAILED');
+      const bad = v2 ? violationsV2(pixels, decoded.width, decoded.height, regions) : violations(pixels, decoded.width, decoded.height, regions);
+      if (bad !== 0) throw codeError('SANITIZATION_CHECK_FAILED');
       const png = await imaging.encode(pixels, decoded.width, decoded.height);
       if (png.length > MAX_PNG_BYTES) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
       const vw = plan.viewport.width;
@@ -282,12 +290,15 @@ export function createStudioPdd(deps) {
       const limitations = [];
       if (plan.rejected && Object.keys(plan.rejected).length) limitations.push('SOME_LABELS_HIDDEN');
       if (plan.hasFrames) limitations.push('FRAMES_HIDDEN');
+      const outRegions = v2
+        ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.tone ? { tone: r.tone } : {}) }))
+        : [...regions.carriers.map((c) => ({ kind: 'CARRIER', x: c.x, y: c.y, width: c.x2 - c.x, height: c.y2 - c.y })),
+          ...regions.fields.map((f) => ({ kind: 'FIELD', x: f.x, y: f.y, width: f.x2 - f.x, height: f.y2 - f.y }))];
       return {
-        captureId: a.captureId, status: 'CAPTURED', policy: VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
+        captureId: a.captureId, status: 'CAPTURED', policy: v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
         width: decoded.width, height: decoded.height, devicePixelRatio: plan.viewport.dpr,
         png: base64(png), sha256: await sha256(png),
-        regions: [...regions.carriers.map((c) => ({ kind: 'CARRIER', x: c.x, y: c.y, width: c.x2 - c.x, height: c.y2 - c.y })),
-          ...regions.fields.map((f) => ({ kind: 'FIELD', x: f.x, y: f.y, width: f.x2 - f.x, height: f.y2 - f.y }))],
+        regions: outRegions,
         annotations, limitations,
       };
     } finally {

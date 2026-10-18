@@ -393,3 +393,146 @@ test('armar: aba AUTORIZADA de benchmark aceita; autorizada fora do perfil recus
   const r = await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaBench03', steps: STEPS, leaseMs: 30000 }, 'studio-a');
   assert.equal(r.armed, true);
 });
+
+
+// ---------------------------------------------------------------------------------------- STUDIO-012 PDD-01: nekkora-visual/2
+// Representação documental: a imagem é redesenhada (paleta fechada) e só os portadores trazem pixels reais. A bruta
+// destes testes é toda "sentinela": nenhum pixel dela pode aparecer fora dos portadores.
+
+const LOGIN_V2 = [
+  { kind: 'SURFACE', tone: 'DARK', x: 0, y: 0, width: 200, height: 20 },
+  { kind: 'SURFACE', tone: 'LIGHT', x: 30, y: 24, width: 140, height: 70 },
+  { kind: 'MEDIA', x: 4, y: 2, width: 16, height: 16 },
+  { kind: 'CONTROL', x: 150, y: 80, width: 16, height: 10 },
+  { kind: 'FIELD', x: 40, y: 50, width: 100, height: 14 },
+  { kind: 'CARRIER', x: 40, y: 32, width: 40, height: 14 },
+  { kind: 'CARRIER', x: 110, y: 72, width: 36, height: 18 },
+];
+
+function planV2(regions, dpr = 1) {
+  return { ...plan(200, 100, dpr, regions), policy: 'nekkora-visual/2' };
+}
+
+function at(px, w, x, y) {
+  const k = (y * w + x) * 4;
+  return [px[k], px[k + 1], px[k + 2]];
+}
+
+test('v2 deviceRegions: ordem de pintura, tom obrigatório e válido, tetos, portador sobre campo/frame/mídia → recusa (código)', () => {
+  const ok = V.deviceRegionsV2(planV2(LOGIN_V2), 200, 100);
+  assert.deepEqual(ok.map((r) => r.kind), ['SURFACE', 'SURFACE', 'MEDIA', 'CONTROL', 'FIELD', 'CARRIER', 'CARRIER']);
+  assert.equal(ok[0].tone, 'DARK');
+  assert.throws(() => V.deviceRegionsV2(planV2([LOGIN_V2[4], LOGIN_V2[0]]), 200, 100), { code: 'REGION_ORDER' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'SURFACE', x: 0, y: 0, width: 10, height: 10 }]), 200, 100), { code: 'REGION_KIND_UNKNOWN' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'SURFACE', tone: 'GREEN', x: 0, y: 0, width: 10, height: 10 }]), 200, 100),
+    { code: 'REGION_KIND_UNKNOWN' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'TEXT', x: 0, y: 0, width: 10, height: 10 }]), 200, 100), { code: 'REGION_KIND_UNKNOWN' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'FRAME', x: 100, y: 60, width: 60, height: 30 }, LOGIN_V2[6]]), 200, 100),
+    { code: 'CARRIER_OVERLAPS_CONTENT' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'MEDIA', x: 30, y: 30, width: 20, height: 20 }, LOGIN_V2[5]]), 200, 100),
+    { code: 'CARRIER_OVERLAPS_CONTENT' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'FIELD', x: 30, y: 30, width: 20, height: 20 }, LOGIN_V2[5]]), 200, 100),
+    { code: 'CARRIER_OVERLAPS_FIELD' });
+  const many = Array.from({ length: 49 }, () => ({ kind: 'SURFACE', tone: 'LIGHT', x: 0, y: 0, width: 100, height: 40 }));
+  assert.throws(() => V.deviceRegionsV2(planV2(many), 200, 100), { code: 'TOO_MANY_REGIONS' });
+  assert.throws(() => V.deviceRegionsV2(planV2(LOGIN_V2), 210, 100), { code: 'GEOMETRY_MISMATCH' });
+  assert.throws(() => V.deviceRegionsV2(planV2([{ kind: 'CARRIER', x: 0, y: 0, width: 30, height: 70 }]), 200, 100), { code: 'CARRIER_TOO_LARGE' });
+});
+
+test('v2 compose + violations: fundo claro, superfícies e campos sintéticos, nada da bruta fora dos portadores; exige a cor EXATA do lugar', () => {
+  const w = 200, h = 100;
+  const regions = V.deviceRegionsV2(planV2(LOGIN_V2), w, h);
+  const out = V.composeV2(rawImage(w, h), w, h, regions);
+  assert.equal(V.violationsV2(out, w, h, regions), 0);
+  assert.deepEqual(at(out, w, 190, 98), [...V.V2_PAGE], 'página clara (não o cinza da v1)');
+  assert.deepEqual(at(out, w, 100, 10), [...V.V2_TONES.DARK], 'cabeçalho: tom escuro, não a cor real');
+  assert.deepEqual(at(out, w, 100, 70), [...V.V2_TONES.LIGHT], 'cartão: tom claro');
+  assert.deepEqual(at(out, w, 30, 24), [...V.V2_SURFACE_BORDER], 'borda da superfície');
+  assert.deepEqual(at(out, w, 60, 57), [...V.FIELD_FILL], 'campo vazio');
+  assert.deepEqual(at(out, w, 120, 80), SENTINEL, 'portador (rótulo do botão) mostra a imagem real');
+  let leak = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const s = at(out, w, x, y);
+      const inCarrier = regions.some((r) => r.kind === 'CARRIER' && x >= r.x && x < r.x2 && y >= r.y && y < r.y2);
+      if (!inCarrier && s[0] === SENTINEL[0] && s[1] === SENTINEL[1] && s[2] === SENTINEL[2]) leak++;
+    }
+  }
+  assert.equal(leak, 0, 'nada da imagem bruta fora dos portadores');
+  // uma cor "permitida" no lugar errado também reprova (a v1 aceitaria): branco de campo dentro do cabeçalho escuro
+  const k = (10 * w + 100) * 4;
+  out[k] = 255; out[k + 1] = 255; out[k + 2] = 255;
+  assert.equal(V.violationsV2(out, w, h, regions), 1);
+  // o cinza de ocultação da v1 não existe na v2
+  const v1gray = V.composeV2(rawImage(w, h), w, h, regions);
+  v1gray[(98 * w + 190) * 4] = V.OPAQUE[0]; v1gray[(98 * w + 190) * 4 + 1] = V.OPAQUE[1]; v1gray[(98 * w + 190) * 4 + 2] = V.OPAQUE[2];
+  assert.equal(V.violationsV2(v1gray, w, h, regions), 1);
+});
+
+test('v2 em 150%: portador para dentro, superfície e campo para fora; a verificação fecha em px do dispositivo', () => {
+  const r = V.deviceRegionsV2(planV2([{ kind: 'SURFACE', tone: 'MID', x: 10.3, y: 10.3, width: 50.2, height: 30.2 },
+    { kind: 'CARRIER', x: 80.3, y: 10.3, width: 20.2, height: 10.2 }], 1.5), 300, 150);
+  assert.deepEqual(r[0], { kind: 'SURFACE', x: 15, y: 15, x2: 91, y2: 61, tone: 'MID' });
+  assert.deepEqual(r[1], { kind: 'CARRIER', x: 121, y: 16, x2: 150, y2: 30 });
+  const out = V.composeV2(rawImage(300, 150), 300, 150, r);
+  assert.equal(V.violationsV2(out, 300, 150, r), 0);
+});
+
+test('v2 captura: o Studio pede a política; evento conforme ao contrato com regiões na ordem e tom; sem pedido = v1 igual', async () => {
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan') return a && a.policy === 'nekkora-visual/2' ? planV2(LOGIN_V2) : plan(200, 100, 1, [LOGIN_V2[5], LOGIN_V2[4]]);
+    if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [{ nodeId: 'n1', x: 40, y: 50, width: 100, height: 14 }] };
+    if (cmd === 'cs.pdd.token') return { ok: true, token: 't1' };
+    return { ok: true };
+  };
+  const pdd = createStudioPdd(deps());
+  const armed = await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000,
+    policy: 'nekkora-visual/2' }, 'studio-a');
+  assert.equal(armed.policy, 'nekkora-visual/2');
+  assert.deepEqual(errors(schema.$defs.PddArmResult, armed), []);
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { captured: true });
+  const [e] = events();
+  conform(e);
+  assert.equal(e.policy, 'nekkora-visual/2');
+  assert.deepEqual(e.regions.map((r) => r.kind), ['SURFACE', 'SURFACE', 'MEDIA', 'CONTROL', 'FIELD', 'CARRIER', 'CARRIER']);
+  assert.equal(e.regions[1].tone, 'LIGHT');
+  assert.ok(!('tone' in e.regions[4]), 'só superfície leva tom');
+  const dev = V.deviceRegionsV2(planV2(LOGIN_V2), 200, 100);
+  assert.equal(V.violationsV2(lastPixels, 200, 100, dev), 0, 'o que foi codificado é a representação verificada');
+  // sem pedido: a mesma extensão responde e captura exatamente como na v1
+  const pdd1 = createStudioPdd(deps());
+  const r1 = await pdd1.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000 }, 'studio-a');
+  assert.deepEqual(Object.keys(r1).sort(), ['armed', 'captureId', 'duplicate', 'shortcut']);
+  await pdd1.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 });
+  const e1 = events()[1];
+  conform(e1);
+  assert.equal(e1.policy, 'nekkora-visual/1');
+  assert.deepEqual(e1.regions.map((r) => r.kind), ['CARRIER', 'FIELD']);
+});
+
+test('v2 armar com política desconhecida → BAD_REQUEST; content script sem a v2 → CONTENT_UNAVAILABLE (nada é composto)', async () => {
+  const pdd = createStudioPdd(deps());
+  await assert.rejects(pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000,
+    policy: 'nekkora-visual/3' }, 'studio-a'), { code: 'BAD_REQUEST' });
+  // content script antigo: ignora o pedido e devolve o plano da v1 → a extensão não mistura as políticas
+  await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000, policy: 'nekkora-visual/2' },
+    'studio-a');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'CONTENT_UNAVAILABLE' });
+  assert.equal(decodeCalls, 0);
+});
+
+test('v2 região incoerente (portador sobre frame) → falha sem imagem, com código do contrato', async () => {
+  content = (cmd) => {
+    if (cmd === 'cs.pdd.plan') return planV2([{ kind: 'FRAME', x: 100, y: 60, width: 60, height: 30 }, LOGIN_V2[6]]);
+    if (cmd === 'cs.pdd.token') return { ok: true, token: 't1' };
+    if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [] };
+    return { ok: true };
+  };
+  const pdd = createStudioPdd(deps());
+  await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000, policy: 'nekkora-visual/2' },
+    'studio-a');
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 1, windowId: 9 }), { failed: 'CARRIER_OVERLAPS_CONTENT' });
+  const [e] = events();
+  conform(e);
+  assert.ok(!('png' in e));
+});

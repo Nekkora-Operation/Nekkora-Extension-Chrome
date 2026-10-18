@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Consulta</title>
+<style>
+  /* STUDIO-012 PDD-01 — página ADVERSARIAL para a representação documental (nekkora-visual/2), dados fictícios.
+     Texto sensível em #E6007E (cor-sentinela). Controles positivos em #1F2328: "Consultar", "Sair", "Início", rótulo
+     "Senha". Classes: menu com item sensível, tabela de registros, iframe de OUTRA origem, rótulo sobre imagem de fundo,
+     botão grande demais para portador, campo de senha preenchido, mensagem lateral e cartão com cor de "status". */
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; color: #1F2328; background: #FFFFFF; }
+  header { background: #1E3A5F; height: 56px; display: flex; align-items: center; padding: 0 16px; gap: 16px; }
+  header nav a { color: #FFFFFF; text-decoration: none; margin-right: 12px; }
+  header nav a.sentinela { color: #E6007E; }
+  main { display: grid; grid-template-columns: 420px 300px; gap: 16px; padding: 16px; }
+  .painel { border: 1px solid #D0D7DE; border-radius: 6px; padding: 12px; }
+  table { border-collapse: collapse; width: 100%; color: #E6007E; }
+  td, th { border: 1px solid #D0D7DE; padding: 4px 6px; }
+  .heroi { height: 90px; background-image: linear-gradient(90deg, #E6007E, #FFFFFF); padding: 8px; }
+  .grande { height: 90px; width: 260px; font-size: 18px; }
+  .status { background: #FDE2E1; border: 1px solid #F5A3A0; padding: 10px; color: #E6007E; }
+  iframe { width: 280px; height: 90px; border: 1px solid #D0D7DE; }
+  input { color: #E6007E; }
+</style>
+</head>
+<body>
+<header>
+  <nav aria-label="Principal">
+    <a id="inicio" href="#inicio">Início</a>
+    <a href="#consultar">Consultar</a>
+    <a class="sentinela" href="#ana">Ana Souza</a>
+  </nav>
+</header>
+<main>
+  <section class="painel">
+    <table>
+      <tr><th>Ana Souza</th><th>123.456.789-09</th></tr>
+      <tr><td>Bruno Lima</td><td>987.654.321-00</td></tr>
+      <tr><td>Carla Dias</td><td>111.222.333-44</td></tr>
+    </table>
+    <p><label for="senha">Senha</label> <input id="senha" type="password" value="S3nh@Lab"></p>
+    <p><button id="consultar" type="button">Consultar</button> <a id="sair" href="#sair">Sair</a></p>
+    <div class="heroi"><label id="sobre-imagem" for="senha">Entrar</label></div>
+    <p><button id="grande" class="grande" type="button">Salvar</button></p>
+  </section>
+  <aside class="painel">
+    <div class="status">Pedido de Ana Souza negado</div>
+    <p><iframe id="externo" title="Externo"></iframe></p>
+  </aside>
+</main>
+<script>
+  // iframe de OUTRA origem (mesmo servidor, outro host mapeado para 127.0.0.1): conteúdo nunca acessível
+  document.getElementById('externo').src = location.href.replace('127.0.0.1', 'site-x.nekkora.test')
+    .replace('studio012/pdd-sensiveis.html', 'studio010/frame-sentinela.html').split('?')[0];
+</script>
+</body>
+</html>

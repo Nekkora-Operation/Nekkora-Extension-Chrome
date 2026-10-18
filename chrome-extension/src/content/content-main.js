@@ -161,7 +161,7 @@
      * títulos, parágrafos, tabelas, mensagens, imagens, SVG e canvas ficam de fora (opacos). Liga um observador de
      * mutações: a ficha de layout ({@code cs.pdd.token}) muda se a página mudar até a captura.
      */
-    'cs.pdd.plan': () => {
+    'cs.pdd.plan': (a) => {
       for (const k of ['debug', 'debugReview', 'debugCandidate', 'selection', 'hover']) {
         NS.highlighter.hide(k); // o PDD não desenha nada na página
       }
@@ -177,6 +177,15 @@
       const rejected = {};
       const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
       const policy = root.NekkoraCapturePolicy;
+      const viewport = { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY };
+      if (a && a.policy === 'nekkora-visual/2') {
+        // STUDIO-012 PDD-01: representação documental (pdd-plan.js) — mesma ficha de layout, mesmas recusas por código
+        if (!policy || !NS.pddPlan) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v2 = NS.pddPlan.v2(policy, vw, vh, reject);
+        return { ok: true, policy: 'nekkora-visual/2', viewport, token: pdd.token(), regions: v2.regions, rejected, hasFrames: v2.hasFrames };
+      }
       const fields = [];
       for (const el of document.querySelectorAll('input, textarea, select, [contenteditable]')) {
         const t = (el.getAttribute('type') || '').toLowerCase();
