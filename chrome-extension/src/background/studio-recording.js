@@ -25,6 +25,7 @@
  * Identificadores do Chrome não saem daqui: as abas são referidas por tabRef opaco.
  */
 import { HostError } from './native-client.js';
+import { visualProfile } from './visual-capture-profile.js';
 import { createStepPipeline } from './studio-steps.js';
 import { createEvidencePipeline } from './studio-evidence.js';
 import { createStudioDebug } from './studio-debug.js';
@@ -235,6 +236,7 @@ export function createStudioRecorder(deps) {
         title: v.allowed ? safeTitle(tab.title) : null,
         host: v.reason === 'BROWSER_INTERNAL' || v.reason === 'UNSUPPORTED_SCHEME' ? null : hostOf(url),
         access: v.allowed ? v.kind : v.reason,
+        visualCapture: visualProfile(v),
         active: !!tab.active,
         recording: Array.from(recordings.values()).some((r) => r.tabId === tab.id && !TERMINAL.has(r.state)),
       });

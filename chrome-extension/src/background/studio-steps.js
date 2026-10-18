@@ -486,6 +486,8 @@ export function createStepPipeline(deps) {
   }
 
   /** Expressão dentro do limite do contrato (500); maior que isso não é cortada, é descartada. */
+  const DESCRIPTION_MAX = 200; // contracts/studio-bridge.schema.json → ElementRef.locators[].description.maxLength
+
   function fits(v) {
     return v == null || String(v).length <= 500;
   }
@@ -546,7 +548,9 @@ export function createStepPipeline(deps) {
     }
     const locators = kept.map(({ l, i }) => ({
       strategy: STRATEGIES.has(l.strategy) ? l.strategy : 'ATTRIBUTE',
-      description: l.description && fits(l.description) ? String(l.description) : '',
+      // descrição legível acima do limite do contrato (200) vai vazia — a expressão segue inteira (NEKKORA-E2E-001: no
+      // desafio real a descrição POSICIONAL de um DOM profundo passava de 200 e o host recusava a etapa inteira)
+      description: l.description && String(l.description).length <= DESCRIPTION_MAX ? String(l.description) : '',
       css: l.css ? String(l.css) : null,
       xpath: l.xpath ? String(l.xpath) : null,
       matchCount: Math.max(0, Number(l.matchCount) || 0),

@@ -1,5 +1,6 @@
 // Pipeline de etapas gravadas (STUDIO-003): sequência, correlação, entrega confiável, rota, ciclo de vida e privacidade.
 import { test, beforeEach } from 'node:test';
+import { schema, errors } from './helpers/mini-schema.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -154,6 +155,21 @@ function fakeHost(type, payload) {
     }
     // n7 (2ª revisão dos PRs #7): payload ADVERSARIAL — operadores CSS além de "=", escape CSS, valor sem aspas na notação
     // semântica, nome de componente com dado de pessoa (na tag do elemento, no localizador e no caminho de acesso)
+    // n9 (NEKKORA-E2E-001): DOM profundo do site real — descrição POSICIONAL com mais de 200 caracteres (limite do
+    // contrato) ao lado do candidato LABEL por rótulo irmão
+    if (payload.nodeId === 'n9') {
+      const deep = 'html >> body >> ' + Array.from({ length: 14 }, (_, k) => 'div {nth-of-type ' + (k + 1) + '}').join(' >> ') + ' >> input {nth-of-type 1}';
+      return Promise.resolve({
+        resolution: 'RESOLVED', captureId: 'cap-2', nodeId: 'n9', targetId: 'tgt-n9', documentId: 'doc:0', kind: 'TEXT_INPUT', role: 'textbox',
+        name: '', tag: 'input', htmlId: null, htmlName: null, sensitive: false,
+        locators: [{ strategy: 'LABEL', description: '* {has child <label> "Email"} >> input', css: null,
+          xpath: '//*[label[normalize-space(.)="Email"]]/input', matchCount: 1, matchesTarget: true, stability: 'HEURISTIC_STABLE' },
+        { strategy: 'POSITIONAL', description: deep, css: 'html > body > div:nth-of-type(1) > input:nth-of-type(1)', xpath: null, matchCount: 1,
+          matchesTarget: true, stability: 'HEURISTIC_UNSTABLE' }],
+        preferredLocator: 0, accessPath: [{ type: 'MAIN_DOCUMENT', label: 'Documento', locator: null, restriction: null }], context: [], lookalikes: 0,
+        notes: [], verification: { primary: { semantic: 's0', css: '#x' }, fallbacks: [] },
+      });
+    }
     if (payload.nodeId === 'n7') {
       return Promise.resolve({
         resolution: 'RESOLVED', captureId: 'cap-2', nodeId: 'n7', targetId: 'tgt-n7', documentId: 'doc:0', kind: 'BUTTON', role: 'button',
@@ -720,4 +736,20 @@ test('REV-P2 — limite rígido de 100 pendentes: nada é admitido além dele, m
   assert.equal(fin.payload.summary.steps.lost, 30, 'as recusadas são perda declarada, nunca silenciosa');
   assert.ok(fin.payload.summary.limitations.includes('INTERACTIONS_LOST'));
   assert.ok(fin.payload.summary.limitations.includes('STEP_BACKLOG_FULL'));
+});
+
+
+test('NEKKORA-E2E-001 — descrição de localizador acima de 200 (DOM profundo) vai vazia e a etapa segue o contrato do Bridge', async () => {
+  await startRecording();
+  interact('FILL', 'n9');
+  await settle();
+  const s = steps();
+  assert.equal(s.length, 1);
+  const locs = s[0].element.locators;
+  assert.equal(locs[0].strategy, 'LABEL');
+  assert.equal(locs[0].xpath, '//*[label[normalize-space(.)="Email"]]/input');
+  assert.equal(locs[1].strategy, 'POSITIONAL');
+  assert.equal(locs[1].description, '', 'descrição longa demais não atravessa (e não derruba a etapa)');
+  assert.ok(locs.every((l) => l.description.length <= 200));
+  assert.deepEqual(errors(schema.$defs.ElementRef, s[0].element), []);
 });

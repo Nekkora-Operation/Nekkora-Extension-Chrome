@@ -191,4 +191,42 @@ class LocatorEngineTest {
         assertTrue(f.primary().scope().chain().get(0).css().contains("iframe") && !f.primary().scope().chain().get(0).css().contains("#fr"),
                 f.primary().scope().chain().get(0).css());
     }
+
+    // ------------------------------------------------------------------ NEKKORA-E2E-001: rótulo irmão (sem for)
+    private static final String SIBLING_FORM = """
+            <form><div class="row">
+              <div class="c"><label>Email</label><input type="text" id="q7Xz1" name="q7Xz1"></div>
+              <div class="c"><label>First Name</label><input type="text" id="Ab9kQ" name="Ab9kQ"></div>
+              <div class="c"><label>Phone Number</label><input type="text" id="z0PpL" name="z0PpL"></div>
+            </div><input type="submit" value="Submit"></form>
+            """;
+
+    @Test
+    void siblingLabelGivesNonPositionalUniquePrimary() {
+        HtmlSnapshot h = HtmlSnapshot.of(SIBLING_FORM);
+        LocatorSet s = Engine.analyze(h).locators().generate(h.idOf(h.dom().select("input").get(1)));
+        LocatorDescriptor label = s.all().stream().filter(d -> d.strategy() == LocatorStrategyKind.LABEL).findFirst().orElseThrow(
+                () -> new AssertionError(s.all().toString()));
+        assertTrue(label.unique(), label.toString());
+        assertEquals("//*[label[normalize-space(.)=\"First Name\"]]/input", label.xpath());
+        assertEquals(LocatorStrategyKind.LABEL, s.primary().strategy(), s.primary().toString());
+        assertFalse(label.xpath().matches(".*\\[\\d+\\].*"), "sem posição: " + label.xpath());
+    }
+
+    @Test
+    void duplicatedSiblingLabelIsDeclaredAmbiguous() {
+        HtmlSnapshot h = HtmlSnapshot.of(SIBLING_FORM.replace("<label>Phone Number</label>", "<label>Email</label>"));
+        LocatorSet s = Engine.analyze(h).locators().generate(h.idOf(h.dom().select("input").get(0)));
+        LocatorDescriptor label = s.all().stream().filter(d -> d.strategy() == LocatorStrategyKind.LABEL).findFirst().orElseThrow();
+        assertEquals(2, label.matchCount());
+        assertTrue(label.warnings().stream().anyMatch(w -> w.startsWith("AMBIGUOUS_MATCH")), label.warnings().toString());
+        assertFalse(label.unique());
+    }
+
+    @Test
+    void containerWithTwoControlsOrLabelForIsNotSiblingLabel() {
+        HtmlSnapshot two = HtmlSnapshot.of("<div><label>Email</label><input type=text><input type=text></div>");
+        LocatorSet a = Engine.analyze(two).locators().generate(two.idOf(two.dom().select("input").get(0)));
+        assertTrue(a.all().stream().noneMatch(d -> d.strategy() == LocatorStrategyKind.LABEL), a.all().toString());
+    }
 }

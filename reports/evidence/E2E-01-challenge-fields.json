@@ -1,0 +1,1646 @@
+{
+  "access" : {
+    "allowed" : true,
+    "authorized" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*", "https://rpachallenge.com/*" ],
+    "broad" : false,
+    "kind" : "AUTHORIZED",
+    "message" : null,
+    "origin" : "https://rpachallenge.com",
+    "pattern" : "https://rpachallenge.com/*",
+    "reason" : null,
+    "registration" : {
+      "allFrames" : true,
+      "excludeMatches" : [ "http://127.0.0.1/*", "http://localhost/*" ],
+      "id" : "nekkora-authorized-origins",
+      "js" : [ "src/shared/tokens.js", "src/shared/privacy.js", "src/shared/ui-vocabulary.js", "src/shared/capture-policy.js", "src/content/ns.js", "src/shared/interaction-normalizer.js", "src/content/node-registry.js", "src/content/sensitivity.js", "src/content/capture.js", "src/content/mutation-tracker.js", "src/content/locator-runner.js", "src/content/highlighter.js", "src/content/inspector.js", "src/shared/feedback-rules.js", "src/content/feedback-observer.js", "src/content/interaction-recorder.js", "src/content/content-main.js" ],
+      "matches" : [ "http://site-a.nekkora.test/*", "http://site-b.nekkora.test/*", "https://en.wikipedia.org/*", "https://rpachallenge.com/*" ],
+      "runAt" : "document_idle"
+    },
+    "tabId" : 296108891
+  },
+  "fields" : [ {
+    "label" : "First Name",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n65",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n65" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[2]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n65",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n65" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "First Name",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"First Name\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"First Name\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"First Name\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Last Name",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n77",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n77" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 5,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 5} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[5]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n77",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n77" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Last Name",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Last Name\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Last Name\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Last Name\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Company Name",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n61",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n61" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 1} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[1]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n61",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n61" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Company Name",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Company Name\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Company Name\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Company Name\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Role in Company",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n69",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n69" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 3,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 3} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[3]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n69",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n69" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Role in Company",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Role in Company\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Role in Company\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Role in Company\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Address",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n81",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n81" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 6,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 6} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[6]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n81",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n81" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Address",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Address\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Address\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Address\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Email",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n73",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n73" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 4,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 4} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[4]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n73",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n73" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Email",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Email\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Email\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Email\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  }, {
+    "label" : "Phone Number",
+    "selectionCount" : 1,
+    "classification" : {
+      "conditions" : [ "INTERACTIVE", "PRESENT", "VISIBLE", "ENABLED" ],
+      "confidence" : "HIGH",
+      "evidence" : [ "<input type=text>" ],
+      "kind" : "TEXT_INPUT",
+      "name" : {
+        "confidence" : "NONE",
+        "description" : "",
+        "descriptionNodeIds" : [ ],
+        "name" : "",
+        "source" : "NONE",
+        "sourceNodeIds" : [ ]
+      },
+      "nativeSemantics" : true,
+      "nodeId" : "n85",
+      "role" : "textbox",
+      "sensitive" : false,
+      "uncertainties" : [ "Controle sem nome acessível" ]
+    },
+    "locators" : {
+      "fallbacks" : [ {
+        "css" : "html > body > app-root:nth-of-type(1) > div:nth-of-type(2) > :nth-child(2) > div:nth-of-type(1) > div:nth-of-type(2) > form:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > :nth-child(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n85" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "html"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "body"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "app-root"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 2,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "form"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 7,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_CHILD"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "div"
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ {
+              "position" : 1,
+              "type" : "NTH_OF_TYPE"
+            } ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.09,
+        "semantic" : "html >> body >> app-root {nth-of-type 1} >> div {nth-of-type 2} >> * {nth-child 2} >> div {nth-of-type 1} >> div {nth-of-type 2} >> form {nth-of-type 1} >> div {nth-of-type 1} >> div {nth-of-type 7} >> * {nth-child 1} >> div {nth-of-type 1} >> input {nth-of-type 1}",
+        "stability" : "HEURISTIC_UNSTABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)", "depende de posição (nth-child)", "depende de posição (nth-of-type)", "depende de posição (nth-of-type)" ],
+        "strategy" : "POSITIONAL",
+        "warnings" : [ "último recurso: depende da posição de cada ancestral", "POSITIONAL_DEPENDENCY", "UNSTABLE: depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-of-type); depende de posição (nth-child); depende de posição (nth-of-type); depende de posição (nth-of-type)" ],
+        "xpath" : "//html/body/app-root[1]/div[2]/*[2]/div[1]/div[2]/form[1]/div[1]/div[7]/*[1]/div[1]/input[1]"
+      }, {
+        "css" : "form input",
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 8,
+        "matchedNodeIds" : [ "n61", "n65", "n69", "n73", "n77", "n81", "n85", "n50" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "form"
+          }, {
+            "axis" : "DESCENDANT",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.033,
+        "semantic" : "form >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ ],
+        "strategy" : "CONTEXTUAL",
+        "warnings" : [ "escopo: FORM", "AMBIGUOUS_MATCH: 8 elementos correspondem" ],
+        "xpath" : "//form//input"
+      } ],
+      "nodeId" : "n85",
+      "primary" : {
+        "css" : null,
+        "expected" : {
+          "dialog" : null,
+          "form" : null,
+          "heading" : null,
+          "kind" : "TEXT_INPUT",
+          "name" : "",
+          "role" : "textbox",
+          "rowKey" : { },
+          "table" : null
+        },
+        "live" : null,
+        "matchCount" : 1,
+        "matchedNodeIds" : [ "n85" ],
+        "matchesTarget" : true,
+        "query" : {
+          "steps" : [ {
+            "axis" : "DESCENDANT",
+            "predicates" : [ {
+              "tag" : "label",
+              "text" : "Phone Number",
+              "type" : "HAS_CHILD_TEXT"
+            } ],
+            "tag" : null
+          }, {
+            "axis" : "CHILD",
+            "predicates" : [ ],
+            "tag" : "input"
+          } ]
+        },
+        "scope" : {
+          "chain" : [ ],
+          "frameId" : "f0",
+          "scopeId" : "doc:f0",
+          "type" : "MAIN_DOCUMENT"
+        },
+        "score" : 0.784,
+        "semantic" : "* {has child <label> \"Phone Number\"} >> input",
+        "stability" : "HEURISTIC_STABLE",
+        "stabilityBasis" : "HEURISTIC",
+        "stabilityReasons" : [ "âncora por conteúdo textual \"Phone Number\"" ],
+        "strategy" : "LABEL",
+        "warnings" : [ "rótulo irmão único (sem associação por for)" ],
+        "xpath" : "//*[label[normalize-space(.)=\"Phone Number\"]]/input"
+      },
+      "warnings" : [ ]
+    }
+  } ]
+}

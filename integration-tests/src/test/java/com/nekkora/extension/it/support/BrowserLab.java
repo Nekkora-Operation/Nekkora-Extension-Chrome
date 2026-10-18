@@ -46,13 +46,15 @@ public final class BrowserLab {
     public static final String SITE_X = "site-x.nekkora.test";
     /** Página real (Wikipedia) autorizada na construção de teste — usada somente pela suíte opcional real-web. */
     public static final String REAL_ORIGIN = "https://en.wikipedia.org";
+    /** NEKKORA-E2E-001: desafio de treinamento autorizado pela usuária (origem exata; só a suíte opcional real-web). */
+    public static final String CHALLENGE_ORIGIN = "https://rpachallenge.com";
     /**
      * Origens autorizadas na construção de teste. Na extensão publicada elas são OPCIONAIS (concedidas pelo usuário no
      * diálogo do Chrome); aqui a concessão é feita na instalação, e a revogação/reconcessão usam o controle
      * "Acesso ao site" do próprio Chrome (chrome://extensions), sem automatizar diálogos de permissão.
      */
     public static final java.util.List<String> TEST_GRANTED_ORIGINS = java.util.List.of(
-            "http://" + SITE_A + "/*", "http://" + SITE_B + "/*", REAL_ORIGIN + "/*");
+            "http://" + SITE_A + "/*", "http://" + SITE_B + "/*", REAL_ORIGIN + "/*", CHALLENGE_ORIGIN + "/*");
     private static BrowserLab instance;
 
     private final ObjectMapper mapper = new ObjectMapper();

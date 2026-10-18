@@ -22,7 +22,7 @@
   "commands": {
     "nk-pdd-capturar": {
       "suggested_key": { "default": "Alt+Shift+K" },
-      "description": "Capturar a tela para o PDD (Nekkora Studio, laboratório)"
+      "description": "Capturar a tela para o PDD (Nekkora Studio: laboratório ou benchmark autorizado)"
     }
   },
   "side_panel": {
