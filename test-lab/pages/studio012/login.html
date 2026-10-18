@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <!--
+    NEKKORA-STUDIO-012 — estrutura do caso de reprodução (dados fictícios): campos DESCENDENTES de envoltórios
+    (div > span > input; div > div > p > input), id/name técnicos com notação húngara (prefixo "ds", sufixo "Temp"),
+    um segundo formulário OCULTO com campo de senha (sósia) e o botão com id/name do vocabulário. O envio é local e
+    nunca põe usuário/senha na URL.
+  -->
+  <div id="mainContainer">
+    <div id="PanelForm">
+      <h3>
+        <form id="formLogin" autocomplete="off">
+          <div class="rotulo">Usuário</div>
+          <div><span class="campo"><input type="text" id="dsLogin" name="dsLogin" maxlength="30"></span></div>
+          <div>
+            <div><p><input type="password" id="dsSenhaTemp" name="dsSenhaTemp" maxlength="30"></p></div>
+            <div><p><input type="checkbox" id="lembrar" name="lembrar"> Lembrar</p></div>
+            <div><p><input type="submit" id="Button_DoLogin" name="Button_DoLogin" value="Entrar"></p></div>
+          </div>
+          <div id="erro" role="alert" hidden></div>
+        </form>
+      </h3>
+    </div>
+    <form id="formTrocaSenha" hidden>
+      <p><input type="password" name="novaSenha"> <input type="password" name="confirmarSenha"></p>
+      <p><input type="submit" name="Button_DoTroca" value="Trocar"></p>
+    </form>
+  </div>
+  <script>
+    document.getElementById('formLogin').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const erro = document.getElementById('erro');
+      if (!document.getElementById('dsLogin').value || !document.getElementById('dsSenhaTemp').value) {
+        erro.textContent = 'Usuário ou senha inválidos';
+        erro.hidden = false;
+        return;
+      }
+      sessionStorage.setItem('nk012.login', 'ok'); // oráculo: só o FATO do login, nunca os valores
+      setTimeout(() => { location.href = '/lab/studio012/portal.html'; }, 50);
+    });
+  </script>
+</body>
+</html>

@@ -45,6 +45,7 @@
           <include>ui-vocabulary.json</include>
           <include>structural-attributes.json</include>
           <include>html-elements.json</include>
+          <include>identifier-terms.json</include>
         </includes>
       </resource>
     </resources>

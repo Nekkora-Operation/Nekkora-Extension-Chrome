@@ -1,0 +1,14 @@
+{
+ "version": "nekkora-identifier-terms/1",
+ "status": "aprovado pela usuária em 2026-10-18 (NEKKORA-STUDIO-012)",
+ "scope": "SOMENTE identificadores escritos pelo desenvolvedor nos atributos id, name, data-testid, data-test, data-test-id, data-qa e data-cy (e as posições equivalentes em localizadores: #id, [name=…], @id, {id=…}). Não vale para texto de interface, título, classe, URL nem outro atributo.",
+ "rule": "Um identificador passa se tiver forma técnica (ASCII [A-Za-z0-9-_:.], até 80 caracteres) e TODOS os termos (mesma separação do vocabulário: pontuação, hífen, sublinhado, camelCase, letra/dígito) forem termos do vocabulário nekkora-ui-vocabulary, números de até 2 dígitos ou termos desta lista — com PELO MENOS UM termo do vocabulário. Só termos técnicos (ex.: \"ds\", \"hdn1\") ou qualquer termo fora das duas listas (ex.: \"dsJoao\") recusam o identificador inteiro, sem supressão parcial.",
+ "history": [
+  "nekkora-identifier-terms/1: primeira versão. Motivo: sistemas legados usam prefixos e sufixos técnicos (notação húngara) em id/name — ex.: o campo de usuário do caso de reprodução tinha id/name estável e único com o prefixo \"ds\" e o de senha com o sufixo \"temp\"; sem esta lista o identificador inteiro era retido e o Recorder caía em XPath posicional."
+ ],
+ "terms": [
+  "aux", "bkp", "bt", "cb", "cbo", "cd", "ck", "cmb", "cmd", "cnt", "cod", "ctl", "ctrl", "ddl", "dg", "dlg", "drp", "ds", "dst", "dv",
+  "grd", "gv", "hdn", "hid", "ini", "inp", "lb", "lnk", "lst", "mdl", "mnu", "nm", "nr", "num", "old", "opt", "pg", "pnl", "rb", "src",
+  "tb", "temp", "tmp", "tx", "uc", "vl", "vlr", "wrp"
+ ]
+}

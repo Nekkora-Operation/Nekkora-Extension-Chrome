@@ -63,7 +63,8 @@ public final class LocatorPrivacy {
             return value.equals(CapturePrivacyPolicy.structuralValueOf(n, value)) && !value.isEmpty();
         }
         if (CapturePrivacyPolicy.IDENTIFIERS.contains(n)) {
-            return CapturePrivacyPolicy.identifier(value) != null;
+            return (CapturePrivacyPolicy.DEV_IDENTIFIERS.contains(n) ? CapturePrivacyPolicy.developerIdentifier(value)
+                    : CapturePrivacyPolicy.identifier(value)) != null;
         }
         if (n.equals("class")) {
             return value.equals(CapturePrivacyPolicy.classes(value));

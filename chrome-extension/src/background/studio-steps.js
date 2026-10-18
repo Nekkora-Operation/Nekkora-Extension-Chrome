@@ -34,7 +34,9 @@ const EVIDENCE = new Set(['FORM_SUBMITTED', 'DOUBLE_CLICK', 'VIA_KEYBOARD', 'VIA
 const NOTES = new Set(['AMBIGUOUS_TARGET', 'OPTION_NOT_IDENTIFIED', 'OPTION_NOT_CHOSEN', 'OPTION_WITHOUT_PROVEN_COMBOBOX', 'ELEMENT_UNRESOLVED', 'NO_UNIQUE_LOCATOR',
   'INDISTINGUISHABLE_LOOKALIKES', 'ACCESS_RESTRICTED', 'LIVE_CHECK_UNAVAILABLE', 'CROSS_FRAME_ORDER_BY_RECEPTION', 'RESENT',
   // CHROME-SECURITY-001: limitações declaradas da política nekkora-privacy/2
-  'OPTION_WITHHELD', 'LOCATORS_WITHHELD', 'SAFE_LOCATOR_UNAVAILABLE']);
+  'OPTION_WITHHELD', 'LOCATORS_WITHHELD', 'SAFE_LOCATOR_UNAVAILABLE',
+  // NEKKORA-STUDIO-012: id/name presentes mas retidos pela política (só a presença); alvo exibido por :hover em outro elemento
+  'IDENTIFIER_WITHHELD', 'REVEALED_BY_HOVER']);
 const STRATEGIES = new Set(['TEST_ATTRIBUTE', 'ID', 'NAME', 'LABEL', 'ROLE_NAME', 'CONTEXTUAL', 'ROW_CONTEXT', 'ATTRIBUTE', 'TEXT', 'XPATH_RELATIVE', 'POSITIONAL']);
 const STABILITY = new Set(['OBSERVED_STABLE', 'HEURISTIC_STABLE', 'UNKNOWN', 'HEURISTIC_UNSTABLE', 'OBSERVED_UNSTABLE']);
 const PATH_TYPES = new Set(['MAIN_DOCUMENT', 'IFRAME', 'SHADOW_ROOT', 'ELEMENT']);
@@ -472,7 +474,7 @@ export function createStepPipeline(deps) {
 
   function safeAttr(v, sensitive) {
     const p = policy();
-    return sensitive || v == null || v === '' || !p ? null : p.identifier(String(v));
+    return sensitive || v == null || v === '' || !p ? null : p.developerIdentifier(String(v)); // STUDIO-012: id/name do desenvolvedor
   }
 
   function url(v) {
@@ -605,6 +607,12 @@ export function createStepPipeline(deps) {
       if (NOTES.has(n)) {
         notes.add(n); // limitações declaradas pela 2ª barreira (localizadores retidos, sem localizador seguro)
       }
+    }
+    // STUDIO-012: o elemento TEM id/name, mas a política reteve o valor — o Studio explica por que não há localizador por
+    // id/name (campo sensível não conta: nele o id nunca vai no descritor, por regra própria).
+    const desc = entry.descriptor || {};
+    if (!element.sensitive && ((desc.idPresent && !element.htmlId) || (desc.namePresent && !element.htmlName))) {
+      notes.add('IDENTIFIER_WITHHELD');
     }
     // A opção escolhida é valor do usuário / conteúdo de negócio: nunca vai ao Studio (CHROME-SECURITY-001).
     const option = null;

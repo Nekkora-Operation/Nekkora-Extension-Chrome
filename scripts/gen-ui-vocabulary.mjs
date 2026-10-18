@@ -10,6 +10,8 @@ const v = JSON.parse(readFileSync(src, 'utf8'));
 const st = JSON.parse(readFileSync(new URL('../contracts/privacy/structural-attributes.json', import.meta.url), 'utf8'));
 // CHROME-SECURITY-001 (2ª revisão dos PRs #7): catálogo fechado de nomes de elemento, de contracts/privacy/html-elements.json
 const el = JSON.parse(readFileSync(new URL('../contracts/privacy/html-elements.json', import.meta.url), 'utf8'));
+// NEKKORA-STUDIO-012: termos técnicos aceitos SÓ em identificadores do desenvolvedor, de contracts/privacy/identifier-terms.json
+const it = JSON.parse(readFileSync(new URL('../contracts/privacy/identifier-terms.json', import.meta.url), 'utf8'));
 const body = `/*
  * GERADO por scripts/gen-ui-vocabulary.mjs a partir de contracts/privacy/ui-vocabulary.json — não editar à mão.
  * ${v.version}: vocabulário FECHADO de metadados de interface (CHROME-SECURITY-001). ${v.terms.length} termos.
@@ -24,8 +26,10 @@ const body = `/*
     elements: new Set(${JSON.stringify(el.elements)}),
     elementsVersion: ${JSON.stringify(el.version)},
     structural: Object.freeze({ version: ${JSON.stringify(st.version)}, rules: ${JSON.stringify(st.rules)}, languages: ${JSON.stringify(st.languages)}, scripts: ${JSON.stringify(st.scripts)} }),
+    identifierTerms: new Set(${JSON.stringify(it.terms)}),
+    identifierTermsVersion: ${JSON.stringify(it.version)},
   });
 })(globalThis);
 `;
 writeFileSync(out, body);
-console.log(`ui-vocabulary.js: ${v.terms.length} termos (${v.version}); ${Object.keys(st.rules).length} atributos estruturais (${st.version}); ${el.elements.length} elementos (${el.version})`);
+console.log(`ui-vocabulary.js: ${v.terms.length} termos (${v.version}); ${Object.keys(st.rules).length} atributos estruturais (${st.version}); ${el.elements.length} elementos (${el.version}); ${it.terms.length} termos técnicos de identificador (${it.version})`);

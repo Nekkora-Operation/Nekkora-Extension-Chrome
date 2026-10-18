@@ -276,3 +276,18 @@ test('determinismo — a mesma sequência produz exatamente o mesmo resultado', 
   };
   assert.equal(run(), run());
 });
+
+test('NEKKORA-STUDIO-012 — alvo revelado por :hover: o clique leva a limitação REVEALED_BY_HOVER; nenhuma etapa de "passar o mouse" é inventada', () => {
+  const r = rig();
+  r.ev('click', { key: 'n9', control: 'CLICKABLE', revealedByHover: true }, { detail: 1 });
+  r.ev('click', { key: 'n10', control: 'AMBIGUOUS', revealedByHover: true }, { detail: 1 });
+  r.ev('click', LINK, { detail: 1 });
+  assert.deepEqual(r.actions(), ['CLICK:n9', 'UNKNOWN:n10', 'CLICK:n4']);
+  assert.deepEqual(r.out[0].notes, ['REVEALED_BY_HOVER']);
+  assert.deepEqual(r.out[1].notes, ['AMBIGUOUS_TARGET', 'REVEALED_BY_HOVER']);
+  assert.deepEqual(r.out[2].notes, [], 'sem evidência, nada é afirmado');
+  const c = rig('CAPTURE_ONLY');
+  c.ev('capture', { key: 'n9', control: 'CLICKABLE', revealedByHover: true });
+  assert.deepEqual(c.out[0].notes, ['REVEALED_BY_HOVER']);
+  assert.equal(c.out[0].observation, 'PROPOSED');
+});

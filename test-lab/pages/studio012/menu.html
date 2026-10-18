@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Menu</title>
+  <style>
+    body { font-family: sans-serif; font-size: 14px; margin: 6px; }
+    ul { list-style: none; padding-left: 8px; }
+    li { margin: 4px 0; }
+    .sub { display: none; }
+    .aberta > .sub { display: block; }
+    /* item que SÓ abre com o ponteiro em cima (CSS :hover, sem clique e sem script) */
+    li.flutuante > .sub { display: none; }
+    li.flutuante:hover > .sub { display: block; }
+  </style>
+</head>
+<body>
+  <!--
+    NEKKORA-STUDIO-012: "Auditoria" é um link que RECARREGA este frame com a seção aberta (documento novo no mesmo
+    iframe); os itens da seção carregam a tela no frame de conteúdo. "Cadastros" é um menu que só abre ao passar o
+    mouse (CSS :hover).
+  -->
+  <div></div>
+  <div></div>
+  <div>
+    <ul>
+      <li><a href="/lab/studio012/inicio.html" target="conteudo">Início</a></li>
+      <li id="secaoAuditoria"><a href="/lab/studio012/menu.html?secao=auditoria">Auditoria</a>
+        <ul class="sub">
+          <li><a href="/lab/studio012/solicitacao.html" target="conteudo">Solicitação em estudo</a></li>
+          <li><a href="/lab/studio012/inicio.html?tela=relatorio" target="conteudo">Relatório</a></li>
+        </ul>
+      </li>
+      <li class="flutuante"><a href="#" onclick="return false">Cadastros</a>
+        <ul class="sub">
+          <li><a href="/lab/studio012/inicio.html?tela=cadastro" target="conteudo">Prestadores</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('secao') === 'auditoria') {
+      document.getElementById('secaoAuditoria').classList.add('aberta');
+    }
+  </script>
+</body>
+</html>

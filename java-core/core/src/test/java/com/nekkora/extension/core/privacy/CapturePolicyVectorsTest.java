@@ -15,6 +15,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * CHROME-SECURITY-001 — SEC001-066/067: a implementação Java da política {@code nekkora-privacy/2} produz exatamente os
@@ -47,6 +48,10 @@ class CapturePolicyVectorsTest {
         }
         for (JsonNode c : v.get("identifiers")) {
             assertEquals(text(c.get("out")), CapturePrivacyPolicy.identifier(text(c.get("in"))), "identifier " + c.get("in"));
+        }
+        assertTrue(v.get("developerIdentifiers").size() > 10, "vetores da lista técnica (STUDIO-012)");
+        for (JsonNode c : v.get("developerIdentifiers")) {
+            assertEquals(text(c.get("out")), CapturePrivacyPolicy.developerIdentifier(text(c.get("in"))), "developerIdentifier " + c.get("in"));
         }
         for (JsonNode c : v.get("classes")) {
             assertEquals(text(c.get("out")), CapturePrivacyPolicy.classes(text(c.get("in"))), "classes " + c.get("in"));

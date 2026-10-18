@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Início</title>
+  <style>body { font-family: sans-serif; font-size: 14px; margin: 8px; }</style>
+</head>
+<body>
+  <h2 id="titulo">Início</h2>
+  <p id="tela"></p>
+  <script>
+    document.getElementById('tela').textContent = 'Tela: ' + (new URLSearchParams(location.search).get('tela') || 'inicio');
+  </script>
+</body>
+</html>

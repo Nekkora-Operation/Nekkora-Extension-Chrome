@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Portal</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    #mainContainer { display: flex; gap: 6px; }
+    #mainContainer > div:nth-of-type(1) iframe { width: 260px; height: 420px; border: 1px solid #999; }
+    #mainContainer > div:nth-of-type(2) iframe { width: 720px; height: 420px; border: 1px solid #999; }
+  </style>
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <!--
+    NEKKORA-STUDIO-012: portal com DOIS iframes da mesma origem — menu e conteúdo — como no caso de reprodução
+    (div#mainContainer > div > iframe). O menu recarrega o próprio frame para expandir uma seção e os itens carregam
+    telas no frame de conteúdo: os dois frames trocam de documento durante a gravação.
+  -->
+  <div id="mainContainer">
+    <div><iframe name="menu" title="Menu" src="/lab/studio012/menu.html"></iframe></div>
+    <div><iframe name="conteudo" title="Conteúdo" src="/lab/studio012/inicio.html"></iframe></div>
+  </div>
+</body>
+</html>

@@ -64,6 +64,15 @@
       stats.discarded[reason] = (stats.discarded[reason] || 0) + 1;
     }
 
+    /**
+     * NEKKORA-STUDIO-012: o alvo está num contêiner que a página só exibe com o ponteiro sobre outro elemento (regra
+     * :hover da própria página ou gatilho com aria-expanded). Registrado como LIMITAÇÃO do clique — a reprodução precisa
+     * do mesmo gesto —, nunca como uma ação inventada.
+     */
+    function hoverNote(t) {
+      return t && t.revealedByHover ? ['REVEALED_BY_HOVER'] : [];
+    }
+
     function emit(i) {
       const out = {
         localSeq: ++localSeq,
@@ -161,11 +170,11 @@
           }
           emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, formKey: t.formKey,
             evidence: o.viaKeyboard || o.detail === 0 ? ['VIA_KEYBOARD'] : [], // detail 0: ativação pelo teclado (Enter/Espaço no botão)
-            notes: t.control === 'COMBOBOX_OPTION' ? ['OPTION_WITHOUT_PROVEN_COMBOBOX'] : [] });
+            notes: (t.control === 'COMBOBOX_OPTION' ? ['OPTION_WITHOUT_PROVEN_COMBOBOX'] : []).concat(hoverNote(t)) });
           return;
         }
         case 'AMBIGUOUS':
-          emit({ action: 'UNKNOWN', targetKey: t.key, firstAt: o.at, lastAt: o.at, notes: ['AMBIGUOUS_TARGET'] }); // R10
+          emit({ action: 'UNKNOWN', targetKey: t.key, firstAt: o.at, lastAt: o.at, notes: ['AMBIGUOUS_TARGET'].concat(hoverNote(t)) }); // R10
           return;
         default:
           discard('NON_INTERACTIVE');
@@ -287,10 +296,10 @@
           emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via, notes: ['OPTION_WITHOUT_PROVEN_COMBOBOX'] });
           return;
         case 'CLICKABLE':
-          emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via });
+          emit({ action: 'CLICK', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via, notes: hoverNote(t) });
           return;
         case 'AMBIGUOUS':
-          emit({ action: 'UNKNOWN', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via, notes: ['AMBIGUOUS_TARGET'] });
+          emit({ action: 'UNKNOWN', targetKey: t.key, firstAt: o.at, lastAt: o.at, evidence: via, notes: ['AMBIGUOUS_TARGET'].concat(hoverNote(t)) });
           return;
         default:
           discard('NON_INTERACTIVE');

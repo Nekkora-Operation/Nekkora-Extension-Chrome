@@ -35,6 +35,10 @@ test('SEC001-065/067 — vetores compartilhados: texto de interface, identificad
   for (const v of vectors.identifiers) {
     assert.equal(P.identifier(v.in), v.out, 'identifier ' + JSON.stringify(v.in));
   }
+  assert.ok(vectors.developerIdentifiers.length > 10, 'vetores da lista técnica (STUDIO-012)');
+  for (const v of vectors.developerIdentifiers) {
+    assert.equal(P.developerIdentifier(v.in), v.out, 'developerIdentifier ' + JSON.stringify(v.in));
+  }
   for (const v of vectors.classes) {
     assert.equal(P.classes(v.in), v.out, 'classes ' + JSON.stringify(v.in));
   }

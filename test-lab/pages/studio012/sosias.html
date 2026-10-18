@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Sósias</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
+  <!--
+    NEKKORA-STUDIO-012 (G2): casos adversariais de localizador. Nada aqui pode virar ID/NAME preferido sem prova de
+    unicidade, estabilidade e política: name repetido, id duplicado, id que muda a cada carga, id fora das listas, campo
+    só com rótulo e clique num filho de ancestral com evento DELEGADO (sem semântica: não vira clique inventado).
+  -->
+  <form id="formSosias" autocomplete="off">
+    <p><input type="text" name="dsCampo" id="dsCampoA"> <input type="text" name="dsCampo" id="dsCampoB"></p>
+    <p><input type="text" id="txtDuplicado" name="txtPrimeiro"> <input type="text" id="txtDuplicado" name="txtSegundo"></p>
+    <p><input type="text" id="campoVariavel" name="campoVariavel"></p>
+    <p><input type="text" id="zqxCampo" name="zqxCampo"></p>
+    <p><label>Observação <input type="text" class="semIdentificador"></label></p>
+    <div id="delegado"><span class="item">Linha</span></div>
+    <p id="saida" role="status"></p>
+  </form>
+  <script>
+    // id/name que mudam a cada carga (gerados): só o sufixo numérico muda — longo demais para a política
+    const v = document.getElementById('campoVariavel');
+    const n = String(Math.floor(100000 + Math.random() * 899999));
+    v.id = 'txtNome' + n;
+    v.name = 'txtNome' + n;
+    // evento DELEGADO no ancestral: o span não tem semântica nem sinal de clicável
+    document.getElementById('delegado').addEventListener('click', (e) => {
+      if (e.target.classList.contains('item')) {
+        document.getElementById('saida').textContent = 'Linha acionada.';
+      }
+    });
+  </script>
+</body>
+</html>

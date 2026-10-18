@@ -27,6 +27,11 @@ const identifiers = [
   'pedido_483192', 'pedido_12', 'estado', 'cidade', 'cep', 'q', 'nk:menu.item-2', 'menu item', 'user@host', 'Nome', 'nome',
   'consultar', 'r-consultar', 's-campo', 'rot-fone', 'fone', 'a'.repeat(81), '', 'ação', 'login-form', 'loginForm', 'submitBtn',
 ];
+// NEKKORA-STUDIO-012 (nekkora-identifier-terms/1): id/name do desenvolvedor com termos técnicos
+const developerIdentifiers = [
+  'dsLogin', 'senhaTemp', 'ctl00_txtNome', 'ddlEstado', 'hdnPesquisar', 'txtUsuario', 'btn-pesquisar', 'ds', 'hdn1', 'temp-2', 'dsJoao',
+  'cliente-anacleto-prudencio', 'ds_usuario_hermengarda', 'pedido_483192', 'tmp', 'ds Login', 'dsLogin@x', 'a'.repeat(81), '',
+];
 const classLists = ['btn btn-primary cliente-rosamunda-teixeira', 'cartao', 'ver', 'hidden  active', 'xyz123 abc', ''];
 const urls = [
   'https://sistema.exemplo/clientes/joao', 'https://sistema.exemplo/clientes/joao-oliveira#aba-bonifacio',
@@ -50,6 +55,11 @@ const expressions = [
   'input {id=rua}', 'tr {row: "Wenceslau Barbacena"} >> button', 'input[type=submit]', '.btn.btn-primary', '.cliente-rosamunda-teixeira',
   "a[href='/clientes/{…}']", '//input[@id=//label[normalize-space(.)="Nome"]/@for]',
   '//input[@id=//label[normalize-space(.)="Nome do cliente João"]/@for]', '', null,
+  // NEKKORA-STUDIO-012: a lista técnica vale SÓ na posição de identificador do desenvolvedor
+  'input#dsLogin', '#dsJoao', 'input[name="senhaTemp"]', "input[id='ctl00_txtNome']", 'input[data-testid=ddlEstado]', '.dsLogin',
+  'input[title="dsLogin"]', "input[value='dsLogin']", "//input[@id='dsLogin']", "//input[@name='senhaTemp']", "//input['dsLogin'=@id]",
+  "//input[@title='dsLogin']", "//input[@id='dsJoao']", "//input[normalize-space()='dsLogin']", 'input {id=dsLogin}', 'input {name=senhaTemp}',
+  'input {name="dsLogin"}', 'input {title=dsLogin}', 'div#PanelForm > h3 > form > p > input#dsLogin',
 ];
 const attrs = [
   ['id', 'pesquisar', 'input', 'search'], ['id', 'cliente-anacleto-prudencio', 'button', null], ['name', 'q', 'input', 'search'],
@@ -77,6 +87,9 @@ const attrs = [
   ['src', 'http://127.0.0.1:18765/lab/frames/ficha-gervasio.html?cliente=Ana', 'iframe', null], ['src', '/img/foto-de-ana.png', 'img', null],
   ['slot', 'cabecalho', 'div', null], ['slot', 'cliente-anacleto', 'div', null], ['download', 'contrato-ana.pdf', 'a', null],
   ['loading', 'lazy', 'iframe', null], ['rel', 'noopener noreferrer', 'a', null],
+  // NEKKORA-STUDIO-012: lista técnica em id/name/data-testid; não em classe, slot nem nome
+  ['id', 'dsLogin', 'input', 'text'], ['name', 'senhaTemp', 'input', 'password'], ['data-testid', 'ddlEstado', 'select', null],
+  ['id', 'dsJoao', 'input', 'text'], ['class', 'dsLogin', 'input', 'text'], ['slot', 'dsLogin', 'div', null], ['title', 'dsLogin', 'input', 'text'],
 ];
 const carriers = [
   ['button', null, false], ['a', null, true], ['a', null, false], ['label', null, false], ['legend', null, false], ['summary', null, false],
@@ -91,6 +104,7 @@ const out = {
   note: 'Vetores compartilhados (Node e Java; o Studio usa o subconjunto de texto, identificador, URL e expressão): as implementações da política nekkora-privacy/2 devem produzir exatamente estes resultados. Gerados pela implementação JS e revisados à mão contra a regra aprovada (D1+D2+D3+D4).',
   interfaceText: interfaceTexts.map((x) => ({ in: x, out: P.interfaceText(x) })),
   identifiers: identifiers.map((x) => ({ in: x, out: P.identifier(x) })),
+  developerIdentifiers: developerIdentifiers.map((x) => ({ in: x, out: P.developerIdentifier(x) })),
   classes: classLists.map((x) => ({ in: x, out: P.classes(x) })),
   urls: urls.map((x) => ({ in: x, out: P.urlTemplate(x) })),
   expressions: expressions.map((x) => ({ in: x, out: P.expressionSafe(x) })),
@@ -98,7 +112,7 @@ const out = {
   carriers: carriers.map(([tag, role, href]) => ({ tag, role, hasHref: href, out: P.isCarrier(tag, role, href) })),
 };
 writeFileSync(repo + 'contracts/privacy/privacy-v2-vectors.json', JSON.stringify(out, null, 1) + '\n');
-for (const k of ['interfaceText', 'identifiers', 'classes', 'urls', 'expressions', 'attributes', 'carriers']) {
+for (const k of ['interfaceText', 'identifiers', 'developerIdentifiers', 'classes', 'urls', 'expressions', 'attributes', 'carriers']) {
   console.log('== ' + k);
   for (const r of out[k]) {
     console.log(JSON.stringify(r));

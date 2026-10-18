@@ -343,12 +343,18 @@ export function createStudioDebug(deps) {
   }
 
   async function inspect(p, controller) {
-    assertOnly(p, ['debugId', 'requestId', 'stepRef', 'actionType', 'targetId', 'descriptor', 'highlight']);
+    assertOnly(p, ['debugId', 'requestId', 'stepRef', 'actionType', 'targetId', 'descriptor', 'highlight', 'expectedOption']);
     const s = live(owned(p.debugId, controller));
     assertId(p.requestId, 'requestId');
     assertId(p.stepRef, 'stepRef');
     if (!ACTIONS.has(p.actionType)) {
       throw fail('BAD_REQUEST', 'actionType inválido');
+    }
+    // STUDIO-012: rótulo da opção configurado no Studio (nunca lido da página) — só para conferir a lista de seleção
+    const expectedOption = p.expectedOption == null ? null : p.expectedOption;
+    if (expectedOption !== null && (typeof expectedOption !== 'string' || !expectedOption.trim() || expectedOption.length > 120
+      || /[\u0000-\u001f\u007f]/.test(expectedOption))) {
+      throw fail('BAD_REQUEST', 'expectedOption inválida');
     }
     if (p.targetId !== null && p.targetId !== undefined) {
       assertId(p.targetId, 'targetId');
@@ -401,6 +407,12 @@ export function createStudioDebug(deps) {
       await unmark(s);
     }
     const chosen = subject ? (r.candidates || []).find((c) => c.nodeId === subject) : null;
+    // STUDIO-012: a opção configurada existe nesta lista e está selecionada agora? Só contagem e sim/não voltam.
+    let option = null;
+    if (expectedOption && p.actionType === 'SELECT_OPTION' && subject && status !== 'CONTEXT_UNAVAILABLE') {
+      const o = await toContent(s.tabId, 'cs.debug.optionState', { nodeId: subject, expected: expectedOption }, frameOfNode(subject)).catch(() => null);
+      option = o && o.ok && o.applicable ? { matches: Math.min(9, Math.max(0, Number(o.matches) || 0)), selected: !!o.selected } : null;
+    }
     const out = {
       debug: view(s), requestId: p.requestId, stepRef: p.stepRef, observedAt: new Date(now()).toISOString(), pageEpoch: epoch,
       identitySource: r.identitySource === 'TARGET_ID' ? 'TARGET_ID' : 'DESCRIPTOR', status, score: Math.min(1, Math.max(0, Number(r.score) || 0)),
@@ -409,6 +421,9 @@ export function createStudioDebug(deps) {
         tag: r.subjectTag && /^[a-z][a-z0-9-]{0,40}$/.test(r.subjectTag) ? r.subjectTag : 'unknown', sensitive: !!r.subjectSensitive } : null,
       candidates, highlighted, box, continuity: CONTINUITY.has(r.continuity) ? r.continuity : null,
     };
+    if (expectedOption) {
+      out.option = option; // null: não aplicável (lista personalizada) ou sem alvo
+    }
     persist(s);
     return remember(s, p.requestId, out);
   }

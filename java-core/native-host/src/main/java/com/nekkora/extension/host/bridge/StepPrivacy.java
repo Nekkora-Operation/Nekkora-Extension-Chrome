@@ -136,7 +136,7 @@ final class StepPrivacy {
 
     private static void identifier(ObjectNode o, String field) {
         JsonNode v = o.get(field);
-        if (v != null && v.isTextual() && CapturePrivacyPolicy.identifier(v.asText()) == null) {
+        if (v != null && v.isTextual() && CapturePrivacyPolicy.developerIdentifier(v.asText()) == null) { // htmlId/htmlName (STUDIO-012)
             o.putNull(field);
         }
     }

@@ -117,6 +117,26 @@
      * STUDIO-009 (debug guiado): destaque rosa pelo overlay (pointer-events:none, shadow fechado) — nenhum evento é
      * disparado no elemento, nada é rolado, nenhum estilo da página muda. Devolve a caixa em px do viewport principal.
      */
+    /**
+     * NEKKORA-STUDIO-012: confirma a opção de uma lista de seleção SEM tirar texto da página. O texto esperado vem do
+     * Studio (configurado pela usuária); a resposta é só quantas opções têm esse rótulo (ou valor) e se a selecionada é
+     * uma delas. Lista personalizada (não <select>): não aplicável.
+     */
+    'cs.debug.optionState': (a) => {
+      const el = NS.registry.elementFor(a.nodeId);
+      if (!el || !el.isConnected) {
+        return { ok: false, error: 'NODE_NOT_CONNECTED' };
+      }
+      if (el.tagName !== 'SELECT' || typeof a.expected !== 'string' || !a.expected) {
+        return { ok: true, applicable: false };
+      }
+      const norm = (t) => String(t == null ? '' : t).normalize('NFC').replace(/\s+/g, ' ').trim();
+      const want = norm(a.expected);
+      const same = (o) => norm(o.textContent) === want || (o.hasAttribute('value') && norm(o.value) === want);
+      const matches = Array.from(el.options).filter(same).length;
+      const sel = el.selectedOptions && el.selectedOptions[0];
+      return { ok: true, applicable: true, matches: Math.min(matches, 9), selected: !!(sel && same(sel)) };
+    },
     'cs.debug.mark': (a) => {
       const el = NS.registry.elementFor(a.nodeId);
       if (!el || !el.isConnected) {
@@ -417,7 +437,7 @@
       const r = el.getBoundingClientRect();
       // CHROME-SECURITY-001 (2ª revisão): nada de texto da página nem id cru — só o que a política deixa sair
       const CP = root.NekkoraCapturePolicy;
-      return { exists: true, connected: el.isConnected, tag: CP ? CP.tagName(el.tagName) : null, id: CP && el.id ? CP.identifier(el.id) : null,
+      return { exists: true, connected: el.isConnected, tag: CP ? CP.tagName(el.tagName) : null, id: CP && el.id ? CP.developerIdentifier(el.id) : null,
         rect: { left: r.left, top: r.top, width: r.width, height: r.height } };
     },
     /** Encontra o id temporário de um elemento por CSS (uso do harness de testes; somente leitura). */

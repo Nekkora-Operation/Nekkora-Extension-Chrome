@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Solicitação</title>
+  <style>body { font-family: sans-serif; font-size: 13px; margin: 8px; } td { padding: 2px 6px; }</style>
+</head>
+<body>
+  <!--
+    NEKKORA-STUDIO-012: tela carregada no frame de conteúdo. Como no caso de reprodução, as listas de seleção NÃO têm
+    id/name (15 listas no formulário — sósias) e o rótulo de cada uma é texto de CÉLULA (conteúdo, não metadado de
+    interface elegível). A linha 7 é o nível de auditoria. "Gravar" registra o nível na sessão do frame: é o ORÁCULO
+    independente da gravação (o teste lê o estado pelo WebDriver).
+  -->
+  <div></div>
+  <div></div>
+  <div>
+    <form id="formSolicitacao">
+      <table>
+        <tbody></tbody>
+      </table>
+      <table>
+        <tbody>
+          <tr><td><input type="button" name="Button_DoVoltar" value="Voltar"> <input type="button" name="Button_DoGravar" value="Gravar"></td></tr>
+        </tbody>
+      </table>
+    </form>
+    <p id="estado" role="status"></p>
+  </div>
+  <script>
+    const rotulos = ['Situação', 'Prioridade', 'Origem', 'Tipo', 'Setor', 'Unidade', 'Nível', 'Regime', 'Caráter', 'Acomodação',
+      'Especialidade', 'Fila', 'Etapa', 'Motivo', 'Retorno'];
+    const opcoes = { 'Nível': ['Selecione', 'Auditoria médica', 'Auditoria Carefy', 'Auditoria de enfermagem'] };
+    const corpo = document.querySelector('table tbody');
+    for (const r of rotulos) {
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td');
+      td1.textContent = r + ':';
+      const td2 = document.createElement('td');
+      const sel = document.createElement('select');
+      for (const o of opcoes[r] || ['Selecione', 'Opção A', 'Opção B']) {
+        const op = document.createElement('option');
+        op.textContent = o;
+        sel.appendChild(op);
+      }
+      if (r === 'Nível' && new URLSearchParams(location.search).get('variante') === 'nome') {
+        sel.name = 'ddlTipo'; // variante: a lista TEM identificador do desenvolvedor ("ddl" da lista técnica + "tipo" do vocabulário)
+      }
+      td2.appendChild(sel);
+      tr.append(td1, td2);
+      corpo.appendChild(tr);
+    }
+    document.querySelector('[name=Button_DoGravar]').addEventListener('click', () => {
+      const nivel = document.querySelectorAll('select')[6];
+      const escolhido = nivel.selectedOptions[0] ? nivel.selectedOptions[0].textContent : '';
+      sessionStorage.setItem('nk012.nivel', escolhido);
+      document.getElementById('estado').textContent = 'Gravado.';
+    });
+  </script>
+</body>
+</html>
