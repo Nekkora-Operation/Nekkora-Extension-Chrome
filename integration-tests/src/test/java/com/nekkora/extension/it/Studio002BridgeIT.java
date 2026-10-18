@@ -123,7 +123,7 @@ class Studio002BridgeIT extends SessionIT {
 
     @Test
     @DisplayName("S002-003/006 — conexão autenticada e lista de abas sanitizada (sem URL nem id do Chrome)")
-    void s002006ListaDeAbas() {
+    void s002006ListaDeAbas() throws IOException {
         Page labPage = open(CONT);
         Page denied = openWithoutContent(lab.externalUrl(BrowserLab.SITE_X, SITE));
         JsonNode list = tabs();
@@ -145,7 +145,8 @@ class Studio002BridgeIT extends SessionIT {
         }
         assertTrue(labSeen && deniedSeen, json);
         JsonNode status = studio.call("bridge.status", null);
-        assertTrue(status.at("/payload/extension/version").asText().startsWith("0.4"), status.toString());
+        String version = new com.fasterxml.jackson.databind.ObjectMapper().readTree(Path.of(System.getProperty("nekkora.repo", ".."), "chrome-extension", "manifest.json").toFile()).path("version").asText();
+        assertEquals(version, status.at("/payload/extension/version").asText(), "a versão do manifesto: " + status);
         lab.close(denied);
         lab.close(labPage);
     }

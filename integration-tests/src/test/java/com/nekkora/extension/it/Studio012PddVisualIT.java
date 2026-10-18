@@ -245,6 +245,7 @@ class Studio012PddVisualIT extends SessionIT {
     }
 
     private static int rawSentinel(Page p) throws IOException {
+        lab.focus(p); // o screenshot do driver é o da janela em foco: sem isto, mede-se outra aba
         BufferedImage bruta = ImageIO.read(new ByteArrayInputStream(((TakesScreenshot) lab.driver()).getScreenshotAs(OutputType.BYTES))); // só em memória
         return Studio010SafeCaptureIT.sentinelPixels(bruta);
     }
@@ -261,7 +262,8 @@ class Studio012PddVisualIT extends SessionIT {
     void loginAntesEDepois() throws Exception {
         Page p = page(LOGIN);
         lab.js(p, "document.getElementById('ds_login').value = 'ana.souza'; document.getElementById('passwordTemp').value = 'S3nh@Lab';");
-        assertTrue(rawSentinel(p) > 500, "controle: o detector enxerga a sentinela na tela bruta");
+        int raw = rawSentinel(p);
+        assertTrue(raw > 500, "controle: o detector enxerga a sentinela na tela bruta (" + raw + " px)");
         // ANTES (nekkora-visual/1, o Studio não pede política): reproduz o PDF da vistoria
         JsonNode v1 = shoot(p, LOGIN_STEPS, null);
         assertEquals("CAPTURED", v1.path("status").asText(), v1.toString());
@@ -297,7 +299,8 @@ class Studio012PddVisualIT extends SessionIT {
     void sensiveis() throws Exception {
         Page p = page(SENSIVEIS);
         Thread.sleep(500); // o iframe externo carrega
-        assertTrue(rawSentinel(p) > 1000, "controle: o detector enxerga a sentinela na tela bruta");
+        int raw = rawSentinel(p);
+        assertTrue(raw > 1000, "controle: o detector enxerga a sentinela na tela bruta (" + raw + " px)");
         JsonNode e = shoot(p, new Object[][] {{"step-s", "FILL", descriptor("PASSWORD_INPUT", "input", "Senha", "senha")}}, V2);
         assertEquals("CAPTURED", e.path("status").asText(), e.toString());
         BufferedImage img = image(e);
@@ -328,7 +331,8 @@ class Studio012PddVisualIT extends SessionIT {
     void sentinelasV2() throws Exception {
         Page p = page(SENTINELAS);
         Thread.sleep(500);
-        assertTrue(rawSentinel(p) > 1000, "controle positivo do detector");
+        int raw = rawSentinel(p);
+        assertTrue(raw > 1000, "controle positivo do detector (" + raw + " px)");
         JsonNode e = shoot(p, new Object[][] {{"step-c", "FILL", descriptor("TEXT_INPUT", "input", "Código do registro", "codigo")}}, V2);
         assertEquals("CAPTURED", e.path("status").asText(), e.toString());
         BufferedImage img = image(e);
