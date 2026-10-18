@@ -182,8 +182,8 @@ class Studio012RecorderIT extends SessionIT {
         start(rid, p, "CAPTURE_AND_INTERACT", "route-s012");
         WebDriver d = lab.driver();
         lab.focus(p);
-        type(d, d.findElement(By.id("dsLogin")), USER);
-        type(d, d.findElement(By.id("dsSenhaTemp")), PASSWORD);
+        type(d, d.findElement(By.id("ds_login")), USER);
+        type(d, d.findElement(By.id("passwordTemp")), PASSWORD);
         clickIn(d, null, By.id("Button_DoLogin"));
         BrowserLab.waitUntil(Duration.ofSeconds(15), () -> String.valueOf(lab.js(p, "return location.pathname")).endsWith("portal.html"), "portal aberto");
         BrowserLab.waitUntil(Duration.ofSeconds(15), () -> lab.call("page.diagnostics", p).at("/recorder/active").asBoolean(false), "sensor no portal");
@@ -213,7 +213,7 @@ class Studio012RecorderIT extends SessionIT {
                 "sequência com interação: " + got);
         // login: o campo DESCENDENTE certo (não o envoltório), id/name técnicos aceitos pela lista aprovada → ID preferido
         assertEquals("TEXT_INPUT", s.get(0).at("/element/kind").asText(), got.toString());
-        assertEquals("dsLogin", s.get(0).at("/element/htmlId").asText(), s.get(0).at("/element").toString());
+        assertEquals("ds_login", s.get(0).at("/element/htmlId").asText(), s.get(0).at("/element").toString());
         assertEquals("ID", preferred(s.get(0)), "id estável e único preferido ao XPath: " + s.get(0).at("/element/locators"));
         assertEquals("PASSWORD_INPUT", s.get(1).at("/element/kind").asText());
         assertTrue(s.get(1).at("/element/sensitive").asBoolean());

@@ -9,7 +9,7 @@
   <nav class="lab"><a href="/lab/index.html">← laboratório</a></nav>
   <!--
     NEKKORA-STUDIO-012 — estrutura do caso de reprodução (dados fictícios): campos DESCENDENTES de envoltórios
-    (div > span > input; div > div > p > input), id/name técnicos com notação húngara (prefixo "ds", sufixo "Temp"),
+    (div > span > input; div > div > p > input), id/name técnicos IGUAIS aos do caso de reprodução (ds_login; passwordTemp), sem type no campo de usuário,
     um segundo formulário OCULTO com campo de senha (sósia) e o botão com id/name do vocabulário. O envio é local e
     nunca põe usuário/senha na URL.
   -->
@@ -18,9 +18,9 @@
       <h3>
         <form id="formLogin" autocomplete="off">
           <div class="rotulo">Usuário</div>
-          <div><span class="campo"><input type="text" id="dsLogin" name="dsLogin" maxlength="30"></span></div>
+          <div><span class="campo"><input name="ds_login" value="" id="ds_login" maxlength="100" class="null"></span></div>
           <div>
-            <div><p><input type="password" id="dsSenhaTemp" name="dsSenhaTemp" maxlength="30"></p></div>
+            <div><p><input type="password" name="passwordTemp" id="passwordTemp" maxlength="20" size="10" class="null"></p></div>
             <div><p><input type="checkbox" id="lembrar" name="lembrar"> Lembrar</p></div>
             <div><p><input type="submit" id="Button_DoLogin" name="Button_DoLogin" value="Entrar"></p></div>
           </div>
@@ -37,7 +37,7 @@
     document.getElementById('formLogin').addEventListener('submit', (e) => {
       e.preventDefault();
       const erro = document.getElementById('erro');
-      if (!document.getElementById('dsLogin').value || !document.getElementById('dsSenhaTemp').value) {
+      if (!document.getElementById('ds_login').value || !document.getElementById('passwordTemp').value) {
         erro.textContent = 'Usuário ou senha inválidos';
         erro.hidden = false;
         return;

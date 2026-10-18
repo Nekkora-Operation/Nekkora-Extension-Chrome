@@ -29,7 +29,7 @@ const identifiers = [
 ];
 // NEKKORA-STUDIO-012 (nekkora-identifier-terms/1): id/name do desenvolvedor com termos técnicos
 const developerIdentifiers = [
-  'dsLogin', 'senhaTemp', 'ctl00_txtNome', 'ddlEstado', 'hdnPesquisar', 'txtUsuario', 'btn-pesquisar', 'ds', 'hdn1', 'temp-2', 'dsJoao',
+  'ds_login', 'passwordTemp', 'dsLogin', 'senhaTemp', 'ctl00_txtNome', 'ddlEstado', 'hdnPesquisar', 'txtUsuario', 'btn-pesquisar', 'ds', 'hdn1', 'temp-2', 'dsJoao',
   'cliente-anacleto-prudencio', 'ds_usuario_hermengarda', 'pedido_483192', 'tmp', 'ds Login', 'dsLogin@x', 'a'.repeat(81), '',
 ];
 const classLists = ['btn btn-primary cliente-rosamunda-teixeira', 'cartao', 'ver', 'hidden  active', 'xyz123 abc', ''];
@@ -56,7 +56,7 @@ const expressions = [
   "a[href='/clientes/{…}']", '//input[@id=//label[normalize-space(.)="Nome"]/@for]',
   '//input[@id=//label[normalize-space(.)="Nome do cliente João"]/@for]', '', null,
   // NEKKORA-STUDIO-012: a lista técnica vale SÓ na posição de identificador do desenvolvedor
-  'input#dsLogin', '#dsJoao', 'input[name="senhaTemp"]', "input[id='ctl00_txtNome']", 'input[data-testid=ddlEstado]', '.dsLogin',
+  'input#ds_login', 'input[name="passwordTemp"]', 'input#dsLogin', '#dsJoao', 'input[name="senhaTemp"]', "input[id='ctl00_txtNome']", 'input[data-testid=ddlEstado]', '.dsLogin',
   'input[title="dsLogin"]', "input[value='dsLogin']", "//input[@id='dsLogin']", "//input[@name='senhaTemp']", "//input['dsLogin'=@id]",
   "//input[@title='dsLogin']", "//input[@id='dsJoao']", "//input[normalize-space()='dsLogin']", 'input {id=dsLogin}', 'input {name=senhaTemp}',
   'input {name="dsLogin"}', 'input {title=dsLogin}', 'div#PanelForm > h3 > form > p > input#dsLogin',

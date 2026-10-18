@@ -344,6 +344,14 @@
  ],
  "developerIdentifiers": [
   {
+   "in": "ds_login",
+   "out": "ds_login"
+  },
+  {
+   "in": "passwordTemp",
+   "out": "passwordTemp"
+  },
+  {
    "in": "dsLogin",
    "out": "dsLogin"
   },
@@ -936,6 +944,14 @@
   {
    "in": "* {nth-child joao}",
    "out": false
+  },
+  {
+   "in": "input#ds_login",
+   "out": true
+  },
+  {
+   "in": "input[name=\"passwordTemp\"]",
+   "out": true
   },
   {
    "in": "input#dsLogin",

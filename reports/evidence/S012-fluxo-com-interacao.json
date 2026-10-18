@@ -2,7 +2,7 @@
   "steps" : [ "FILL:TEXT_INPUT:ID:0", "FILL:PASSWORD_INPUT:ID:0", "CLICK:BUTTON:ID:0", "CLICK:LINK:POSITIONAL:1", "CLICK:LINK:POSITIONAL:1", "SELECT_OPTION:SELECT:XPATH_RELATIVE:1", "CLICK:BUTTON:NAME:1" ],
   "summary" : {
     "state" : "COMPLETED",
-    "durationMs" : 5531,
+    "durationMs" : 5514,
     "counters" : {
       "segments" : 1,
       "technicalCaptures" : 2,
