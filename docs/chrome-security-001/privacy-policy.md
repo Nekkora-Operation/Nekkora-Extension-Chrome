@@ -16,7 +16,7 @@ Política aprovada no ponto de controle da fase 2 (decisões D1 a D5, em 2026-10
 
 ## Vocabulário controlado (`nekkora-ui-vocabulary/1`)
 
-- Fonte única em `contracts/privacy/ui-vocabulary.json`: 1062 termos PT/EN de interface. São os 928 aprovados no ponto de controle, mais termos técnicos acrescentados à mão e documentados no próprio arquivo: papéis ARIA, tipos de campo, extensões e segmentos de caminho, termos públicos de fornecedores de proteção do catálogo fechado e termos de estado de interface usados pelas dicas do motor.
+- Fonte única em `contracts/privacy/ui-vocabulary.json`: 1064 termos PT/EN de interface (1062 na CHROME-SECURITY-001; +"excel" e +"cloud" na NEKKORA-E2E-001, ver o histórico do arquivo). São os 928 aprovados no ponto de controle, mais termos técnicos acrescentados à mão e documentados no próprio arquivo: papéis ARIA, tipos de campo, extensões e segmentos de caminho, termos públicos de fornecedores de proteção do catálogo fechado e termos de estado de interface usados pelas dicas do motor.
 - **Fechado.** Muda só por revisão versionada. Não há expansão automática nem exceção por cliente.
 - **Exclusão de propósito:** palavras que também são sobrenomes frequentes (costa, campos, lima, dias, oliveira…) ficam fora, mesmo sendo palavras comuns.
 - **Regra de um valor:**

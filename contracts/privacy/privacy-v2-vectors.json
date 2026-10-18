@@ -210,6 +210,18 @@
   {
    "in": "Ativo",
    "out": "Ativo"
+  },
+  {
+   "in": "Download Excel",
+   "out": "Download Excel"
+  },
+  {
+   "in": "Download Excel cloud_download",
+   "out": "Download Excel cloud_download"
+  },
+  {
+   "in": "Excel Quixadá",
+   "out": null
   }
  ],
  "identifiers": [
