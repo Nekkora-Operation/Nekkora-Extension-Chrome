@@ -107,9 +107,9 @@ export class NativeClient {
   /** Envia uma mensagem que NÃO é requisição (sem correlação nem espera): studio.reply / studio.event. */
   async post(message) {
     const json = JSON.stringify(message);
-    // STUDIO-013: exceção ÚNICA ao teto de controle — o print da nekkora-visual/4 (até 12 MiB, como no canal do Studio)
+    // STUDIO-013: exceção ÚNICA ao teto de controle — o print da nekkora-visual/4 ou /5 (até 12 MiB, como no canal do Studio)
     const capture = message && message.type === 'studio.event' && message.event === 'studio.pdd.captured' && message.payload
-      && message.payload.policy === 'nekkora-visual/4';
+      && (message.payload.policy === 'nekkora-visual/4' || message.payload.policy === 'nekkora-visual/5');
     if (json.length > (capture ? 12 * 1024 * 1024 : 256 * 1024)) {
       throw new HostError('MESSAGE_TOO_LARGE', capture ? 'captura acima de 12 MiB' : 'mensagem de controle acima de 256 KiB');
     }

@@ -1,0 +1,22 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.pdd.capture.arm",
+  "id": "c-13",
+  "seq": 7,
+  "payload": {
+    "captureId": "cap-v5",
+    "tabRef": "t-Hh28sKq0aaPz",
+    "leaseMs": 60000,
+    "policy": "nekkora-visual/5",
+    "origin": "https://app.exemplo.test:8443",
+    "steps": [
+      {
+        "stepRef": "step-1",
+        "targetId": null,
+        "descriptor": null,
+        "actionType": "FILL"
+      }
+    ]
+  }
+}

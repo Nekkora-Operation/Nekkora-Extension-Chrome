@@ -24,11 +24,16 @@
  * nekkora-visual/3: a extensão NÃO chama captureVisibleTab e envia apenas a descrição sintética já validada. A armação
  * guarda a origem; mudança de origem, revogação da permissão do Chrome ou do consentimento PDD invalidam a armação e a
  * captura em curso (PERMISSION_REVOKED / PDD_CONSENT_REVOKED / ORIGIN_CHANGED).
+ *
+ * Revisão da usuária (19/10/2026) — duas opções no site autorizado: a nekkora-visual/4 (print mascarado, padrão) e a
+ * nekkora-visual/5 (print integral: a tela como está, só senhas cobertas). A v5 exige o nível FULL no consentimento da
+ * origem, conferido na armação, antes e depois da captura; rebaixar o nível derruba a armação e a captura em curso.
  */
-import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICIES, MAX_PNG_BYTES, MAX_PNG_BYTES_V4, codeError, compose,
-  composeV2, composeV4, deviceRegions, deviceRegionsV2, deviceMasksV4, violations, violationsV2, violationsV4, validateV3 } from './visual-sanitizer.js';
-import { visualProfile, denialReason, POLICIES_BY_PROFILE } from './visual-capture-profile.js';
-import { originOf, canonicalOrigin, SCOPES, ACTORS } from './pdd-consent.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICY_V5, VISUAL_POLICIES, MAX_PNG_BYTES, MAX_PNG_BYTES_V4,
+  codeError, compose, composeV2, composeV4, deviceRegions, deviceRegionsV2, deviceMasksV4, deviceMasksV5, violations, violationsV2, violationsV4,
+  validateV3 } from './visual-sanitizer.js';
+import { visualProfile, denialReason, levelAllows, POLICIES_BY_PROFILE } from './visual-capture-profile.js';
+import { originOf, canonicalOrigin, SCOPES, ACTORS, LEVELS } from './pdd-consent.js';
 
 const PROTOCOL = 'nekkora-nm/1';
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
@@ -164,6 +169,9 @@ export function createStudioPdd(deps) {
       throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'Neste site a captura do PDD exige a política nekkora-visual/3 (atualize o Studio).',
         { reason: 'POLICY_REQUIRES_V3' });
     }
+    if (!levelAllows(profile, visual, c)) {
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'O print integral não está liberado neste site (só o print mascarado).', { reason: 'PDD_FULL_REQUIRED' });
+    }
     if (tabs.recordingOn && tabs.recordingOn(tabId)) throw fail('INVALID_STATE', 'Há uma gravação nesta aba.', { reason: 'RECORDING_ACTIVE' });
     armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs, policy: visual, profile, origin: ev.origin };
     badge(tabId, 'PDD');
@@ -195,7 +203,7 @@ export function createStudioPdd(deps) {
     const ev = policy.evaluate(await policy.tabUrl(tabId).catch(() => null));
     const c = ev.allowed && ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
     return { tabRef: p.tabRef, origin: ev.allowed ? ev.origin : null, access: ev.allowed ? ev.kind : ev.reason,
-      consent: !ev.allowed ? 'NONE' : ev.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', ...(c ? { actor: c.actor, via: c.via } : {}),
+      consent: !ev.allowed ? 'NONE' : ev.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', ...(c ? { level: c.level, actor: c.actor, via: c.via } : {}),
       visualCapture: visualProfile(ev, c), reason: denialReason(ev, c) };
   }
 
@@ -204,11 +212,12 @@ export function createStudioPdd(deps) {
    * estiver em outra origem, nada é concedido (ORIGIN_CHANGED). Só vale para site já autorizado pelo Chrome.
    */
   async function consentGrant(p) {
-    assertOnly(p, ['tabRef', 'origin', 'scope', 'actor']);
+    assertOnly(p, ['tabRef', 'origin', 'scope', 'actor', 'level']);
     if (typeof p.tabRef !== 'string' || !TAB_REF.test(p.tabRef)) throw fail('BAD_REQUEST', 'tabRef inválido');
     if (!canonicalOrigin(p.origin)) throw fail('BAD_REQUEST', 'origem inválida');
     if (!SCOPES.includes(p.scope)) throw fail('BAD_REQUEST', 'escopo inválido');
     if (!ACTORS.includes(p.actor)) throw fail('BAD_REQUEST', 'quem decide é inválido');
+    if (p.level != null && !LEVELS.includes(p.level)) throw fail('BAD_REQUEST', 'nível inválido'); // ausente = MASKED (Studio anterior)
     if (!deps.consent) throw fail('INVALID_STATE', 'Consentimento indisponível.');
     const tabId = tabs.tabOf(p.tabRef);
     const tab = tabId == null ? null : await chromeApi.tabs.get(tabId).catch(() => null);
@@ -218,8 +227,8 @@ export function createStudioPdd(deps) {
       throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'Conceda primeiro o acesso ao site no Chrome.', { reason: ev.allowed ? 'NOT_REQUIRED' : ev.reason });
     }
     if (ev.origin !== p.origin) throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A aba mudou de origem.', { reason: 'ORIGIN_CHANGED' });
-    const rec = await consent.grant(ev.origin, p.scope, p.actor, 'STUDIO');
-    return { origin: rec.origin, consent: rec.scope, actor: rec.actor, via: rec.via, grantedAt: rec.grantedAt };
+    const rec = await consent.grant(ev.origin, p.scope, p.actor, 'STUDIO', p.level || 'MASKED');
+    return { origin: rec.origin, consent: rec.scope, level: rec.level, actor: rec.actor, via: rec.via, grantedAt: rec.grantedAt };
   }
 
   async function consentRevoke(p) {
@@ -233,7 +242,7 @@ export function createStudioPdd(deps) {
     assertOnly(p, []);
     const out = [];
     for (const r of await consent.list()) {
-      out.push({ origin: r.origin, consent: r.scope, actor: r.actor, via: r.via, grantedAt: r.grantedAt,
+      out.push({ origin: r.origin, consent: r.scope, level: r.level || 'MASKED', actor: r.actor, via: r.via, grantedAt: r.grantedAt,
         chromeAccess: policy.evaluate(r.origin + '/').kind === 'AUTHORIZED' });
     }
     return { consents: out };
@@ -265,7 +274,7 @@ export function createStudioPdd(deps) {
     armed = null; // uso único: daqui em diante o gesto foi consumido
     running = true;
     inflight = { captureId: a.captureId, controller: a.controller, tabId: a.tabId, windowId: tab.windowId, switched: false, cancelled: false,
-      revoked: null, origin: a.origin, profile: a.profile };
+      revoked: null, origin: a.origin, profile: a.profile, policy: a.policy };
     try {
       const out = await shoot(a, tab);
       await sameTab(); // conferência final: cancelamento ou troca durante a sanitização → nada é publicado
@@ -309,8 +318,26 @@ export function createStudioPdd(deps) {
     const ev = policy.evaluate(await policy.tabUrl(f.tabId).catch(() => null));
     if (!ev.allowed) throw codeError(ev.reason === 'PERMISSION_REQUIRED' ? 'PERMISSION_REVOKED' : 'VISUAL_CAPTURE_NOT_ALLOWED');
     if (ev.origin !== f.origin) throw codeError('ORIGIN_CHANGED');
-    const profile = visualProfile(ev, ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null);
+    const c = ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
+    const profile = visualProfile(ev, c);
     if (profile !== f.profile) throw codeError(f.profile === 'AUTHORIZED_SITE' && ev.kind === 'AUTHORIZED' ? 'PDD_CONSENT_REVOKED' : 'VISUAL_CAPTURE_NOT_ALLOWED');
+    if (!levelAllows(profile, f.policy, c)) throw codeError('PDD_CONSENT_REVOKED'); // o print integral foi rebaixado para mascarado
+  }
+
+  /**
+   * v5: os frames só ficam como na página se TODO frame da aba respondeu que não mostra campo de senha. Frame sem o
+   * content script (sem acesso do Chrome, about:blank) ou que não responde conta como "pode ter senha": os frames saem
+   * cobertos (BLOCK). Saber qual iframe é qual frame do Chrome seria frágil; cobrir todos é o lado seguro.
+   */
+  async function framesWithoutSecrets(tabId) {
+    const frames = await chromeApi.webNavigation.getAllFrames({ tabId }).catch(() => null);
+    if (!Array.isArray(frames)) return false;
+    for (const f of frames) {
+      if (f.frameId === 0) continue;
+      const r = await toContent(tabId, 'cs.pdd.secrets', {}, f.frameId).catch(() => null);
+      if (!r || r.ok !== true || r.secrets !== 0) return false;
+    }
+    return true;
   }
 
   async function shoot(a, tab) {
@@ -348,8 +375,9 @@ export function createStudioPdd(deps) {
     if (a.policy === VISUAL_POLICY_V3) return describeV3(a, resolved);
     // 2. plano visual + retângulos dos alvos, na MESMA ficha de layout
     const v2 = a.policy === VISUAL_POLICY_V2;
-    const v4 = a.policy === VISUAL_POLICY_V4; // STUDIO-013: print real com o texto de dados mascarado
-    const asked = v2 || v4 ? { policy: a.policy } : {};
+    const v5 = a.policy === VISUAL_POLICY_V5; // revisão da usuária: print integral (só senhas cobertas)
+    const v4 = a.policy === VISUAL_POLICY_V4 || v5; // STUDIO-013: print real com o texto de dados mascarado — a v5 usa as mesmas máscaras
+    const asked = v2 || v4 ? { policy: a.policy, ...(v5 ? { blockFrames: !(await framesWithoutSecrets(a.tabId)) } : {}) } : {};
     const plan = await toContent(a.tabId, 'cs.pdd.plan', asked, 0).catch(() => null);
     if (!plan || !plan.ok || ((v2 || v4) && plan.policy !== a.policy)) throw codeError('CONTENT_UNAVAILABLE');
     if (v4 && plan.incomplete) throw codeError('TOO_MANY_REGIONS'); // página não mapeada inteira: nenhum print parcial
@@ -371,7 +399,7 @@ export function createStudioPdd(deps) {
       if (!after || after.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
       decoded = await imaging.decode(raw);
       raw = null;
-      const regions = v4 ? deviceMasksV4(plan, decoded.width, decoded.height) : v2 ? deviceRegionsV2(plan, decoded.width, decoded.height)
+      const regions = v5 ? deviceMasksV5(plan, decoded.width, decoded.height) : v4 ? deviceMasksV4(plan, decoded.width, decoded.height) : v2 ? deviceRegionsV2(plan, decoded.width, decoded.height)
         : deviceRegions(plan, decoded.width, decoded.height);
       const pixels = v4 ? composeV4(decoded.pixels, decoded.width, decoded.height, regions)
         : v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
@@ -397,7 +425,7 @@ export function createStudioPdd(deps) {
       });
       const limitations = [];
       if (plan.rejected && Object.keys(plan.rejected).length) limitations.push('SOME_LABELS_HIDDEN');
-      if (plan.hasFrames) limitations.push('FRAMES_HIDDEN');
+      if (v5 ? Array.isArray(plan.limitations) && plan.limitations.includes('FRAMES_HIDDEN') : plan.hasFrames) limitations.push('FRAMES_HIDDEN');
       if (v4 && Array.isArray(plan.limitations) && plan.limitations.includes('TABLE_CONTENT_HIDDEN')) limitations.push('TABLE_CONTENT_HIDDEN');
       const outRegions = v4
         ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.ink ? { ink: r.ink } : {}) }))
@@ -406,7 +434,7 @@ export function createStudioPdd(deps) {
         : [...regions.carriers.map((c) => ({ kind: 'CARRIER', x: c.x, y: c.y, width: c.x2 - c.x, height: c.y2 - c.y })),
           ...regions.fields.map((f) => ({ kind: 'FIELD', x: f.x, y: f.y, width: f.x2 - f.x, height: f.y2 - f.y }))];
       return {
-        captureId: a.captureId, status: 'CAPTURED', policy: v4 ? VISUAL_POLICY_V4 : v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
+        captureId: a.captureId, status: 'CAPTURED', policy: v5 ? VISUAL_POLICY_V5 : v4 ? VISUAL_POLICY_V4 : v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
         width: decoded.width, height: decoded.height, devicePixelRatio: plan.viewport.dpr,
         png: base64(png), sha256: await sha256(png),
         regions: outRegions,
@@ -468,8 +496,9 @@ export function createStudioPdd(deps) {
     for (const target of [armed, inflight]) {
       if (!target) continue;
       const ev = policy.evaluate(await policy.tabUrl(target.tabId).catch(() => null));
-      const profile = ev.origin === target.origin ? visualProfile(ev, ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null) : null;
-      if (profile === target.profile) continue;
+      const c = ev.origin === target.origin && ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
+      const profile = ev.origin === target.origin ? visualProfile(ev, c) : null;
+      if (profile === target.profile && levelAllows(profile, target.policy, c)) continue;
       const code = !ev.allowed ? 'PERMISSION_REVOKED' : ev.origin !== target.origin ? 'ORIGIN_CHANGED' : 'PDD_CONSENT_REVOKED';
       if (target === armed) disarm(code);
       else if (!target.revoked) target.revoked = code;

@@ -539,5 +539,49 @@
       hasFrames: !!document.querySelector('iframe, frame, object, embed') };
   }
 
-  NS.pddPlan = Object.freeze({ v2, v3, v4 });
+  /*
+   * Revisão da usuária (19/10/2026) — plano da nekkora-visual/5: PRINT INTEGRAL. Tudo fica como na página, menos:
+   *   FIELD  todo campo de senha, sempre, com folga: type=password, autocomplete de senha, ou nome/id de senha (um campo
+   *          "mostrar senha" vira type=text e continua coberto). Inclui shadow roots; não exige estar visível — cobrir um
+   *          campo invisível só esconde a moldura dele;
+   *   BLOCK  iframe/frame/object/embed, só quando o service worker não confirmou que nenhum frame mostra senha (blockFrames).
+   * Página maior do que o mapeável ou acima dos tetos: a captura FALHA (nunca uma senha sem máscara).
+   */
+  const SECRET_NAME = /senha|password|passwd|pwd|passcode/i;
+
+  function isSecret(el) {
+    if (el.tagName !== 'INPUT') return false;
+    const t = (el.getAttribute('type') || '').toLowerCase();
+    if (t === 'password') return true;
+    if (BUTTON_INPUTS.has(t) || t === 'image' || t === 'hidden' || t === 'checkbox' || t === 'radio') return false;
+    if (/password/i.test(el.getAttribute('autocomplete') || '')) return true;
+    return SECRET_NAME.test(el.getAttribute('name') || '') || SECRET_NAME.test(el.id || '');
+  }
+
+  function v5(vw, vh, blockFrames) {
+    const { list, truncated } = deepElements(V3_SCAN * 2);
+    const m = { BLOCK: [], FIELD: [] };
+    for (const el of list) {
+      const frame = /^(IFRAME|FRAME|OBJECT|EMBED)$/.test(el.tagName);
+      if (!(frame ? blockFrames : isSecret(el))) continue;
+      const b = el.getBoundingClientRect();
+      if (!(b.width > 0 && b.height > 0) || b.right <= 0 || b.bottom <= 0 || b.left >= vw || b.top >= vh) continue;
+      const r = padded(b, vw, vh, PAD);
+      if (r) m[frame ? 'BLOCK' : 'FIELD'].push({ kind: frame ? 'BLOCK' : 'FIELD', ...r });
+    }
+    const incomplete = !!truncated || m.BLOCK.length > V4_MAX.BLOCK || m.FIELD.length > V4_MAX.FIELD;
+    return { regions: [...m.BLOCK, ...m.FIELD], incomplete, limitations: m.BLOCK.length ? ['FRAMES_HIDDEN'] : [],
+      hasFrames: !!document.querySelector('iframe, frame, object, embed') };
+  }
+
+  /** Campos de senha neste documento (frame), inclusive em shadow roots; mapa truncado conta como "tem senha". */
+  function secrets() {
+    const { list, truncated } = deepElements(V3_SCAN * 2);
+    if (truncated) return Number.MAX_SAFE_INTEGER;
+    let n = 0;
+    for (const el of list) if (isSecret(el)) n++;
+    return n;
+  }
+
+  NS.pddPlan = Object.freeze({ v2, v3, v4, v5, secrets });
 })(globalThis);

@@ -28,6 +28,8 @@
   /* nekkora-visual/4 (print real): TODO dado na cor-sentinela — nenhum pixel dela pode sobrar na imagem do PDD */
   .usuario, #menu-lista a[href="#perfil"], td, #mensagem, #link-nome, input:not([type=submit]), select, textarea, #editavel { color: #E6007E; }
   #botao-nome { color: #E6007E; }
+  /* nekkora-visual/5 (print integral): os dados ficam, mas SENHA tem sentinela própria — nenhum pixel dela pode sobrar */
+  input[type=password], #senha-visivel { color: #00B000; }
 </style>
 </head>
 <body>
@@ -46,6 +48,7 @@
     <form id="ficha" onsubmit="return false">
       <p><label for="usuario">Usuário</label><br><input id="usuario" name="usuario" value="ana.souza.sentinela"></p>
       <p><label for="senha">Senha</label><br><input id="senha" type="password" value="S3nh@Lab"></p>
+      <p><input id="senha-visivel" name="nova-senha" value="S3nh@Visivel"></p>
       <p><input id="cpf" placeholder="CPF 123.456.789-09 SENTINELA"></p>
       <p><input id="autofill" autocomplete="email"></p>
       <p><select id="paciente"><option>Ana Souza SENTINELA</option><option selected>Bruno Lima SENTINELA</option></select></p>
@@ -89,7 +92,8 @@
   customElements.define('nk-cartao-fechado', class extends HTMLElement {
     constructor() {
       super();
-      this.attachShadow({ mode: 'closed' }).innerHTML = '<p><button type="button">Cancelar</button> <span style="color:#E6007E">SENTINELA-SOMBRA-FECHADA</span></p>';
+      this.attachShadow({ mode: 'closed' }).innerHTML = '<p><button type="button">Cancelar</button> <span style="color:#E6007E">SENTINELA-SOMBRA-FECHADA</span>'
+        + ' <input type="password" value="F3chad@" style="color:#00B000"></p>';
     }
   });
   document.getElementById('abrir-menu').addEventListener('click', (e) => {
@@ -98,9 +102,11 @@
     e.currentTarget.setAttribute('aria-expanded', String(!l.hidden));
   });
   // iframe de OUTRA origem (site-b, mapeado para 127.0.0.1): só o lugar
-  document.getElementById('externo').src = location.protocol + '//site-b.nekkora.test:' + location.port + '/lab/studio010/frame-sentinela.html';
   // ?menu=1 abre o menu (estado dinâmico); ?mutar=1 muda o DOM sem parar (página "viva" durante a captura)
+  // ?frame=senha: o iframe de outra origem mostra um campo de senha (print integral: os frames saem cobertos)
   const q = new URLSearchParams(location.search);
+  document.getElementById('externo').src = location.protocol + '//site-b.nekkora.test:' + location.port
+    + (q.get('frame') === 'senha' ? '/lab/studio013/frame-senha.html' : '/lab/studio010/frame-sentinela.html');
   if (q.get('menu') === '1') document.getElementById('abrir-menu').click();
   if (q.get('mutar') === '1') {
     let n = 0;

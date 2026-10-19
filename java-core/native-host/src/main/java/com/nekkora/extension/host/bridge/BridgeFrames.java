@@ -12,7 +12,8 @@ import java.nio.charset.StandardCharsets;
  * quadros acima de {@link #MAX_FRAME_BYTES} são recusados (nenhum PageMap ou snapshot passa por aqui).
  *
  * <p>NEKKORA-STUDIO-013 — exceção ÚNICA, só na ESCRITA para o Studio: o evento {@code studio.pdd.captured} da política
- * {@code nekkora-visual/4} (print real com o texto de dados mascarado) leva um PNG maior e pode ter até
+ * {@code nekkora-visual/4} (print real com o texto de dados mascarado) ou {@code nekkora-visual/5} (print integral) leva um PNG
+ * maior e pode ter até
  * {@link #MAX_CAPTURE_FRAME_BYTES}. O host nunca lê do Studio quadros acima do teto de controle.
  */
 public final class BridgeFrames {
@@ -60,8 +61,8 @@ public final class BridgeFrames {
         out.flush();
     }
 
-    /** Mensagem que pode passar do teto de controle: só o evento da captura nekkora-visual/4. */
+    /** Mensagem que pode passar do teto de controle: só o evento da captura nekkora-visual/4 ou /5 (print integral). */
     public static boolean largeAllowed(String kind, String type, String policy) {
-        return "event".equals(kind) && "studio.pdd.captured".equals(type) && "nekkora-visual/4".equals(policy);
+        return "event".equals(kind) && "studio.pdd.captured".equals(type) && ("nekkora-visual/4".equals(policy) || "nekkora-visual/5".equals(policy));
     }
 }

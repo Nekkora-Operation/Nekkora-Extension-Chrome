@@ -1,0 +1,17 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.pdd.consent.grant",
+  "id": "c-13",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "origin": "https://app.exemplo.test:8443",
+    "consent": "REMEMBERED",
+    "actor": "TEST_AGENT",
+    "via": "STUDIO",
+    "grantedAt": "2026-10-19T12:00:00.000Z",
+    "level": "FULL"
+  },
+  "error": null
+}

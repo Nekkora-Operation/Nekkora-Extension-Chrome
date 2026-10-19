@@ -11,8 +11,14 @@
  *     escopo REMEMBERED (escolha explícita): IndexedDB da origem da extensão (fora do alcance de content scripts e da
  *     página). Revogar remove os dois;
  *   - o laboratório local (127.0.0.1/localhost) não precisa de consentimento e não aceita registro.
+ *
+ * nekkora-pdd-consent/2 (revisão da usuária, 19/10/2026) acrescenta o NÍVEL da captura no site:
+ *   - MASKED (padrão): print com o texto de dados mascarado (nekkora-visual/4) ou a descrição sintética (/3);
+ *   - FULL (escolha explícita): também o print integral (nekkora-visual/5), com os dados da tela; só senhas cobertas.
+ * Registro da /1 (sem nível) vale como MASKED. Conceder de novo com outro nível troca o nível (FULL → MASKED rebaixa).
  */
-export const CONSENT_VERSION = 'nekkora-pdd-consent/1';
+export const CONSENT_VERSION = 'nekkora-pdd-consent/2';
+export const LEVELS = Object.freeze(['MASKED', 'FULL']);
 export const SCOPES = Object.freeze(['SESSION', 'REMEMBERED']);
 export const ACTORS = Object.freeze(['DEVELOPER', 'TEST_AGENT']);
 export const VIA = Object.freeze(['STUDIO', 'EXTENSION']);
@@ -89,7 +95,8 @@ export function createPddConsent(deps = {}) {
     if (!r || typeof r !== 'object') return null;
     const origin = canonicalOrigin(r.origin);
     if (!origin || r.scope !== scope || !ACTORS.includes(r.actor) || !VIA.includes(r.via) || typeof r.grantedAt !== 'string') return null;
-    return { origin, scope, actor: r.actor, via: r.via, grantedAt: r.grantedAt.slice(0, 40) };
+    if (r.level != null && !LEVELS.includes(r.level)) return null; // nível desconhecido: registro descartado (fail-closed)
+    return { origin, scope, level: r.level || 'MASKED', actor: r.actor, via: r.via, grantedAt: r.grantedAt.slice(0, 40) };
   }
 
   function saveSession() {
@@ -113,15 +120,16 @@ export function createPddConsent(deps = {}) {
     return remembered.get(origin) || session.get(origin) || null;
   }
 
-  async function grant(originValue, scope, actor, via) {
+  async function grant(originValue, scope, actor, via, level = 'MASKED') {
     await load();
     const origin = canonicalOrigin(originValue);
     if (!origin) throw codeError('BAD_REQUEST', 'origem inválida para consentimento');
     if (!SCOPES.includes(scope)) throw codeError('BAD_REQUEST', 'escopo inválido');
     if (!ACTORS.includes(actor)) throw codeError('BAD_REQUEST', 'quem decide é inválido');
     if (!VIA.includes(via)) throw codeError('BAD_REQUEST', 'canal inválido');
+    if (!LEVELS.includes(level)) throw codeError('BAD_REQUEST', 'nível inválido');
     if (!get(origin) && session.size + remembered.size >= MAX_CONSENTS) throw codeError('INVALID_STATE', 'limite de sites autorizados');
-    const rec = { origin, scope, actor, via, grantedAt: new Date(now()).toISOString() };
+    const rec = { origin, scope, level, actor, via, grantedAt: new Date(now()).toISOString() };
     if (scope === 'REMEMBERED') {
       await persistent.put(rec); // falha de gravação = sem consentimento lembrado (o erro sobe)
       remembered.set(origin, rec);
@@ -135,7 +143,7 @@ export function createPddConsent(deps = {}) {
       session.set(origin, rec);
     }
     await saveSession();
-    emit({ type: 'granted', origin, scope });
+    emit({ type: 'granted', origin, scope, level });
     return { ...rec };
   }
 

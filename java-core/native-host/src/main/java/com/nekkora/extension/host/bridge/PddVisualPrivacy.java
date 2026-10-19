@@ -85,6 +85,10 @@ final class PddVisualPrivacy {
             checkV4(p);
             return;
         }
+        if (POLICY_V5.equals(policy)) {
+            checkV5(p);
+            return;
+        }
         if (POLICY_V2.equals(policy)) {
             checkV2(p);
             return;
@@ -243,6 +247,9 @@ final class PddVisualPrivacy {
     static final int V4_BLOCK_FILL = 0xEDF0F3;
     static final int V4_BLOCK_BORDER = 0xC9D1D9;
     static final Map<String, Integer> V4_BARS = Map.of("DARK", 0xC8CFD8, "LIGHT", 0x8792A2);
+    /** Revisão da usuária: print integral — a tela como está, só senhas (FIELD) e, se preciso, frames (BLOCK) cobertos. */
+    static final String POLICY_V5 = "nekkora-visual/5";
+    static final List<String> V5_KINDS = List.of("BLOCK", "FIELD");
     static final List<String> V4_PAYLOAD = List.of("captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256",
             "regions", "annotations", "limitations");
 
@@ -251,6 +258,15 @@ final class PddVisualPrivacy {
      * REPINTA cada uma — todo pixel dentro delas precisa ser exatamente a cor da máscara (fora, os pixels são da tela).
      */
     static void checkV4(ObjectNode p) {
+        checkMasks(p, V4_KINDS);
+    }
+
+    /** v5 (print integral): as mesmas conferências da v4, mas TEXT não existe — só as máscaras de senha e de frame. */
+    static void checkV5(ObjectNode p) {
+        checkMasks(p, V5_KINDS);
+    }
+
+    private static void checkMasks(ObjectNode p, List<String> kinds) {
         p.fieldNames().forEachRemaining(f -> {
             if (!V4_PAYLOAD.contains(f)) throw new IllegalArgumentException("campo");
         });
@@ -274,7 +290,7 @@ final class PddVisualPrivacy {
         for (JsonNode r : p.path("regions")) {
             String kind = r.path("kind").asText();
             int k = V4_KINDS.indexOf(kind);
-            if (k < 0 || k < rank) throw new IllegalArgumentException("tipo/ordem");
+            if (k < 0 || k < rank || !kinds.contains(kind)) throw new IllegalArgumentException("tipo/ordem");
             rank = k;
             if (count.merge(kind, 1, Integer::sum) > V4_MAX.get(kind)) throw new IllegalArgumentException("regiões");
             r.fieldNames().forEachRemaining(f -> {

@@ -166,3 +166,73 @@ elementos, 600 linhas, 128 campos, 96 blocos), a captura **falha** com `TOO_MANY
 
 **Política pedida pelo Studio.** O Studio pede a v4 à extensão 0.6.0, no laboratório e em site autorizado. A v3 continua
 no contrato (`POLICIES_BY_PROFILE`: o site autorizado aceita v3 e v4) e a v2 continua fora dos sites.
+
+## D-S013-09 — duas opções por site: print mascarado (v4) e print integral (`nekkora-visual/5`) (decisão da usuária, 19/10/2026)
+
+**Contexto.** Potenciais clientes aprovaram o print mascarado (v4) e pediram também a opção que mostra tudo. A usuária
+decidiu ter as duas:
+
+- **Print mascarado** (`nekkora-visual/4`) continua o **padrão**.
+- **Print integral** (`nekkora-visual/5`) é escolha **explícita, por site**, e cada captura pode sair mascarada.
+- **Senha:** todo campo de senha sai coberto **sempre**, mesmo no print integral.
+
+**Regra da missão.** A regra "dados pessoais não aparecem no PDF" passa a valer para o print mascarado. No print
+integral, os dados da tela vão para o PDF por decisão de quem libera o site, e a revisão antes de compartilhar fica com
+quem exporta. A decisão é da usuária e fica registrada aqui.
+
+**Consentimento `nekkora-pdd-consent/2`.**
+- **Nível:** cada consentimento tem `level`, `MASKED` (padrão) ou `FULL`. Um registro da /1 (sem nível) vale `MASKED`.
+  Um nível desconhecido descarta o registro (fail-closed).
+- **Quem decide:** só a interface confiável concede o `FULL`. No Studio, há uma confirmação real antes. No painel da
+  extensão, a confirmação fica dentro do próprio painel. O content script continua sem comando para isso.
+- **Rebaixar:** conceder de novo com `MASKED` rebaixa o site. Rebaixar ou revogar com uma v5 armada ou em curso termina
+  em `PDD_CONSENT_REVOKED`, sem imagem.
+
+**Perfil.** O perfil continua `AUTHORIZED_SITE`: o Studio tem uma lista fechada de perfis, e um perfil novo quebraria
+Studios anteriores. A v5 entra em `POLICIES_BY_PROFILE`, e `levelAllows` exige o nível `FULL` em três momentos: na
+armação (senão `PDD_FULL_REQUIRED`), antes e depois da captura, e em toda mudança de consentimento. O laboratório local
+aceita a v5 sem consentimento.
+
+**O que a v5 é.** A tela capturada como está. Por cima, só duas máscaras da v4, com a mesma pintura e a mesma verificação
+pixel a pixel nas três camadas (extensão, Native Host `checkV5`, Studio `verifyV5`):
+
+| Máscara | O que cobre |
+|---|---|
+| `FIELD` | Todo campo de senha: `type=password`, `autocomplete` de senha, ou nome/id de senha (`senha`, `password`, `passwd`, `pwd`, `passcode`). Um "mostrar senha" que troca o campo para `type=text` continua coberto. Inclui shadow roots abertas e fechadas, e não exige que o campo esteja visível |
+| `BLOCK` | iframe, frame, object e embed, **só** quando não se confirmou que nenhum frame da aba mostra senha |
+
+`TEXT` não existe na v5. A extensão, o host e o Studio recusam uma máscara de texto (`REGION_KIND_UNKNOWN`).
+
+**Senha dentro de frame.** O plano é pedido ao frame do topo. Antes, o service worker pergunta a **cada** frame da aba
+(`webNavigation.getAllFrames` + `cs.pdd.secrets`, que devolve só a contagem) se há campo de senha:
+
+- **Todos respondem zero:** os frames saem como na página.
+- **Algum tem senha, não responde, ou a lista falha:** **todos** os frames visíveis saem cobertos (`BLOCK` +
+  `FRAMES_HIDDEN`). Não responder inclui frame sem acesso do Chrome e `about:blank`. Mapear qual iframe é qual frame do
+  Chrome seria frágil; cobrir todos é o lado seguro.
+
+**Falha em vez de vazar.** Página maior do que o mapeável ou acima dos tetos de máscaras: `TOO_MANY_REGIONS`, antes do
+`captureVisibleTab`. Bridge: a exceção de tamanho da v4 vale também para a v5.
+
+**Studio.**
+- **Ao autorizar:** a pessoa escolhe a imagem do site, "Print mascarado (recomendado)" ou "Print integral". O integral
+  pede confirmação ("Liberar o print integral neste site?"); Cancelar não autoriza nada.
+- **Site já autorizado:** "Liberar print integral neste site" ou "Voltar ao print mascarado neste site". Voltar não pede
+  confirmação.
+- **Num site integral:** "Mascarar esta captura" arma a v4 só para aquela captura.
+- **Imagem v5:** leva o selo "Print integral: dados reais da tela".
+- **Exportar:** com qualquer imagem v5, o Studio pede confirmação ("Exportar com print integral?"); Cancelar não gera
+  PDF. O PDF declara o print integral na procedência e numa nota em cada bloco.
+
+**Provas.**
+- **Sentinela de dados:** todo dado da página adversarial tem a cor #E6007E e, no print integral, **aparece** (milhares
+  de px).
+- **Sentinela de senha:** toda senha tem a cor própria #00B000 ("mostrar senha", shadow root fechada e senha dentro de
+  iframe de outra origem, com `?frame=senha`), e **nenhum** pixel dela chega ao print nem ao PDF, embora a tela bruta (só
+  em memória) tenha.
+- **Detector:** conta só o miolo saturado (`g > 120`, `r < 100`, `b < 100`). A franja verde clara do antisserrilhado
+  subpixel de texto preto (ex.: #AAEFAA) não é senha.
+
+**Limite declarado.** No print integral, tudo o que a tela mostra vai para o PDF, exceto senhas. Texto de senha fora de
+campo (ex.: senha escrita num parágrafo ou numa imagem) não é reconhecido. Metadados, rascunho e logs continuam sem
+nenhum dado da página.

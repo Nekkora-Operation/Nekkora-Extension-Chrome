@@ -59,14 +59,14 @@ test('origem de consentimento: só a forma canônica http(s) — sem caminho, qu
   assert.equal(originOf('https://app.exemplo.test:8443/pacientes/123?token=abc#ficha'), 'https://app.exemplo.test:8443');
 });
 
-test('consentimento SESSION (padrão) e REMEMBERED: registro só com origem/escopo/quem/por onde/quando; revogar apaga os dois', async () => {
+test('consentimento SESSION (padrão) e REMEMBERED: registro só com origem/escopo/nível/quem/por onde/quando; revogar apaga os dois', async () => {
   const ch = fakeChrome();
   const store = fakePersistent();
   const c = createPddConsent({ chrome: ch, persistent: store, now: () => Date.UTC(2026, 9, 19) });
   await c.grant('https://app.exemplo.test', 'SESSION', 'DEVELOPER', 'STUDIO');
   assert.equal(c.get('https://app.exemplo.test').scope, 'SESSION');
   assert.equal(store.rows.size, 0, 'sessão não vai para o armazenamento persistente');
-  assert.deepEqual(Object.keys(ch.session['nk.pdd.consent']['https://app.exemplo.test']).sort(), ['actor', 'grantedAt', 'origin', 'scope', 'via']);
+  assert.deepEqual(Object.keys(ch.session['nk.pdd.consent']['https://app.exemplo.test']).sort(), ['actor', 'grantedAt', 'level', 'origin', 'scope', 'via']);
   await c.grant('https://app.exemplo.test:8443', 'REMEMBERED', 'TEST_AGENT', 'EXTENSION');
   assert.equal(store.rows.get('https://app.exemplo.test:8443').actor, 'TEST_AGENT');
   // rebaixar para sessão apaga o lembrado
@@ -124,7 +124,7 @@ test('perfil: origem EXATA — esquema, porta e subdomínio diferentes não herd
   }
   assert.equal(denialReason(ev('https://app.exemplo.test', false), consent), 'PERMISSION_REQUIRED');
   assert.equal(denialReason({ allowed: false, reason: 'BROWSER_RESTRICTED' }, null), 'BROWSER_RESTRICTED');
-  assert.deepEqual([...POLICIES_BY_PROFILE.AUTHORIZED_SITE], ['nekkora-visual/3', 'nekkora-visual/4'], 'a v2 (rótulos reais sem máscara de texto) nunca');
+  assert.deepEqual([...POLICIES_BY_PROFILE.AUTHORIZED_SITE], ['nekkora-visual/3', 'nekkora-visual/4', 'nekkora-visual/5'], 'a v2 (rótulos reais sem máscara de texto) nunca; a v5 depende do nível FULL');
   assert.ok(POLICIES_BY_PROFILE.LAB.includes('nekkora-visual/2'));
 });
 
@@ -536,4 +536,165 @@ test('v4 no site autorizado: captura com o gesto, máscaras verificadas, PNG no 
       assert.equal(shots, 0, 'nada é capturado com o plano incompleto');
     }
   }
+});
+
+// ------------------------------------------------------------------------------------------------ v5: print integral (revisão da usuária)
+
+/** deps() com webNavigation: `frames` = [{ frameId, secrets | null (sem resposta) }] além do principal. */
+function depsV5(frames, over = {}) {
+  const d = deps(over);
+  d.chrome = { ...d.chrome, webNavigation: { getAllFrames: async () => (frames === 'ERRO' ? null : [{ frameId: 0 }, ...frames.map((f) => ({ frameId: f.frameId }))]) } };
+  const base = d.toContent;
+  d.toContent = async (tabId, cmd, a, frameId = 0) => {
+    if (cmd === 'cs.pdd.secrets') {
+      const f = frames.find((x) => x.frameId === frameId);
+      if (!f || f.secrets == null) throw new Error('CONTENT_UNAVAILABLE');
+      contentCalls.push(cmd + '@' + frameId);
+      return { ok: true, secrets: f.secrets };
+    }
+    return base(tabId, cmd, a);
+  };
+  return d;
+}
+
+const PASS = { kind: 'FIELD', x: 10, y: 60, width: 80, height: 20 };
+const FRAME = { kind: 'BLOCK', x: 100, y: 0, width: 100, height: 50 };
+
+function planV5(regions, extra = {}) {
+  return { ...planV4(regions, 1, extra), policy: 'nekkora-visual/5', limitations: regions.some((r) => r.kind === 'BLOCK') ? ['FRAMES_HIDDEN'] : [], ...extra };
+}
+
+const imagingV5 = (sink) => ({
+  decode: async () => ({ width: 200, height: 100, pixels: screen(200, 100), release() {} }),
+  encode: async (px) => { sink.px = new Uint8ClampedArray(px); return new Uint8Array([137, 80, 78, 71, 5]); },
+});
+
+test('v5 consentimento: nível MASKED por padrão; FULL só pedido; registro da /1 (sem nível) vale MASKED; nível desconhecido é descartado', async () => {
+  const ch = fakeChrome();
+  const pers = fakePersistent();
+  const c = createPddConsent({ chrome: ch, persistent: pers, now: () => clock });
+  assert.equal((await c.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO')).level, 'MASKED');
+  assert.equal((await c.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO', 'FULL')).level, 'FULL');
+  assert.equal(c.get(SITE).level, 'FULL');
+  assert.equal((await c.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO', 'MASKED')).level, 'MASKED', 'conceder de novo rebaixa');
+  await assert.rejects(c.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO', 'TOTAL'), { code: 'BAD_REQUEST' });
+  pers.rows.set('https://velho.exemplo.test', { origin: 'https://velho.exemplo.test', scope: 'REMEMBERED', actor: 'DEVELOPER', via: 'STUDIO', grantedAt: 'x' });
+  pers.rows.set('https://ruim.exemplo.test', { origin: 'https://ruim.exemplo.test', scope: 'REMEMBERED', level: 'TUDO', actor: 'DEVELOPER', via: 'STUDIO', grantedAt: 'x' });
+  const again = createPddConsent({ chrome: ch, persistent: pers, now: () => clock });
+  await again.load();
+  assert.equal(again.get('https://velho.exemplo.test').level, 'MASKED');
+  assert.equal(again.get('https://ruim.exemplo.test'), null);
+  assert.equal(again.get(SITE).level, 'MASKED');
+});
+
+test('v5 armação: site MASKED recusa (PDD_FULL_REQUIRED); FULL arma; v4 continua valendo no FULL; laboratório arma a v5 sem consentimento', async () => {
+  const pdd = createStudioPdd(depsV5([]));
+  await GRANT(pdd);
+  await assert.rejects(ARM(pdd, { policy: 'nekkora-visual/5' }), { code: 'VISUAL_CAPTURE_NOT_ALLOWED', reason: 'PDD_FULL_REQUIRED' });
+  await assert.rejects(GRANT(pdd, { level: 'TOTAL' }), { code: 'BAD_REQUEST' });
+  const g = await GRANT(pdd, { level: 'FULL' });
+  assert.equal(g.level, 'FULL');
+  const st = await pdd.COMMANDS['studio.pdd.consent.status']({ tabRef: 't-AbaSite002' });
+  assert.equal(st.level, 'FULL');
+  assert.deepEqual((await pdd.COMMANDS['studio.pdd.consent.list']({})).consents.map((c) => c.level), ['FULL']);
+  const r = await ARM(pdd, { policy: 'nekkora-visual/5' });
+  assert.deepEqual([r.armed, r.policy, r.profile], [true, 'nekkora-visual/5', 'AUTHORIZED_SITE']);
+  await pdd.COMMANDS['studio.pdd.capture.cancel']({ captureId: 'c1' }, 'studio-a');
+  assert.equal((await ARM(pdd, { policy: 'nekkora-visual/4', captureId: 'c2' })).policy, 'nekkora-visual/4');
+  await pdd.COMMANDS['studio.pdd.capture.cancel']({ captureId: 'c2' }, 'studio-a');
+  activeTab = 1;
+  const lab = await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c3', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000,
+    policy: 'nekkora-visual/5', origin: 'http://127.0.0.1:18765' }, 'studio-a');
+  assert.equal(lab.profile, 'LAB');
+});
+
+test('v5 ponta a ponta: a tela sai como está, só a senha coberta; frames sem senha confirmados ficam reais; PNG verificado', async () => {
+  const sink = {};
+  let asked = null;
+  content = (cmd, a) => {
+    if (cmd === 'cs.pdd.plan') { asked = a; return a.policy === 'nekkora-visual/5' ? planV5(a.blockFrames ? [FRAME, PASS] : [PASS]) : { ok: false }; }
+    if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [{ nodeId: 'n1', x: 10, y: 60, width: 80, height: 20 }] };
+    return { ok: true, token: 't1' };
+  };
+  const pdd = createStudioPdd(depsV5([{ frameId: 4, secrets: 0 }, { frameId: 7, secrets: 0 }], { imaging: imagingV5(sink) }));
+  await GRANT(pdd, { level: 'FULL' });
+  await ARM(pdd, { policy: 'nekkora-visual/5' });
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 2, windowId: 9 }), { captured: true });
+  assert.deepEqual(asked, { policy: 'nekkora-visual/5', blockFrames: false });
+  assert.ok(contentCalls.includes('cs.pdd.secrets@4') && contentCalls.includes('cs.pdd.secrets@7'));
+  const [ev] = events();
+  assert.deepEqual([ev.status, ev.policy, shots], ['CAPTURED', 'nekkora-visual/5', 1]);
+  assert.deepEqual(ev.regions.map((r) => r.kind), ['FIELD']);
+  assert.ok(!ev.limitations.includes('FRAMES_HIDDEN'));
+  const masks = S.deviceMasksV5(planV5([PASS]), 200, 100);
+  assert.equal(S.violationsV4(sink.px, 200, 100, masks), 0, 'a senha coberta, pixel a pixel');
+  let real = 0;
+  for (let k = 0; k < sink.px.length; k += 4) if (sink.px[k] === SENT[0] && sink.px[k + 1] === SENT[1] && sink.px[k + 2] === SENT[2]) real++;
+  assert.equal(real, 200 * 100 - 80 * 20, 'todo o resto é a tela real (dados inclusive)');
+});
+
+test('v5 com frames: senha num frame, frame sem resposta ou falha ao listar os frames → TODOS os frames cobertos (FRAMES_HIDDEN)', async () => {
+  for (const frames of [[{ frameId: 4, secrets: 1 }], [{ frameId: 4, secrets: 0 }, { frameId: 5, secrets: null }], 'ERRO']) {
+    posted = [];
+    shots = 0;
+    let asked = null;
+    content = (cmd, a) => {
+      if (cmd === 'cs.pdd.plan') { asked = a; return planV5(a.blockFrames ? [FRAME, PASS] : [PASS]); }
+      if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [] };
+      return { ok: true, token: 't1' };
+    };
+    const pdd = createStudioPdd(depsV5(frames, { imaging: imagingV5({}) }));
+    await GRANT(pdd, { level: 'FULL' });
+    await ARM(pdd, { policy: 'nekkora-visual/5' });
+    await pdd.onShortcut('nk-pdd-capturar', { id: 2, windowId: 9 });
+    assert.equal(asked.blockFrames, true, JSON.stringify(frames));
+    const [ev] = events();
+    assert.deepEqual(ev.regions.map((r) => r.kind), ['BLOCK', 'FIELD']);
+    assert.ok(ev.limitations.includes('FRAMES_HIDDEN'));
+  }
+});
+
+test('v5 rebaixada para MASKED com a captura ARMADA ou EM CURSO: PDD_CONSENT_REVOKED, nenhuma imagem; plano v5 com TEXT é recusado', async () => {
+  let pdd = createStudioPdd(depsV5([], { imaging: imagingV5({}) }));
+  consent.onChange(() => pdd.onAccessChanged());
+  await GRANT(pdd, { level: 'FULL' });
+  await ARM(pdd, { policy: 'nekkora-visual/5' });
+  await GRANT(pdd, { level: 'MASKED' });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(pdd.state().armed, false);
+  assert.deepEqual(events().map((e) => e.code), ['PDD_CONSENT_REVOKED']);
+
+  posted = [];
+  consent = createPddConsent({ chrome: fakeChrome(), persistent: fakePersistent(), now: () => clock });
+  pdd = createStudioPdd(depsV5([], { imaging: imagingV5({}) }));
+  await GRANT(pdd, { level: 'FULL' });
+  await ARM(pdd, { policy: 'nekkora-visual/5' });
+  content = (cmd) => {
+    if (cmd === 'cs.pdd.plan') {
+      consent.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO', 'MASKED').then(() => pdd.onAccessChanged()); // rebaixado no meio do plano
+      return planV5([PASS]);
+    }
+    if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [] };
+    return { ok: true, token: 't1' };
+  };
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 2, windowId: 9 }), { failed: 'PDD_CONSENT_REVOKED' });
+  assert.equal(shots, 0);
+
+  // sem o ouvinte de mudanças (evento perdido): a conferência antes da captura (sameAuthorization) segura sozinha
+  posted = [];
+  consent = createPddConsent({ chrome: fakeChrome(), persistent: fakePersistent(), now: () => clock });
+  pdd = createStudioPdd(depsV5([], { imaging: imagingV5({}) }));
+  await GRANT(pdd, { level: 'FULL' });
+  await ARM(pdd, { policy: 'nekkora-visual/5' });
+  content = (cmd) => {
+    if (cmd === 'cs.pdd.plan') {
+      consent.grant(SITE, 'SESSION', 'DEVELOPER', 'STUDIO', 'MASKED'); // rebaixado no meio do plano, SEM avisar o módulo
+      return planV5([PASS]);
+    }
+    if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [] };
+    return { ok: true, token: 't1' };
+  };
+  assert.deepEqual(await pdd.onShortcut('nk-pdd-capturar', { id: 2, windowId: 9 }), { failed: 'PDD_CONSENT_REVOKED' });
+  assert.equal(shots, 0, 'nenhum print integral depois do rebaixamento');
+  assert.throws(() => S.deviceMasksV5(planV5([PASS, { kind: 'TEXT', x: 0, y: 0, width: 5, height: 5, ink: 'DARK' }]), 200, 100), { code: 'REGION_KIND_UNKNOWN' });
 });

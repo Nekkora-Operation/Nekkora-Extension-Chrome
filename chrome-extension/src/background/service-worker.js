@@ -122,7 +122,8 @@ const commands = {
     const v = policy.evaluate(await policy.tabUrl(a.tabId));
     const c = v.allowed && v.kind === 'AUTHORIZED' ? pddConsent.get(v.origin) : null;
     return { origin: v.allowed ? v.origin : null, access: v.allowed ? v.kind : v.reason,
-      consent: !v.allowed ? 'NONE' : v.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', actor: c ? c.actor : null, via: c ? c.via : null,
+      consent: !v.allowed ? 'NONE' : v.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', level: c ? c.level : null, actor: c ? c.actor : null,
+      via: c ? c.via : null,
       visualCapture: visualProfile(v, c), reason: denialReason(v, c) };
   },
   'pdd.consent.grant': async (a) => {
@@ -133,7 +134,7 @@ const commands = {
     if (a.origin !== v.origin) {
       throw new HostError('VISUAL_CAPTURE_NOT_ALLOWED', 'A aba mudou de origem: confira o site e tente de novo.');
     }
-    return pddConsent.grant(v.origin, a.scope === 'REMEMBERED' ? 'REMEMBERED' : 'SESSION', 'DEVELOPER', 'EXTENSION');
+    return pddConsent.grant(v.origin, a.scope === 'REMEMBERED' ? 'REMEMBERED' : 'SESSION', 'DEVELOPER', 'EXTENSION', a.level === 'FULL' ? 'FULL' : 'MASKED');
   },
   'pdd.consent.revoke': async (a) => pddConsent.revoke(a.origin),
   'pdd.consent.list': async () => ({ consents: await pddConsent.list() }),

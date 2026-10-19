@@ -81,13 +81,15 @@ test('post envia mensagens de controle sem correlação; ouvintes de conexão a 
   await assert.rejects(client.post({ big: 'x'.repeat(300 * 1024) }), /MESSAGE_TOO_LARGE/);
 });
 
-test('STUDIO-013: só o print da nekkora-visual/4 passa do teto de controle (até 12 MiB); qualquer outra mensagem grande é recusada', async () => {
+test('STUDIO-013: só o print da nekkora-visual/4 ou /5 passa do teto de controle (até 12 MiB); qualquer outra mensagem grande é recusada', async () => {
   const port = fakePort();
   const client = new NativeClient({ connect: () => port });
   const big = 'A'.repeat(600 * 1024);
   const ev = (policy, event = 'studio.pdd.captured') => ({ protocol: 'nekkora-nm/1', type: 'studio.event', event, payload: { policy, png: big },
     controller: { instanceId: 'a' } });
   await client.post(ev('nekkora-visual/4'));
+  await client.post(ev('nekkora-visual/5')); // print integral (revisão da usuária)
+  await assert.rejects(client.post(ev('nekkora-visual/3')), /MESSAGE_TOO_LARGE/);
   await assert.rejects(client.post(ev('nekkora-visual/2')), /MESSAGE_TOO_LARGE/);
   await assert.rejects(client.post(ev('nekkora-visual/4', 'studio.recording.step')), /MESSAGE_TOO_LARGE/);
   await assert.rejects(client.post({ ...ev('nekkora-visual/4'), type: 'studio.reply' }), /MESSAGE_TOO_LARGE/);

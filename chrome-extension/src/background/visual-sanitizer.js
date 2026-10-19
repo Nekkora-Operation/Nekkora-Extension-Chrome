@@ -167,7 +167,7 @@ function same(r, g, b, c) {
  * portadores seja exatamente a cor esperada naquele ponto (a v1 aceitava qualquer das 3 cores em qualquer lugar).
  */
 export const VISUAL_POLICY_V2 = 'nekkora-visual/2';
-export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, 'nekkora-visual/3', 'nekkora-visual/4']);
+export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, 'nekkora-visual/3', 'nekkora-visual/4', 'nekkora-visual/5']);
 export const V2_PAGE = Object.freeze([255, 255, 255]);
 export const V2_TONES = Object.freeze({ LIGHT: Object.freeze([244, 246, 248]), MID: Object.freeze([230, 234, 238]), DARK: Object.freeze([91, 102, 117]) });
 export const V2_SURFACE_BORDER = Object.freeze([201, 209, 217]); // #C9D1D9
@@ -515,6 +515,24 @@ export function violationsV4(pixels, width, height, masks) {
     if (pixels[k + 3] !== 255 || pixels[k] !== ((c >> 16) & 255) || pixels[k + 1] !== ((c >> 8) & 255) || pixels[k + 2] !== (c & 255)) bad++;
   }
   return bad;
+}
+
+/*
+ * Revisão da usuária (19/10/2026) — política nekkora-visual/5: PRINT INTEGRAL. A imagem é a tela capturada como está,
+ * dados inclusive; só pode ser pedida num site cujo consentimento PDD tem o nível FULL (escolha explícita, por site). Por
+ * cima, só duas máscaras da v4, com a mesma pintura e a mesma verificação pixel a pixel:
+ *   BLOCK  frames, só quando não se confirmou que nenhum frame da aba mostra um campo de senha;
+ *   FIELD  todo campo de senha (sempre coberto, mesmo no print integral).
+ */
+export const VISUAL_POLICY_V5 = 'nekkora-visual/5';
+export const V5_KINDS = Object.freeze(['BLOCK', 'FIELD']);
+
+/** Plano v5 → máscaras em px do dispositivo: as regras da v4, sem TEXT. */
+export function deviceMasksV5(plan, width, height) {
+  for (const r of Array.isArray(plan && plan.regions) ? plan.regions : []) {
+    if (!V5_KINDS.includes(r && r.kind)) throw codeError('REGION_KIND_UNKNOWN');
+  }
+  return deviceMasksV4(plan, width, height);
 }
 
 export function codeError(code) {

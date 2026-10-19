@@ -9,7 +9,7 @@ Decisões: [`decisions.md`](decisions.md). Resultados das execuções: [`RESULTA
 |---|---|
 | A captura fora do laboratório só valia para origens compiladas em `BENCHMARK_ORIGINS` (`https://rpachallenge.com`) | Qualquer origem http/https com **acesso do Chrome** e **consentimento PDD próprio**, concedido pela interface, por origem exata, sem editar código |
 | O consentimento era implícito (estar na lista) | O consentimento é explícito: sessão (padrão) ou "lembrar este site". Revogável pelo Studio ou pelo painel, e apagado quando o Chrome deixa de permitir o site |
-| Fora do laboratório valia a `nekkora-visual/2`, que copia pixels reais dos rótulos | Fora do laboratório vale **só** a `nekkora-visual/3`: descrição sintética, sem `captureVisibleTab` e sem imagem |
+| Fora do laboratório valia a `nekkora-visual/2`, que copia pixels reais dos rótulos | Fora do laboratório valem a `nekkora-visual/3` (descrição sintética, sem `captureVisibleTab`), a **`/4`** (print real com o texto de dados mascarado, o que o Studio pede; D-S013-08) e a **`/5`** (print integral, só num site com o nível `FULL`; D-S013-09). A v2 continua fora |
 | Revogar a permissão do Chrome não derrubava uma captura armada | Revogar a permissão do Chrome ou o consentimento derruba a armação e a captura em curso |
 
 ## Arquivos
@@ -22,13 +22,30 @@ Decisões: [`decisions.md`](decisions.md). Resultados das execuções: [`RESULTA
 | `chrome-extension/src/background/visual-sanitizer.js` | `validateV3`: 1ª barreira da v3 (tipos, campos por tipo, ordem, tetos, geometria inteira, barras quantizadas, rótulo pelo vocabulário) |
 | `chrome-extension/src/content/pdd-plan.js` | Plano v3 no content script: shadow roots abertas e fechadas, campos sempre vazios, barras no lugar de texto, rótulos só do vocabulário, nada de dentro de tabela |
 | `chrome-extension/src/background/service-worker.js`, `src/ui/panel.*` | Seção "Captura do PDD" do painel (autorizar, lembrar, revogar, lista de sites) e ligação das revogações do Chrome |
-| `java-core/native-host/.../PddVisualPrivacy.java` | `checkV3`: 3ª barreira, com a política Java `CapturePrivacyPolicy.interfaceText` |
+| `java-core/native-host/.../PddVisualPrivacy.java` | `checkV3`: 3ª barreira, com a política Java `CapturePrivacyPolicy.interfaceText`. `checkV4`/`checkV5`: repintura das máscaras (a v5 só aceita `FIELD` e `BLOCK`) |
+| `chrome-extension/src/background/native-client.js`, `java-core/native-host/.../BridgeFrames.java` | Exceção única ao teto de controle de 256 KiB: só o evento `studio.pdd.captured` v4 ou v5, até 12 MiB |
 | `java-core/native-host/.../BridgeContract.java`, `contracts/studio-bridge.schema.json` | Comandos `studio.pdd.consent.status/grant/revoke/list`, campos `origin`/`pddConsent` das abas, `origin` na armação e payload v3. Fixtures `s013-*` |
 | `manifest.json` | 0.6.0, descrições atualizadas. **Nenhuma permissão nova**: `host_permissions` continua só com o laboratório |
 
-## Captura sanitizada para PDD × screenshot real
+## Revisões da usuária: print mascarado (v4) e print integral (v5)
 
-A imagem do PDD **não é uma captura de tela**. É um desenho do Studio a partir de uma descrição que leva só:
+- **`nekkora-visual/4`** (D-S013-08): a imagem é a tela capturada. Campos, linhas de texto de dados, tabelas, frames,
+  canvas, vídeo, imagens grandes, fundos com imagem e pseudo-elementos com texto saem cobertos por máscaras lisas;
+  rótulos do vocabulário, logotipo e layout ficam reais. É o que o Studio pede por padrão.
+- **`nekkora-visual/5`** (D-S013-09): print integral. A tela sai como está, com os dados. Só os campos de senha saem
+  cobertos, sempre, inclusive em shadow roots, no "mostrar senha" e, se algum frame mostrar senha ou não responder, nos
+  frames inteiros. Exige o nível `FULL` no consentimento (`nekkora-pdd-consent/2`), escolhido de forma explícita e
+  confirmada pela interface confiável. Rebaixar o nível derruba uma v5 armada ou em curso.
+- **Painel da extensão:** a seção "Captura do PDD" tem a escolha "Print mascarado (recomendado)" ou "Print integral",
+  o botão para trocar o nível de um site autorizado e uma confirmação dentro do próprio painel antes do print integral.
+- **Verificação:** v4 e v5 têm a mesma pintura e a mesma verificação pixel a pixel das máscaras na extensão, no Native
+  Host e no Studio. Plano incompleto falha (`TOO_MANY_REGIONS`) em vez de sair um print parcial.
+
+A seção a seguir descreve a v3, que continua no contrato.
+
+## Captura sanitizada para PDD × screenshot real (v3)
+
+A imagem do PDD na v3 **não é uma captura de tela**. É um desenho do Studio a partir de uma descrição que leva só:
 
 - geometria e tipos;
 - classe de tom e de tinta (nunca a cor real);

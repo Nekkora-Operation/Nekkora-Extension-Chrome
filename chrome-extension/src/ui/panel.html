@@ -57,11 +57,24 @@
       <dt>Captura</dt><dd id="pdd-state" data-consent="">verificando…</dd>
     </dl>
     <p id="pdd-hint" class="explanation">A permissão do Chrome autoriza inspecionar e gravar. A captura de tela para o PDD
-      é uma autorização separada, por site, e gera só uma representação sintética: nenhum pixel da página é copiado.</p>
+      é uma autorização separada, por site. No print mascarado, campos, textos de dados, tabelas e frames saem cobertos.
+      No print integral, a tela sai como está, com os dados reais; só os campos de senha saem cobertos.</p>
     <div class="access-actions">
+      <fieldset id="pdd-level-box" class="pdd-level" hidden>
+        <legend>Imagem do PDD neste site</legend>
+        <label><input type="radio" name="pdd-level" value="MASKED" checked> Print mascarado (recomendado)</label>
+        <label><input type="radio" name="pdd-level" value="FULL"> Print integral: os dados da tela vão para o PDD</label>
+      </fieldset>
       <button id="btn-pdd-grant" type="button" hidden>Autorizar captura PDD neste site</button>
       <label id="pdd-remember-box" hidden><input id="pdd-remember" type="checkbox"> Lembrar este site (sem marcar: só até fechar o navegador)</label>
+      <button id="btn-pdd-level" type="button" hidden>Liberar print integral neste site</button>
       <button id="btn-pdd-revoke" type="button" hidden>Revogar captura PDD neste site</button>
+    </div>
+    <div id="pdd-confirm-full" class="confirm" role="alertdialog" aria-labelledby="pdd-confirm-text" hidden>
+      <p id="pdd-confirm-text">No print integral, nomes, números, mensagens e tabelas da tela entram nas imagens e no PDF
+        deste site. Só os campos de senha saem cobertos. Revise o PDF antes de compartilhar.</p>
+      <button id="btn-pdd-confirm-full" type="button" class="primary">Confirmar print integral</button>
+      <button id="btn-pdd-cancel-full" type="button">Cancelar</button>
     </div>
     <details id="pdd-sites">
       <summary>Sites autorizados para o PDD (<span id="pdd-count">0</span>)</summary>

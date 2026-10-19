@@ -7,10 +7,19 @@ Nenhum ambiente ou dado de cliente foi usado.
 
 | Suíte | Resultado | Observação |
 |---|---|---|
-| Node (`npm test`) | **212/212** | Base `main`: 186. Novos: `studio-pdd-013.test.js` (23, com a v4), `studio-pdd-013-access.test.js` (2) e o teto de tamanho da v4 em `native-client-studio.test.js` (1) |
-| Java (núcleo + Native Host + contrato) | **308/308** | Base: 297. Novos: `PddVisualPrivacyV3Test` (4) e `PddVisualPrivacyV4Test` (3). Fixtures do Bridge `s013-*`: 14 válidas, 19 inválidas (v4: 1 válida, 4 inválidas) |
+| Node (`npm test`) | **217/217** | Base `main`: 186. Novos: `studio-pdd-013.test.js` (28: v3, v4 e 5 do print integral), `studio-pdd-013-access.test.js` (2) e o teto de tamanho da v4/v5 em `native-client-studio.test.js` (1) |
+| Java (núcleo + Native Host + contrato) | **312/312** | Base: 297. Novos: `PddVisualPrivacyV3Test` (4), `PddVisualPrivacyV4Test` (3) e `PddVisualPrivacyV5Test` (4). Fixtures do Bridge `s013-*`: 20 válidas, 23 inválidas (v4: 1+4; print integral e nível: 6+4) |
 | ITs headless, grupos G1–G9 | **todos verdes** | 1 ajuste: `Studio002BridgeIT` passou a admitir o campo `origin` (sem caminho) e continua proibindo URL completa. Na rodada da v4, o G6 falhou uma vez (`Studio002BridgeIT`: tempo esgotado na conexão ao Studio de laboratório, primeira rodada após reiniciar a máquina) e passou inteiro (41/41) ao repetir, sem mudança de código |
-| ITs com janela e gesto real (Alt+Shift+K pelo SO) | **`Studio013SitesIT` 14/14** (+ S013-16 headless) · `Studio010SafeCaptureIT` 12/12 · `Studio012PddVisualIT` 5/5 · `Studio002BridgeIT` 11/11 | Regressão das capturas 010/012 intacta |
+| ITs headless da revisão v5 (G1–G9 de novo) | **todos verdes** (284; os cenários de gesto ficam para a rodada com janela) | Inclui S013-16, S013-19 e S013-20 (painel) |
+| ITs com janela e gesto real (Alt+Shift+K pelo SO) | **`Studio013SitesIT` 14/14** na entrega da v4 (+ S013-16 headless). Na revisão v5: **17/19**, ver a nota abaixo · `Studio010SafeCaptureIT` 12/12 · `Studio012PddVisualIT` 5/5 · `Studio002BridgeIT` 11/11 | Regressão das capturas 010/012 intacta |
+
+**Nota sobre S013-06 e S013-09 na rodada da v5.** Os dois cenários que revogam ou trocam de aba *no meio* da captura
+dependem de ocupar a página (`nkOcupar(6500, 1200)`) no instante certo em relação ao gesto. Depois que a máquina foi
+reiniciada, eles passaram a falhar **também no commit da v4 (`54434fa`) sem nenhuma mudança da v5**: a captura termina
+antes da revogação ou da troca de aba. Na entrega da v4 (19/10, 14:19) os mesmos cenários passaram. Duas tentativas de
+tornar a ocupação independente do tempo (ocupar antes das teclas, ou logo depois delas) não resolveram e foram
+desfeitas. A regra coberta por esses cenários continua provada em Node: a revogação, o rebaixamento do nível e a troca
+de aba durante a captura terminam sem imagem publicada. Fica como pendência do harness, não da extensão.
 
 ## `Studio013SitesIT` (Chrome real; hosts `*.nekkora.test` resolvidos para 127.0.0.1, porta não compilada)
 
@@ -31,11 +40,16 @@ Nenhum ambiente ou dado de cliente foi usado.
 | S013-14 | **v4** com o gesto real: o print que chega ao Studio não tem NENHUM pixel da cor-sentinela (todo dado da página adversarial está nela); a tela bruta, só em memória, tem (controle positivo) |
 | S013-15 | **v4** com menu aberto e DOM mudando: ou falha (`PAGE_CHANGED`) ou sai sem pixel da cor-sentinela; laboratório também em v4 |
 | S013-16 | Plano **v4** no motor real do Chrome: toda linha de texto e todo campo na cor-sentinela dentro de uma máscara; cada tabela visível inteira dentro de um BLOCK, com `TABLE_CONTENT_HIDDEN`; ordem BLOCK, FIELD, TEXT |
+| S013-17 | **v5 (print integral)**: recusada sem o nível FULL (`PDD_FULL_REQUIRED`); com FULL e o gesto real, os dados aparecem (cor-sentinela) e **nenhum** pixel da sentinela de senha (#00B000), inclusive o "mostrar senha" e a senha da shadow root fechada; rebaixar volta a recusar a v5 |
+| S013-18 | **v5 com senha dentro de iframe de outra origem** (`?frame=senha`): os frames saem cobertos (`BLOCK` + `FRAMES_HIDDEN`), sem nenhum pixel de senha |
+| S013-19 | Plano v5 no motor real do Chrome (headless): só máscaras `FIELD`; todo campo de senha dentro delas, os campos comuns fora |
+| S013-20 | Print integral pelo **painel da extensão**: só vale depois da confirmação no próprio painel; Cancelar não concede; voltar ao mascarado sem confirmação |
 | S013-05 | Permissão ampla: coberta em Node com a política de acesso real (o diálogo nativo não é automatizado) |
 
 Evidências: `reports/evidence/S013-02-descricao-v3.json` (descrição real que chegou ao Studio),
-`S013-13-plano-v3-motor-real.json`, `S013-12-painel-consentimento.png` e `S013-14-print-v4-mascarado.png` (print v4 da página
-sintética como chegou ao Studio).
+`S013-13-plano-v3-motor-real.json`, `S013-12-painel-consentimento.png`, `S013-14-print-v4-mascarado.png` (print v4 da página
+sintética como chegou ao Studio), `S013-17-print-v5-integral.png` (print integral da página **sintética**: dados fictícios à
+mostra, senhas cobertas) e `S013-20-painel-confirmar-print-integral.png`.
 
 ## Teste de mutação (barreiras de autorização e de vazamento)
 
@@ -69,7 +83,18 @@ Cada mutação enfraquece uma barreira. O teste indicado precisa falhar.
 | P3 | O plano v4 não cobre campos | morta |
 | P4 | O plano v4 trata rótulo fora do vocabulário como interface | morta |
 
-**25/25 mortas.** As P1–P4 rodam no Chrome real (S013-16).
+| E22 | v5 sem exigir o nível FULL | morta |
+| E23 | Rebaixar o nível DURANTE a captura não derruba a v5 | morta (SOBREVIVEU na 1ª rodada: o ouvinte de mudanças derrubava antes; o teste passou a rebaixar sem avisar o módulo) |
+| E24 | Rebaixar o nível com a v5 ARMADA não desarma | morta |
+| E25 | Frames tratados como sem senha sem perguntar | morta |
+| E26 | Frame sem resposta conta como sem senha | morta |
+| E27 | v5 aceita máscara de texto (extensão) | morta |
+| E28 | Consentimento com nível desconhecido aceito | morta |
+| E29 | Host aceita máscara de texto na v5 | morta (SOBREVIVEU na 1ª rodada: a máscara declarada não estava pintada; o teste passou a pintá-la exatamente) |
+| P5 | Plano v5 não cobre o campo de senha por nome ("mostrar senha") | morta |
+| P6 | Plano v5 cobre também os demais campos (deixa de ser integral) | morta |
+
+**35/35 mortas.** As P1–P6 rodam no Chrome real (S013-16 e S013-19).
 
 ## Defeitos achados e corrigidos durante a missão
 

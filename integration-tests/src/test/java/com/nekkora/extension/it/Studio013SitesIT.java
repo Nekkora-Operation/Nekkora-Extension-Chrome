@@ -115,6 +115,12 @@ class Studio013SitesIT extends SessionIT {
         return studio.call("studio.pdd.consent.grant", studio.obj().put("tabRef", ref(p)).put("origin", origin).put("scope", scope).put("actor", "TEST_AGENT"));
     }
 
+    /** Revisão da usuária: consentimento com o nível (MASKED ou FULL = print integral). */
+    private JsonNode grant(Page p, String origin, String scope, String level) {
+        return studio.call("studio.pdd.consent.grant", studio.obj().put("tabRef", ref(p)).put("origin", origin).put("scope", scope).put("actor", "TEST_AGENT")
+                .put("level", level));
+    }
+
     private JsonNode revoke(String origin) {
         return studio.call("studio.pdd.consent.revoke", studio.obj().put("origin", origin));
     }
@@ -580,6 +586,175 @@ class Studio013SitesIT extends SessionIT {
         assertTrue(count(payload, "FIELD") >= 8 && count(payload, "FRAME") >= 1 && count(payload, "MEDIA") >= 3, payload.toString());
         assertTrue(count(payload, "TEXT") >= 3, "texto que não é rótulo vira barra: " + count(payload, "TEXT"));
         evidence(payload, "S013-13-plano-v3-motor-real");
+    }
+
+    private static final String V5 = "nekkora-visual/5";
+
+    /**
+     * Sentinela das SENHAS na página adversarial (#00B000): no print integral nenhum pixel dela pode sobrar. Só o miolo
+     * saturado conta: a franja verde clara do antisserrilhado subpixel de texto preto (ex.: #AAEFAA) não é senha.
+     */
+    static int secretPixels(java.awt.image.BufferedImage img) {
+        int n = 0;
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                int c = img.getRGB(x, y);
+                int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
+                if (g > 120 && r < 100 && b < 100) n++;
+            }
+        }
+        return n;
+    }
+
+    /** Onde estão (até 5) os pixels da sentinela de senha — para a mensagem de falha. */
+    static String secretWhere(java.awt.image.BufferedImage img) {
+        StringBuilder sb = new StringBuilder();
+        int n = 0;
+        for (int y = 0; y < img.getHeight() && n < 5; y++) {
+            for (int x = 0; x < img.getWidth() && n < 5; x++) {
+                int c = img.getRGB(x, y);
+                int r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
+                if (g > 120 && r < 100 && b < 100) {
+                    sb.append(String.format("(%d,%d #%06X) ", x, y, c & 0xFFFFFF));
+                    n++;
+                }
+            }
+        }
+        return sb.toString() + "em " + img.getWidth() + "x" + img.getHeight();
+    }
+
+    private JsonNode shootV5(Page p, String origin) throws Exception {
+        String cid = "cap-" + UUID.randomUUID();
+        JsonNode armed = arm(p, cid, V5, origin);
+        assertTrue(armed.path("ok").asBoolean(), armed.toString());
+        assertEquals(V5, armed.at("/payload/policy").asText());
+        gesture(p);
+        return captured(cid);
+    }
+
+    private static java.awt.image.BufferedImage png(JsonNode d) throws IOException {
+        return javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(d.path("png").asText())));
+    }
+
+    @Test
+    @DisplayName("S013-17 v5 (print integral): recusada sem o nível FULL; com FULL e o gesto real, os DADOS aparecem e NENHUM pixel de senha (inclusive shadow fechada e \"mostrar senha\")")
+    void printIntegral() throws Exception {
+        Page p = sistema();
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        assertEquals("MASKED", status(p).path("level").asText());
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_FULL_REQUIRED", code(arm(p, "cap-" + UUID.randomUUID(), V5, SITE)), "o site está no print mascarado");
+        JsonNode g = grant(p, SITE, "SESSION", "FULL");
+        assertTrue(g.path("ok").asBoolean(), g.toString());
+        assertEquals("FULL", g.at("/payload/level").asText());
+        assertEquals("FULL", status(p).path("level").asText());
+        lab.focus(p);
+        java.awt.image.BufferedImage raw = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(
+                ((org.openqa.selenium.TakesScreenshot) lab.driver()).getScreenshotAs(org.openqa.selenium.OutputType.BYTES)));
+        int rawData = Studio010SafeCaptureIT.sentinelPixels(raw);
+        assertTrue(secretPixels(raw) > 20, "controle positivo: a tela bruta mostra as senhas (" + secretPixels(raw) + " px)");
+        JsonNode d = shootV5(p, SITE);
+        assertEquals("CAPTURED", d.path("status").asText(), d.path("code").asText());
+        assertEquals(V5, d.path("policy").asText());
+        java.awt.image.BufferedImage img = png(d);
+        assertEquals(0, secretPixels(img), "pixels da sentinela de senha no print integral: " + secretWhere(img) + " " + d.path("regions"));
+        int data = Studio010SafeCaptureIT.sentinelPixels(img);
+        assertTrue(data > rawData / 2, "o print integral mostra os dados da tela: " + data + " de " + rawData + " px");
+        assertEquals(0, count(d, "TEXT"), "a v5 não cobre texto");
+        assertTrue(count(d, "FIELD") >= 3, "senha, \"mostrar senha\" e a senha da shadow fechada: " + count(d, "FIELD"));
+        String meta = d.deepCopy() instanceof ObjectNode o ? o.without(List.of("png", "sha256")).toString() : "";
+        for (String x : SENTINELAS) assertFalse(meta.contains(x), "marcador nos metadados: " + x);
+        // rebaixar para MASKED: a v5 deixa de armar, a v4 continua
+        assertTrue(grant(p, SITE, "SESSION", "MASKED").path("ok").asBoolean());
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_FULL_REQUIRED", code(arm(p, "cap-" + UUID.randomUUID(), V5, SITE)));
+        Files.write(lab.evidenceDir().resolve("S013-17-print-v5-integral.png"), java.util.Base64.getDecoder().decode(d.path("png").asText())); // página SINTÉTICA
+    }
+
+    @Test
+    @DisplayName("S013-18 v5 com senha DENTRO de iframe de outra origem: os frames saem cobertos (BLOCK + FRAMES_HIDDEN), nenhum pixel de senha")
+    void printIntegralSenhaNoFrame() throws Exception {
+        Page p = site(SITE + SISTEMA + "?frame=senha");
+        assertTrue(grant(p, SITE, "SESSION", "FULL").path("ok").asBoolean());
+        lab.focus(p);
+        java.awt.image.BufferedImage raw = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(
+                ((org.openqa.selenium.TakesScreenshot) lab.driver()).getScreenshotAs(org.openqa.selenium.OutputType.BYTES)));
+        assertTrue(secretPixels(raw) > 20, "controle positivo");
+        JsonNode d = shootV5(p, SITE);
+        assertEquals("CAPTURED", d.path("status").asText(), d.path("code").asText());
+        assertEquals(0, secretPixels(png(d)), "senha do iframe no print integral: " + secretWhere(png(d)) + " " + d.path("regions"));
+        assertTrue(count(d, "BLOCK") >= 1, "o iframe coberto");
+        assertTrue(d.path("limitations").toString().contains("FRAMES_HIDDEN"), d.path("limitations").toString());
+    }
+
+    @Test
+    @DisplayName("S013-19 plano v5 no motor REAL do Chrome (sem gesto): só máscaras FIELD de senha (nenhuma de texto); todo campo de senha dentro delas, os demais campos fora")
+    void planoV5SoSenhas() throws Exception {
+        Page p = sistema();
+        lab.focus(p);
+        StringBuilder src = new StringBuilder("window.NekkoraCS = window.NekkoraCS || {};\n");
+        for (String f : List.of("shared/ui-vocabulary.js", "shared/capture-policy.js", "content/pdd-plan.js")) {
+            src.append(Files.readString(lab.repo().resolve("chrome-extension/src/" + f))).append('\n');
+        }
+        src.append("const vw = Math.floor(innerWidth), vh = Math.floor(innerHeight);"
+                + " const plan = NekkoraCS.pddPlan.v5(vw, vh, false);"
+                + " const inside = (r) => plan.regions.some((m) => m.kind === 'FIELD' && Math.max(r.left, 0) >= m.x - 0.5 && Math.max(r.top, 0) >= m.y - 0.5"
+                + "   && Math.min(r.right, vw) <= m.x + m.width + 0.5 && Math.min(r.bottom, vh) <= m.y + m.height + 0.5);"
+                + " const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.bottom > 0 && r.top < vh; };"
+                + " const all = [...document.querySelectorAll('input')]; document.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) all.push(...e.shadowRoot.querySelectorAll('input')); });"
+                + " const secret = all.filter((e) => vis(e) && (e.type === 'password' || e.id === 'senha-visivel'));"
+                + " const common = all.filter((e) => vis(e) && ['usuario', 'cpf', 'sombra-campo'].includes(e.id));"
+                + " return JSON.stringify({ kinds: [...new Set(plan.regions.map((m) => m.kind))], incomplete: plan.incomplete, secrets: secret.length,"
+                + "   secretOut: secret.filter((e) => !inside(e.getBoundingClientRect())).map((e) => e.id || e.type),"
+                + "   commonIn: common.filter((e) => inside(e.getBoundingClientRect())).map((e) => e.id), count: NekkoraCS.pddPlan.secrets() });");
+        JsonNode r = M.readTree((String) ((JavascriptExecutor) lab.driver()).executeScript(src.toString()));
+        assertFalse(r.path("incomplete").asBoolean());
+        assertEquals("[\"FIELD\"]", r.path("kinds").toString(), "só máscaras de senha");
+        assertTrue(r.path("secrets").asInt() >= 2, "senha e \"mostrar senha\" visíveis: " + r);
+        assertEquals(0, r.path("secretOut").size(), "campo de senha fora de máscara: " + r.path("secretOut"));
+        assertEquals(0, r.path("commonIn").size(), "campo comum coberto (o print integral mostra os campos): " + r.path("commonIn"));
+        assertTrue(r.path("count").asInt() >= r.path("secrets").asInt(), "contagem por frame (cs.pdd.secrets): " + r);
+    }
+
+    @Test
+    @DisplayName("S013-20 print integral pelo PAINEL: \"Print integral\" só vale depois da confirmação no próprio painel; Cancelar não concede; voltar ao mascarado sem confirmação")
+    void printIntegralPeloPainel() throws Exception {
+        Page p = sistema();
+        String panel = lab.openExtensionPage("src/ui/panel.html?tabId=" + p.tabId());
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) lab.driver();
+            // status() passa pela página do harness: volta ao painel depois de cada consulta
+            java.util.function.Supplier<JsonNode> st = () -> {
+                JsonNode r = status(p);
+                lab.driver().switchTo().window(panel);
+                return r;
+            };
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-level-box').hidden")),
+                    "escolha da imagem do PDD no painel");
+            assertEquals(Boolean.TRUE, js.executeScript("return document.querySelector('input[name=\"pdd-level\"][value=\"MASKED\"]').checked"), "mascarado é o padrão");
+            lab.driver().findElement(By.cssSelector("input[name='pdd-level'][value='FULL']")).click();
+            lab.driver().findElement(By.id("btn-pdd-grant")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(5), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-confirm-full').hidden")),
+                    "confirmação do print integral no painel");
+            assertEquals("NONE", st.get().path("consent").asText(), "antes de confirmar, nada foi concedido");
+            lab.screenshotWindow(panel, "S013-20-painel-confirmar-print-integral");
+            lab.driver().findElement(By.id("btn-pdd-cancel-full")).click();
+            assertEquals("NONE", st.get().path("consent").asText(), "Cancelar não concede");
+            lab.driver().findElement(By.cssSelector("input[name='pdd-level'][value='FULL']")).click();
+            lab.driver().findElement(By.id("btn-pdd-grant")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(5), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-confirm-full').hidden")),
+                    "confirmação de novo");
+            lab.driver().findElement(By.id("btn-pdd-confirm-full")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "FULL".equals(st.get().path("level").asText()), "nível FULL concedido pelo painel");
+            JsonNode list = studio.call("studio.pdd.consent.list", studio.obj()).at("/payload/consents");
+            assertEquals("FULL", list.get(0).path("level").asText());
+            assertEquals("EXTENSION", list.get(0).path("via").asText());
+            assertTrue(String.valueOf(js.executeScript("return document.getElementById('pdd-state').textContent")).contains("print integral"));
+            lab.driver().findElement(By.id("btn-pdd-level")).click(); // "Voltar ao print mascarado neste site"
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "MASKED".equals(st.get().path("level").asText()), "de volta ao mascarado, sem confirmação");
+            assertEquals(Boolean.TRUE, js.executeScript("return document.getElementById('pdd-confirm-full').hidden"));
+        } finally {
+            lab.closeWindow(panel);
+            revoke(SITE);
+        }
     }
 
     @Test

@@ -9,20 +9,30 @@
  *   LAB              só loopback (access-policy.js). Aceita nekkora-visual/1, /2 e /3.
  *   AUTHORIZED_SITE  origem autorizada pelo Chrome + consentimento PDD. Aceita nekkora-visual/3 (inteiramente sintética)
  *                    e nekkora-visual/4 (print real com o texto de dados mascarado). Studios anteriores, que não pedem
- *                    nenhuma das duas, são recusados.
+ *                    nenhuma das duas, são recusados. A nekkora-visual/5 (print integral) também é deste perfil, mas só
+ *                    vale quando o consentimento da origem tem o nível FULL ({@link levelAllows}).
  *   BENCHMARK        valor da /1, mantido no contrato para clientes antigos. NÃO é mais produzido a partir da 0.6.0.
  */
-import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4 } from './visual-sanitizer.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICY_V5 } from './visual-sanitizer.js';
 
 export const PROFILE_VERSION = 'nekkora-visual-capture-profile/2';
 export const PROFILES = Object.freeze(['LAB', 'AUTHORIZED_SITE']);
 /** Políticas visuais aceitas por perfil. */
 export const POLICIES_BY_PROFILE = Object.freeze({
-  LAB: Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4]),
+  LAB: Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICY_V5]),
   // revisão da usuária: também o print real com o texto de dados mascarado (v4); a v2 (pixels reais dos rótulos sem
   // máscara de texto em volta, fundo redesenhado) continua fora
-  AUTHORIZED_SITE: Object.freeze([VISUAL_POLICY_V3, VISUAL_POLICY_V4]),
+  AUTHORIZED_SITE: Object.freeze([VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICY_V5]),
 });
+
+/**
+ * Revisão da usuária (19/10/2026): o print integral (v5) só vale num site cujo consentimento PDD tem o nível FULL; o
+ * laboratório local não tem consentimento e aceita a v5. As demais políticas não dependem do nível.
+ */
+export function levelAllows(profile, visualPolicy, consent) {
+  if (visualPolicy !== VISUAL_POLICY_V5 || profile === 'LAB') return true;
+  return profile === 'AUTHORIZED_SITE' && !!consent && consent.level === 'FULL';
+}
 
 /**
  * Perfil de captura visual para uma avaliação da política de acesso ({@link evaluate} de access-policy.js) e o

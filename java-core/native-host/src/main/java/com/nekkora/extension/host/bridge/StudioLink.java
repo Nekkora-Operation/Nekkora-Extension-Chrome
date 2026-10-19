@@ -98,7 +98,7 @@ public final class StudioLink implements HostRuntime.StudioChannel {
             synchronized (writeLock) {
                 message.put("seq", seq.incrementAndGet());
                 boolean large = BridgeFrames.largeAllowed(message.path("kind").asText(), message.path("type").asText(),
-                        message.path("payload").path("policy").asText(null)); // STUDIO-013: só o print da v4
+                        message.path("payload").path("policy").asText(null)); // STUDIO-013: só o print da v4 ou /5
                 BridgeFrames.write(out, message.toString(), large ? BridgeFrames.MAX_CAPTURE_FRAME_BYTES : BridgeFrames.MAX_FRAME_BYTES);
             }
         }

@@ -178,6 +178,15 @@
       const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
       const policy = root.NekkoraCapturePolicy;
       const viewport = { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY };
+      if (a && a.policy === 'nekkora-visual/5') {
+        // print integral (revisão da usuária): só senhas e, se pedido, frames saem como máscara
+        if (!NS.pddPlan || !NS.pddPlan.v5) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v5 = NS.pddPlan.v5(Math.floor(vw), Math.floor(vh), a.blockFrames !== false);
+        return { ok: true, policy: 'nekkora-visual/5', viewport, token: pdd.token(), regions: v5.regions, rejected, incomplete: v5.incomplete,
+          hasFrames: v5.hasFrames, limitations: v5.limitations };
+      }
       if (a && a.policy === 'nekkora-visual/4') {
         // print real com o texto de dados mascarado (pdd-plan.js): só as máscaras saem daqui
         if (!policy || !NS.pddPlan || !NS.pddPlan.v4) {
@@ -260,6 +269,8 @@
     },
     /** Ficha do layout: muda com rolagem, tamanho, escala ou qualquer mutação desde o plano. */
     'cs.pdd.token': () => ({ ok: true, token: pdd.token() }),
+    /** v5 (print integral): quantos campos de senha ESTE frame tem — só a contagem, nada do conteúdo. */
+    'cs.pdd.secrets': () => (NS.pddPlan && NS.pddPlan.secrets ? { ok: true, secrets: NS.pddPlan.secrets() } : { ok: false }),
     /** Retângulos (px CSS do viewport) dos nós já resolvidos pelo motor; nó desconectado ou fora do viewport → motivo. */
     'cs.pdd.rects': (a) => {
       const out = [];
