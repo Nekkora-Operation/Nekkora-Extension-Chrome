@@ -7,6 +7,10 @@ import * as capture from './capture-session.js';
 import * as policy from './access-policy.js';
 import { createStudioRecorder } from './studio-recording.js';
 import { currentCapture } from './inspection.js';
+import { createPddConsent } from './pdd-consent.js';
+
+/** STUDIO-013: consentimento PDD por origem (um só para o painel e para o Studio). */
+export const pddConsent = createPddConsent();
 
 export const recorder = createStudioRecorder({ client, broadcast, withLock, errorInfo, capture, policy, host, toContent, tabKey, frameOfNode,
-  currentCapture });
+  currentCapture, consent: pddConsent });

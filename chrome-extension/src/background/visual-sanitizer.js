@@ -167,7 +167,7 @@ function same(r, g, b, c) {
  * portadores seja exatamente a cor esperada naquele ponto (a v1 aceitava qualquer das 3 cores em qualquer lugar).
  */
 export const VISUAL_POLICY_V2 = 'nekkora-visual/2';
-export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2]);
+export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, 'nekkora-visual/3']);
 export const V2_PAGE = Object.freeze([255, 255, 255]);
 export const V2_TONES = Object.freeze({ LIGHT: Object.freeze([244, 246, 248]), MID: Object.freeze([230, 234, 238]), DARK: Object.freeze([91, 102, 117]) });
 export const V2_SURFACE_BORDER = Object.freeze([201, 209, 217]); // #C9D1D9
@@ -315,6 +315,94 @@ export function violationsV2(pixels, width, height, regions) {
     if (pixels[k + 3] !== 255 || pixels[k] !== expected[k] || pixels[k + 1] !== expected[k + 1] || pixels[k + 2] !== expected[k + 2]) bad++;
   }
   return bad;
+}
+
+/*
+ * NEKKORA-STUDIO-013 — política nekkora-visual/3: representação INTEIRAMENTE SINTÉTICA. Nenhum pixel da página é lido:
+ * a extensão não chama captureVisibleTab e não envia imagem. O que sai é uma DESCRIÇÃO fechada (geometria em px CSS
+ * inteiros, tipos, classes de tom) e, nos rótulos de interface, o TEXTO já aprovado pelo vocabulário controlado
+ * (nekkora-privacy/2: interfaceText). O Studio desenha a imagem a partir dela, com a fonte e a paleta próprias.
+ *
+ * Por que não copiar pixels dos portadores (v2): a verificação de pixels fora dos portadores não prova nada sobre o que
+ * está DENTRO deles. Numa aplicação real, um rótulo aprovado pelo texto pode exibir outra coisa nos pixels (fonte web que
+ * troca glifos, sobreposição com pointer-events:none, sombra/transformação de vizinhos). Na v3 o que chega ao PDD é o
+ * próprio texto aprovado, e cada barreira (service worker, Native Host, Studio) consegue revalidá-lo.
+ *
+ * Tipos, na ordem de pintura: SURFACE (tom) → MEDIA → FRAME → CONTROL → FIELD → TEXT (barra neutra no lugar de texto
+ * que não é rótulo de interface: nunca o texto) → LABEL (texto do vocabulário).
+ */
+export const VISUAL_POLICY_V3 = 'nekkora-visual/3';
+export const V3_KINDS = Object.freeze(['SURFACE', 'MEDIA', 'FRAME', 'CONTROL', 'FIELD', 'TEXT', 'LABEL']);
+export const V3_MAX = Object.freeze({ SURFACE: 48, MEDIA: 24, FRAME: 16, CONTROL: 48, FIELD: 96, TEXT: 240, LABEL: 96 });
+export const V3_TONES = Object.freeze(['LIGHT', 'MID', 'DARK']);
+export const V3_INKS = Object.freeze(['DARK', 'LIGHT']);
+export const V3_WEIGHTS = Object.freeze(['NORMAL', 'BOLD']);
+export const V3_ALIGNS = Object.freeze(['START', 'CENTER']);
+export const V3_TEXT_QUANTUM = 16; // largura das barras TEXT: múltiplo de 16 px CSS (o comprimento exato do texto não sai)
+export const V3_MIN_SIZE = 8;
+export const V3_MAX_SIZE = 40;
+export const V3_MAX_VIEWPORT = 8192;
+export const V3_MAX_BYTES = 131072;
+/** Campos permitidos por tipo (qualquer outro campo reprova: nada além do contrato atravessa). */
+const V3_FIELDS = Object.freeze({
+  SURFACE: ['kind', 'x', 'y', 'width', 'height', 'tone'],
+  MEDIA: ['kind', 'x', 'y', 'width', 'height'],
+  FRAME: ['kind', 'x', 'y', 'width', 'height'],
+  CONTROL: ['kind', 'x', 'y', 'width', 'height'],
+  FIELD: ['kind', 'x', 'y', 'width', 'height'],
+  TEXT: ['kind', 'x', 'y', 'width', 'height', 'ink'],
+  LABEL: ['kind', 'x', 'y', 'width', 'height', 'text', 'size', 'weight', 'ink', 'align'],
+});
+
+/**
+ * Valida a descrição v3 ({viewport, regions}) e devolve uma cópia normalizada. Lança Error com código.
+ * @param textPolicy objeto com interfaceText(v) → forma limpa ou null (NekkoraCapturePolicy)
+ */
+export function validateV3(description, textPolicy) {
+  if (!textPolicy || typeof textPolicy.interfaceText !== 'function') throw codeError('INTERNAL');
+  const d = description;
+  if (!d || typeof d !== 'object' || Array.isArray(d)) throw codeError('GEOMETRY_MISMATCH');
+  const vp = d.viewport;
+  if (!vp || typeof vp !== 'object' || Object.keys(vp).some((k) => !['width', 'height', 'dpr'].includes(k))) throw codeError('GEOMETRY_MISMATCH');
+  const vw = vp.width, vh = vp.height, dpr = vp.dpr;
+  if (!Number.isInteger(vw) || !Number.isInteger(vh) || vw < 1 || vh < 1 || vw > V3_MAX_VIEWPORT || vh > V3_MAX_VIEWPORT) throw codeError('GEOMETRY_MISMATCH');
+  if (typeof dpr !== 'number' || !(dpr > 0 && dpr <= 4)) throw codeError('GEOMETRY_MISMATCH');
+  if (!Array.isArray(d.regions)) throw codeError('GEOMETRY_MISMATCH');
+  const count = {};
+  let rank = 0;
+  const out = [];
+  for (const r of d.regions) {
+    if (!r || typeof r !== 'object' || Array.isArray(r)) throw codeError('REGION_KIND_UNKNOWN');
+    const k = V3_KINDS.indexOf(r.kind);
+    if (k < 0) throw codeError('REGION_KIND_UNKNOWN');
+    if (Object.keys(r).some((f) => !V3_FIELDS[r.kind].includes(f))) throw codeError('REGION_FIELD_UNKNOWN');
+    if (k < rank) throw codeError('REGION_ORDER');
+    rank = k;
+    count[r.kind] = (count[r.kind] || 0) + 1;
+    if (count[r.kind] > V3_MAX[r.kind]) throw codeError('TOO_MANY_REGIONS');
+    const { x, y, width, height } = r;
+    if (![x, y, width, height].every(Number.isInteger) || width < 1 || height < 1 || x < 0 || y < 0 || x + width > vw || y + height > vh) {
+      throw codeError('REGION_OUT_OF_VIEWPORT');
+    }
+    const n = { kind: r.kind, x, y, width, height };
+    if (r.kind === 'SURFACE') {
+      if (!V3_TONES.includes(r.tone)) throw codeError('REGION_KIND_UNKNOWN');
+      n.tone = r.tone;
+    } else if (r.kind === 'TEXT') {
+      if (!V3_INKS.includes(r.ink)) throw codeError('REGION_KIND_UNKNOWN');
+      if (width % V3_TEXT_QUANTUM !== 0) throw codeError('TEXT_NOT_QUANTIZED');
+      n.ink = r.ink;
+    } else if (r.kind === 'LABEL') {
+      if (typeof r.text !== 'string' || !r.text || textPolicy.interfaceText(r.text) !== r.text) throw codeError('LABEL_NOT_INTERFACE_TEXT');
+      if (!Number.isInteger(r.size) || r.size < V3_MIN_SIZE || r.size > V3_MAX_SIZE) throw codeError('REGION_KIND_UNKNOWN');
+      if (!V3_WEIGHTS.includes(r.weight) || !V3_INKS.includes(r.ink) || !V3_ALIGNS.includes(r.align)) throw codeError('REGION_KIND_UNKNOWN');
+      Object.assign(n, { text: r.text, size: r.size, weight: r.weight, ink: r.ink, align: r.align });
+    }
+    out.push(n);
+  }
+  const normalized = { viewport: { width: vw, height: vh, dpr }, regions: out };
+  if (JSON.stringify(normalized).length > V3_MAX_BYTES) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
+  return normalized;
 }
 
 export function codeError(code) {

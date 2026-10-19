@@ -25,7 +25,8 @@ import * as docs from './diagnostics.js';
 import * as inspection from './inspection.js';
 import * as recording from './recording.js';
 import * as studioLink from './studio-link.js';
-import { recorder as studioRecording } from './studio-recorder.js';
+import { recorder as studioRecording, pddConsent } from './studio-recorder.js';
+import { visualProfile, denialReason } from './visual-capture-profile.js';
 
 /** Hooks de teste permitidos (somente leitura, declarados pelas páginas do laboratório). */
 const ALLOWED_TEST_HOOKS = ['getCurrentFilters', 'getVisibleResultCount', 'getLastApiQuery', 'getRenderCount', 'getActionLog'];
@@ -113,6 +114,29 @@ const commands = {
     const removed = await chrome.permissions.remove({ origins });
     return { removed, pattern: d.pattern, origins };
   },
+
+  // STUDIO-013: consentimento de captura do PDD por origem exata (independente do acesso do Chrome). O painel é página
+  // da extensão (interface confiável); content scripts não chegam a estes comandos.
+  'pdd.consent.describe': async (a) => {
+    await pddConsent.load();
+    const v = policy.evaluate(await policy.tabUrl(a.tabId));
+    const c = v.allowed && v.kind === 'AUTHORIZED' ? pddConsent.get(v.origin) : null;
+    return { origin: v.allowed ? v.origin : null, access: v.allowed ? v.kind : v.reason,
+      consent: !v.allowed ? 'NONE' : v.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', actor: c ? c.actor : null, via: c ? c.via : null,
+      visualCapture: visualProfile(v, c), reason: denialReason(v, c) };
+  },
+  'pdd.consent.grant': async (a) => {
+    const v = policy.evaluate(await policy.tabUrl(a.tabId));
+    if (!v.allowed || v.kind !== 'AUTHORIZED') {
+      throw new HostError('VISUAL_CAPTURE_NOT_ALLOWED', 'Conceda primeiro o acesso ao site no Chrome.');
+    }
+    if (a.origin !== v.origin) {
+      throw new HostError('VISUAL_CAPTURE_NOT_ALLOWED', 'A aba mudou de origem: confira o site e tente de novo.');
+    }
+    return pddConsent.grant(v.origin, a.scope === 'REMEMBERED' ? 'REMEMBERED' : 'SESSION', 'DEVELOPER', 'EXTENSION');
+  },
+  'pdd.consent.revoke': async (a) => pddConsent.revoke(a.origin),
+  'pdd.consent.list': async () => ({ consents: await pddConsent.list() }),
 
   // Configuração
   'config.get': async () => config.describe(),
@@ -440,6 +464,9 @@ chrome.webNavigation.onCommitted.addListener((d) => {
 /** Revogação: encerra sessões em origens que deixaram de ser permitidas e desanexa frames revogados. */
 async function onPermissionsRemoved(p) {
   await injection.syncRegistration().catch(() => {});
+  // STUDIO-013: consentimento PDD de origem que o Chrome deixou de permitir é apagado; armação/captura em curso caem
+  await pddConsent.prune((origin) => policy.evaluate(origin + '/').kind === 'AUTHORIZED').catch(() => {});
+  await studioRecording.pdd.onAccessChanged().catch(() => {});
   broadcast('access-changed', { removed: (p && p.origins) || [], authorized: policy.authorizedPatterns() });
   for (const rec of capture.list()) {
     if (!rec || !capture.isActive(rec.tabId)) {
@@ -473,6 +500,10 @@ policy.onAdded(async (p) => {
   broadcast('access-changed', { added: (p && p.origins) || [], authorized: policy.authorizedPatterns() });
 });
 policy.onRemoved((p) => ready.then(() => onPermissionsRemoved(p)));
+pddConsent.onChange((change) => {
+  broadcast('pdd-consent-changed', { type: change.type, origin: change.origin });
+  ready.then(() => studioRecording.pdd.onAccessChanged()).catch(() => {});
+});
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   ready.then(async () => {

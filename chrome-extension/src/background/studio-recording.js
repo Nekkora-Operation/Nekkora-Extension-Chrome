@@ -140,6 +140,8 @@ export function createStudioRecorder(deps) {
     currentCapture: deps.currentCapture || (() => Promise.reject(new HostError('CAPTURE_FAILED', 'sem captura'))),
     descriptorOf: (d) => (d == null ? null : debug.descriptorOf(d)),
     imaging: deps.imaging,
+    consent: deps.consent,
+    textPolicy: deps.textPolicy,
     now: deps.now ? () => deps.now() : undefined,
     tabs: {
       tabOf: (ref) => (refToTab.has(ref) ? refToTab.get(ref) : null),
@@ -220,6 +222,7 @@ export function createStudioRecorder(deps) {
   }
 
   async function listTabs() {
+    if (deps.consent) await deps.consent.load();
     const all = await chromeApi.tabs.query({});
     const out = [];
     for (const tab of all) {
@@ -231,12 +234,16 @@ export function createStudioRecorder(deps) {
       }
       const url = await policy.tabUrl(tab.id).catch(() => null);
       const v = policy.evaluate(url);
+      // STUDIO-013: perfil do PDD = permissão do Chrome + consentimento PDD da origem; a origem (sem caminho) só sai
+      // para aba já permitida pelo Chrome
+      const c = deps.consent && v.allowed && v.kind === 'AUTHORIZED' ? deps.consent.get(v.origin) : null;
       out.push({
         tabRef: refOf(tab.id),
         title: v.allowed ? safeTitle(tab.title) : null,
         host: v.reason === 'BROWSER_INTERNAL' || v.reason === 'UNSUPPORTED_SCHEME' ? null : hostOf(url),
         access: v.allowed ? v.kind : v.reason,
-        visualCapture: visualProfile(v),
+        visualCapture: visualProfile(v, c),
+        ...(deps.consent ? { origin: v.allowed ? v.origin : null, pddConsent: !v.allowed ? 'NONE' : v.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE' } : {}),
         active: !!tab.active,
         recording: Array.from(recordings.values()).some((r) => r.tabId === tab.id && !TERMINAL.has(r.state)),
       });

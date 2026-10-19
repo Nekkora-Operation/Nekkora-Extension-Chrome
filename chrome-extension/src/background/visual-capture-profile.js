@@ -1,28 +1,45 @@
 /*
- * Perfil de captura visual do PDD — contrato revisável `nekkora-visual-capture-profile/1` (NEKKORA-E2E-001).
+ * Perfil de captura visual do PDD — contrato revisável `nekkora-visual-capture-profile/2` (NEKKORA-STUDIO-013).
  *
- * A captura de tela sanitizada (`nekkora-visual/1`, studio-pdd.js) existia só no laboratório local (LAB). Este arquivo
- * acrescenta, de forma EXPLÍCITA e FECHADA, o perfil BENCHMARK: origens públicas de treinamento autorizadas pela
- * usuária para uma missão. Regras:
- *   - LAB continua sendo só loopback (access-policy.js); BENCHMARK nunca é tratado como LAB;
- *   - a aba precisa estar AUTORIZADA pelo próprio Chrome (permissão de site concedida) E a origem precisa estar
- *     nesta lista, comparada EXATAMENTE (esquema + host + porta; sem curinga, sem subdomínio);
- *   - a sanitização, as barreiras de pixel e o gesto explícito são os mesmos do LAB.
- * Mudar esta lista é mudança de código revisada, nunca configuração em tempo de execução.
+ * A /1 (NEKKORA-E2E-001) aceitava, além do laboratório local, só origens públicas COMPILADAS numa lista fechada
+ * (BENCHMARK_ORIGINS). A /2 retira a lista: uma origem http/https entra quando DUAS autorizações independentes existem:
+ *   1. a permissão de site do Chrome (inspeção/gravação; access-policy.js — kind AUTHORIZED);
+ *   2. o consentimento PRÓPRIO de captura PDD para aquela origem exata (pdd-consent.js).
+ * Perfis:
+ *   LAB              só loopback (access-policy.js). Aceita nekkora-visual/1, /2 e /3.
+ *   AUTHORIZED_SITE  origem autorizada pelo Chrome + consentimento PDD. Aceita SÓ nekkora-visual/3 (inteiramente
+ *                    sintética: nenhum pixel da página é copiado). Studios anteriores, que não pedem a v3, são recusados.
+ *   BENCHMARK        valor da /1, mantido no contrato para clientes antigos. NÃO é mais produzido a partir da 0.6.0.
  */
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3 } from './visual-sanitizer.js';
 
-export const PROFILE_VERSION = 'nekkora-visual-capture-profile/1';
-
-/** Origens BENCHMARK (exatas). NEKKORA-E2E-001: desafio "Input Forms" autorizado pela usuária. */
-export const BENCHMARK_ORIGINS = Object.freeze(['https://rpachallenge.com']);
+export const PROFILE_VERSION = 'nekkora-visual-capture-profile/2';
+export const PROFILES = Object.freeze(['LAB', 'AUTHORIZED_SITE']);
+/** Políticas visuais aceitas por perfil. */
+export const POLICIES_BY_PROFILE = Object.freeze({
+  LAB: Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3]),
+  AUTHORIZED_SITE: Object.freeze([VISUAL_POLICY_V3]),
+});
 
 /**
- * Perfil de captura visual para uma avaliação da política de acesso ({@link evaluate} de access-policy.js).
- * @returns {'LAB'|'BENCHMARK'|null}
+ * Perfil de captura visual para uma avaliação da política de acesso ({@link evaluate} de access-policy.js) e o
+ * consentimento PDD da origem (registro de pdd-consent.js, ou null).
+ * @returns {'LAB'|'AUTHORIZED_SITE'|null}
  */
-export function visualProfile(evaluation) {
+export function visualProfile(evaluation, consent) {
   if (!evaluation || !evaluation.allowed) return null;
   if (evaluation.kind === 'LAB') return 'LAB';
-  if (evaluation.kind === 'AUTHORIZED' && BENCHMARK_ORIGINS.includes(evaluation.origin)) return 'BENCHMARK';
+  if (evaluation.kind === 'AUTHORIZED' && consent && consent.origin === evaluation.origin) return 'AUTHORIZED_SITE';
   return null;
+}
+
+/**
+ * Por que a captura NÃO vale nesta aba (código estável para o Studio/painel), ou null se vale.
+ *   PERMISSION_REQUIRED / BROWSER_INTERNAL / BROWSER_RESTRICTED / UNSUPPORTED_SCHEME / INVALID_URL / URL_UNAVAILABLE
+ *     — os motivos da política de acesso do Chrome;
+ *   PDD_CONSENT_REQUIRED — o Chrome permite gravar/inspecionar, mas a captura de PDD não foi autorizada nesta origem.
+ */
+export function denialReason(evaluation, consent) {
+  if (!evaluation || !evaluation.allowed) return (evaluation && evaluation.reason) || 'URL_UNAVAILABLE';
+  return visualProfile(evaluation, consent) ? null : 'PDD_CONSENT_REQUIRED';
 }

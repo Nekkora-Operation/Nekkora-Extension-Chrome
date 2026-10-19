@@ -1,0 +1,21 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.pdd.consent.list",
+  "id": "c-13",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "consents": [
+      {
+        "origin": "https://app.exemplo.test:8443",
+        "consent": "SESSION",
+        "actor": "DEVELOPER",
+        "via": "EXTENSION",
+        "grantedAt": "2026-10-19T12:00:00.000Z",
+        "chromeAccess": true
+      }
+    ]
+  },
+  "error": null
+}

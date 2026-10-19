@@ -128,7 +128,14 @@ class Studio002BridgeIT extends SessionIT {
         Page denied = openWithoutContent(lab.externalUrl(BrowserLab.SITE_X, SITE));
         JsonNode list = tabs();
         String json = list.toString();
-        assertFalse(json.contains("http://") || json.contains("https://"), "nenhuma URL completa: " + json);
+        // STUDIO-013: o campo "origin" (esquema://host[:porta], só de aba já permitida pelo Chrome) é a única forma de endereço
+        // admitida — sem caminho, consulta ou fragmento; fora dele, nenhum http(s)://
+        for (JsonNode t : list) {
+            assertTrue(t.path("origin").isNull() || t.path("origin").asText().matches("https?://[^/?#@]+"), "origem sem caminho: " + t);
+        }
+        String withoutOrigin = json.replaceAll("\"origin\":\"https?://[^/?#@\"]+\"", "\"origin\":\"…\"");
+        assertFalse(withoutOrigin.contains("http://") || withoutOrigin.contains("https://"), "nenhuma URL completa: " + json);
+        assertFalse(json.contains(SITE), "nenhum caminho de página: " + json);
         assertFalse(json.contains("\"tabId\""), "nenhum id interno do Chrome");
         boolean labSeen = false;
         boolean deniedSeen = false;

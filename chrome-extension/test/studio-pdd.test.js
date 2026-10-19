@@ -1,7 +1,7 @@
 // STUDIO-010 (pdd-capture/1, política nekkora-visual/1): sanitização de pixels por lista de permissão e máquina de
 // estados da captura (armar → gesto → resolver → plano → capturar → ficha → sanitizar → verificar → evento). A imagem
 // "bruta" destes testes é preenchida com uma cor-sentinela: qualquer vazamento aparece na verificação.
-import { visualProfile, BENCHMARK_ORIGINS } from '../src/background/visual-capture-profile.js';
+import { visualProfile, PROFILE_VERSION } from '../src/background/visual-capture-profile.js';
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -372,26 +372,29 @@ test('R1 cancelar durante a captura (preparação ou sanitização) → CANCELLE
 });
 
 
-// ---------------------------------------------------------------------------------------- NEKKORA-E2E-001: BENCHMARK
-test('perfil visual: LAB continua; BENCHMARK só origem exata autorizada; resto recusado', () => {
+// ------------------------------------------------------------------- NEKKORA-E2E-001 → STUDIO-013: sem lista compilada
+// A lista BENCHMARK_ORIGINS saiu (nekkora-visual-capture-profile/2): fora do laboratório, nem rpachallenge.com captura
+// sem o consentimento PDD da origem — os testes do consentimento estão em studio-pdd-013.test.js.
+test('perfil visual: LAB continua; site autorizado pelo Chrome sem consentimento PDD é recusado (inclusive o antigo benchmark)', () => {
   assert.equal(visualProfile({ allowed: true, kind: 'LAB', origin: 'http://127.0.0.1:18765' }), 'LAB');
-  assert.equal(visualProfile({ allowed: true, kind: 'AUTHORIZED', origin: 'https://rpachallenge.com' }), 'BENCHMARK');
-  for (const origin of ['https://www.rpachallenge.com', 'http://rpachallenge.com', 'https://rpachallenge.com:8443',
-    'https://rpachallenge.com.evil.test', 'https://en.wikipedia.org']) {
+  for (const origin of ['https://rpachallenge.com', 'https://www.rpachallenge.com', 'https://en.wikipedia.org']) {
     assert.equal(visualProfile({ allowed: true, kind: 'AUTHORIZED', origin }), null, origin);
   }
-  assert.equal(visualProfile({ allowed: false, kind: null, reason: 'PERMISSION_REQUIRED', origin: 'https://rpachallenge.com' }), null);
+  assert.equal(visualProfile({ allowed: true, kind: 'AUTHORIZED', origin: 'https://rpachallenge.com' }, { origin: 'https://rpachallenge.com' }),
+    'AUTHORIZED_SITE');
+  assert.equal(visualProfile({ allowed: false, kind: null, reason: 'PERMISSION_REQUIRED', origin: 'https://rpachallenge.com' },
+    { origin: 'https://rpachallenge.com' }), null, 'consentimento sem acesso do Chrome não basta');
   assert.equal(visualProfile(null), null);
-  assert.ok(Object.isFrozen(BENCHMARK_ORIGINS));
+  assert.equal(PROFILE_VERSION, 'nekkora-visual-capture-profile/2');
 });
 
-test('armar: aba AUTORIZADA de benchmark aceita; autorizada fora do perfil recusada (VISUAL_CAPTURE_NOT_ALLOWED)', async () => {
+test('armar: aba autorizada pelo Chrome sem consentimento PDD é recusada com o motivo PDD_CONSENT_REQUIRED', async () => {
   urls.set(3, 'https://rpachallenge.com/');
   const pdd = createStudioPdd(deps());
-  await assert.rejects(pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaSite002', steps: STEPS, leaseMs: 30000 }, 'studio-a'),
-    { code: 'VISUAL_CAPTURE_NOT_ALLOWED' });
-  const r = await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaBench03', steps: STEPS, leaseMs: 30000 }, 'studio-a');
-  assert.equal(r.armed, true);
+  for (const [ref, id] of [['t-AbaSite002', 'c1'], ['t-AbaBench03', 'c2']]) {
+    await assert.rejects(pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: id, tabRef: ref, steps: STEPS, leaseMs: 30000 }, 'studio-a'),
+      { code: 'VISUAL_CAPTURE_NOT_ALLOWED', reason: 'PDD_CONSENT_REQUIRED' });
+  }
 });
 
 
@@ -513,7 +516,7 @@ test('v2 captura: o Studio pede a política; evento conforme ao contrato com reg
 test('v2 armar com política desconhecida → BAD_REQUEST; content script sem a v2 → CONTENT_UNAVAILABLE (nada é composto)', async () => {
   const pdd = createStudioPdd(deps());
   await assert.rejects(pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c1', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000,
-    policy: 'nekkora-visual/3' }, 'studio-a'), { code: 'BAD_REQUEST' });
+    policy: 'nekkora-visual/9' }, 'studio-a'), { code: 'BAD_REQUEST' }); // a /3 passou a existir na STUDIO-013
   // content script antigo: ignora o pedido e devolve o plano da v1 → a extensão não mistura as políticas
   await pdd.COMMANDS['studio.pdd.capture.arm']({ captureId: 'c2', tabRef: 't-AbaLab0001', steps: STEPS, leaseMs: 30000, policy: 'nekkora-visual/2' },
     'studio-a');

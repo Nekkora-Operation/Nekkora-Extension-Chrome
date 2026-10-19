@@ -212,5 +212,211 @@
     return { regions, hasFrames: frames.length > 0 || !!document.querySelector('iframe, frame, object, embed') };
   }
 
-  NS.pddPlan = Object.freeze({ v2 });
+  /*
+   * NEKKORA-STUDIO-013 — plano da nekkora-visual/3 (inteiramente sintética). Nenhum pixel é copiado depois, então os
+   * cuidados da v2 com fundo, sobreposição e pseudo-elemento deixam de ser de PRIVACIDADE (continuam de fidelidade).
+   * O que sai: geometria em px CSS INTEIROS, tipos, classe de tom e, só em LABEL, o texto que o vocabulário aprova
+   * (interfaceText: o texto INTEIRO do rótulo precisa ser texto de interface; senão vira barra TEXT ou nada).
+   *   - texto que não é rótulo de interface vira barra TEXT com largura em múltiplos de 16 px (nunca o texto);
+   *   - nada dentro de tabela é descrito (a tabela é uma superfície só), como na v2;
+   *   - campos: moldura vazia — valor, placeholder e preenchimento automático nunca entram;
+   *   - shadow roots abertas e fechadas (chrome.dom.openOrClosedShadowRoot) são percorridas: o que está nelas segue as
+   *     mesmas regras;
+   *   - frames: só o lugar; o conteúdo nunca é lido.
+   */
+  const V3_MAX = { SURFACE: 48, MEDIA: 24, FRAME: 16, CONTROL: 48, FIELD: 96, TEXT: 240, LABEL: 96 };
+  const V3_SCAN = 6000;
+  const V3_TEXT_SCAN = 4000;
+  const QUANTUM = 16;
+  const FIELD_ROLES = new Set(['textbox', 'searchbox', 'combobox', 'spinbutton']);
+  const SKIP_TEXT = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'TEXTAREA', 'SELECT', 'OPTION', 'OPTGROUP', 'IFRAME', 'OBJECT', 'EMBED',
+    'CANVAS', 'VIDEO', 'AUDIO', 'TITLE', 'HEAD']);
+
+  function shadowOf(el) {
+    try {
+      if (root.chrome && root.chrome.dom && typeof root.chrome.dom.openOrClosedShadowRoot === 'function') {
+        return root.chrome.dom.openOrClosedShadowRoot(el) || null;
+      }
+    } catch (e) {
+      // sem a API: só a raiz aberta
+    }
+    return el.shadowRoot || null;
+  }
+
+  /** Elementos do documento e das shadow roots, na ordem do documento, até o teto. */
+  function deepElements(limit) {
+    const out = [];
+    const stack = [document.documentElement];
+    while (stack.length && out.length < limit) {
+      const el = stack.pop();
+      if (!el) continue;
+      out.push(el);
+      const kids = [];
+      const sr = shadowOf(el);
+      if (sr) kids.push(...sr.children);
+      kids.push(...el.children);
+      for (let i = kids.length - 1; i >= 0; i--) stack.push(kids[i]);
+    }
+    return { list: out, truncated: stack.length > 0 };
+  }
+
+  function shown(el) {
+    if (typeof el.checkVisibility === 'function') {
+      try {
+        return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+      } catch (e) {
+        // segue para a regra simples
+      }
+    }
+    const cs = getComputedStyle(el);
+    return visible(el, cs);
+  }
+
+  /** Retângulo inteiro (px CSS) recortado ao viewport: para fora, como as regiões sintéticas da v2. */
+  function box(r, vw, vh) {
+    const x = Math.max(0, Math.floor(r.left));
+    const y = Math.max(0, Math.floor(r.top));
+    const x2 = Math.min(vw, Math.ceil(r.right));
+    const y2 = Math.min(vh, Math.ceil(r.bottom));
+    return x2 - x >= 1 && y2 - y >= 1 ? { x, y, width: x2 - x, height: y2 - y } : null;
+  }
+
+  function closestAcross(el, selector) {
+    for (let n = el; n; ) {
+      if (n.nodeType === 1 && n.matches(selector)) return n;
+      n = n.parentElement || (n.getRootNode && n.getRootNode().host) || null;
+    }
+    return null;
+  }
+
+  function inkFor(el) {
+    const own = rgba(getComputedStyle(el).backgroundColor);
+    const bg = own && own[3] >= 0.5 ? own : backdrop(el);
+    return tone(bg) === 'DARK' ? 'LIGHT' : 'DARK';
+  }
+
+  function isField(el) {
+    const tag = el.tagName;
+    if (tag === 'INPUT') return !NOT_FIELD_INPUTS.has((el.getAttribute('type') || '').toLowerCase());
+    if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.isContentEditable && el.getAttribute('contenteditable') !== 'false') return !el.parentElement || !el.parentElement.isContentEditable;
+    return FIELD_ROLES.has(String(el.getAttribute('role') || '').trim().split(/\s+/)[0].toLowerCase());
+  }
+
+  function isButtonLike(el) {
+    const t = (el.getAttribute('type') || '').toLowerCase();
+    return el.tagName === 'BUTTON' || (el.tagName === 'INPUT' && (BUTTON_INPUTS.has(t) || t === 'image'))
+      || /^button\b/i.test(el.getAttribute('role') || '');
+  }
+
+  function v3(policy, vw, vh, reject) {
+    const { list, truncated } = deepElements(V3_SCAN);
+    const k = { SURFACE: [], MEDIA: [], FRAME: [], CONTROL: [], FIELD: [], TEXT: [], LABEL: [] };
+    const labelled = new Set(); // elementos cujo texto já virou LABEL (o texto deles não vira barra)
+    const limitations = new Set();
+    if (truncated) limitations.add('PAGE_TOO_LARGE');
+    let tables = false;
+    for (const el of list) {
+      if (el === document.documentElement || el === document.body) continue;
+      const tag = el.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEMPLATE' || tag === 'HEAD') continue;
+      const inTable = tag !== 'TABLE' && !!closestAcross(el.parentElement || el, 'table');
+      if (tag === 'TABLE') tables = true;
+      if (inTable && !isField(el) && !/^(IFRAME|FRAME|OBJECT|EMBED)$/.test(tag)) continue; // nada de dentro da tabela, exceto campos e frames
+      const b = el.getBoundingClientRect();
+      if (!(b.width > 0 && b.height > 0) || b.right <= 0 || b.bottom <= 0 || b.left >= vw || b.top >= vh) continue;
+      if (!shown(el)) continue;
+      const r = box(b, vw, vh);
+      if (!r) continue;
+      if (/^(IFRAME|FRAME|OBJECT|EMBED)$/.test(tag)) { k.FRAME.push({ kind: 'FRAME', ...r }); continue; }
+      if (isField(el)) { k.FIELD.push({ kind: 'FIELD', ...r }); continue; }
+      if (/^(IMG|CANVAS|VIDEO|PICTURE)$/.test(tag) || (tag.toLowerCase() === 'svg' && !(el.parentElement && el.parentElement.closest('svg')))) {
+        if (el.parentElement && el.parentElement.closest('picture') && tag !== 'PICTURE') continue;
+        if (b.width >= MEDIA_MIN && b.height >= MEDIA_MIN) k.MEDIA.push({ kind: 'MEDIA', ...r });
+        continue;
+      }
+      if (el.closest('svg')) continue;
+      const cs = getComputedStyle(el);
+      // imagem de fundo (não gradiente) de tamanho médio: só o lugar
+      if (cs.backgroundImage && /url\(/i.test(cs.backgroundImage) && b.width >= 48 && b.height >= 48 && r.width * r.height < vw * vh * 0.5) {
+        k.MEDIA.push({ kind: 'MEDIA', ...r });
+      }
+      const buttonLike = isButtonLike(el);
+      if (buttonLike) k.CONTROL.push({ kind: 'CONTROL', ...r });
+      if (el.matches(CONTAINERS) || tag === 'TABLE') {
+        if (b.width >= SURFACE_MIN_W && b.height >= SURFACE_MIN_H) {
+          const own = rgba(cs.backgroundColor);
+          const behind = backdrop(el);
+          const distinct = own && own[3] >= 0.5 && Math.abs(luminance(own) - luminance(behind)) > 0.01;
+          if (distinct || hasBorder(cs) || tag === 'TABLE') k.SURFACE.push({ kind: 'SURFACE', tone: tone(distinct ? own : behind), ...r });
+        }
+      }
+      // rótulo de interface: mesmos portadores da v1/v2 (isCarrier) e input de botão com value
+      const t = (el.getAttribute('type') || '').toLowerCase();
+      const inputButton = tag === 'INPUT' && BUTTON_INPUTS.has(t);
+      if (!inputButton && !policy.isCarrier(tag.toLowerCase(), el.getAttribute('role'), el.hasAttribute('href'))) continue;
+      if (inTable) continue;
+      const raw = inputButton ? el.value : el.textContent;
+      const text = policy.interfaceText(raw || '');
+      if (!text) {
+        if (raw && raw.trim()) reject('TEXT_NOT_INTERFACE');
+        continue;
+      }
+      if (b.left < 0 || b.top < 0 || b.right > vw || b.bottom > vh) { reject('OUTSIDE_VIEWPORT'); continue; }
+      // fidelidade: rótulo coberto (ex.: diálogo por cima) não é desenhado — a raiz certa responde dentro de shadow DOM
+      const scope = el.getRootNode && el.getRootNode() !== document && el.getRootNode().elementFromPoint ? el.getRootNode() : document;
+      const top = scope.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      if (!top || !(top === el || el.contains(top))) { reject('COVERED'); continue; }
+      const size = Math.max(8, Math.min(40, Math.round(parseFloat(cs.fontSize) || 14)));
+      const weight = (parseInt(cs.fontWeight, 10) || 400) >= 600 ? 'BOLD' : 'NORMAL';
+      // botão: o Studio desenha o CONTROL claro por baixo — tinta escura (a do fundo da página ficaria ilegível)
+      k.LABEL.push({ kind: 'LABEL', ...r, text, size, weight, ink: buttonLike ? 'DARK' : inkFor(el), align: buttonLike || cs.textAlign === 'center' ? 'CENTER' : 'START' });
+      labelled.add(el);
+    }
+    // texto que não é rótulo: barras neutras quantizadas (o comprimento exato não sai; o texto, nunca)
+    let scannedText = 0;
+    const roots = [document.body || document.documentElement];
+    for (const el of list) {
+      const sr = shadowOf(el);
+      if (sr) roots.push(sr);
+    }
+    const range = document.createRange();
+    outer: for (const start of roots) {
+      const walker = document.createTreeWalker(start, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (++scannedText > V3_TEXT_SCAN) { limitations.add('TEXT_SIMPLIFIED'); break outer; }
+        if (!n.nodeValue || !n.nodeValue.trim()) continue;
+        const p = n.parentElement;
+        if (!p || SKIP_TEXT.has(p.tagName) || closestAcross(p, 'table, svg')) continue;
+        // texto de rótulo já desenhado, ou CONTEÚDO DE CAMPO (contenteditable, role textbox…): nunca vira barra
+        let skip = false;
+        for (let a = p; a; a = a.parentElement || (a.getRootNode && a.getRootNode() !== document ? a.getRootNode().host || null : null)) {
+          if (labelled.has(a) || isField(a)) { skip = true; break; }
+        }
+        if (skip || !shown(p)) continue;
+        range.selectNodeContents(n);
+        const ink = inkFor(p);
+        for (const lr of range.getClientRects()) {
+          if (lr.width < 1 || lr.height < 4 || lr.right <= 0 || lr.bottom <= 0 || lr.left >= vw || lr.top >= vh) continue;
+          const x = Math.max(0, Math.floor(lr.left / 4) * 4);
+          let w = Math.ceil((Math.min(vw, lr.right) - x) / QUANTUM) * QUANTUM;
+          if (x + w > vw) w = Math.floor((vw - x) / QUANTUM) * QUANTUM;
+          if (w < QUANTUM) continue;
+          const h = Math.max(4, Math.round(lr.height * 0.45));
+          const y = Math.max(0, Math.min(vh - h, Math.round(lr.top + (lr.height - h) / 2)));
+          if (k.TEXT.length >= V3_MAX.TEXT) { limitations.add('TEXT_SIMPLIFIED'); break outer; }
+          k.TEXT.push({ kind: 'TEXT', x, y, width: w, height: h, ink });
+        }
+      }
+    }
+    range.detach();
+    if (tables) limitations.add('TABLE_CONTENT_HIDDEN');
+    for (const kind of Object.keys(k)) {
+      if (k[kind].length > V3_MAX[kind]) limitations.add(kind === 'TEXT' ? 'TEXT_SIMPLIFIED' : 'SOME_REGIONS_OMITTED');
+    }
+    const regions = ['SURFACE', 'MEDIA', 'FRAME', 'CONTROL', 'FIELD', 'TEXT', 'LABEL'].flatMap((kind) => cap(k[kind], V3_MAX[kind]));
+    return { regions, hasFrames: k.FRAME.length > 0 || !!document.querySelector('iframe, frame, object, embed'), limitations: [...limitations] };
+  }
+
+  NS.pddPlan = Object.freeze({ v2, v3 });
 })(globalThis);

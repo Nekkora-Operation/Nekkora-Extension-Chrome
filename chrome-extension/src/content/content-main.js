@@ -178,6 +178,15 @@
       const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
       const policy = root.NekkoraCapturePolicy;
       const viewport = { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY };
+      if (a && a.policy === 'nekkora-visual/3') {
+        // NEKKORA-STUDIO-013: descrição inteiramente sintética (pdd-plan.js) — px CSS inteiros, nada de pixels da página
+        if (!policy || !NS.pddPlan || !NS.pddPlan.v3) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v3 = NS.pddPlan.v3(policy, Math.floor(vw), Math.floor(vh), reject);
+        return { ok: true, policy: 'nekkora-visual/3', viewport: { ...viewport, width: Math.floor(vw), height: Math.floor(vh) }, token: pdd.token(),
+          regions: v3.regions, rejected, hasFrames: v3.hasFrames, limitations: v3.limitations };
+      }
       if (a && a.policy === 'nekkora-visual/2') {
         // STUDIO-012 PDD-01: representação documental (pdd-plan.js) — mesma ficha de layout, mesmas recusas por código
         if (!policy || !NS.pddPlan) {

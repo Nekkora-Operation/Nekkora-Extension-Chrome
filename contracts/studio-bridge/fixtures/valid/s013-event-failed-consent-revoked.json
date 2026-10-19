@@ -1,0 +1,12 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.pdd.captured",
+  "seq": 9,
+  "payload": {
+    "captureId": "cap-v3",
+    "status": "FAILED",
+    "code": "PDD_CONSENT_REVOKED",
+    "observedAt": "2026-10-19T12:00:00Z"
+  }
+}

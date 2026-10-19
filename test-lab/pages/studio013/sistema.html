@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Atendimento</title>
+<style>
+  /* NEKKORA-STUDIO-013 — "sistema real" SINTÉTICO e ADVERSARIAL para a captura do PDD em site autorizado
+     (nekkora-visual/3). Dados 100% fictícios. Todo dado sensível contém o marcador SENTINELA (ou é o nome/CPF/valor
+     fictício listado em SENTINELAS no IT): nada disso pode aparecer na descrição que sai da extensão.
+     Classes: cabeçalho autenticado com nome do usuário, menu dinâmico, tabela de pacientes, campos preenchidos, senha,
+     placeholder sensível, "autofill", select com valor, textarea, contenteditable, input[type=submit] (vocabulário e
+     fora dele), SVG, canvas desenhado, vídeo, shadow roots aberta e fechada, iframe de OUTRA origem, sobreposição com
+     pointer-events:none sobre um rótulo, imagem de fundo com texto, pseudo-elemento com texto e mudança de DOM. */
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; color: #1F2328; background: #FFFFFF; }
+  header { background: #1E3A5F; height: 56px; display: flex; align-items: center; padding: 0 16px; gap: 16px; color: #FFFFFF; }
+  header .usuario { margin-left: auto; }
+  header button { background: transparent; color: #FFFFFF; border: 1px solid #FFFFFF; padding: 4px 10px; }
+  #menu-lista { position: absolute; top: 56px; right: 16px; background: #FFFFFF; border: 1px solid #D0D7DE; padding: 6px; }
+  main { display: grid; grid-template-columns: 460px 340px; gap: 16px; padding: 16px; }
+  .painel { border: 1px solid #D0D7DE; border-radius: 6px; padding: 12px; position: relative; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid #D0D7DE; padding: 4px 6px; }
+  #sobreposta { position: absolute; left: 12px; top: 0; pointer-events: none; color: #E6007E; font-size: 13px; }
+  .fundo { height: 70px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='70'><text x='4' y='30' fill='%23E6007E'>SENTINELA-FUNDO</text></svg>"); }
+  #pseudo::after { content: " SENTINELA-PSEUDO"; color: #E6007E; }
+  iframe { width: 300px; height: 80px; border: 1px solid #D0D7DE; }
+  canvas, video { border: 1px solid #D0D7DE; }
+</style>
+</head>
+<body>
+<header>
+  <svg width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#E6007E"></circle></svg>
+  <nav aria-label="Principal"><a id="inicio" href="#inicio" style="color:#FFFFFF">Início</a></nav>
+  <span class="usuario">Dra. Zeta Sentinela</span>
+  <button id="abrir-menu" type="button" aria-expanded="false">Menu</button>
+  <div id="menu-lista" role="menu" hidden>
+    <a role="menuitem" href="#perfil">Ana Souza SENTINELA</a><br>
+    <a role="menuitem" id="sair" href="#sair">Sair</a>
+  </div>
+</header>
+<main>
+  <section class="painel">
+    <form id="ficha" onsubmit="return false">
+      <p><label for="usuario">Usuário</label><br><input id="usuario" name="usuario" value="ana.souza.sentinela"></p>
+      <p><label for="senha">Senha</label><br><input id="senha" type="password" value="S3nh@Lab"></p>
+      <p><input id="cpf" placeholder="CPF 123.456.789-09 SENTINELA"></p>
+      <p><input id="autofill" autocomplete="email"></p>
+      <p><select id="paciente"><option>Ana Souza SENTINELA</option><option selected>Bruno Lima SENTINELA</option></select></p>
+      <p><textarea id="obs">Observação clínica SENTINELA</textarea></p>
+      <div id="editavel" contenteditable="true">Conteúdo editável SENTINELA</div>
+      <p><input id="entrar" type="submit" value="Entrar"> <input id="botao-nome" type="submit" value="Ana Souza SENTINELA">
+        <button id="pseudo" type="button">Pesquisar</button></p>
+      <p style="position:relative"><button id="salvar" type="button">Salvar</button><span id="sobreposta">SENTINELA-SOBREPOSTA</span></p>
+    </form>
+    <table id="pacientes">
+      <tr><th>Nome</th><th>CPF</th><th>Situação</th></tr>
+      <tr><td>Ana Souza SENTINELA</td><td>123.456.789-09</td><td>Internado</td></tr>
+      <tr><td>Bruno Lima SENTINELA</td><td>987.654.321-00</td><td>Alta</td></tr>
+    </table>
+    <p><a id="detalhes" href="#detalhes">Ver detalhes</a> · <a id="link-nome" href="#ana">Carla Dias SENTINELA</a></p>
+  </section>
+  <aside class="painel">
+    <p id="mensagem">Exame de Ana Souza SENTINELA liberado</p>
+    <div class="fundo"></div>
+    <canvas id="tela" width="300" height="60"></canvas>
+    <video id="video" width="300" height="60" muted></video>
+    <nk-cartao id="cartao-aberto"></nk-cartao>
+    <nk-cartao-fechado id="cartao-fechado"></nk-cartao-fechado>
+    <p><iframe id="externo" title="Externo"></iframe></p>
+  </aside>
+</main>
+<script>
+  // "autofill": valor preenchido sem digitação (como o navegador faria)
+  document.getElementById('autofill').value = 'autofill.sentinela@exemplo.test';
+  const ctx = document.getElementById('tela').getContext('2d');
+  ctx.fillStyle = '#E6007E';
+  ctx.font = '16px sans-serif';
+  ctx.fillText('SENTINELA-CANVAS', 8, 30);
+  customElements.define('nk-cartao', class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' }).innerHTML = '<p><button id="sombra-confirmar" type="button">Confirmar</button> '
+        + '<input id="sombra-campo" value="sombra.aberta.sentinela"> <span>SENTINELA-SOMBRA-ABERTA</span></p>';
+    }
+  });
+  customElements.define('nk-cartao-fechado', class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'closed' }).innerHTML = '<p><button type="button">Cancelar</button> <span>SENTINELA-SOMBRA-FECHADA</span></p>';
+    }
+  });
+  document.getElementById('abrir-menu').addEventListener('click', (e) => {
+    const l = document.getElementById('menu-lista');
+    l.hidden = !l.hidden;
+    e.currentTarget.setAttribute('aria-expanded', String(!l.hidden));
+  });
+  // iframe de OUTRA origem (site-b, mapeado para 127.0.0.1): só o lugar
+  document.getElementById('externo').src = location.protocol + '//site-b.nekkora.test:' + location.port + '/lab/studio010/frame-sentinela.html';
+  // ?menu=1 abre o menu (estado dinâmico); ?mutar=1 muda o DOM sem parar (página "viva" durante a captura)
+  const q = new URLSearchParams(location.search);
+  if (q.get('menu') === '1') document.getElementById('abrir-menu').click();
+  if (q.get('mutar') === '1') {
+    let n = 0;
+    setInterval(() => { document.getElementById('mensagem').textContent = 'Atualização ' + (++n) + ' SENTINELA'; }, 50);
+  }
+  // ?sso=<ms>: "redirecionamento de login" para OUTRA origem depois de um tempo
+  if (q.get('sso')) setTimeout(() => { location.href = location.protocol + '//site-b.nekkora.test:' + location.port + '/lab/studio013/sistema.html'; }, Number(q.get('sso')));
+  // ocupa a thread principal (o plano do PDD espera): janela para revogar/trocar aba no meio da captura
+  // (atraso: o gesto do IT leva ~2 s para conferir o primeiro plano — a ocupação começa depois e cobre o plano)
+  window.nkOcupar = (ms, atraso) => setTimeout(() => { const t = Date.now() + ms; while (Date.now() < t) { /* ocupado */ } }, atraso || 0);
+</script>
+</body>
+</html>

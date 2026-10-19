@@ -1,0 +1,508 @@
+package com.nekkora.extension.it;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nekkora.extension.it.support.BrowserLab;
+import com.nekkora.extension.it.support.BrowserLab.Page;
+import com.nekkora.extension.it.support.SessionIT;
+import com.nekkora.extension.it.support.StudioBridgeLab;
+import com.nekkora.extension.lab.LabServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * NEKKORA-STUDIO-013 no Chrome REAL: captura do PDD em SITE autorizado, sem lista compilada. Caminho completo (Studio de
+ * laboratório → Bridge → Native Host → extensão) com o gesto real Alt+Shift+K pelo SO.
+ *
+ * <p>Os "sites" são hosts de teste resolvidos para 127.0.0.1 pelo próprio Chrome ({@code *.nekkora.test}), em porta que
+ * nenhuma lista compilada conhece: nenhum tráfego sai da máquina. A página é um "sistema real" sintético e adversarial
+ * (tabela de pacientes fictícios, campos preenchidos, autofill, shadow roots, iframe de outra origem, sobreposições…), com
+ * marcadores-sentinela em todo dado sensível. Prova: a descrição v3 que chega ao Studio não contém nenhum marcador, só
+ * rótulos do vocabulário, e não traz imagem.
+ */
+class Studio013SitesIT extends SessionIT {
+
+    private static final String SISTEMA = "/lab/studio013/sistema.html";
+    private static final String SITE = "http://" + BrowserLab.SITE_A + ":" + BrowserLab.PORT;
+    private static final String V3 = "nekkora-visual/3";
+    private static final List<String> SENTINELAS = List.of("SENTINELA", "Sentinela", "Ana Souza", "Bruno Lima", "Carla Dias", "Zeta", "123.456.789-09",
+            "987.654.321-00", "S3nh@Lab", "ana.souza", "autofill", "sombra.aberta", "Internado", "Observação", "Exame", "/lab/", "studio013", "nekkora.test/");
+    /** Rótulos que a página pode mostrar (todos do vocabulário); nada fora disso pode virar texto. */
+    private static final Set<String> ROTULOS = Set.of("Início", "Menu", "Usuário", "Senha", "Entrar", "Pesquisar", "Salvar", "Ver detalhes", "Confirmar",
+            "Cancelar", "Sair");
+    private static final ObjectMapper M = new ObjectMapper();
+    private static StudioBridgeLab studio;
+    private final List<Page> opened = new ArrayList<>();
+
+    @BeforeAll
+    static void bridge() throws Exception {
+        System.setProperty("java.awt.headless", "false");
+        lab = BrowserLab.get();
+        studio = new StudioBridgeLab(lab.bridgeDir());
+        lab.call("studio.link.set", Map.of("enabled", true));
+        studio.awaitConnected(Duration.ofSeconds(30));
+    }
+
+    @AfterAll
+    static void unbridge() throws IOException {
+        if (studio == null) return;
+        try {
+            lab.call("studio.link.set", Map.of("enabled", false));
+        } finally {
+            studio.close();
+        }
+        assertTrue(studio.contractViolations.isEmpty(), "mensagens fora do contrato: " + studio.contractViolations);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        for (JsonNode c : studio.call("studio.pdd.consent.list", studio.obj()).at("/payload/consents")) revoke(c.path("origin").asText());
+        opened.forEach(lab::close);
+        opened.clear();
+    }
+
+    // ------------------------------------------------------------------------------------------ apoio
+
+    private Page site(String url) {
+        Page p = lab.openUrl(url);
+        opened.add(p);
+        return p;
+    }
+
+    private Page sistema() {
+        return site(SITE + SISTEMA);
+    }
+
+    private String ref(Page p) {
+        return lab.call("studio.tabRef", p).path("tabRef").asText();
+    }
+
+    private JsonNode status(Page p) {
+        JsonNode r = studio.call("studio.pdd.consent.status", studio.obj().put("tabRef", ref(p)));
+        assertTrue(r.path("ok").asBoolean(), r.toString());
+        return r.get("payload");
+    }
+
+    private JsonNode grant(Page p, String origin, String scope) {
+        return studio.call("studio.pdd.consent.grant", studio.obj().put("tabRef", ref(p)).put("origin", origin).put("scope", scope).put("actor", "TEST_AGENT"));
+    }
+
+    private JsonNode revoke(String origin) {
+        return studio.call("studio.pdd.consent.revoke", studio.obj().put("origin", origin));
+    }
+
+    private static ObjectNode descriptor(String kind, String tag, String name, String htmlId) {
+        ObjectNode d = M.createObjectNode().put("kind", kind).put("tag", tag).put("name", name).put("htmlId", htmlId);
+        d.putNull("htmlName");
+        d.putArray("locators").addObject().put("strategy", "ID").put("css", "#" + htmlId).putNull("xpath").put("description", "");
+        d.putArray("accessPath").addObject().put("type", "MAIN_DOCUMENT").putNull("locator");
+        return d;
+    }
+
+    private static final Object[][] STEPS = {
+            {"step-u", "FILL", descriptor("TEXT_INPUT", "input", "Usuário", "usuario")},
+            {"step-s", "FILL", descriptor("PASSWORD_INPUT", "input", "Senha", "senha")},
+            {"step-e", "CLICK", descriptor("BUTTON", "input", "Entrar", "entrar")}};
+
+    private JsonNode arm(Page p, String captureId, String policy, String origin) {
+        ObjectNode pl = studio.obj().put("captureId", captureId).put("tabRef", ref(p)).put("leaseMs", 30000);
+        if (policy != null) pl.put("policy", policy);
+        if (origin != null) pl.put("origin", origin);
+        ArrayNode a = pl.putArray("steps");
+        for (Object[] s : STEPS) a.addObject().put("stepRef", (String) s[0]).putNull("targetId").put("actionType", (String) s[1]).set("descriptor", (JsonNode) s[2]);
+        return studio.call("studio.pdd.capture.arm", pl);
+    }
+
+    private void gesture(Page p) throws Exception {
+        // só os cenários com o gesto exigem o Chrome com janela; os demais também rodam na regressão headless
+        Assumptions.assumeFalse(Boolean.getBoolean("nekkora.headless"), "o gesto (atalho do SO) exige o Chrome com janela");
+        clickTabStrip(p);
+        Robot r = new Robot();
+        r.setAutoDelay(40);
+        r.keyPress(KeyEvent.VK_ALT);
+        r.keyPress(KeyEvent.VK_SHIFT);
+        r.keyPress(KeyEvent.VK_K);
+        r.keyRelease(KeyEvent.VK_K);
+        r.keyRelease(KeyEvent.VK_SHIFT);
+        r.keyRelease(KeyEvent.VK_ALT);
+    }
+
+    private void clickTabStrip(Page p) throws Exception {
+        lab.focus(p);
+        Point pos = lab.driver().manage().window().getPosition();
+        Dimension size = lab.driver().manage().window().getSize();
+        Robot r = new Robot();
+        r.setAutoDelay(40);
+        r.mouseMove(pos.getX() + size.getWidth() - 230, pos.getY() + 16);
+        r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        Thread.sleep(400);
+        String fg = Studio010SafeCaptureIT.foregroundProcess();
+        assertTrue(fg.toLowerCase().contains("chrome-for-testing"), "outro programa em primeiro plano — nenhuma tecla enviada: " + fg);
+    }
+
+    private void ctrlTab(int times) throws Exception {
+        Robot r = new Robot();
+        r.setAutoDelay(80);
+        for (int i = 0; i < times; i++) {
+            r.keyPress(KeyEvent.VK_CONTROL);
+            r.keyPress(KeyEvent.VK_TAB);
+            r.keyRelease(KeyEvent.VK_TAB);
+            r.keyRelease(KeyEvent.VK_CONTROL);
+        }
+    }
+
+    private JsonNode captured(String captureId) throws InterruptedException {
+        JsonNode e = studio.awaitEvent(x -> "studio.pdd.captured".equals(x.path("type").asText()) && captureId.equals(x.at("/payload/captureId").asText()),
+                Duration.ofSeconds(25));
+        assertNotNull(e, "evento da captura " + captureId);
+        return e.get("payload");
+    }
+
+    private JsonNode shoot(Page p, String origin) throws Exception {
+        String cid = "cap-" + UUID.randomUUID();
+        JsonNode armed = arm(p, cid, V3, origin);
+        assertTrue(armed.path("ok").asBoolean(), armed.toString());
+        assertEquals(V3, armed.at("/payload/policy").asText());
+        gesture(p);
+        return captured(cid);
+    }
+
+    /** A descrição v3: sem imagem, sem marcador-sentinela, só rótulos do vocabulário, barras quantizadas. */
+    private static void assertSynthetic(JsonNode payload) {
+        assertEquals("CAPTURED", payload.path("status").asText(), payload.toString());
+        assertEquals(V3, payload.path("policy").asText());
+        assertFalse(payload.has("png") || payload.has("sha256"), "a v3 não traz imagem");
+        String all = payload.toString();
+        for (String s : SENTINELAS) assertFalse(all.contains(s), "marcador na descrição: " + s);
+        for (JsonNode r : payload.path("regions")) {
+            String kind = r.path("kind").asText();
+            if ("LABEL".equals(kind)) assertTrue(ROTULOS.contains(r.path("text").asText()), "rótulo fora do esperado: " + r);
+            if ("TEXT".equals(kind)) assertEquals(0, r.path("width").asInt() % 16, "barra não quantizada: " + r);
+            assertFalse(r.has("value") || r.has("placeholder") || r.has("color"), "campo fora do contrato: " + r);
+        }
+    }
+
+    private static long count(JsonNode payload, String kind) {
+        long n = 0;
+        for (JsonNode r : payload.path("regions")) if (kind.equals(r.path("kind").asText())) n++;
+        return n;
+    }
+
+    private static Set<String> labels(JsonNode payload) {
+        Set<String> out = new HashSet<>();
+        for (JsonNode r : payload.path("regions")) if ("LABEL".equals(r.path("kind").asText())) out.add(r.path("text").asText());
+        return out;
+    }
+
+    private void evidence(JsonNode payload, String name) throws IOException {
+        Files.writeString(lab.evidenceDir().resolve(name + ".json"), M.writerWithDefaultPrettyPrinter().writeValueAsString(payload)); // descrição sintética
+    }
+
+    private static String code(JsonNode reply) {
+        return reply.at("/error/code").asText() + "/" + reply.at("/error/reason").asText();
+    }
+
+    // ------------------------------------------------------------------------------------------ cenários
+
+    @Test
+    @DisplayName("S013-01 site com acesso do Chrome e SEM consentimento PDD: listado com origem exata, captura recusada (PDD_CONSENT_REQUIRED)")
+    void semConsentimento() {
+        Page p = sistema();
+        JsonNode st = status(p);
+        assertEquals(SITE, st.path("origin").asText(), "origem exata, sem caminho");
+        assertEquals("AUTHORIZED", st.path("access").asText());
+        assertEquals("NONE", st.path("consent").asText());
+        assertTrue(st.path("visualCapture").isNull());
+        assertEquals("PDD_CONSENT_REQUIRED", st.path("reason").asText());
+        JsonNode tabs = studio.call("browser.tabs.list", studio.obj()).at("/payload/tabs");
+        boolean listed = false;
+        for (JsonNode t : tabs) {
+            if (t.path("tabRef").asText().equals(ref(p))) {
+                listed = true;
+                assertEquals(SITE, t.path("origin").asText());
+                assertEquals("NONE", t.path("pddConsent").asText());
+                assertTrue(t.path("visualCapture").isNull());
+            }
+            assertFalse(t.toString().contains("/lab/"), "lista de abas sem caminho: " + t);
+        }
+        assertTrue(listed);
+        for (String policy : new String[] {V3, "nekkora-visual/2", null}) {
+            JsonNode r = arm(p, "cap-" + UUID.randomUUID(), policy, policy == null ? null : SITE);
+            assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_CONSENT_REQUIRED", code(r), String.valueOf(policy));
+        }
+    }
+
+    @Test
+    @DisplayName("S013-02 consentir pelo Studio (sessão) e capturar com o gesto real: descrição v3 sintética, sem imagem e sem nenhum marcador; recaptura")
+    void consentirECapturar() throws Exception {
+        Page p = sistema();
+        JsonNode g = grant(p, SITE, "SESSION");
+        assertTrue(g.path("ok").asBoolean(), g.toString());
+        assertEquals("TEST_AGENT", g.at("/payload/actor").asText(), "quem decidiu fica registrado");
+        assertEquals("AUTHORIZED_SITE", status(p).path("visualCapture").asText());
+        // Studio antigo (v1/v2) num site: recusado — a v2 copiaria pixels reais dos rótulos
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/POLICY_REQUIRES_V3", code(arm(p, "cap-" + UUID.randomUUID(), "nekkora-visual/2", SITE)));
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/POLICY_REQUIRES_V3", code(arm(p, "cap-" + UUID.randomUUID(), null, null)));
+        JsonNode one = shoot(p, SITE);
+        assertSynthetic(one);
+        assertTrue(labels(one).containsAll(Set.of("Usuário", "Senha", "Entrar", "Pesquisar")), labels(one).toString());
+        assertTrue(labels(one).contains("Confirmar") && labels(one).contains("Cancelar"), "shadow roots aberta e fechada percorridas: " + labels(one));
+        assertTrue(count(one, "FIELD") >= 8, "campos (input, senha, placeholder, autofill, select, textarea, editável, sombra): " + count(one, "FIELD"));
+        assertTrue(count(one, "FRAME") >= 1 && count(one, "MEDIA") >= 3, "iframe e mídias (svg, canvas, vídeo, fundo) só como lugar");
+        assertTrue(one.path("limitations").toString().contains("TABLE_CONTENT_HIDDEN") && one.path("limitations").toString().contains("FRAMES_HIDDEN"));
+        assertEquals(3, one.path("annotations").size());
+        evidence(one, "S013-02-descricao-v3");
+        JsonNode two = shoot(p, SITE);
+        assertSynthetic(two);
+        assertEquals(count(one, "LABEL"), count(two, "LABEL"), "recaptura da mesma tela");
+    }
+
+    @Test
+    @DisplayName("S013-03 menu dinâmico aberto e DOM mudando durante a captura: rótulos do menu do vocabulário; texto mutante nunca sai")
+    void menuEDomVivo() throws Exception {
+        Page p = site(SITE + SISTEMA + "?menu=1&mutar=1");
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        JsonNode d = shoot(p, SITE);
+        assertSynthetic(d);
+        assertTrue(labels(d).contains("Sair"), "item do menu aberto (vocabulário): " + labels(d));
+        assertFalse(d.toString().contains("Atualização"), "texto que muda na página nunca vira texto");
+    }
+
+    @Test
+    @DisplayName("S013-04 origem EXATA: outra porta do mesmo host e subdomínio não herdam o consentimento; sem acesso do Chrome, nem dá para consentir")
+    void origemExata() throws Exception {
+        Page p = sistema();
+        assertTrue(grant(p, SITE, "REMEMBERED").path("ok").asBoolean());
+        LabServer other = new LabServer(BrowserLab.PORT + 2, lab.repo().resolve("test-lab").resolve("pages"));
+        other.start();
+        try {
+            Page porta = site("http://" + BrowserLab.SITE_A + ":" + (BrowserLab.PORT + 2) + SISTEMA);
+            JsonNode st = status(porta);
+            assertEquals("http://" + BrowserLab.SITE_A + ":" + (BrowserLab.PORT + 2), st.path("origin").asText());
+            assertEquals("AUTHORIZED", st.path("access").asText(), "o Chrome permite o host em qualquer porta");
+            assertEquals("PDD_CONSENT_REQUIRED", st.path("reason").asText(), "o consentimento é da porta " + BrowserLab.PORT);
+            assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_CONSENT_REQUIRED", code(arm(porta, "cap-" + UUID.randomUUID(), V3, st.path("origin").asText())));
+        } finally {
+            other.stop();
+        }
+        Page sub = site("http://" + BrowserLab.SUB_A + ":" + BrowserLab.PORT + SISTEMA);
+        JsonNode st = status(sub);
+        assertEquals("AUTHORIZED", st.path("access").asText(), "subdomínio com acesso do Chrome (construção de teste)");
+        assertEquals("http://" + BrowserLab.SUB_A + ":" + BrowserLab.PORT, st.path("origin").asText());
+        assertEquals("PDD_CONSENT_REQUIRED", st.path("reason").asText(), "subdomínio não herda o consentimento de site-a");
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_CONSENT_REQUIRED", code(arm(sub, "cap-" + UUID.randomUUID(), V3, st.path("origin").asText())));
+        Page semAcesso = lab.openWithoutContent("http://" + BrowserLab.SITE_X + ":" + BrowserLab.PORT + SISTEMA);
+        opened.add(semAcesso);
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PERMISSION_REQUIRED",
+                code(grant(semAcesso, "http://" + BrowserLab.SITE_X + ":" + BrowserLab.PORT, "SESSION")), "consentimento PDD exige o acesso do Chrome antes");
+    }
+
+    // S013-05 (permissão AMPLA do Chrome sem consentimento PDD): o controle "Acesso ao site" do Chrome não concede permissão
+    // OPCIONAL nova sem o diálogo nativo (automatizar diálogo de permissão é proibido nesta homologação) — coberto em
+    // studio-pdd-013.test.js com a política de acesso REAL carregada com https://*/* e http://*/*.
+
+    @Test
+    @DisplayName("S013-06 revogar o consentimento com a captura ARMADA e no MEIO da captura: nada publicado; reautorizar volta a capturar")
+    void revogarArmadaEEmCurso() throws Exception {
+        Page p = sistema();
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        String cid = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, cid, V3, SITE).path("ok").asBoolean());
+        assertTrue(revoke(SITE).at("/payload/revoked").asBoolean());
+        JsonNode f = captured(cid);
+        assertEquals("FAILED", f.path("status").asText());
+        assertEquals("PDD_CONSENT_REVOKED", f.path("code").asText());
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PDD_CONSENT_REQUIRED", code(arm(p, "cap-" + UUID.randomUUID(), V3, SITE)));
+        // no meio: a página ocupa a thread principal (o plano espera) e a revogação chega nesse intervalo
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        String c2 = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, c2, V3, SITE).path("ok").asBoolean());
+        lab.focus(p);
+        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        gesture(p);
+        Thread.sleep(1500);
+        assertTrue(revoke(SITE).at("/payload/revoked").asBoolean());
+        JsonNode f2 = captured(c2);
+        assertEquals("FAILED", f2.path("status").asText(), f2.toString());
+        assertEquals("PDD_CONSENT_REVOKED", f2.path("code").asText());
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        assertSynthetic(shoot(p, SITE));
+    }
+
+    @Test
+    @DisplayName("S013-07 acesso do Chrome revogado com o consentimento PDD presente: armação cai (PERMISSION_REVOKED) e o consentimento é apagado")
+    void chromeRevogado() throws Exception {
+        Page p = sistema();
+        assertTrue(grant(p, SITE, "REMEMBERED").path("ok").asBoolean());
+        String cid = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, cid, V3, SITE).path("ok").asBoolean());
+        lab.siteAccess("http://" + BrowserLab.SITE_A + "/*", false);
+        try {
+            JsonNode f = captured(cid);
+            assertEquals("PERMISSION_REVOKED", f.path("code").asText(), f.toString());
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> studio.call("studio.pdd.consent.list", studio.obj()).at("/payload/consents").isEmpty(),
+                    "consentimento apagado com a remoção do acesso do Chrome");
+        } finally {
+            lab.siteAccess("http://" + BrowserLab.SITE_A + "/*", true);
+        }
+        BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "AUTHORIZED".equals(status(p).path("access").asText()), "acesso devolvido");
+        assertEquals("PDD_CONSENT_REQUIRED", status(p).path("reason").asText(), "devolver o acesso do Chrome não devolve o consentimento PDD");
+    }
+
+    @Test
+    @DisplayName("S013-08 redirecionamento de login (SSO) para outra origem com a captura armada: PAGE_CHANGED; a nova origem não herda nada")
+    void redirecionamentoSso() throws Exception {
+        Page p = site(SITE + SISTEMA + "?sso=2500");
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        String cid = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, cid, V3, SITE).path("ok").asBoolean());
+        JsonNode f = captured(cid);
+        assertEquals("PAGE_CHANGED", f.path("code").asText(), f.toString());
+        BrowserLab.waitUntil(Duration.ofSeconds(10), () -> ("http://" + BrowserLab.SITE_B + ":" + BrowserLab.PORT).equals(status(p).path("origin").asText()),
+                "aba na outra origem");
+        assertEquals("PDD_CONSENT_REQUIRED", status(p).path("reason").asText());
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/ORIGIN_CHANGED", code(arm(p, "cap-" + UUID.randomUUID(), V3, SITE)), "a origem mostrada não é mais a da aba");
+    }
+
+    @Test
+    @DisplayName("S013-09 A→B→A e cancelamento DURANTE a captura no site: nada publicado")
+    void trocaDeAbaECancelamento() throws Exception {
+        Page p = sistema();
+        Page b = lab.openTab(p, "/lab/studio010/consulta.html");
+        opened.add(b);
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        String cid = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, cid, V3, SITE).path("ok").asBoolean());
+        lab.focus(p);
+        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        gesture(p);
+        Thread.sleep(1500);
+        ctrlTab(2); // A→B→A com o plano esperando
+        JsonNode f = captured(cid);
+        assertEquals("ACTIVE_TAB_CHANGED", f.path("code").asText(), f.toString());
+        String c2 = "cap-" + UUID.randomUUID();
+        assertTrue(arm(p, c2, V3, SITE).path("ok").asBoolean());
+        lab.focus(p);
+        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        gesture(p);
+        Thread.sleep(1500);
+        assertTrue(studio.call("studio.pdd.capture.cancel", studio.obj().put("captureId", c2)).at("/payload/cancelled").asBoolean());
+        assertEquals("CANCELLED", captured(c2).path("code").asText());
+    }
+
+    @Test
+    @DisplayName("S013-10 páginas internas e sem acesso: motivo do navegador; nenhum comando de screenshot bruto existe no Bridge")
+    void internasEScreenshotBruto() {
+        Page in = lab.openWithoutContent("chrome://version/");
+        opened.add(in);
+        JsonNode st = status(in);
+        assertEquals("BROWSER_INTERNAL", st.path("reason").asText());
+        assertTrue(st.path("origin").isNull());
+        Page x = lab.openWithoutContent("http://" + BrowserLab.SITE_X + ":" + BrowserLab.PORT + SISTEMA);
+        opened.add(x);
+        assertEquals("VISUAL_CAPTURE_NOT_ALLOWED/PERMISSION_REQUIRED", code(arm(x, "cap-" + UUID.randomUUID(), V3, null)));
+        int before = studio.contractViolations.size();
+        JsonNode raw = studio.call("studio.pdd.capture.raw", studio.obj().put("tabRef", ref(x)));
+        assertFalse(raw.path("ok").asBoolean(), "não há captura bruta: " + raw);
+        studio.contractViolations.subList(before, studio.contractViolations.size()).clear(); // a recusa do host é a resposta esperada
+    }
+
+    @Test
+    @DisplayName("S013-11 laboratório local continua sem consentimento, agora também na v3 (sem pixels)")
+    void laboratorioV3() throws Exception {
+        Page p = lab.open(SISTEMA);
+        opened.add(p);
+        assertEquals("NOT_REQUIRED", status(p).path("consent").asText());
+        JsonNode d = shoot(p, "http://127.0.0.1:" + BrowserLab.PORT);
+        assertSynthetic(d);
+    }
+
+    @Test
+    @DisplayName("S013-13 plano v3 no motor REAL do Chrome (sem gesto): mesmo pdd-plan.js na página adversarial — nenhum marcador, só rótulos do vocabulário")
+    void planoV3NoMotorReal() throws Exception {
+        Page p = sistema();
+        lab.focus(p);
+        StringBuilder src = new StringBuilder("window.NekkoraCS = window.NekkoraCS || {};\n");
+        for (String f : List.of("shared/ui-vocabulary.js", "shared/capture-policy.js", "content/pdd-plan.js")) {
+            src.append(Files.readString(lab.repo().resolve("chrome-extension/src/" + f))).append('\n');
+        }
+        // mundo da PÁGINA (não o isolado da extensão): sem chrome.dom, só a shadow root aberta é percorrida
+        src.append("const vw = Math.floor(innerWidth), vh = Math.floor(innerHeight);"
+                + " return JSON.stringify({ viewport: { width: vw, height: vh }, plan: NekkoraCS.pddPlan.v3(NekkoraCapturePolicy, vw, vh, () => {}) });");
+        JsonNode r = M.readTree((String) ((JavascriptExecutor) lab.driver()).executeScript(src.toString()));
+        JsonNode plan = r.get("plan");
+        ObjectNode payload = M.createObjectNode().put("status", "CAPTURED").put("policy", V3);
+        payload.set("regions", plan.get("regions"));
+        payload.set("limitations", plan.get("limitations"));
+        assertSynthetic(payload);
+        String order = "SURFACE MEDIA FRAME CONTROL FIELD TEXT LABEL";
+        int last = -1;
+        for (JsonNode x : plan.get("regions")) {
+            int k = order.indexOf(x.path("kind").asText());
+            assertTrue(k >= last, "ordem de pintura: " + x);
+            last = k;
+            for (String f : List.of("x", "y", "width", "height")) assertTrue(x.path(f).isInt(), "px CSS inteiros: " + x);
+            assertTrue(x.path("x").asInt() + x.path("width").asInt() <= r.at("/viewport/width").asInt(), "dentro do viewport: " + x);
+        }
+        assertTrue(labels(payload).containsAll(Set.of("Usuário", "Senha", "Entrar", "Pesquisar", "Confirmar")), labels(payload).toString());
+        assertTrue(count(payload, "FIELD") >= 8 && count(payload, "FRAME") >= 1 && count(payload, "MEDIA") >= 3, payload.toString());
+        assertTrue(count(payload, "TEXT") >= 3, "texto que não é rótulo vira barra: " + count(payload, "TEXT"));
+        evidence(payload, "S013-13-plano-v3-motor-real");
+    }
+
+    @Test
+    @DisplayName("S013-12 consentimento pelo PAINEL da extensão (via EXTENSION, DEVELOPER), visto pelo Studio; revogação pelo painel")
+    void consentimentoPeloPainel() throws Exception {
+        Page p = sistema();
+        String panel = lab.openExtensionPage("src/ui/panel.html?tabId=" + p.tabId());
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) lab.driver();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('btn-pdd-grant').hidden")),
+                    "botão de autorizar captura PDD");
+            assertTrue(String.valueOf(js.executeScript("return document.getElementById('pdd-origin').textContent")).equals(SITE));
+            lab.driver().findElement(By.id("btn-pdd-grant")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "SESSION".equals(js.executeScript("return document.getElementById('pdd-state').dataset.consent")),
+                    "painel mostra a autorização");
+            JsonNode list = studio.call("studio.pdd.consent.list", studio.obj()).at("/payload/consents");
+            assertEquals(1, list.size());
+            assertEquals("EXTENSION", list.get(0).path("via").asText());
+            assertEquals("DEVELOPER", list.get(0).path("actor").asText());
+            lab.screenshotWindow(panel, "S013-12-painel-consentimento");
+            lab.driver().findElement(By.id("btn-pdd-revoke")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "NONE".equals(js.executeScript("return document.getElementById('pdd-state').dataset.consent")),
+                    "painel mostra a revogação");
+        } finally {
+            lab.closeWindow(panel);
+        }
+        assertEquals("PDD_CONSENT_REQUIRED", status(p).path("reason").asText());
+    }
+}
