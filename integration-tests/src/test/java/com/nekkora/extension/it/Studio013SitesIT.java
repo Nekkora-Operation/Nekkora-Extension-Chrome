@@ -446,6 +446,109 @@ class Studio013SitesIT extends SessionIT {
         assertSynthetic(d);
     }
 
+    private static final String V4 = "nekkora-visual/4";
+
+    private JsonNode shootV4(Page p, String origin) throws Exception {
+        String cid = "cap-" + UUID.randomUUID();
+        JsonNode armed = arm(p, cid, V4, origin);
+        assertTrue(armed.path("ok").asBoolean(), armed.toString());
+        assertEquals(V4, armed.at("/payload/policy").asText());
+        gesture(p);
+        return captured(cid);
+    }
+
+    /** Controle positivo: a tela BRUTA (só em memória, nunca gravada) tem a cor-sentinela. */
+    private static int rawSentinel(Page p) throws IOException {
+        lab.focus(p);
+        java.awt.image.BufferedImage raw = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(
+                ((org.openqa.selenium.TakesScreenshot) lab.driver()).getScreenshotAs(org.openqa.selenium.OutputType.BYTES)));
+        return Studio010SafeCaptureIT.sentinelPixels(raw);
+    }
+
+    @Test
+    @DisplayName("S013-14 v4 (print real, texto de dados mascarado) no site com o gesto real: NENHUM pixel da cor-sentinela; tela bruta tem (controle)")
+    void printRealMascarado() throws Exception {
+        Page p = sistema();
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        int control = rawSentinel(p);
+        assertTrue(control > 200, "controle positivo: a tela bruta tem dados na cor-sentinela (" + control + " px)");
+        JsonNode d = shootV4(p, SITE);
+        assertEquals("CAPTURED", d.path("status").asText(), d.toString().substring(0, Math.min(300, d.toString().length())));
+        assertEquals(V4, d.path("policy").asText());
+        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(d.path("png").asText())));
+        int leak = Studio010SafeCaptureIT.sentinelPixels(img);
+        assertEquals(0, leak, "pixels da cor-sentinela no print mascarado");
+        String meta = d.deepCopy() instanceof ObjectNode o ? o.without(List.of("png", "sha256")).toString() : "";
+        for (String s : SENTINELAS) assertFalse(meta.contains(s), "marcador nos metadados: " + s);
+        assertTrue(count(d, "FIELD") >= 8, "campos: " + count(d, "FIELD"));
+        assertTrue(count(d, "BLOCK") >= 6, "tabela, frame, canvas, vídeo, fundo, pseudo-elemento, botão fora do vocabulário: " + count(d, "BLOCK"));
+        assertTrue(count(d, "TEXT") >= 5, "linhas de texto de dados: " + count(d, "TEXT"));
+        assertTrue(d.path("limitations").toString().contains("TABLE_CONTENT_HIDDEN"));
+        Files.write(lab.evidenceDir().resolve("S013-14-print-v4-mascarado.png"), java.util.Base64.getDecoder().decode(d.path("png").asText())); // JÁ mascarado
+    }
+
+    @Test
+    @DisplayName("S013-15 v4 com menu aberto e DOM mudando: ou falha (página mudou) ou sai sem nenhum pixel da cor-sentinela; laboratório também em v4")
+    void printRealMenuEDomVivo() throws Exception {
+        Page p = site(SITE + SISTEMA + "?menu=1&mutar=1");
+        assertTrue(grant(p, SITE, "SESSION").path("ok").asBoolean());
+        JsonNode d = shootV4(p, SITE);
+        if ("CAPTURED".equals(d.path("status").asText())) {
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(d.path("png").asText())));
+            assertEquals(0, Studio010SafeCaptureIT.sentinelPixels(img));
+        } else {
+            assertEquals("PAGE_CHANGED_DURING_CAPTURE", d.path("code").asText(), d.toString());
+        }
+        Page lab0 = lab.open(SISTEMA);
+        opened.add(lab0);
+        JsonNode l = shootV4(lab0, "http://127.0.0.1:" + BrowserLab.PORT);
+        assertEquals("CAPTURED", l.path("status").asText(), l.path("code").asText());
+        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(l.path("png").asText())));
+        assertEquals(0, Studio010SafeCaptureIT.sentinelPixels(img), "laboratório em v4");
+    }
+
+    @Test
+    @DisplayName("S013-16 plano v4 no motor REAL do Chrome (sem gesto): toda linha de texto na cor-sentinela está DENTRO de uma máscara")
+    void planoV4CobreTodoDado() throws Exception {
+        Page p = site(SITE + SISTEMA + "?menu=1");
+        lab.focus(p);
+        StringBuilder src = new StringBuilder("window.NekkoraCS = window.NekkoraCS || {};\n");
+        for (String f : List.of("shared/ui-vocabulary.js", "shared/capture-policy.js", "content/pdd-plan.js")) {
+            src.append(Files.readString(lab.repo().resolve("chrome-extension/src/" + f))).append('\n');
+        }
+        // mundo da página: as shadow roots ABERTAS são vistas pelo plano e por esta conferência (a fechada fica para o IT com gesto)
+        src.append("const vw = Math.floor(innerWidth), vh = Math.floor(innerHeight);"
+                + " const plan = NekkoraCS.pddPlan.v4(NekkoraCapturePolicy, vw, vh, () => {});"
+                + " const inside = (r) => plan.regions.some((m) => r.left >= m.x - 0.5 && r.top >= m.y - 0.5 && r.right <= m.x + m.width + 0.5 && r.bottom <= m.y + m.height + 0.5);"
+                + " const roots = [document]; document.querySelectorAll('*').forEach((e) => { if (e.shadowRoot) roots.push(e.shadowRoot); });"
+                + " const range = document.createRange(); const loose = []; let checked = 0;"
+                + " for (const root of roots) { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);"
+                + "   for (let n = w.nextNode(); n; n = w.nextNode()) { const el = n.parentElement; if (!el || !n.nodeValue.trim()) continue;"
+                + "     if (getComputedStyle(el).color !== 'rgb(230, 0, 126)' || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;"
+                + "     range.selectNodeContents(n); for (const r of range.getClientRects()) { if (r.width <= 0 || r.bottom <= 0 || r.top >= vh) continue; checked++;"
+                + "       if (!inside(r)) loose.push(n.nodeValue.trim().slice(0, 12).replace(/[A-Za-z]/g, 'x')); } } }"
+                + " document.querySelectorAll('input, textarea, select, [contenteditable=\"true\"]').forEach((e) => { const r = e.getBoundingClientRect();"
+                + "   if (r.width > 0 && r.bottom > 0 && r.top < vh && e.checkVisibility() && getComputedStyle(e).color === 'rgb(230, 0, 126)') { checked++; if (!inside(r)) loose.push('campo'); } });"
+                + " const tables = [...document.querySelectorAll('table')].filter((t) => { const r = t.getBoundingClientRect(); return r.width > 0 && r.bottom > 0 && r.top < vh && t.checkVisibility(); })"
+                + "   .map((t) => { const r = t.getBoundingClientRect(); return plan.regions.some((m) => m.kind === 'BLOCK' && Math.max(r.left, 0) >= m.x - 0.5 && Math.max(r.top, 0) >= m.y - 0.5"
+                + "     && Math.min(r.right, vw) <= m.x + m.width + 0.5 && Math.min(r.bottom, vh) <= m.y + m.height + 0.5); });"
+                + " return JSON.stringify({ checked, loose, tables, limitations: plan.limitations, incomplete: plan.incomplete, kinds: plan.regions.map((m) => m.kind) });");
+        JsonNode r = M.readTree((String) ((JavascriptExecutor) lab.driver()).executeScript(src.toString()));
+        assertFalse(r.path("incomplete").asBoolean());
+        assertTrue(r.path("checked").asInt() >= 12, "linhas e campos de dados conferidos: " + r.path("checked"));
+        assertEquals(0, r.path("loose").size(), "linhas de dados fora de máscara (forma, sem o texto): " + r.path("loose"));
+        // a tabela é coberta INTEIRA por um BLOCK (estrutura, zebrado, bordas), não só o texto das células
+        assertTrue(r.path("tables").size() >= 1, "a página adversarial mostra a tabela de pacientes");
+        for (JsonNode t : r.path("tables")) assertTrue(t.asBoolean(), "tabela visível fora de um BLOCK: " + r.path("tables"));
+        assertTrue(r.path("limitations").toString().contains("TABLE_CONTENT_HIDDEN"), "limitação da tabela: " + r.path("limitations"));
+        String order = "BLOCK FIELD TEXT";
+        int last = -1;
+        for (JsonNode k : r.path("kinds")) {
+            assertTrue(order.indexOf(k.asText()) >= last, "ordem de pintura");
+            last = order.indexOf(k.asText());
+        }
+    }
+
     @Test
     @DisplayName("S013-13 plano v3 no motor REAL do Chrome (sem gesto): mesmo pdd-plan.js na página adversarial — nenhum marcador, só rótulos do vocabulário")
     void planoV3NoMotorReal() throws Exception {

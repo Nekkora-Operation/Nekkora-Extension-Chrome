@@ -124,7 +124,7 @@ test('perfil: origem EXATA — esquema, porta e subdomínio diferentes não herd
   }
   assert.equal(denialReason(ev('https://app.exemplo.test', false), consent), 'PERMISSION_REQUIRED');
   assert.equal(denialReason({ allowed: false, reason: 'BROWSER_RESTRICTED' }, null), 'BROWSER_RESTRICTED');
-  assert.deepEqual([...POLICIES_BY_PROFILE.AUTHORIZED_SITE], ['nekkora-visual/3']);
+  assert.deepEqual([...POLICIES_BY_PROFILE.AUTHORIZED_SITE], ['nekkora-visual/3', 'nekkora-visual/4'], 'a v2 (rótulos reais sem máscara de texto) nunca');
   assert.ok(POLICIES_BY_PROFILE.LAB.includes('nekkora-visual/2'));
 });
 
@@ -447,4 +447,93 @@ test('sem módulo de consentimento (extensão montada sem ele): só o laboratór
   const pdd = createStudioPdd(deps({ consent: undefined }));
   await assert.rejects(GRANT(pdd), { code: 'INVALID_STATE' });
   await assert.rejects(ARM(pdd), { code: 'VISUAL_CAPTURE_NOT_ALLOWED', reason: 'PDD_CONSENT_REQUIRED' });
+});
+
+// ------------------------------------------------------------------------------------------------ v4: print real com o texto mascarado
+
+const S = await import('../src/background/visual-sanitizer.js');
+const SENT = [230, 0, 126]; // cor-sentinela: o "dado" da página
+
+function screen(w, h) {
+  const px = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < px.length; i += 4) {
+    px[i] = SENT[0];
+    px[i + 1] = SENT[1];
+    px[i + 2] = SENT[2];
+    px[i + 3] = 255;
+  }
+  return px;
+}
+
+function planV4(regions, dpr = 1, extra = {}) {
+  return { ok: true, policy: 'nekkora-visual/4', viewport: { width: 200, height: 100, dpr, scrollX: 0, scrollY: 0 }, token: 't1', regions, rejected: {},
+    hasFrames: false, incomplete: false, labels: 2, limitations: [], ...extra };
+}
+
+const MASKS = [{ kind: 'BLOCK', x: 100, y: 0, width: 100, height: 50 }, { kind: 'FIELD', x: 10, y: 60, width: 80, height: 20 },
+  { kind: 'TEXT', x: 10, y: 10, width: 60.4, height: 12.2, ink: 'DARK' }];
+
+test('v4: tela real fora das máscaras; DENTRO delas nenhum pixel da página (nem com dpr fracionário); adulterar 1 pixel é detectado', () => {
+  for (const dpr of [1, 1.25, 1.5]) {
+    const w = Math.round(200 * dpr), h = Math.round(100 * dpr);
+    const masks = S.deviceMasksV4(planV4(MASKS, dpr), w, h);
+    const out = S.composeV4(screen(w, h), w, h, masks);
+    assert.equal(S.violationsV4(out, w, h, masks), 0);
+    const inMask = (x, y) => masks.some((m) => x >= m.x && x < m.x2 && y >= m.y && y < m.y2);
+    let sentInside = 0, sentOutside = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const k = (y * w + x) * 4;
+        const s = out[k] === SENT[0] && out[k + 1] === SENT[1] && out[k + 2] === SENT[2];
+        if (s && inMask(x, y)) sentInside++;
+        if (s && !inMask(x, y)) sentOutside++;
+      }
+    }
+    assert.equal(sentInside, 0, 'dpr ' + dpr);
+    assert.ok(sentOutside > 0, 'o resto é a tela real');
+    const t = masks[2];
+    assert.ok(t.x <= Math.floor(10 * dpr) && t.x2 >= Math.ceil(70.4 * dpr), 'arredondado para fora');
+    out[(masks[0].y + 3) * w * 4 + (masks[0].x + 3) * 4] = 1;
+    assert.equal(S.violationsV4(out, w, h, masks), 1);
+  }
+  assert.throws(() => S.deviceMasksV4(planV4([MASKS[2], MASKS[0]]), 200, 100), { code: 'REGION_ORDER' });
+  assert.throws(() => S.deviceMasksV4(planV4([{ kind: 'CARRIER', x: 0, y: 0, width: 5, height: 5 }]), 200, 100), { code: 'REGION_KIND_UNKNOWN' });
+  assert.throws(() => S.deviceMasksV4(planV4([{ kind: 'TEXT', x: 0, y: 0, width: 5, height: 5, ink: '#000' }]), 200, 100), { code: 'REGION_KIND_UNKNOWN' });
+  assert.throws(() => S.deviceMasksV4(planV4(MASKS), 210, 100), { code: 'GEOMETRY_MISMATCH' });
+});
+
+test('v4 no site autorizado: captura com o gesto, máscaras verificadas, PNG no evento; plano incompleto falha sem imagem', async () => {
+  let encoded = null;
+  const imaging = {
+    decode: async () => ({ width: 200, height: 100, pixels: screen(200, 100), release() {} }),
+    encode: async (px) => { encoded = new Uint8ClampedArray(px); return new Uint8Array([137, 80, 78, 71, 9]); },
+  };
+  for (const [extra, expect] of [[{}, 'CAPTURED'], [{ incomplete: true }, 'TOO_MANY_REGIONS']]) {
+    posted = [];
+    shots = 0;
+    content = (cmd, a) => {
+      if (cmd === 'cs.pdd.plan') return a.policy === 'nekkora-visual/4' ? planV4(MASKS, 1, extra) : { ok: false };
+      if (cmd === 'cs.pdd.rects') return { ok: true, token: 't1', rects: [{ nodeId: 'n1', x: 10, y: 60, width: 80, height: 20 }] };
+      return { ok: true, token: 't1' };
+    };
+    const pdd = createStudioPdd(deps({ imaging }));
+    await GRANT(pdd);
+    await ARM(pdd, { policy: 'nekkora-visual/4', captureId: 'c4' + expect.length });
+    await pdd.onShortcut('nk-pdd-capturar', { id: 2, windowId: 9 });
+    const [ev] = events();
+    if (expect === 'CAPTURED') {
+      assert.equal(ev.status, 'CAPTURED');
+      assert.equal(ev.policy, 'nekkora-visual/4');
+      assert.equal(shots, 1, 'a v4 é o print real');
+      assert.ok(ev.png && ev.sha256);
+      assert.deepEqual(ev.regions.map((r) => r.kind), ['BLOCK', 'FIELD', 'TEXT']);
+      assert.equal(ev.regions[2].ink, 'DARK');
+      assert.ok(!JSON.stringify(ev).includes('pacientes'));
+      const masks = S.deviceMasksV4(planV4(MASKS), 200, 100);
+      assert.equal(S.violationsV4(encoded, 200, 100, masks), 0);
+    } else {
+      assert.deepEqual([ev.status, ev.code], ['FAILED', expect]);
+      assert.equal(shots, 0, 'nada é capturado com o plano incompleto');
+    }
+  }
 });

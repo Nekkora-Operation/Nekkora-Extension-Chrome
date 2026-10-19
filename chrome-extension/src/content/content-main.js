@@ -178,6 +178,15 @@
       const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
       const policy = root.NekkoraCapturePolicy;
       const viewport = { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY };
+      if (a && a.policy === 'nekkora-visual/4') {
+        // print real com o texto de dados mascarado (pdd-plan.js): só as máscaras saem daqui
+        if (!policy || !NS.pddPlan || !NS.pddPlan.v4) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v4 = NS.pddPlan.v4(policy, Math.floor(vw), Math.floor(vh), reject);
+        return { ok: true, policy: 'nekkora-visual/4', viewport, token: pdd.token(), regions: v4.regions, rejected, incomplete: v4.incomplete,
+          labels: v4.labels, hasFrames: v4.hasFrames, limitations: v4.limitations };
+      }
       if (a && a.policy === 'nekkora-visual/3') {
         // NEKKORA-STUDIO-013: descrição inteiramente sintética (pdd-plan.js) — px CSS inteiros, nada de pixels da página
         if (!policy || !NS.pddPlan || !NS.pddPlan.v3) {

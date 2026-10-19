@@ -25,8 +25,8 @@
  * guarda a origem; mudança de origem, revogação da permissão do Chrome ou do consentimento PDD invalidam a armação e a
  * captura em curso (PERMISSION_REVOKED / PDD_CONSENT_REVOKED / ORIGIN_CHANGED).
  */
-import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICIES, MAX_PNG_BYTES, codeError, compose, composeV2, deviceRegions,
-  deviceRegionsV2, violations, violationsV2, validateV3 } from './visual-sanitizer.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICIES, MAX_PNG_BYTES, MAX_PNG_BYTES_V4, codeError, compose,
+  composeV2, composeV4, deviceRegions, deviceRegionsV2, deviceMasksV4, violations, violationsV2, violationsV4, validateV3 } from './visual-sanitizer.js';
 import { visualProfile, denialReason, POLICIES_BY_PROFILE } from './visual-capture-profile.js';
 import { originOf, canonicalOrigin, SCOPES, ACTORS } from './pdd-consent.js';
 
@@ -348,8 +348,11 @@ export function createStudioPdd(deps) {
     if (a.policy === VISUAL_POLICY_V3) return describeV3(a, resolved);
     // 2. plano visual + retângulos dos alvos, na MESMA ficha de layout
     const v2 = a.policy === VISUAL_POLICY_V2;
-    const plan = await toContent(a.tabId, 'cs.pdd.plan', v2 ? { policy: VISUAL_POLICY_V2 } : {}, 0).catch(() => null);
-    if (!plan || !plan.ok || (v2 && plan.policy !== VISUAL_POLICY_V2)) throw codeError('CONTENT_UNAVAILABLE');
+    const v4 = a.policy === VISUAL_POLICY_V4; // STUDIO-013: print real com o texto de dados mascarado
+    const asked = v2 || v4 ? { policy: a.policy } : {};
+    const plan = await toContent(a.tabId, 'cs.pdd.plan', asked, 0).catch(() => null);
+    if (!plan || !plan.ok || ((v2 || v4) && plan.policy !== a.policy)) throw codeError('CONTENT_UNAVAILABLE');
+    if (v4 && plan.incomplete) throw codeError('TOO_MANY_REGIONS'); // página não mapeada inteira: nenhum print parcial
     const nodeIds = [...resolved.values()].filter((x) => x.nodeId).map((x) => x.nodeId);
     const rects = nodeIds.length ? await toContent(a.tabId, 'cs.pdd.rects', { nodeIds }, 0).catch(() => null) : { ok: true, rects: [], token: plan.token };
     if (!rects || !rects.ok || rects.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
@@ -368,14 +371,18 @@ export function createStudioPdd(deps) {
       if (!after || after.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
       decoded = await imaging.decode(raw);
       raw = null;
-      const regions = v2 ? deviceRegionsV2(plan, decoded.width, decoded.height) : deviceRegions(plan, decoded.width, decoded.height);
-      const pixels = v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
+      const regions = v4 ? deviceMasksV4(plan, decoded.width, decoded.height) : v2 ? deviceRegionsV2(plan, decoded.width, decoded.height)
+        : deviceRegions(plan, decoded.width, decoded.height);
+      const pixels = v4 ? composeV4(decoded.pixels, decoded.width, decoded.height, regions)
+        : v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
       decoded.release();
       decoded = { width: decoded.width, height: decoded.height, release() {} };
-      const bad = v2 ? violationsV2(pixels, decoded.width, decoded.height, regions) : violations(pixels, decoded.width, decoded.height, regions);
+      const bad = v4 ? violationsV4(pixels, decoded.width, decoded.height, regions)
+        : v2 ? violationsV2(pixels, decoded.width, decoded.height, regions) : violations(pixels, decoded.width, decoded.height, regions);
       if (bad !== 0) throw codeError('SANITIZATION_CHECK_FAILED');
       const png = await imaging.encode(pixels, decoded.width, decoded.height);
-      if (png.length > MAX_PNG_BYTES) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
+      if (v4) pixels.fill(0); // a composição v4 tem pixels reais fora das máscaras: zerada depois de codificar
+      if (png.length > (v4 ? MAX_PNG_BYTES_V4 : MAX_PNG_BYTES)) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
       const vw = plan.viewport.width;
       const vh = plan.viewport.height;
       const byNode = new Map((rects.rects || []).map((r) => [r.nodeId, r]));
@@ -391,12 +398,15 @@ export function createStudioPdd(deps) {
       const limitations = [];
       if (plan.rejected && Object.keys(plan.rejected).length) limitations.push('SOME_LABELS_HIDDEN');
       if (plan.hasFrames) limitations.push('FRAMES_HIDDEN');
-      const outRegions = v2
+      if (v4 && Array.isArray(plan.limitations) && plan.limitations.includes('TABLE_CONTENT_HIDDEN')) limitations.push('TABLE_CONTENT_HIDDEN');
+      const outRegions = v4
+        ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.ink ? { ink: r.ink } : {}) }))
+        : v2
         ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.tone ? { tone: r.tone } : {}) }))
         : [...regions.carriers.map((c) => ({ kind: 'CARRIER', x: c.x, y: c.y, width: c.x2 - c.x, height: c.y2 - c.y })),
           ...regions.fields.map((f) => ({ kind: 'FIELD', x: f.x, y: f.y, width: f.x2 - f.x, height: f.y2 - f.y }))];
       return {
-        captureId: a.captureId, status: 'CAPTURED', policy: v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
+        captureId: a.captureId, status: 'CAPTURED', policy: v4 ? VISUAL_POLICY_V4 : v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
         width: decoded.width, height: decoded.height, devicePixelRatio: plan.viewport.dpr,
         png: base64(png), sha256: await sha256(png),
         regions: outRegions,

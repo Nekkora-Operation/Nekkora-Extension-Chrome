@@ -418,5 +418,126 @@
     return { regions, hasFrames: k.FRAME.length > 0 || !!document.querySelector('iframe, frame, object, embed'), limitations: [...limitations] };
   }
 
-  NS.pddPlan = Object.freeze({ v2, v3 });
+  /*
+   * NEKKORA-STUDIO-013 (revisão da usuária) — plano da nekkora-visual/4: PRINT REAL com o texto de dados mascarado. O que
+   * sai são só as MÁSCARAS (px CSS, para fora): o service worker captura a tela e pinta as faixas por cima. Fica REAL o que
+   * não carrega dado: fundos, cores, bordas, ícones e imagens pequenas, botões e rótulos de interface cujo texto INTEIRO é
+   * do vocabulário. É coberto:
+   *   BLOCK  tabela inteira; iframe/frame/object/embed; canvas; vídeo; imagem grande (> 240 px num lado) ou quebrada (o
+   *          texto alternativo apareceria); SVG com <text>/<foreignObject>; fundo com url() maior que 64 px; elemento com
+   *          pseudo-elemento de texto (::before/::after); input de botão cujo value não é do vocabulário;
+   *   FIELD  todo campo (valor, placeholder e autofill nunca aparecem);
+   *   TEXT   cada linha de texto que não é rótulo de interface, com 2 px de folga (sombra, acento, descendentes).
+   * Na dúvida, cobre: um rótulo encoberto, fora do viewport ou além dos tetos vira TEXT. Acima dos tetos de máscaras a
+   * captura FALHA (TOO_MANY_REGIONS) — nunca sai uma linha sem máscara.
+   */
+  const V4_MAX = { BLOCK: 96, FIELD: 128, TEXT: 600 };
+  const PAD = 2;
+
+  function padded(r, vw, vh, p) {
+    const x = Math.max(0, Math.floor(r.left - p));
+    const y = Math.max(0, Math.floor(r.top - p));
+    const x2 = Math.min(vw, Math.ceil(r.right + p));
+    const y2 = Math.min(vh, Math.ceil(r.bottom + p));
+    return x2 - x >= 1 && y2 - y >= 1 ? { x, y, width: x2 - x, height: y2 - y } : null;
+  }
+
+  function pseudoContent(el) {
+    return ['::before', '::after'].some((p) => {
+      const c = getComputedStyle(el, p).content;
+      return c && c !== 'none' && c !== 'normal' && c !== '""' && c !== "''" && !/^url\(/.test(c);
+    });
+  }
+
+  function v4(policy, vw, vh, reject) {
+    const { list, truncated } = deepElements(V3_SCAN * 2);
+    const m = { BLOCK: [], FIELD: [], TEXT: [] };
+    const covered = new Set(); // elementos cujo conteúdo já está inteiro sob um BLOCK ou FIELD
+    const real = new Set(); // rótulos de interface que ficam como na página
+    const limitations = new Set();
+    let overflow = false;
+    if (truncated) overflow = true; // página maior do que o que se consegue mapear: falha, nunca print parcial
+    const block = (el, r) => {
+      m.BLOCK.push({ kind: 'BLOCK', ...r });
+      covered.add(el);
+    };
+    for (const el of list) {
+      if (el === document.documentElement || el === document.body) continue;
+      const tag = el.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEMPLATE' || tag === 'HEAD') continue;
+      const b = el.getBoundingClientRect();
+      if (!(b.width > 0 && b.height > 0) || b.right <= 0 || b.bottom <= 0 || b.left >= vw || b.top >= vh) continue;
+      let anc = false;
+      for (let a = el.parentElement || (el.getRootNode() !== document ? el.getRootNode().host : null); a;
+        a = a.parentElement || (a.getRootNode && a.getRootNode() !== document ? a.getRootNode().host || null : null)) {
+        if (covered.has(a)) { anc = true; break; }
+      }
+      if (anc) continue; // já está sob uma máscara inteira
+      if (!shown(el)) continue;
+      const r = box(b, vw, vh);
+      if (!r) continue;
+      const lower = tag.toLowerCase();
+      if (tag === 'TABLE') { block(el, r); limitations.add('TABLE_CONTENT_HIDDEN'); continue; }
+      if (/^(IFRAME|FRAME|OBJECT|EMBED)$/.test(tag)) { block(el, r); limitations.add('FRAMES_HIDDEN'); continue; }
+      if (isField(el)) { m.FIELD.push({ kind: 'FIELD', ...r }); covered.add(el); continue; }
+      if (tag === 'CANVAS' || tag === 'VIDEO') { block(el, r); continue; }
+      if (tag === 'IMG' && (!el.complete || el.naturalWidth === 0 || b.width > 240 || b.height > 240)) { block(el, r); continue; }
+      if (lower === 'svg' && (el.querySelector('text, foreignObject') || b.width > 240 || b.height > 240)) { block(el, r); continue; }
+      const cs = getComputedStyle(el);
+      if (cs.backgroundImage && /url\(/i.test(cs.backgroundImage) && (b.width > 64 || b.height > 64)) { block(el, r); continue; }
+      if (pseudoContent(el)) { block(el, padded(b, vw, vh, PAD) || r); continue; }
+      const t = (el.getAttribute('type') || '').toLowerCase();
+      if (tag === 'INPUT' && (BUTTON_INPUTS.has(t) || t === 'image')) {
+        // o texto do botão é o value (não é nó de texto): do vocabulário fica real; senão, o botão inteiro é coberto
+        if (t === 'image' || !policy.interfaceText(el.value || '')) block(el, r);
+        else real.add(el);
+        continue;
+      }
+      if (!policy.isCarrier(lower, el.getAttribute('role'), el.hasAttribute('href'))) continue;
+      const text = policy.interfaceText(el.textContent || '');
+      if (!text) continue; // o texto dele vira TEXT logo abaixo
+      if (b.left < 0 || b.top < 0 || b.right > vw || b.bottom > vh) continue; // parcialmente fora: mascarado como texto
+      const scope = el.getRootNode && el.getRootNode() !== document && el.getRootNode().elementFromPoint ? el.getRootNode() : document;
+      const top = scope.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      if (!top || !(top === el || el.contains(top))) { reject('COVERED'); continue; }
+      real.add(el);
+    }
+    // texto que não é rótulo de interface: cada linha coberta, com folga
+    const roots = [document.body || document.documentElement];
+    for (const el of list) {
+      const sr = shadowOf(el);
+      if (sr) roots.push(sr);
+    }
+    const range = document.createRange();
+    let scanned = 0;
+    outer: for (const start of roots) {
+      const walker = document.createTreeWalker(start, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (++scanned > V3_TEXT_SCAN * 2) { overflow = true; break outer; }
+        if (!n.nodeValue || !n.nodeValue.trim()) continue;
+        const p = n.parentElement;
+        if (!p || SKIP_TEXT.has(p.tagName)) continue;
+        let skip = false;
+        for (let a = p; a; a = a.parentElement || (a.getRootNode && a.getRootNode() !== document ? a.getRootNode().host || null : null)) {
+          if (real.has(a) || covered.has(a)) { skip = true; break; }
+        }
+        if (skip) continue;
+        range.selectNodeContents(n);
+        const ink = inkFor(p);
+        for (const lr of range.getClientRects()) {
+          if (lr.width <= 0 || lr.height <= 0 || lr.right <= 0 || lr.bottom <= 0 || lr.left >= vw || lr.top >= vh) continue;
+          const r = padded(lr, vw, vh, PAD);
+          if (!r) continue;
+          m.TEXT.push({ kind: 'TEXT', ...r, ink });
+          if (m.TEXT.length > V4_MAX.TEXT) { overflow = true; break outer; }
+        }
+      }
+    }
+    range.detach();
+    if (m.BLOCK.length > V4_MAX.BLOCK || m.FIELD.length > V4_MAX.FIELD) overflow = true;
+    return { regions: [...m.BLOCK, ...m.FIELD, ...m.TEXT], incomplete: overflow, labels: real.size, limitations: [...limitations],
+      hasFrames: !!document.querySelector('iframe, frame, object, embed') };
+  }
+
+  NS.pddPlan = Object.freeze({ v2, v3, v4 });
 })(globalThis);

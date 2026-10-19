@@ -167,7 +167,7 @@ function same(r, g, b, c) {
  * portadores seja exatamente a cor esperada naquele ponto (a v1 aceitava qualquer das 3 cores em qualquer lugar).
  */
 export const VISUAL_POLICY_V2 = 'nekkora-visual/2';
-export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, 'nekkora-visual/3']);
+export const VISUAL_POLICIES = Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, 'nekkora-visual/3', 'nekkora-visual/4']);
 export const V2_PAGE = Object.freeze([255, 255, 255]);
 export const V2_TONES = Object.freeze({ LIGHT: Object.freeze([244, 246, 248]), MID: Object.freeze([230, 234, 238]), DARK: Object.freeze([91, 102, 117]) });
 export const V2_SURFACE_BORDER = Object.freeze([201, 209, 217]); // #C9D1D9
@@ -403,6 +403,118 @@ export function validateV3(description, textPolicy) {
   const normalized = { viewport: { width: vw, height: vh, dpr }, regions: out };
   if (JSON.stringify(normalized).length > V3_MAX_BYTES) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
   return normalized;
+}
+
+/*
+ * NEKKORA-STUDIO-013 (revisão da usuária) — política nekkora-visual/4: PRINT REAL com o TEXTO DE DADOS mascarado.
+ * A imagem é a tela capturada (cores, fundos, logotipo, ícones, bordas, botões e rótulos de interface do vocabulário
+ * como na página). Por cima, faixas LISAS de cor fechada cobrem tudo o que pode ser dado:
+ *   BLOCK  tabela inteira, frame, canvas, vídeo, imagem grande ou quebrada, SVG com texto, fundo com imagem, elemento com
+ *          pseudo-elemento de texto, botão cujo texto não é do vocabulário;
+ *   FIELD  campo editável (moldura vazia, como na v1);
+ *   TEXT   cada linha de texto que não é rótulo de interface (faixa na cor da classe do fundo).
+ * Ordem de pintura: BLOCK → FIELD → TEXT. A verificação (aqui, no Native Host e no Studio) repinta as máscaras e exige que
+ * cada pixel DENTRO delas seja exatamente a cor esperada; fora delas os pixels são reais — a proteção depende de a página
+ * ter sido inteiramente mapeada (limite declarado; provado com a cor-sentinela nas páginas adversariais).
+ */
+export const VISUAL_POLICY_V4 = 'nekkora-visual/4';
+export const V4_KINDS = Object.freeze(['BLOCK', 'FIELD', 'TEXT']);
+export const V4_MAX = Object.freeze({ BLOCK: 96, FIELD: 128, TEXT: 600 });
+export const V4_BLOCK_FILL = Object.freeze([237, 240, 243]); // #EDF0F3
+export const V4_BLOCK_BORDER = Object.freeze([201, 209, 217]); // #C9D1D9
+export const V4_BARS = Object.freeze({ DARK: Object.freeze([200, 207, 216]), LIGHT: Object.freeze([135, 146, 162]) }); // #C8CFD8 / #8792A2
+export const MAX_PNG_BYTES_V4 = 8000000;
+
+/** Plano v4 (px CSS) → máscaras em px do dispositivo, arredondadas PARA FORA (cobrir mais, nunca menos). */
+export function deviceMasksV4(plan, width, height) {
+  const dpr = Number(plan && plan.viewport && plan.viewport.dpr);
+  const vw = Number(plan && plan.viewport && plan.viewport.width);
+  const vh = Number(plan && plan.viewport && plan.viewport.height);
+  if (!(dpr > 0 && dpr <= 4) || !(vw > 0) || !(vh > 0)) throw codeError('GEOMETRY_MISMATCH');
+  if (Math.abs(Math.round(vw * dpr) - width) > 1 || Math.abs(Math.round(vh * dpr) - height) > 1) throw codeError('GEOMETRY_MISMATCH');
+  const list = Array.isArray(plan.regions) ? plan.regions : [];
+  const out = [];
+  const count = {};
+  let rank = 0;
+  for (const r of list) {
+    const k = V4_KINDS.indexOf(r && r.kind);
+    if (k < 0) throw codeError('REGION_KIND_UNKNOWN');
+    if (k < rank) throw codeError('REGION_ORDER');
+    rank = k;
+    count[r.kind] = (count[r.kind] || 0) + 1;
+    if (count[r.kind] > V4_MAX[r.kind]) throw codeError('TOO_MANY_REGIONS');
+    const x = Number(r.x), y = Number(r.y), w = Number(r.width), h = Number(r.height);
+    if (![x, y, w, h].every(Number.isFinite) || w <= 0 || h <= 0 || x < 0 || y < 0 || x + w > vw + 0.5 || y + h > vh + 0.5) {
+      throw codeError('REGION_OUT_OF_VIEWPORT');
+    }
+    if (r.kind === 'TEXT' && !V3_INKS.includes(r.ink)) throw codeError('REGION_KIND_UNKNOWN');
+    const d = { kind: r.kind, x: Math.max(0, Math.floor(x * dpr)), y: Math.max(0, Math.floor(y * dpr)),
+      x2: Math.min(width, Math.ceil((x + w) * dpr)), y2: Math.min(height, Math.ceil((y + h) * dpr)) };
+    if (r.kind === 'TEXT') d.ink = r.ink;
+    if (d.x2 > d.x && d.y2 > d.y) out.push(d);
+  }
+  return out;
+}
+
+/** {preenchimento, borda} de uma máscara da v4 (TEXT é faixa lisa: borda = preenchimento). */
+export function v4Paint(kind, ink) {
+  switch (kind) {
+    case 'BLOCK':
+      return { fill: V4_BLOCK_FILL, border: V4_BLOCK_BORDER };
+    case 'FIELD':
+      return { fill: FIELD_FILL, border: FIELD_BORDER };
+    case 'TEXT': {
+      const c = V4_BARS[ink];
+      if (!c) throw codeError('REGION_KIND_UNKNOWN');
+      return { fill: c, border: c };
+    }
+    default:
+      throw codeError('REGION_KIND_UNKNOWN');
+  }
+}
+
+/** Mapa (por pixel) da cor que as máscaras mandam pintar; -1 = fora das máscaras. */
+function maskMapV4(width, height, masks) {
+  const map = new Int32Array(width * height).fill(-1);
+  for (const m of masks) {
+    const { fill, border } = v4Paint(m.kind, m.ink);
+    const f = (fill[0] << 16) | (fill[1] << 8) | fill[2];
+    const b = (border[0] << 16) | (border[1] << 8) | border[2];
+    for (let y = m.y; y < m.y2; y++) {
+      for (let x = m.x; x < m.x2; x++) map[y * width + x] = y === m.y || y === m.y2 - 1 || x === m.x || x === m.x2 - 1 ? b : f;
+    }
+  }
+  return map;
+}
+
+/** Compõe a v4: a tela capturada com as máscaras pintadas por cima (na ordem). A bruta não é alterada. */
+export function composeV4(raw, width, height, masks) {
+  if (!raw || raw.length !== width * height * 4) throw codeError('GEOMETRY_MISMATCH');
+  const out = new Uint8ClampedArray(raw);
+  const map = maskMapV4(width, height, masks);
+  for (let p = 0, k = 0; p < map.length; p++, k += 4) {
+    const c = map[p];
+    if (c >= 0) {
+      out[k] = (c >> 16) & 255;
+      out[k + 1] = (c >> 8) & 255;
+      out[k + 2] = c & 255;
+    }
+    out[k + 3] = 255;
+  }
+  return out;
+}
+
+/** Verificação independente da v4: pixels DENTRO das máscaras diferentes da cor repintada (0 = conforme). */
+export function violationsV4(pixels, width, height, masks) {
+  if (!pixels || pixels.length !== width * height * 4) return Number.MAX_SAFE_INTEGER;
+  const map = maskMapV4(width, height, masks);
+  let bad = 0;
+  for (let p = 0, k = 0; p < map.length; p++, k += 4) {
+    const c = map[p];
+    if (c < 0) continue;
+    if (pixels[k + 3] !== 255 || pixels[k] !== ((c >> 16) & 255) || pixels[k + 1] !== ((c >> 8) & 255) || pixels[k + 2] !== (c & 255)) bad++;
+  }
+  return bad;
 }
 
 export function codeError(code) {

@@ -1,0 +1,45 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.pdd.captured",
+  "seq": 9,
+  "payload": {
+    "captureId": "cap-v4",
+    "status": "CAPTURED",
+    "policy": "nekkora-visual/4",
+    "observedAt": "2026-10-19T12:00:00Z",
+    "width": 400,
+    "height": 300,
+    "devicePixelRatio": 1.5,
+    "png": "iVBORw0KGgpGSVhUVVJF",
+    "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "regions": [
+      {
+        "kind": "BLOCK",
+        "x": 200,
+        "y": 10,
+        "width": 180,
+        "height": 120
+      },
+      {
+        "kind": "FIELD",
+        "x": 20,
+        "y": 100,
+        "width": 160,
+        "height": 24
+      },
+      {
+        "kind": "TEXT",
+        "x": 20,
+        "y": 60,
+        "width": 130,
+        "height": 18,
+        "ink": "DARK"
+      }
+    ],
+    "annotations": [],
+    "limitations": [
+      "TABLE_CONTENT_HIDDEN"
+    ]
+  }
+}

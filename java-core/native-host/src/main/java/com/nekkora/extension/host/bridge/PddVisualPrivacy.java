@@ -81,6 +81,10 @@ final class PddVisualPrivacy {
             checkV3(p);
             return;
         }
+        if (POLICY_V4.equals(policy)) {
+            checkV4(p);
+            return;
+        }
         if (POLICY_V2.equals(policy)) {
             checkV2(p);
             return;
@@ -228,6 +232,87 @@ final class PddVisualPrivacy {
                 }
                 default -> {
                 }
+            }
+        }
+    }
+
+    static final String POLICY_V4 = "nekkora-visual/4";
+    static final List<String> V4_KINDS = List.of("BLOCK", "FIELD", "TEXT");
+    static final Map<String, Integer> V4_MAX = Map.of("BLOCK", 96, "FIELD", 128, "TEXT", 600);
+    static final int MAX_PNG_BYTES_V4 = 8_000_000;
+    static final int V4_BLOCK_FILL = 0xEDF0F3;
+    static final int V4_BLOCK_BORDER = 0xC9D1D9;
+    static final Map<String, Integer> V4_BARS = Map.of("DARK", 0xC8CFD8, "LIGHT", 0x8792A2);
+    static final List<String> V4_PAYLOAD = List.of("captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256",
+            "regions", "annotations", "limitations");
+
+    /**
+     * v4 (print real com o texto de dados mascarado): decodifica, confere tipos/ordem/tetos/geometria das máscaras e
+     * REPINTA cada uma — todo pixel dentro delas precisa ser exatamente a cor da máscara (fora, os pixels são da tela).
+     */
+    static void checkV4(ObjectNode p) {
+        p.fieldNames().forEachRemaining(f -> {
+            if (!V4_PAYLOAD.contains(f)) throw new IllegalArgumentException("campo");
+        });
+        byte[] png = Base64.getDecoder().decode(p.path("png").asText(""));
+        if (png.length == 0 || png.length > MAX_PNG_BYTES_V4) throw new IllegalArgumentException("tamanho");
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new ByteArrayInputStream(png));
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("png");
+        }
+        if (img == null) throw new IllegalArgumentException("png");
+        int w = p.path("width").asInt(-1);
+        int h = p.path("height").asInt(-1);
+        double dpr = p.path("devicePixelRatio").asDouble(0);
+        if (img.getWidth() != w || img.getHeight() != h || !(dpr > 0 && dpr <= 4)) throw new IllegalArgumentException("dimensões");
+        int[] expected = new int[w * h];
+        Arrays.fill(expected, -1);
+        Map<String, Integer> count = new HashMap<>();
+        int rank = 0;
+        for (JsonNode r : p.path("regions")) {
+            String kind = r.path("kind").asText();
+            int k = V4_KINDS.indexOf(kind);
+            if (k < 0 || k < rank) throw new IllegalArgumentException("tipo/ordem");
+            rank = k;
+            if (count.merge(kind, 1, Integer::sum) > V4_MAX.get(kind)) throw new IllegalArgumentException("regiões");
+            r.fieldNames().forEachRemaining(f -> {
+                if (!List.of("kind", "x", "y", "width", "height", "ink").contains(f) || ("ink".equals(f) && !"TEXT".equals(kind))) {
+                    throw new IllegalArgumentException("campo da região");
+                }
+            });
+            int x = intOf(r.path("x")), y = intOf(r.path("y")), rw = intOf(r.path("width")), rh = intOf(r.path("height"));
+            if (x < 0 || y < 0 || rw < 1 || rh < 1 || (long) x + rw > w || (long) y + rh > h) throw new IllegalArgumentException("região");
+            int fill;
+            int border;
+            if ("TEXT".equals(kind)) {
+                Integer bar = V4_BARS.get(r.path("ink").asText());
+                if (bar == null) throw new IllegalArgumentException("tinta");
+                fill = bar;
+                border = bar;
+            } else if ("FIELD".equals(kind)) {
+                fill = FIELD_FILL;
+                border = FIELD_BORDER;
+            } else {
+                fill = V4_BLOCK_FILL;
+                border = V4_BLOCK_BORDER;
+            }
+            for (int yy = y; yy < y + rh; yy++) {
+                for (int xx = x; xx < x + rw; xx++) {
+                    expected[yy * w + xx] = yy == y || yy == y + rh - 1 || xx == x || xx == x + rw - 1 ? border : fill;
+                }
+            }
+        }
+        boolean alpha = img.getColorModel().hasAlpha();
+        int[] row = new int[w];
+        for (int y = 0; y < h; y++) {
+            img.getRGB(0, y, w, 1, row, 0, w);
+            for (int x = 0; x < w; x++) {
+                int e = expected[y * w + x];
+                if (e < 0) continue;
+                int argb = row[x];
+                if ((alpha && (argb >>> 24) != 0xFF) || (argb & 0xFFFFFF) != e) throw new IllegalArgumentException("pixels");
             }
         }
     }

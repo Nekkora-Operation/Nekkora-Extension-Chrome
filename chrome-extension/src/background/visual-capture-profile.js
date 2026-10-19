@@ -7,18 +7,21 @@
  *   2. o consentimento PRÓPRIO de captura PDD para aquela origem exata (pdd-consent.js).
  * Perfis:
  *   LAB              só loopback (access-policy.js). Aceita nekkora-visual/1, /2 e /3.
- *   AUTHORIZED_SITE  origem autorizada pelo Chrome + consentimento PDD. Aceita SÓ nekkora-visual/3 (inteiramente
- *                    sintética: nenhum pixel da página é copiado). Studios anteriores, que não pedem a v3, são recusados.
+ *   AUTHORIZED_SITE  origem autorizada pelo Chrome + consentimento PDD. Aceita nekkora-visual/3 (inteiramente sintética)
+ *                    e nekkora-visual/4 (print real com o texto de dados mascarado). Studios anteriores, que não pedem
+ *                    nenhuma das duas, são recusados.
  *   BENCHMARK        valor da /1, mantido no contrato para clientes antigos. NÃO é mais produzido a partir da 0.6.0.
  */
-import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3 } from './visual-sanitizer.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4 } from './visual-sanitizer.js';
 
 export const PROFILE_VERSION = 'nekkora-visual-capture-profile/2';
 export const PROFILES = Object.freeze(['LAB', 'AUTHORIZED_SITE']);
 /** Políticas visuais aceitas por perfil. */
 export const POLICIES_BY_PROFILE = Object.freeze({
-  LAB: Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3]),
-  AUTHORIZED_SITE: Object.freeze([VISUAL_POLICY_V3]),
+  LAB: Object.freeze([VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4]),
+  // revisão da usuária: também o print real com o texto de dados mascarado (v4); a v2 (pixels reais dos rótulos sem
+  // máscara de texto em volta, fundo redesenhado) continua fora
+  AUTHORIZED_SITE: Object.freeze([VISUAL_POLICY_V3, VISUAL_POLICY_V4]),
 });
 
 /**

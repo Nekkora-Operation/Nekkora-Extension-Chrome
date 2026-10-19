@@ -119,3 +119,50 @@ Versões mínimas para captura em site: **extensão 0.6.0 + Native Host desta br
 O Studio manda `actor` = `StudioEnvironment.decisionActor()`. `TEST_AGENT` só existe em modo de laboratório explícito
 (propriedade ou variável de ambiente); sem isso, vale `DEVELOPER`. O painel da extensão sempre registra `DEVELOPER`.
 O registro é mostrado ao usuário: "decidido por desenvolvedor/agente de teste, no Studio/na extensão".
+
+## D-S013-08 — `nekkora-visual/4`: print real com o texto de dados mascarado (decisão da usuária, 19/10/2026)
+
+**Contexto.** A usuária validou a v3 e aprovou o resultado, mas pediu uma imagem fiel, "quase um print": quem valida o PDD
+reconhece a própria tela. As opções apresentadas foram:
+
+- print real com o texto de dados mascarado (recomendada);
+- print real sem máscara, como opção por site;
+- print real sempre.
+
+A escolha foi a primeira.
+
+**O que a v4 é.** A imagem é a tela capturada (`captureVisibleTab`, com o mesmo gesto e as mesmas conferências de aba,
+origem e autorização da v1/v2). Por cima, máscaras lisas de cor fechada:
+
+| Máscara | O que cobre |
+|---|---|
+| `BLOCK` | Tabela inteira; iframe, frame, object e embed; canvas; vídeo; imagem com mais de 240 px num lado ou quebrada (o texto alternativo apareceria); SVG com `<text>`/`<foreignObject>`; fundo `url()` com mais de 64 px; elemento com pseudo-elemento de texto; botão `input` cujo `value` não é do vocabulário |
+| `FIELD` | Todo campo, com moldura vazia: valor, placeholder e autofill nunca aparecem |
+| `TEXT` | Cada linha de texto que não é rótulo de interface, com 2 px de folga, numa faixa da cor da classe do fundo |
+
+**O que fica real:** fundos, cores, bordas, logotipo e ícones pequenos, botões e rótulos de interface cujo texto inteiro é
+do vocabulário controlado. As shadow roots abertas e fechadas são percorridas.
+
+**Na dúvida, cobre.** Um rótulo encoberto ou cortado vira texto mascarado. Se o plano não couber nos tetos (6.000+
+elementos, 600 linhas, 128 campos, 96 blocos), a captura **falha** com `TOO_MANY_REGIONS`, antes de qualquer
+`captureVisibleTab`. Nunca sai um print parcial.
+
+**Verificação.**
+- **Extensão, Native Host e Studio:** repintam as máscaras e exigem cada pixel delas exato.
+- **Composição:** é zerada depois de codificar.
+- **Bridge:** exceção única ao teto de controle, só para o evento `studio.pdd.captured` com `nekkora-visual/4` (até
+  12 MiB). No Studio, ela vale só depois do handshake autenticado; qualquer outro quadro grande derruba a conexão.
+
+**Limite declarado (é a troca aceita pela usuária).**
+- **Pixels reais fora das máscaras:** a proteção depende de o plano mapear toda a página. A prova é empírica, com a
+  cor-sentinela: todo dado da página adversarial tem a cor #E6007E, e nenhum pixel dela chega ao print, embora a tela
+  bruta (só em memória) tenha centenas.
+- **Riscos residuais:**
+  - texto desenhado sem nó de texto e fora dos casos cobertos (ex.: fonte que troca glifos num rótulo do vocabulário,
+    imagem pequena com texto);
+  - tooltips nativos (não entram no print);
+  - conteúdo que mude entre o plano e a captura (a ficha de layout recusa).
+- **Compartilhar:** o PDF pede revisão das imagens antes de compartilhar.
+
+**Política pedida pelo Studio.** O Studio pede a v4 à extensão 0.6.0, no laboratório e em site autorizado. A v3 continua
+no contrato (`POLICIES_BY_PROFILE`: o site autorizado aceita v3 e v4) e a v2 continua fora dos sites.

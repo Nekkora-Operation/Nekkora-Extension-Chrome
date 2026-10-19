@@ -25,11 +25,14 @@
   #pseudo::after { content: " SENTINELA-PSEUDO"; color: #E6007E; }
   iframe { width: 300px; height: 80px; border: 1px solid #D0D7DE; }
   canvas, video { border: 1px solid #D0D7DE; }
+  /* nekkora-visual/4 (print real): TODO dado na cor-sentinela — nenhum pixel dela pode sobrar na imagem do PDD */
+  .usuario, #menu-lista a[href="#perfil"], td, #mensagem, #link-nome, input:not([type=submit]), select, textarea, #editavel { color: #E6007E; }
+  #botao-nome { color: #E6007E; }
 </style>
 </head>
 <body>
 <header>
-  <svg width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#E6007E"></circle></svg>
+  <svg width="32" height="32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#1E6FD9"></circle></svg>
   <nav aria-label="Principal"><a id="inicio" href="#inicio" style="color:#FFFFFF">Início</a></nav>
   <span class="usuario">Dra. Zeta Sentinela</span>
   <button id="abrir-menu" type="button" aria-expanded="false">Menu</button>
@@ -80,13 +83,13 @@
     constructor() {
       super();
       this.attachShadow({ mode: 'open' }).innerHTML = '<p><button id="sombra-confirmar" type="button">Confirmar</button> '
-        + '<input id="sombra-campo" value="sombra.aberta.sentinela"> <span>SENTINELA-SOMBRA-ABERTA</span></p>';
+        + '<input id="sombra-campo" value="sombra.aberta.sentinela" style="color:#E6007E"> <span style="color:#E6007E">SENTINELA-SOMBRA-ABERTA</span></p>';
     }
   });
   customElements.define('nk-cartao-fechado', class extends HTMLElement {
     constructor() {
       super();
-      this.attachShadow({ mode: 'closed' }).innerHTML = '<p><button type="button">Cancelar</button> <span>SENTINELA-SOMBRA-FECHADA</span></p>';
+      this.attachShadow({ mode: 'closed' }).innerHTML = '<p><button type="button">Cancelar</button> <span style="color:#E6007E">SENTINELA-SOMBRA-FECHADA</span></p>';
     }
   });
   document.getElementById('abrir-menu').addEventListener('click', (e) => {
