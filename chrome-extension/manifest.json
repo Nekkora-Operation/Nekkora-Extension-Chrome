@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Nekkora Studio — Inspector",
   "short_name": "Nekkora Inspector",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Interpretação estrutural e semântica de páginas (Nekkora Studio): laboratório local e sites http/https autorizados pelo usuário. Núcleo de análise em Java 21 via Native Messaging.",
   "minimum_chrome_version": "116",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyFZWa8tShWXIgRtLE7itKhpHJQ8GwgUk0C5LjSdhAtyd2z4/2jMC7chW4AB+K2AtdtCHPIAqdY5sF5rDf44Iqc9RG2RnOttTl7QTz+umf/74UE4g0k6mx2JsY/B+DpI21H0nXAl63D63BszQFWyfAlcrkCmg8vkyql7uygmXSpq+Y9IzKY6H6vuJaguJpVsp3WDBYWdsYkuZ8eLU7Q5oj7RGGA4S8406vSMlWlNSIbVYwkX7JbgV57SGsrPHIso4MdXp6Eq0yuDoMp3Dj5NWFfny0kFBTOPMhlvabIXFnMFpjiUSTpc82UGtA4khbrkDMvH7oYeMUbiLAZ5vguk5swIDAQAB",
@@ -72,6 +72,7 @@
         "src/shared/feedback-rules.js",
         "src/content/feedback-observer.js",
         "src/content/interaction-recorder.js",
+        "src/content/pdd-plan.js",
         "src/content/content-main.js"
       ],
       "run_at": "document_idle",

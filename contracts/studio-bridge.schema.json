@@ -1144,6 +1144,7 @@
         "captureId": { "$ref": "#/$defs/Id" },
         "tabRef": { "type": "string", "pattern": "^t-[A-Za-z0-9_-]{6,40}$" },
         "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 120000 },
+        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2"], "description": "STUDIO-012 PDD-01: política visual pedida pelo Studio; ausente = nekkora-visual/1." },
         "steps": {
           "type": "array", "minItems": 1, "maxItems": 32,
           "items": {
@@ -1168,7 +1169,8 @@
         "captureId": { "$ref": "#/$defs/Id" },
         "armed": { "type": "boolean" },
         "duplicate": { "type": "boolean" },
-        "shortcut": { "type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9+ ]*$", "description": "Atalho configurado no Chrome (ex.: Alt+Shift+K); vazio se o usuário o removeu." }
+        "shortcut": { "type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9+ ]*$", "description": "Atalho configurado no Chrome (ex.: Alt+Shift+K); vazio se o usuário o removeu." },
+        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2"], "description": "STUDIO-012 PDD-01: política armada (só quando o Studio a pediu)." }
       }
     },
     "PddCancelResult": {
@@ -1185,7 +1187,7 @@
           "properties": {
             "captureId": { "$ref": "#/$defs/Id" },
             "status": { "const": "CAPTURED" },
-            "policy": { "const": "nekkora-visual/1" },
+            "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2"] },
             "observedAt": { "type": "string", "maxLength": 40 },
             "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
             "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
@@ -1193,14 +1195,28 @@
             "png": { "type": "string", "maxLength": 200000, "pattern": "^[A-Za-z0-9+/]+={0,2}$" },
             "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
             "regions": {
-              "type": "array", "maxItems": 128,
+              "type": "array", "maxItems": 256,
+              "description": "nekkora-visual/1: só CARRIER e FIELD (até 128). nekkora-visual/2: na ORDEM de pintura (SURFACE, MEDIA, FRAME, CONTROL, FIELD, CARRIER); SURFACE leva o tom (classe de luminância), nunca a cor.",
               "items": {
-                "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
-                "properties": {
-                  "kind": { "enum": ["CARRIER", "FIELD"] },
-                  "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
-                  "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
-                }
+                "oneOf": [
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
+                    "properties": {
+                      "kind": { "enum": ["CARRIER", "FIELD", "MEDIA", "FRAME", "CONTROL"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height", "tone"],
+                    "properties": {
+                      "kind": { "const": "SURFACE" },
+                      "tone": { "enum": ["LIGHT", "MID", "DARK"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  }
+                ]
               }
             },
             "annotations": {
@@ -1227,7 +1243,7 @@
             "code": { "enum": ["VISUAL_CAPTURE_NOT_ALLOWED", "NOT_ARMED", "ARM_EXPIRED", "TAB_MISMATCH", "PAGE_CHANGED_DURING_CAPTURE", "GEOMETRY_MISMATCH",
               "SANITIZATION_CHECK_FAILED", "SANITIZED_IMAGE_TOO_LARGE", "TAB_CLOSED", "PAGE_CHANGED", "PERMISSION_REVOKED", "CAPTURE_BUSY", "CAPTURE_DENIED",
               "REGION_OUT_OF_VIEWPORT", "CARRIER_TOO_LARGE", "CARRIER_OVERLAPS_FIELD", "TOO_MANY_REGIONS", "REGION_KIND_UNKNOWN", "CONTENT_UNAVAILABLE",
-              "CANCELLED", "ACTIVE_TAB_CHANGED", "INTERNAL"] },
+              "CANCELLED", "ACTIVE_TAB_CHANGED", "INTERNAL", "REGION_ORDER", "CARRIER_OVERLAPS_CONTENT"] },
             "observedAt": { "type": "string", "maxLength": 40 }
           }
         }

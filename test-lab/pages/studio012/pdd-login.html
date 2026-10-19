@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Entrar</title>
+<style>
+  /* STUDIO-012 PDD-01 — RÉPLICA SINTÉTICA da tela de login da vistoria (dados 100% fictícios). Mesma estrutura visual:
+     faixa colorida no topo, logotipo, título, cartão cinza-claro, rótulos "Usuário:"/"Senha:" em <label>, campos e o
+     botão como <input type="submit" value="Entrar"> escuro, rodapé escuro com ícones. Texto SENSÍVEL usa a cor-sentinela
+     #E6007E: nenhum pixel dela pode sair numa captura sanitizada. */
+  html, body { margin: 0; font: 13px/1.4 Arial, Helvetica, sans-serif; color: #1F2328; background: #FFFFFF; }
+  .topo { background: #00995D; height: 300px; }
+  .miolo { width: 560px; margin: -260px auto 0; }
+  .marca { width: 200px; height: 64px; border: 2px solid #FFFFFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .boas-vindas { color: #E6007E; font-size: 22px; font-weight: bold; margin: 8px 0 12px; }
+  .cartao { background: #EFEFEF; border-radius: 6px; padding: 28px 120px 160px; }
+  .cartao p.sentinela { color: #E6007E; font-weight: bold; margin: 0 0 18px; }
+  .cartao label { display: block; font-weight: bold; margin-top: 10px; }
+  .cartao input[type=text], .cartao input:not([type]), .cartao input[type=password] { width: 300px; height: 22px; border: 1px solid #555; color: #E6007E; }
+  .acoes { text-align: right; width: 306px; margin-top: 22px; }
+  .acoes input[type=submit] { background: #333333; color: #FFFFFF; border: 0; padding: 5px 26px; font: bold 13px Arial, sans-serif; }
+  .rodape { background: #5E5B6A; height: 220px; margin-top: 0; }
+  .rodape .linha { width: 560px; margin: 0 auto; padding-top: 24px; display: flex; justify-content: space-between; color: #E6007E; font-size: 11px; }
+  .rodape a { display: inline-block; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="topo"></div>
+<div class="miolo">
+  <div class="marca"><svg width="150" height="36" aria-hidden="true"><text x="4" y="27" font-size="26" font-weight="bold" fill="#E6007E">Fictícia</text></svg></div>
+  <div class="boas-vindas">Bem-vindo ao Portal de Ana Souza - HOM</div>
+  <form id="Login2014" method="post" action="#" autocomplete="off">
+    <div class="cartao">
+      <p class="sentinela">Identifique-se, Ana Souza (CPF 123.456.789-09)</p>
+      <label for="ds_login">Usuário:</label>
+      <input name="ds_login" id="ds_login" maxlength="100">
+      <label for="passwordTemp">Senha:</label>
+      <input type="password" name="passwordTemp" id="passwordTemp" maxlength="20">
+      <div class="acoes"><input type="submit" id="Button_DoLogin" name="Button_DoLogin" value="Entrar"></div>
+    </div>
+  </form>
+</div>
+<div class="rodape">
+  <div class="linha">
+    <span>Portal fictício de Ana Souza · versão 26.10.0</span>
+    <span>
+      <a href="#chave" title="Chave"><svg width="18" height="18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="#FFFFFF"/></svg></a>
+      <a href="#ajustes" title="Ajustes"><svg width="18" height="18" aria-hidden="true"><rect x="2" y="2" width="14" height="14" fill="#FFFFFF"/></svg></a>
+    </span>
+  </div>
+</div>
+<script>
+  document.getElementById('Login2014').addEventListener('submit', (e) => { e.preventDefault(); });
+</script>
+</body>
+</html>
