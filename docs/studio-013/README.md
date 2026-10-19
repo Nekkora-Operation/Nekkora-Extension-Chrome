@@ -36,8 +36,10 @@ Decisões: [`decisions.md`](decisions.md). Resultados das execuções: [`RESULTA
   cobertos, sempre, inclusive em shadow roots, no "mostrar senha" e, se algum frame mostrar senha ou não responder, nos
   frames inteiros. Exige o nível `FULL` no consentimento (`nekkora-pdd-consent/2`), escolhido de forma explícita e
   confirmada pela interface confiável. Rebaixar o nível derruba uma v5 armada ou em curso.
-- **Painel da extensão:** a seção "Captura do PDD" tem a escolha "Print mascarado (recomendado)" ou "Print integral",
-  o botão para trocar o nível de um site autorizado e uma confirmação dentro do próprio painel antes do print integral.
+- **Depois do teste da usuária** (D-S013-10): o print integral passou a ser o **padrão** ao autorizar um site, sem
+  segundo clique (um aviso fixo de uma linha fica na escolha); o mascarado continua como opção, senhas sempre cobertas.
+- **Painel da extensão:** a seção "Captura do PDD" tem a escolha "Print integral (padrão)" ou "Print mascarado", com o
+  aviso de uma linha, e o botão para trocar o nível de um site autorizado.
 - **Verificação:** v4 e v5 têm a mesma pintura e a mesma verificação pixel a pixel das máscaras na extensão, no Native
   Host e no Studio. Plano incompleto falha (`TOO_MANY_REGIONS`) em vez de sair um print parcial.
 

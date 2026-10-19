@@ -236,3 +236,52 @@ pixel a pixel nas três camadas (extensão, Native Host `checkV5`, Studio `verif
 **Limite declarado.** No print integral, tudo o que a tela mostra vai para o PDF, exceto senhas. Texto de senha fora de
 campo (ex.: senha escrita num parágrafo ou numa imagem) não é reconhecido. Metadados, rascunho e logs continuam sem
 nenhum dado da página.
+
+## D-S013-10 — print integral como padrão, "Capturar tela" no Recorder e números dos marcadores (pedido da usuária depois do teste, 19/10/2026)
+
+**Contexto.** Ao testar as duas opções, a usuária pediu três ajustes:
+1. A opção primária deve ser o print original.
+2. A captura pode ficar também no Recorder, num botão "Capturar tela" logo depois de "Finalizar gravação".
+3. Os números dos marcadores ficavam um em cima do outro depois de recortar a imagem.
+
+**1. Print integral como padrão, ainda por site.** Escolha da usuária: "Integral padrão, ainda por site".
+- **Ao autorizar:** "Print integral (padrão)" vem marcado, no Studio e no painel da extensão.
+- **Sem segundo clique:** a confirmação ao liberar o integral saiu. No lugar dela, fica um aviso fixo de uma linha na
+  autorização ("por padrão a imagem é o print integral… vai assim para o PDF").
+- **Trocar o nível de um site:** também sem confirmação.
+- **Continua igual:**
+  - a autorização por site: nada é capturado sem o acesso do Chrome **e** o consentimento PDD da origem;
+  - senhas sempre cobertas;
+  - "Mascarar esta captura";
+  - a confirmação antes de **exportar** um PDF com print integral.
+- **Laboratório local:** também captura no integral por padrão; o "Mascarar esta captura" vale ali.
+- **Protocolo:** o `studio.pdd.consent.grant` sem `level` continua valendo `MASKED`. Isso protege Studios anteriores, que
+  não sabem do integral. O Studio atual sempre manda o nível.
+
+**2. "Capturar tela" no Recorder.** Escolha da usuária: "Capturar para o último bloco".
+- **Onde aparece:** no resumo de uma gravação **concluída** com etapas registradas. Não aparece em gravação cancelada
+  ou com erro.
+- **O que faz:** a imagem vai para o bloco da **última** etapa desta gravação (as etapas levam o `RECORDING_ID`), na aba
+  em que se gravou, com a mesma captura da janela do PDD (gesto Alt+Shift+K e as quatro barreiras). Antes, o rascunho é
+  atualizado com as etapas novas.
+- **Mensagens:** "Captura armada…", "Imagem associada…" e falhas aparecem no próprio Recorder.
+- **Site sem autorização do PDD:** o Recorder avisa, e a janela do PDD abre no bloco certo para autorizar. Se o bloco já
+  tinha imagem, a nova vira candidata e a janela do PDD abre para Aplicar ou Cancelar.
+- **A janela do PDD:** continua capturando como antes.
+
+**3. Números dos marcadores.** A causa era dupla:
+- **No editor:** o número ficava sempre à esquerda do contorno, no meio da altura. Campos empilhados de formulário
+  compacto, na escala do editor, ficavam a cerca de 13 px um do outro, menos que o diâmetro do número.
+- **No PDF:** sem posição livre em volta, o número voltava à primeira posição, mesmo sobre outro número ou fora do
+  recorte.
+
+As duas camadas agora usam a mesma regra, `MarkerLayout` (domínio, Java puro):
+- Testa posições em volta do contorno e depois cantos por dentro dele.
+- Aceita a primeira que fique inteira dentro da área visível (o recorte) e não encoste em outro número. Numa primeira
+  passada, também evita campos e outros contornos.
+- Se nenhuma serve, usa o ponto livre da área mais perto da posição preferida.
+
+Os números nunca se sobrepõem enquanto houver espaço.
+
+**Limite.** Um número pode ficar sobre um rótulo de interface (ex.: acima do campo, sobre "Senha"), porque o Studio não
+conhece a posição de todo texto da tela.

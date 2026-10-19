@@ -306,7 +306,6 @@ function renderPdd(d) {
   $('btn-pdd-level').hidden = !can || !granted;
   setText($('btn-pdd-level'), d.level === 'FULL' ? 'Voltar ao print mascarado neste site' : 'Liberar print integral neste site');
   $('btn-pdd-revoke').hidden = !can || !granted;
-  if (!can || (granted && d.level === 'FULL')) $('pdd-confirm-full').hidden = true;
 }
 
 async function refreshPdd() {
@@ -618,46 +617,23 @@ async function switchTab(id) {
     requestOrigins(BROAD);
   };
   // STUDIO-013: só o clique do usuário no painel concede (a origem é a da aba, conferida de novo no service worker)
-  // revisão da usuária: o print integral (nível FULL) só depois da confirmação explícita no próprio painel
+  // pedido da usuária: o print integral é o padrão e não pede segundo clique (o aviso fica fixo na escolha)
   const pddGrant = async (level, scope) => {
     const r = await call('pdd.consent.grant', { origin: pdd && pdd.origin, scope, level });
     $('pdd-remember').checked = false;
-    $('pdd-confirm-full').hidden = true;
-    for (const el of document.querySelectorAll('input[name="pdd-level"]')) el.checked = el.value === 'MASKED';
+    for (const el of document.querySelectorAll('input[name="pdd-level"]')) el.checked = el.value === 'FULL';
     message('Captura PDD autorizada em ' + r.origin + ' (' + LEVEL_TEXT[r.level] + ')'
       + (r.scope === 'REMEMBERED' ? ', site lembrado.' : ', até fechar o navegador.'), true);
     await refreshPdd();
   };
   const levelChosen = () => (document.querySelector('input[name="pdd-level"]:checked') || {}).value === 'FULL' ? 'FULL' : 'MASKED';
-  let pendingScope = null;
   $('btn-pdd-grant').onclick = (e) => run(e.target, async () => {
-    const scope = $('pdd-remember').checked ? 'REMEMBERED' : 'SESSION';
-    if (levelChosen() === 'FULL') {
-      pendingScope = scope;
-      $('pdd-confirm-full').hidden = false;
-      return;
-    }
-    await pddGrant('MASKED', scope);
+    await pddGrant(levelChosen(), $('pdd-remember').checked ? 'REMEMBERED' : 'SESSION');
   });
   $('btn-pdd-level').onclick = (e) => run(e.target, async () => {
     const scope = pdd && pdd.consent === 'REMEMBERED' ? 'REMEMBERED' : 'SESSION';
-    if (pdd && pdd.level === 'FULL') {
-      await pddGrant('MASKED', scope);
-      return;
-    }
-    pendingScope = scope;
-    $('pdd-confirm-full').hidden = false;
+    await pddGrant(pdd && pdd.level === 'FULL' ? 'MASKED' : 'FULL', scope);
   });
-  $('btn-pdd-confirm-full').onclick = (e) => run(e.target, async () => {
-    if (!pendingScope) return;
-    const scope = pendingScope;
-    pendingScope = null;
-    await pddGrant('FULL', scope);
-  });
-  $('btn-pdd-cancel-full').onclick = () => {
-    pendingScope = null;
-    $('pdd-confirm-full').hidden = true;
-  };
   $('btn-pdd-revoke').onclick = (e) => run(e.target, async () => {
     await call('pdd.consent.revoke', { origin: pdd && pdd.origin });
     message('Captura PDD revogada neste site.', true);

@@ -715,7 +715,7 @@ class Studio013SitesIT extends SessionIT {
     }
 
     @Test
-    @DisplayName("S013-20 print integral pelo PAINEL: \"Print integral\" só vale depois da confirmação no próprio painel; Cancelar não concede; voltar ao mascarado sem confirmação")
+    @DisplayName("S013-20 print integral pelo PAINEL: é o padrão (marcado, sem segundo clique); trocar para o mascarado e de volta; autorizar já no mascarado")
     void printIntegralPeloPainel() throws Exception {
         Page p = sistema();
         String panel = lab.openExtensionPage("src/ui/panel.html?tabId=" + p.tabId());
@@ -729,28 +729,30 @@ class Studio013SitesIT extends SessionIT {
             };
             BrowserLab.waitUntil(Duration.ofSeconds(10), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-level-box').hidden")),
                     "escolha da imagem do PDD no painel");
-            assertEquals(Boolean.TRUE, js.executeScript("return document.querySelector('input[name=\"pdd-level\"][value=\"MASKED\"]').checked"), "mascarado é o padrão");
-            lab.driver().findElement(By.cssSelector("input[name='pdd-level'][value='FULL']")).click();
+            assertEquals(Boolean.TRUE, js.executeScript("return document.querySelector('input[name=\"pdd-level\"][value=\"FULL\"]').checked"),
+                    "pedido da usuária: o print integral é o padrão");
+            assertTrue(String.valueOf(js.executeScript("return document.getElementById('pdd-level-note').textContent")).contains("vão para o PDF"),
+                    "o aviso de uma linha fica na escolha");
+            lab.screenshotWindow(panel, "S013-20-painel-print-integral-padrao");
             lab.driver().findElement(By.id("btn-pdd-grant")).click();
-            BrowserLab.waitUntil(Duration.ofSeconds(5), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-confirm-full').hidden")),
-                    "confirmação do print integral no painel");
-            assertEquals("NONE", st.get().path("consent").asText(), "antes de confirmar, nada foi concedido");
-            lab.screenshotWindow(panel, "S013-20-painel-confirmar-print-integral");
-            lab.driver().findElement(By.id("btn-pdd-cancel-full")).click();
-            assertEquals("NONE", st.get().path("consent").asText(), "Cancelar não concede");
-            lab.driver().findElement(By.cssSelector("input[name='pdd-level'][value='FULL']")).click();
-            lab.driver().findElement(By.id("btn-pdd-grant")).click();
-            BrowserLab.waitUntil(Duration.ofSeconds(5), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('pdd-confirm-full').hidden")),
-                    "confirmação de novo");
-            lab.driver().findElement(By.id("btn-pdd-confirm-full")).click();
-            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "FULL".equals(st.get().path("level").asText()), "nível FULL concedido pelo painel");
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "FULL".equals(st.get().path("level").asText()), "integral concedido sem segundo clique");
             JsonNode list = studio.call("studio.pdd.consent.list", studio.obj()).at("/payload/consents");
+            lab.driver().switchTo().window(panel);
             assertEquals("FULL", list.get(0).path("level").asText());
             assertEquals("EXTENSION", list.get(0).path("via").asText());
-            assertTrue(String.valueOf(js.executeScript("return document.getElementById('pdd-state').textContent")).contains("print integral"));
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> String.valueOf(js.executeScript("return document.getElementById('pdd-state').textContent"))
+                    .contains("print integral"), "painel mostra o print integral");
             lab.driver().findElement(By.id("btn-pdd-level")).click(); // "Voltar ao print mascarado neste site"
-            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "MASKED".equals(st.get().path("level").asText()), "de volta ao mascarado, sem confirmação");
-            assertEquals(Boolean.TRUE, js.executeScript("return document.getElementById('pdd-confirm-full').hidden"));
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "MASKED".equals(st.get().path("level").asText()), "mascarado");
+            lab.driver().findElement(By.id("btn-pdd-level")).click(); // "Liberar print integral neste site"
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "FULL".equals(st.get().path("level").asText()), "de volta ao integral, sem confirmação");
+            lab.driver().findElement(By.id("btn-pdd-revoke")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "NONE".equals(st.get().path("consent").asText()), "revogado");
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> Boolean.TRUE.equals(js.executeScript("return !document.getElementById('btn-pdd-grant').hidden")),
+                    "autorizar de novo");
+            lab.driver().findElement(By.cssSelector("input[name='pdd-level'][value='MASKED']")).click();
+            lab.driver().findElement(By.id("btn-pdd-grant")).click();
+            BrowserLab.waitUntil(Duration.ofSeconds(10), () -> "MASKED".equals(st.get().path("level").asText()), "autorizado já no mascarado");
         } finally {
             lab.closeWindow(panel);
             revoke(SITE);

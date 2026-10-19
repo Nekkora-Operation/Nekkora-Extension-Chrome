@@ -43,13 +43,13 @@ de aba durante a captura terminam sem imagem publicada. Fica como pendência do 
 | S013-17 | **v5 (print integral)**: recusada sem o nível FULL (`PDD_FULL_REQUIRED`); com FULL e o gesto real, os dados aparecem (cor-sentinela) e **nenhum** pixel da sentinela de senha (#00B000), inclusive o "mostrar senha" e a senha da shadow root fechada; rebaixar volta a recusar a v5 |
 | S013-18 | **v5 com senha dentro de iframe de outra origem** (`?frame=senha`): os frames saem cobertos (`BLOCK` + `FRAMES_HIDDEN`), sem nenhum pixel de senha |
 | S013-19 | Plano v5 no motor real do Chrome (headless): só máscaras `FIELD`; todo campo de senha dentro delas, os campos comuns fora |
-| S013-20 | Print integral pelo **painel da extensão**: só vale depois da confirmação no próprio painel; Cancelar não concede; voltar ao mascarado sem confirmação |
+| S013-20 | Print integral pelo **painel da extensão** (D-S013-10): é o padrão (marcado, com o aviso de uma linha) e vale sem segundo clique; trocar para o mascarado e de volta sem confirmação; autorizar já escolhendo o mascarado |
 | S013-05 | Permissão ampla: coberta em Node com a política de acesso real (o diálogo nativo não é automatizado) |
 
 Evidências: `reports/evidence/S013-02-descricao-v3.json` (descrição real que chegou ao Studio),
 `S013-13-plano-v3-motor-real.json`, `S013-12-painel-consentimento.png`, `S013-14-print-v4-mascarado.png` (print v4 da página
 sintética como chegou ao Studio), `S013-17-print-v5-integral.png` (print integral da página **sintética**: dados fictícios à
-mostra, senhas cobertas) e `S013-20-painel-confirmar-print-integral.png`.
+mostra, senhas cobertas) e `S013-20-painel-print-integral-padrao.png`.
 
 ## Teste de mutação (barreiras de autorização e de vazamento)
 
