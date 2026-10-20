@@ -105,7 +105,10 @@
     return null;
   }
 
-  /** Texto do portador, sem subárvores de valor; aprovado só se o valor INTEIRO passar no vocabulário. */
+  /**
+   * Texto do portador, sem subárvores de valor nem decorativas (aria-hidden="true" abaixo do portador: fora do nome
+   * acessível, ex.: a seta de "Next <span aria-hidden>→</span>"); aprovado só se o valor INTEIRO passar no vocabulário.
+   */
   function carrierOk(c) {
     if (pass.carrierOk.has(c)) {
       return pass.carrierOk.get(c);
@@ -118,7 +121,7 @@
       for (const k of n.childNodes) {
         if (k.nodeType === Node.TEXT_NODE) {
           text += ' ' + k.nodeValue;
-        } else if (k.nodeType === 1 && !VALUE_SUBTREES.has(k.localName) && !isEditable(k)) {
+        } else if (k.nodeType === 1 && !VALUE_SUBTREES.has(k.localName) && !isEditable(k) && !decorative(k)) {
           walk(k, depth + 1);
         }
       }
@@ -130,10 +133,23 @@
     return ok;
   }
 
+  function decorative(el) {
+    return el.getAttribute('aria-hidden') === 'true';
+  }
+
   /** O texto deste elemento é metadado de interface elegível e aprovado? */
   function textEligible(el) {
     const c = carrierOf(el);
-    return !!c && carrierOk(c);
+    if (!c || !carrierOk(c)) {
+      return false;
+    }
+    // texto de subárvore decorativa abaixo do portador ficou FORA da aprovação: nunca sai
+    for (let e = el; e && e !== c; e = composedUp(e)) {
+      if (decorative(e)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   const REF_ATTRIBUTES = ['for', 'aria-labelledby', 'aria-describedby', 'aria-controls', 'aria-owns', 'aria-activedescendant',

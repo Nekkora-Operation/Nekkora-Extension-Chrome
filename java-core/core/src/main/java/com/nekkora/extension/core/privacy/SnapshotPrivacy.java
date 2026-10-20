@@ -186,12 +186,24 @@ public final class SnapshotPrivacy {
         if (c == null) {
             return false;
         }
-        return pass.carrierOk().computeIfAbsent(c.id(), k -> {
+        boolean ok = pass.carrierOk().computeIfAbsent(c.id(), k -> {
             StringBuilder sb = new StringBuilder();
             gather(c, pass, sb, 0);
             String t = CapturePrivacyPolicy.clean(sb.toString());
             return t.isEmpty() || CapturePrivacyPolicy.vocabularyOnly(t);
         });
+        // texto de subárvore decorativa (aria-hidden) abaixo do portador ficou FORA da aprovação: nunca sai
+        for (RawNode e = n; ok && e != null && !e.id().equals(c.id()); e = e.parentId() == null ? null : pass.look().apply(e.parentId())) {
+            if (decorative(e)) {
+                return false;
+            }
+        }
+        return ok;
+    }
+
+    /** aria-hidden="true": fora do nome acessível (ex.: a seta de "Next <span aria-hidden>→</span>"). */
+    private static boolean decorative(RawNode n) {
+        return "true".equals(n.attr("aria-hidden"));
     }
 
     private static void gather(RawNode n, Pass pass, StringBuilder sb, int depth) {
@@ -201,7 +213,7 @@ public final class SnapshotPrivacy {
         sb.append(' ').append(n.ownText());
         for (String cid : n.childIds()) {
             RawNode c = pass.look().apply(cid);
-            if (c != null && !VALUE_SUBTREES.contains(c.tag()) && !editable(c)) {
+            if (c != null && !VALUE_SUBTREES.contains(c.tag()) && !editable(c) && !decorative(c)) {
                 gather(c, pass, sb, depth + 1);
             }
         }
