@@ -161,6 +161,16 @@ class Studio013SitesIT extends SessionIT {
         r.keyRelease(KeyEvent.VK_ALT);
     }
 
+    /**
+     * A página ocupa a thread principal ANTES do gesto (200 ms: só o tempo de o WebDriver voltar): o atalho é do navegador
+     * e a captura precisa do content script, que só responde quando a página se liberta — a revogação/troca/cancelamento
+     * cai, garantidamente, NO MEIO da captura. Com 1 200 ms (versão anterior) a captura podia terminar antes de a página
+     * travar e o cenário deixava de ser "durante a captura" (falha determinística nas máquinas mais rápidas).
+     */
+    private void occupyBeforeGesture() {
+        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 200)");
+    }
+
     private void clickTabStrip(Page p) throws Exception {
         lab.focus(p);
         Point pos = lab.driver().manage().window().getPosition();
@@ -353,7 +363,7 @@ class Studio013SitesIT extends SessionIT {
         String c2 = "cap-" + UUID.randomUUID();
         assertTrue(arm(p, c2, V3, SITE).path("ok").asBoolean());
         lab.focus(p);
-        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        occupyBeforeGesture();
         gesture(p);
         Thread.sleep(1500);
         assertTrue(revoke(SITE).at("/payload/revoked").asBoolean());
@@ -409,7 +419,7 @@ class Studio013SitesIT extends SessionIT {
         String cid = "cap-" + UUID.randomUUID();
         assertTrue(arm(p, cid, V3, SITE).path("ok").asBoolean());
         lab.focus(p);
-        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        occupyBeforeGesture();
         gesture(p);
         Thread.sleep(1500);
         ctrlTab(2); // A→B→A com o plano esperando
@@ -418,7 +428,7 @@ class Studio013SitesIT extends SessionIT {
         String c2 = "cap-" + UUID.randomUUID();
         assertTrue(arm(p, c2, V3, SITE).path("ok").asBoolean());
         lab.focus(p);
-        ((JavascriptExecutor) lab.driver()).executeScript("window.nkOcupar(6500, 1200)");
+        occupyBeforeGesture();
         gesture(p);
         Thread.sleep(1500);
         assertTrue(studio.call("studio.pdd.capture.cancel", studio.obj().put("captureId", c2)).at("/payload/cancelled").asBoolean());
