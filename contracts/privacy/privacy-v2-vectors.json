@@ -222,6 +222,30 @@
   {
    "in": "Excel Quixadá",
    "out": null
+  },
+  {
+   "in": "Campo(s)",
+   "out": "Campo(s)"
+  },
+  {
+   "in": "Usuário(a)(s)",
+   "out": "Usuário(a)(s)"
+  },
+  {
+   "in": "Campo(x)",
+   "out": null
+  },
+  {
+   "in": "(s)",
+   "out": null
+  },
+  {
+   "in": "Joaquim(s)",
+   "out": null
+  },
+  {
+   "in": "Campo (s)",
+   "out": null
   }
  ],
  "identifiers": [
@@ -1056,6 +1080,14 @@
   {
    "in": "//header//input[@name=\"search\"]",
    "out": true
+  },
+  {
+   "in": "//table//tr[th[normalize-space(.)=\"Campo(s)\"]]//td",
+   "out": true
+  },
+  {
+   "in": "//table//tr[th[normalize-space(.)=\"Cônjuge(s)\"]]//td",
+   "out": false
   }
  ],
  "attributes": [

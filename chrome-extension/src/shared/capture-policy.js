@@ -42,8 +42,22 @@
     return t.normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase();
   }
 
+  // NEKKORA-E2E-002 (D-E2E2-12, aprovado pela usuária): marcador de gênero/plural COLADO a uma palavra não é termo —
+  // "Campo(s)", "Filho(a)(s)" contam como "Campo", "Filho". Nenhum termo novo entra; o marcador sozinho não é aceito.
+  const INFLECTION = /(\p{L})\((?:s|es|a|as|o|os)\)/giu;
+
+  function uninflect(s) {
+    let prev;
+    let cur = s;
+    do {
+      prev = cur;
+      cur = cur.replace(INFLECTION, '$1');
+    } while (cur !== prev);
+    return cur;
+  }
+
   function terms(s) {
-    return s.replace(CAMEL, '$1 $2').replace(LETTER_DIGIT, '$1 $2').replace(DIGIT_LETTER, '$1 $2')
+    return uninflect(s).replace(CAMEL, '$1 $2').replace(LETTER_DIGIT, '$1 $2').replace(DIGIT_LETTER, '$1 $2')
       .split(SPLIT).filter(Boolean).map(fold);
   }
 

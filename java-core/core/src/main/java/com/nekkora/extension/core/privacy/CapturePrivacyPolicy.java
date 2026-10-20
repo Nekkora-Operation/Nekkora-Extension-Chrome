@@ -267,8 +267,24 @@ public final class CapturePrivacyPolicy {
         return MARKS.matcher(Normalizer.normalize(t, Normalizer.Form.NFD)).replaceAll("").toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * NEKKORA-E2E-002 (D-E2E2-12, aprovado pela usuária): marcador de gênero/plural COLADO a uma palavra não é termo —
+     * "Campo(s)", "Filho(a)(s)" contam como "Campo", "Filho". Nenhum termo novo entra; o marcador sozinho não é aceito.
+     */
+    private static final Pattern INFLECTION = Pattern.compile("(\\p{L})\\((?:s|es|a|as|o|os)\\)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    static String uninflect(String s) {
+        String prev;
+        String cur = s;
+        do {
+            prev = cur;
+            cur = INFLECTION.matcher(cur).replaceAll("$1");
+        } while (!cur.equals(prev));
+        return cur;
+    }
+
     static List<String> terms(String s) {
-        String spaced = DIGIT_LETTER.matcher(LETTER_DIGIT.matcher(CAMEL.matcher(s).replaceAll("$1 $2")).replaceAll("$1 $2")).replaceAll("$1 $2");
+        String spaced = DIGIT_LETTER.matcher(LETTER_DIGIT.matcher(CAMEL.matcher(uninflect(s)).replaceAll("$1 $2")).replaceAll("$1 $2")).replaceAll("$1 $2");
         List<String> out = new ArrayList<>();
         for (String t : SPLIT.split(spaced)) {
             if (!t.isEmpty()) {
