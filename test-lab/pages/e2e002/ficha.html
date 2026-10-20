@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Ficha de teste</title>
+<style>
+  body { font-family: sans-serif; margin: 0; }
+  header { display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid #ccc; }
+  .fixo { display: none; }
+  table.ficha { border-collapse: collapse; margin: 16px; }
+  table.ficha th, table.ficha td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; vertical-align: top; }
+  ul.emlinha { margin: 0; padding: 0; list-style: none; }
+  ul.emlinha li { display: inline; }
+  ul.emlinha li + li::before { content: " · "; }
+</style>
+</head>
+<body>
+<!-- NEKKORA-E2E-002: estrutura GENÉRICA de ficha (dados 100% fictícios): busca no cabeçalho com cópia oculta fora dele,
+     título, tabela com cabeçalho de linha (th), data com link e lista exibida em linha dentro da célula. -->
+<header>
+  <form role="search" action="#"><input type="search" name="search" role="combobox" aria-label="Pesquisar na ficha"></form>
+</header>
+<div class="fixo"><form action="#"><input type="search" name="search"></form></div>
+<main>
+  <h1 id="titulo">Pessoa Fictícia Exemplo</h1>
+  <table class="ficha">
+    <tr><th scope="row">Nome completo</th><td>Pessoa Fictícia de Exemplo Completo</td></tr>
+    <tr><th scope="row">Nascimento</th><td><a href="#dia">3 de março</a> de <a href="#ano">1901</a></td></tr>
+    <tr><th scope="row">Ocupação</th><td><ul class="emlinha"><li><a href="#a">tecelã</a></li><li>relojoeira</li><li>cartógrafa</li></ul></td></tr>
+  </table>
+</main>
+</body>
+</html>

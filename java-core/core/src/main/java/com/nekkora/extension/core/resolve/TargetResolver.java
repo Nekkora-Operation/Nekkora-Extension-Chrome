@@ -121,7 +121,7 @@ public final class TargetResolver {
         for (String s : scope.scopes()) {
             for (RawNode n : graph.model().inScope(s)) {
                 Classification c = graph.semantics().get(n.id());
-                if (!c.kind().compatibilityFamily().equals(expected.compatibility())) {
+                if (!c.kind().compatibilityFamily(n.tag()).equals(expected.compatibility())) {
                     continue;
                 }
                 if (expected.name() != null && TextNormalizer.compare(expected.name(), c.name().name()) == TextMatch.NONE
@@ -146,7 +146,7 @@ public final class TargetResolver {
             String nodeId = e.getKey();
             Classification c = graph.semantics().get(nodeId);
             List<String> reasons = new ArrayList<>();
-            if (!c.kind().compatibilityFamily().equals(expected.compatibility())) {
+            if (!c.kind().compatibilityFamily(graph.model().node(nodeId).tag()).equals(expected.compatibility())) {
                 reasons.add("tipo incompatível: esperado " + expected.kind() + ", encontrado " + c.kind());
                 evaluations.add(new CandidateEvaluation(nodeId, "INCOMPATIBLE", 0, List.copyOf(e.getValue()), List.of(), reasons));
                 if (strongHits.contains(nodeId)) {

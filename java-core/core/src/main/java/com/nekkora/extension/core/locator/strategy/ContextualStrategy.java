@@ -2,6 +2,7 @@ package com.nekkora.extension.core.locator.strategy;
 
 import com.nekkora.extension.core.context.ElementFamily;
 import com.nekkora.extension.core.context.NodeRef;
+import com.nekkora.extension.core.locator.LocatorPrivacy;
 import com.nekkora.extension.core.locator.LocatorStrategyKind;
 import com.nekkora.extension.core.locator.query.LocatorQuery;
 import com.nekkora.extension.core.locator.query.LocatorStep;
@@ -61,6 +62,64 @@ public final class ContextualStrategy implements LocatorStrategy {
             uniqueAnchor(t, container, List.of()).flatMap(a -> t.bestWithin(List.of(a))).ifPresent(q ->
                     out.add(LocatorCandidate.of(LocatorStrategyKind.CONTEXTUAL, q,
                             "escopo: " + ref.kind() + (ref.name().isEmpty() ? "" : " \"" + ref.name() + "\""))));
+        }
+
+        // 2b) NEKKORA-E2E-002: descrição de uma lista de definição pelo seu TERMO (dt → dd), nunca pela posição
+        if (t.node().tag().equals("dd")) {
+            RawNode parent = t.graph().model().parent(t.node()).orElse(null);
+            RawNode term = null;
+            if (parent != null) {
+                for (RawNode c : t.graph().model().children(parent)) {
+                    if (c.id().equals(t.node().id())) {
+                        break;
+                    }
+                    if (c.tag().equals("dt")) {
+                        term = c;
+                    }
+                }
+            }
+            String text = term == null ? "" : t.graph().model().textContent(term);
+            if (!text.isEmpty() && text.length() <= 80) {
+                LocatorQuery q = LocatorQuery.of(LocatorStep.descendant("dd", new com.nekkora.extension.core.locator.query.Predicate.AfterTerm(text)));
+                if (t.includesTarget(q)) {
+                    out.add(LocatorCandidate.of(LocatorStrategyKind.ROW_CONTEXT, q, "descrição do termo"));
+                }
+            }
+        }
+
+        // 3) NEKKORA-E2E-002: regiões semânticas (cabeçalho da página, navegação, busca...) do mais próximo ao mais
+        // distante. A região não precisa ser única na página (há mais de um <header>, mais de uma busca): vale quando
+        // REGIÃO + ALVO seleciona só o alvo — ex.: o campo de busca do cabeçalho contra a cópia oculta do cabeçalho
+        // fixo, que tem o mesmo name e fica fora do <header>. Nada de posição; cada passo passa pela privacidade.
+        for (RawNode lm : t.graph().model().ancestorsInScope(t.node())) {
+            for (LocatorStep step : landmarkSteps(lm)) {
+                if (!LocatorPrivacy.transportable(LocatorQuery.of(step))) {
+                    continue;
+                }
+                Optional<LocatorQuery> q = t.bestWithin(List.of(step)).filter(t::uniqueForTarget);
+                if (q.isPresent()) {
+                    out.add(LocatorCandidate.of(LocatorStrategyKind.CONTEXTUAL, q.get(), "região semântica: " + step.describe()));
+                    return out;
+                }
+            }
+        }
+        return out;
+    }
+
+    private static final Set<String> LANDMARK_TAGS = Set.of("header", "nav", "main", "aside", "footer", "search");
+    private static final Set<String> LANDMARK_ROLES = Set.of("banner", "navigation", "main", "complementary", "contentinfo", "search",
+            "region", "form");
+
+    /** Passos que nomeiam uma região semântica pelo elemento ou pelo papel declarado (sem id, sem classe, sem texto). */
+    static List<LocatorStep> landmarkSteps(RawNode n) {
+        List<LocatorStep> out = new ArrayList<>();
+        String tag = n.locatorTag();
+        String role = n.attr("role") == null ? "" : n.attr("role").trim().toLowerCase(java.util.Locale.ROOT);
+        if (LANDMARK_ROLES.contains(role)) {
+            out.add(LocatorStep.descendant(tag, new com.nekkora.extension.core.locator.query.Predicate.AttrEquals("role", role)));
+        }
+        if (tag != null && LANDMARK_TAGS.contains(tag)) {
+            out.add(LocatorStep.descendant(tag));
         }
         return out;
     }

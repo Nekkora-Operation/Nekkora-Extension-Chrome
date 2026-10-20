@@ -18,8 +18,8 @@
     "Version": { "type": "string", "maxLength": 40 },
     "Instant": { "type": "string", "format": "date-time" },
     "Mode": {
-      "enum": ["CAPTURE_ONLY", "CAPTURE_AND_INTERACT"],
-      "description": "CAPTURE_ONLY = 'Capturar' (selecionar e registrar sem executar a ação); CAPTURE_AND_INTERACT = 'Capturar e interagir' (observar sem bloquear). Com a capacidade steps/1 (STUDIO-003) os sensores de interação aplicam o modo; sem ela o modo é apenas configuração confirmada (STUDIO-002)."
+      "enum": ["CAPTURE_ONLY", "CAPTURE_AND_INTERACT", "SELECT_DATA"],
+      "description": "CAPTURE_ONLY = 'Capturar' (selecionar e registrar sem executar a ação); CAPTURE_AND_INTERACT = 'Capturar e interagir' (observar sem bloquear); SELECT_DATA = 'Selecionar dado para extrair' (NEKKORA-E2E-002: o clique não executa nada e aponta o contêiner de um dado a LER — célula, termo, título, parágrafo; vira a ação EXTRACT, sem texto da página). Com a capacidade steps/1 (STUDIO-003) os sensores de interação aplicam o modo; sem ela o modo é apenas configuração confirmada (STUDIO-002)."
     },
     "RecordingState": {
       "enum": ["RECORDING", "PAUSED", "DEGRADED", "COMPLETED", "CANCELLED", "EXPIRED", "FAILED"],
@@ -643,7 +643,7 @@
         "observedAt": { "$ref": "#/$defs/Instant" },
         "mode": { "$ref": "#/$defs/Mode" },
         "observation": { "enum": ["INTERACTION_OBSERVED", "PROPOSED"], "description": "INTERACTION_OBSERVED: interação real encaminhada à página (não comprova resultado de negócio). PROPOSED: elemento selecionado em CAPTURE_ONLY, ação NÃO executada." },
-        "action": { "enum": ["CLICK", "FILL", "SELECT_OPTION", "CHECK", "UNCHECK", "PRESS_KEY", "UNKNOWN"] },
+        "action": { "enum": ["CLICK", "FILL", "SELECT_OPTION", "CHECK", "UNCHECK", "PRESS_KEY", "UNKNOWN", "EXTRACT"] },
         "element": { "$ref": "#/$defs/ElementRef" },
         "parameters": {
           "type": "object",
@@ -1015,7 +1015,8 @@
         "NODE_REPLACED", "ID_ATTRIBUTE_CHANGED", "NAME_ATTRIBUTE_CHANGED", "KIND_INCOMPATIBLE_AT_ADDRESS", "FRAME_NOT_FOUND", "FRAME_AMBIGUOUS",
         "FRAME_DOCUMENT_CHANGED", "FRAME_PERMISSION_DENIED", "FRAME_SANDBOX_RESTRICTED", "FRAME_LOADING", "SHADOW_ROOT_CLOSED", "SHADOW_HOST_NOT_FOUND",
         "TARGET_NOT_MATERIALIZED", "TARGET_AMBIGUOUS", "HIDDEN", "OUT_OF_VIEWPORT", "DISABLED", "READ_ONLY", "INACCESSIBLE", "NOT_EDITABLE",
-        "KIND_UNUSUAL_FOR_ACTION", "PAGE_CHANGED_DURING_CHECK", "CAPTURE_UNAVAILABLE", "HIGHLIGHT_FAILED"]
+        "KIND_UNUSUAL_FOR_ACTION", "PAGE_CHANGED_DURING_CHECK", "CAPTURE_UNAVAILABLE", "HIGHLIGHT_FAILED",
+        "DISAMBIGUATED_BY_RECORDED_LOCATOR"]
     },
     "DebugBox": {
       "type": "object",

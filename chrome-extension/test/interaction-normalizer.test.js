@@ -291,3 +291,42 @@ test('NEKKORA-STUDIO-012 — alvo revelado por :hover: o clique leva a limitaç�
   assert.deepEqual(c.out[0].notes, ['REVEALED_BY_HOVER']);
   assert.equal(c.out[0].observation, 'PROPOSED');
 });
+
+// ------------------------------------------------------------------------------------------- NEKKORA-E2E-002 (R12)
+const CELULA = { key: 'n20', control: 'DATA', sensitive: false };
+const TITULO = { key: 'n21', control: 'DATA', sensitive: false };
+
+test('E2E002/R12 — no modo SELECT_DATA o clique num contêiner de dado vira PROPOSTA de leitura (EXTRACT)', () => {
+  const r = rig('SELECT_DATA');
+  r.ev('click', TITULO);
+  r.ev('click', CELULA);
+  assert.deepEqual(r.actions(), ['EXTRACT:n21', 'EXTRACT:n20']);
+  assert.ok(r.out.every((i) => i.observation === 'PROPOSED' && i.option === null && i.key === null));
+  assert.ok(r.out.every((i) => !('text' in i) && !('value' in i)), 'nenhum texto lido acompanha a etapa');
+});
+
+test('E2E002/R12 — sem contêiner de dado (ou alvo de controle) nada é proposto: descarte contado', () => {
+  const r = rig('SELECT_DATA');
+  r.ev('click', { key: null, control: 'NONE' });
+  r.ev('click', ENTRAR); // um botão não é DADO: no modo de seleção de dado ele não vira clique
+  assert.deepEqual(r.actions(), []);
+  assert.equal(r.n.stats().discarded.NON_INTERACTIVE, 2);
+});
+
+test('E2E002/R12 — no modo SELECT_DATA preenchimento, troca e teclas não viram etapa', () => {
+  const r = rig('SELECT_DATA');
+  typeInto(r, USER, 3);
+  r.ev('change', ESTADO);
+  r.ev('keydown', USER, { key: 'Enter' });
+  r.n.flush();
+  assert.deepEqual(r.actions(), []);
+});
+
+test('E2E002/R12 — trocar de SELECT_DATA para CAPTURE_AND_INTERACT volta às regras de interação', () => {
+  const r = rig('SELECT_DATA');
+  r.ev('click', CELULA);
+  r.n.setMode('CAPTURE_AND_INTERACT');
+  r.ev('click', ENTRAR);
+  assert.deepEqual(r.actions(), ['EXTRACT:n20', 'CLICK:n3']);
+  assert.equal(r.out[1].observation, 'INTERACTION_OBSERVED');
+});

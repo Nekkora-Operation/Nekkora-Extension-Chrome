@@ -124,6 +124,46 @@ public sealed interface Predicate {
         }
     }
 
+    /**
+     * NEKKORA-E2E-002: o termo ({@code <dt>}) MAIS PRÓXIMO antes deste nó, entre os irmãos, tem o texto normalizado
+     * {@code text} — a relação semântica termo → descrição de uma lista de definição. Não depende da posição na página:
+     * {@code preceding-sibling::dt[1]} é "o termo anterior", não "o primeiro da lista".
+     */
+    record AfterTerm(String text) implements Predicate {
+        @Override
+        public boolean test(RawNode node, EvalContext ctx) {
+            RawNode parent = ctx.model().parent(node).orElse(null);
+            if (parent == null) {
+                return false;
+            }
+            RawNode term = null;
+            for (RawNode c : ctx.model().children(parent)) {
+                if (c.id().equals(node.id())) {
+                    break;
+                }
+                if (c.scopeId().equals(node.scopeId()) && c.tag().equals("dt")) {
+                    term = c;
+                }
+            }
+            return term != null && text.equals(ctx.model().textContent(term));
+        }
+
+        @Override
+        public String css() {
+            return null;
+        }
+
+        @Override
+        public String xpath() {
+            return "preceding-sibling::dt[1][normalize-space(.)=" + Escaping.xpathLiteral(text) + "]";
+        }
+
+        @Override
+        public String describe() {
+            return "after <dt> \"" + text + "\"";
+        }
+    }
+
     /** Posição entre irmãos de mesma tag ({@code :nth-of-type(n)} / {@code tag[n]}), base 1. */
     record NthOfType(int position) implements Predicate {
         @Override

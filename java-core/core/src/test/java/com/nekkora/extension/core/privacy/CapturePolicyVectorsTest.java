@@ -70,6 +70,10 @@ class CapturePolicyVectorsTest {
             assertEquals(c.get("out").asBoolean(), CapturePrivacyPolicy.isCarrier(text(c.get("tag")), text(c.get("role")),
                     c.get("hasHref").asBoolean()), "isCarrier " + c.get("tag") + "/" + c.get("role"));
         }
+        for (JsonNode c : v.get("rowHeaders")) { // NEKKORA-E2E-002
+            assertEquals(c.get("out").asBoolean(), CapturePrivacyPolicy.isRowHeader(text(c.get("tag")), text(c.get("role")), text(c.get("scope")),
+                    c.get("rowHasDataCell").asBoolean()), "isRowHeader " + c);
+        }
         for (JsonNode c : v.get("tags")) {
             assertEquals(text(c.get("out")), CapturePrivacyPolicy.tagName(text(c.get("in"))), "tagName " + c.get("in"));
         }

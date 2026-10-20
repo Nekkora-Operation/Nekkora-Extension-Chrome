@@ -63,7 +63,7 @@ public record TechnicalContinuity(String status, String nodeId, List<String> pro
         if (!a.scopeId().equals(n.scopeId())) {
             return broken("SCOPE_CHANGED");
         }
-        if (!a.tag().equals(n.tag()) || !a.compatibility().equals(graph.semantics().get(n.id()).kind().compatibilityFamily())) {
+        if (!a.tag().equals(n.tag()) || !a.compatibility().equals(graph.semantics().get(n.id()).kind().compatibilityFamily(n.tag()))) {
             return broken("TYPE_CHANGED: o tipo ou a finalidade do elemento mudou");
         }
         List<String> proof = List.of("mesma época do registro de nós (" + a.registryEpoch() + ")", "mesmo frame e escopo", "mesmo tipo e tag");

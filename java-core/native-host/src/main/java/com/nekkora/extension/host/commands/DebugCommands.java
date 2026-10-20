@@ -2,9 +2,7 @@ package com.nekkora.extension.host.commands;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nekkora.extension.core.analysis.PageAnalysis;
-import com.nekkora.extension.core.identity.IdentitySignature;
 import com.nekkora.extension.core.identity.TargetIdentity;
-import com.nekkora.extension.core.locator.LocatorSet;
 import com.nekkora.extension.core.resolve.CandidateEvaluation;
 import com.nekkora.extension.core.resolve.ResolutionResult;
 import com.nekkora.extension.core.resolve.ResolutionStatus;
@@ -105,6 +103,16 @@ public final class DebugCommands implements CommandRouter.CommandGroup {
             List<String> evidence = new ArrayList<>(r.evidence()); // frases livres: ficam no host (evidência local da aba)
             tab.addEvidence(EngineServices.evidence(identity.targetId(), "DEBUG_RESOLUTION", "ENGINE", evidence));
             String continuity = r.continuity() == null ? null : r.continuity().status();
+            String byLocator = r.status() == ResolutionStatus.AMBIGUOUS ? recordedLocatorChoice(descriptor, a, r.candidates()) : null;
+            if (byLocator != null) {
+                // NEKKORA-E2E-002: o empate entre candidatos de identidade CONFIRMADA é decidido pelo localizador contextual
+                // gravado (verificado único na gravação) quando ele seleciona hoje exatamente UM deles — o mesmo que a
+                // execução vai usar. Nenhum palpite: sem seleção única, continua ambíguo.
+                reasons.add("DISAMBIGUATED_BY_RECORDED_LOCATOR");
+                double score = r.candidates().stream().filter(c -> c.nodeId().equals(byLocator)).mapToDouble(CandidateEvaluation::score).findFirst().orElse(0);
+                return outcome(source, ResolutionStatus.RESOLVED.name(), score, byLocator, r.nodeReplaced(), reasons, r.candidates(), a, action, descriptor,
+                        continuity, t0);
+            }
             return outcome(source, r.status().name(), r.score(), r.resolvedNodeId(), r.nodeReplaced(), reasons, r.candidates(), a, action, descriptor,
                     continuity, t0);
         });
@@ -293,16 +301,37 @@ public final class DebugCommands implements CommandRouter.CommandGroup {
                 }
             }
         }
-        String name = text(d, "name");
-        IdentitySignature sig = new IdentitySignature(kind.name(), kind.compatibilityFamily(), null, text(d, "tag"), name, null, id, nameAttr, testAttr, null,
-                null, null, null, null, null, null, null, null, null, null, null, null, null);
-        Map<String, List<String>> history = new LinkedHashMap<>();
-        history.put("id", new ArrayList<>(java.util.Collections.singletonList(id)));
-        history.put("name", new ArrayList<>(java.util.Collections.singletonList(nameAttr)));
-        var doc = a.model().snapshot().document();
-        return new TargetIdentity("tgt-transient", TargetIdentity.SCHEMA_VERSION, java.time.Instant.now().toString(),
-                com.nekkora.extension.core.identity.IdentityFactory.originOf(doc), sig, Set.of(), 0, new LocatorSet(null, null, List.of(), List.of()), null, null, null,
-                history, List.of(), List.of(), null);
+        List<String> css = new ArrayList<>();
+        for (JsonNode l : d.path("locators")) {
+            css.add(l.path("css").asText(""));
+        }
+        return com.nekkora.extension.core.identity.DescriptorIdentity.of(a, kind, text(d, "tag"), text(d, "name"), id, nameAttr, testAttr, css);
+    }
+
+    /** O candidato CONFIRMADO que um localizador contextual do descritor seleciona sozinho hoje; senão {@code null}. */
+    static String recordedLocatorChoice(JsonNode d, PageAnalysis a, List<CandidateEvaluation> candidates) {
+        if (d == null || d.isMissingNode() || d.isNull()) {
+            return null;
+        }
+        ElementKind kind;
+        try {
+            kind = ElementKind.valueOf(d.path("kind").asText("UNKNOWN"));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        Set<String> confirmed = new LinkedHashSet<>();
+        for (CandidateEvaluation c : candidates) {
+            if ("CONFIRMED".equals(c.verdict())) {
+                confirmed.add(c.nodeId());
+            }
+        }
+        for (JsonNode l : d.path("locators")) {
+            String only = com.nekkora.extension.core.identity.DescriptorIdentity.uniqueByRegionLocator(a, l.path("css").asText(""), kind, text(d, "tag"));
+            if (only != null) {
+                return confirmed.contains(only) ? only : null;
+            }
+        }
+        return null;
     }
 
     private static String text(JsonNode d, String field) {

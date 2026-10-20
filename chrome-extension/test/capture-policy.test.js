@@ -54,6 +54,9 @@ test('SEC001-065/067 — vetores compartilhados: texto de interface, identificad
   for (const v of vectors.carriers) {
     assert.equal(P.isCarrier(v.tag, v.role, v.hasHref), v.out, 'isCarrier ' + v.tag + '/' + v.role);
   }
+  for (const v of vectors.rowHeaders) { // NEKKORA-E2E-002: cabeçalho de linha / termo como portador
+    assert.equal(P.isRowHeader(v.tag, v.role, v.scope, v.rowHasDataCell), v.out, 'isRowHeader ' + JSON.stringify(v));
+  }
   for (const v of vectors.tags) {
     assert.equal(P.tagName(v.in), v.out, 'tagName ' + JSON.stringify(v.in));
   }

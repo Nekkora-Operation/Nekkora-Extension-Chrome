@@ -484,6 +484,33 @@ fixtures_invalid.update({
                                                                   "actionType": "CLICK"}),
 })
 
+# NEKKORA-E2E-002 — "Selecionar dado para extrair": modo SELECT_DATA e etapa EXTRACT (o ELEMENTO, nunca o texto lido)
+element_cell = dict(element_button, kind="TABLE_CELL", role="cell", name="", tag="td", htmlId=None,
+                    locators=[{"strategy": "ROW_CONTEXT", "description": "linha identificada por ROW_HEADER", "css": None,
+                               "xpath": "//table//tr[th[normalize-space(.)=\"Nascimento\"]]//td", "matchCount": 1, "matchesTarget": True,
+                               "stability": "HEURISTIC_STABLE", "validation": "LIVE"}],
+                    accessPath=[{"type": "MAIN_DOCUMENT", "label": "", "locator": None, "restriction": None}],
+                    context=[{"relation": "IN_ROW", "kind": "TABLE_ROW", "name": "Nascimento"}])
+step_extract = dict(step_click, eventId="ev-1-9", sequence=9, mode="SELECT_DATA", observation="PROPOSED", action="EXTRACT", element=element_cell,
+                    evidence=["LOCATORS_VERIFIED_LIVE"], events=1,
+                    context={"url": "https://exemplo.test/{…}/{…}", "title": None, "frame": "MAIN"})
+fixtures_valid.update({
+    "e2e002-command-start-select-data": {"protocol": P, "kind": "command", "type": "studio.recording.start", "id": "c-90", "seq": 90,
+                                         "payload": {"recordingId": REC, "operationId": "op-start-9", "tabRef": TAB, "mode": "SELECT_DATA",
+                                                     "leaseMs": 30000, "capabilities": ["steps/1"], "routeRef": "route-1"}},
+    "e2e002-event-step-extract": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 91, "payload": step_extract},
+})
+fixtures_invalid.update({
+    # o texto lido nunca trafega: nem como valor, nem como campo extra
+    "e2e002-step-extract-with-text": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 92,
+                                      "payload": dict(step_extract, text="21 de junho de 1839")},
+    "e2e002-step-extract-with-value": {"protocol": P, "kind": "event", "type": "studio.recording.step", "seq": 93,
+                                       "payload": dict(step_extract, parameters={"valueCaptured": True, "option": None, "key": None})},
+    "e2e002-start-unknown-mode": {"protocol": P, "kind": "command", "type": "studio.recording.start", "id": "c-94", "seq": 94,
+                                  "payload": {"recordingId": REC, "operationId": "op-start-9", "tabRef": TAB, "mode": "READ_EVERYTHING",
+                                              "leaseMs": 30000, "capabilities": ["steps/1"], "routeRef": "route-1"}},
+})
+
 for name, body in fixtures_valid.items():
     with open(os.path.join(valid, name + ".json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(body, f, ensure_ascii=False, indent=2)

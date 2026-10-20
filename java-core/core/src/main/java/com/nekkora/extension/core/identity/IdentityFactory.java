@@ -115,7 +115,7 @@ public final class IdentityFactory {
         String name = sig.name() == null ? "" : TextNormalizer.fold(sig.name());
         String text = sig.text() == null ? "" : TextNormalizer.fold(sig.text());
         for (Classification c : graph.semantics().all()) {
-            if (c.nodeId().equals(nodeId) || !c.kind().compatibilityFamily().equals(sig.compatibility())) {
+            if (c.nodeId().equals(nodeId) || !c.kind().compatibilityFamily(graph.model().node(c.nodeId()).tag()).equals(sig.compatibility())) {
                 continue;
             }
             String otherName = TextNormalizer.fold(c.name().name());

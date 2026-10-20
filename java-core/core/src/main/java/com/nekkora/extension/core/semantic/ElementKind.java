@@ -94,6 +94,18 @@ public enum ElementKind {
      * se pertencem à mesma família (um campo de texto pode virar textarea; um botão não pode virar campo).
      */
     public String compatibilityFamily() {
+        return compatibilityFamily(null);
+    }
+
+    /**
+     * Família considerando a tag (NEKKORA-E2E-002): {@code <input role=combobox>} é o combobox EDITÁVEL do ARIA 1.2 —
+     * aceita digitação como qualquer campo de texto. Busca com sugestões que troca searchbox por combobox ao receber
+     * foco (componente recriado) continua sendo o mesmo campo; {@code <select>}/listbox continuam "choice".
+     */
+    public String compatibilityFamily(String tag) {
+        if (this == COMBOBOX && "input".equals(tag)) {
+            return "text-entry";
+        }
         if (isTextEntry()) {
             return "text-entry";
         }

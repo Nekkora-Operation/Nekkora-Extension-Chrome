@@ -1,0 +1,76 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.recording.step",
+  "seq": 93,
+  "payload": {
+    "recordingId": "rec-3f1c2a9e-5b7d-4e21-9a0b-6c8d7e5f4a31",
+    "eventId": "ev-1-9",
+    "sequence": 9,
+    "routeRef": "route-1",
+    "observedAt": "2026-10-15T12:00:07.000Z",
+    "mode": "SELECT_DATA",
+    "observation": "PROPOSED",
+    "action": "EXTRACT",
+    "element": {
+      "resolution": "RESOLVED",
+      "kind": "TABLE_CELL",
+      "role": "cell",
+      "name": "",
+      "tag": "td",
+      "htmlId": null,
+      "htmlName": null,
+      "sensitive": false,
+      "locators": [
+        {
+          "strategy": "ROW_CONTEXT",
+          "description": "linha identificada por ROW_HEADER",
+          "css": null,
+          "xpath": "//table//tr[th[normalize-space(.)=\"Nascimento\"]]//td",
+          "matchCount": 1,
+          "matchesTarget": true,
+          "stability": "HEURISTIC_STABLE",
+          "validation": "LIVE"
+        }
+      ],
+      "preferredLocator": 0,
+      "accessPath": [
+        {
+          "type": "MAIN_DOCUMENT",
+          "label": "",
+          "locator": null,
+          "restriction": null
+        }
+      ],
+      "context": [
+        {
+          "relation": "IN_ROW",
+          "kind": "TABLE_ROW",
+          "name": "Nascimento"
+        }
+      ],
+      "lookalikes": 0,
+      "correlation": {
+        "targetId": "tgt-7f3a91c2",
+        "nodeId": "n8",
+        "captureId": "cap-12",
+        "documentId": "doc:f0"
+      }
+    },
+    "parameters": {
+      "valueCaptured": true,
+      "option": null,
+      "key": null
+    },
+    "context": {
+      "url": "https://exemplo.test/{…}/{…}",
+      "title": null,
+      "frame": "MAIN"
+    },
+    "evidence": [
+      "LOCATORS_VERIFIED_LIVE"
+    ],
+    "notes": [],
+    "events": 1
+  }
+}

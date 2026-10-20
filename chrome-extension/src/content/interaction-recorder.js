@@ -6,6 +6,10 @@
  *   valores nem dispara eventos — a página funciona normalmente.
  * - CAPTURE_ONLY: o clique (e Enter/Espaço no elemento focado) SELECIONA sem executar: os eventos de ponteiro, clique e
  *   envio são interceptados na captura, como no Inspector. Tab e atalhos do navegador continuam livres.
+ * - SELECT_DATA (NEKKORA-E2E-002, "Selecionar dado para extrair"): como CAPTURE_ONLY, o clique não executa nada; o alvo
+ *   é o CONTÊINER DE DADO mais próximo do texto clicado (célula, termo/descrição, título, parágrafo, item de lista,
+ *   legenda), realçado na página. Vira uma PROPOSTA de leitura (EXTRACT). O texto lido NUNCA é coletado aqui — só o
+ *   elemento; quem lê é o robô, na execução.
  * - Resolve o ALVO FUNCIONAL (o botão, não o ícone dentro dele; o controle de uma label) e entrega ao normalizador
  *   somente observações sanitizadas. Valores digitados NUNCA são lidos (nem .value de campos de texto); a opção de um
  *   select passa pela política de privacidade; campo sensível não tem a opção exportada.
@@ -22,6 +26,11 @@
   const CLICK_TYPES = new Set(['submit', 'button', 'reset', 'image']);
   const CLICK_ROLES = new Set(['button', 'link', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'tab', 'switch', 'treeitem', 'checkbox', 'radio', 'combobox']);
   const MAX_DEPTH = 8;
+  // contêineres de DADO (texto informativo, não interativo) para "Selecionar dado para extrair"
+  const DATA_TAGS = new Set(['td', 'th', 'dd', 'dt', 'li', 'caption', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote',
+    'pre', 'time', 'address', 'output', 'label', 'legend']);
+  const DATA_ROLES = new Set(['cell', 'gridcell', 'rowheader', 'columnheader', 'heading', 'status', 'note', 'term', 'definition', 'listitem',
+    'caption']);
 
   let state = null; // { epoch, mode, normalizer, attached: [], roots: WeakSet, open: bool }
 
@@ -442,6 +451,79 @@
     }
   }
 
+  /**
+   * Item de lista, parágrafo ou trecho DENTRO de uma célula de dados cuja linha tem cabeçalho próprio (th na mesma
+   * linha): o dado é a célula inteira — a linha da ficha nomeia o dado e o robô lê todos os itens dela. Nunca sobe além
+   * da tabela mais próxima.
+   */
+  function headedCell(el) {
+    if (el.tagName.toLowerCase() === 'td') {
+      return null;
+    }
+    for (let cur = parentOf(el), i = 0; cur && i < MAX_DEPTH; i++, cur = parentOf(cur)) {
+      const tag = cur.tagName.toLowerCase();
+      if (tag === 'table' || tag === 'body') {
+        return null;
+      }
+      if (tag === 'th') {
+        return null; // texto do próprio cabeçalho: é rótulo, não dado
+      }
+      if (tag === 'td') {
+        const row = cur.parentElement;
+        return row && row.tagName.toLowerCase() === 'tr' && [...row.children].some((c) => c.tagName.toLowerCase() === 'th') ? cur : null;
+      }
+    }
+    return null;
+  }
+
+  /** Contêiner de dado mais próximo do ponto clicado (do texto clicado para cima); senão o próprio nó, se tem texto. */
+  function dataTarget(event) {
+    const path = event.composedPath ? event.composedPath() : [event.target];
+    const leaf = path.find((n) => n && n.nodeType === 1);
+    if (!leaf) {
+      return null;
+    }
+    for (let cur = leaf, i = 0; cur && i < MAX_DEPTH; i++, cur = parentOf(cur)) {
+      const tag = cur.tagName.toLowerCase();
+      const role = (cur.getAttribute('role') || '').toLowerCase().trim().split(/\s+/)[0];
+      if (DATA_TAGS.has(tag) || DATA_ROLES.has(role)) {
+        return headedCell(cur) || cur;
+      }
+      if (tag === 'body' || tag === 'html') {
+        break;
+      }
+    }
+    const own = [...leaf.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.nodeValue.trim());
+    return own ? leaf : null;
+  }
+
+  /** SELECT_DATA: intercepta o gesto e propõe a LEITURA do contêiner de dado (nada é executado na página). */
+  function selectData(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if (event.type !== 'click') {
+      return;
+    }
+    const el = dataTarget(event);
+    const key = el ? NS.registry.idFor(el) : null;
+    if (el) {
+      NS.highlighter.show('hover', el, 'Dado selecionado · ' + el.tagName.toLowerCase(), key);
+    }
+    state.normalizer.observe({ type: 'click', trusted: event.isTrusted, at: Date.now(),
+      target: { key, control: el ? 'DATA' : 'NONE', sensitive: el ? NS.sensitivity.isSensitive(el) : false } });
+    syncOpen();
+  }
+
+  function dataHover(event) {
+    const el = dataTarget(event);
+    if (!el) {
+      NS.highlighter.hide('hover');
+      return;
+    }
+    NS.highlighter.show('hover', el, 'Ler dado · ' + el.tagName.toLowerCase(), NS.registry.idFor(el));
+  }
+
   function hover(event) {
     const r = resolve(event);
     if (!r || r.control === 'NONE') {
@@ -462,7 +544,9 @@
       return;
     }
     state.roots.add(r);
-    if (state.mode === 'CAPTURE_ONLY') {
+    if (state.mode === 'SELECT_DATA') {
+      listen(r, 'submit', selectData, { capture: true });
+    } else if (state.mode === 'CAPTURE_ONLY') {
       listen(r, 'submit', block, { capture: true });
     } else {
       listen(r, 'change', passive, { capture: true, passive: true });
@@ -505,7 +589,12 @@
     state.framesAttached += w === root ? 0 : 1;
     listen(w, 'focusin', noticeRoot, { capture: true, passive: true });
     listen(w, 'pointerdown', noticeRoot, { capture: true, passive: true });
-    if (state.mode === 'CAPTURE_ONLY') {
+    if (state.mode === 'SELECT_DATA') {
+      for (const type of BLOCKED) {
+        listen(w, type, selectData, { capture: true });
+      }
+      listen(w, 'pointermove', dataHover, { capture: true, passive: true });
+    } else if (state.mode === 'CAPTURE_ONLY') {
       for (const type of BLOCKED) {
         listen(w, type, block, { capture: true });
       }

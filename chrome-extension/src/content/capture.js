@@ -97,12 +97,19 @@
       if (VALUE_SUBTREES.has(tag) || isEditable(e)) {
         return null; // valor do usuário ou conteúdo de lista: nunca nome
       }
-      if (CP.isCarrier(tag, e.getAttribute('role'), e.hasAttribute('href')) || labelTargets().has(e)) {
+      if (CP.isCarrier(tag, e.getAttribute('role'), e.hasAttribute('href')) || labelTargets().has(e)
+          || CP.isRowHeader(tag, e.getAttribute('role'), e.getAttribute('scope'), rowHasDataCell(e))) {
         return e;
       }
       e = composedUp(e);
     }
     return null;
+  }
+
+  /** th numa linha (tr) que também tem célula de dado (td): cabeçalho de LINHA, não de coluna. */
+  function rowHasDataCell(e) {
+    const p = e.localName === 'th' ? e.parentElement : null;
+    return !!(p && p.localName === 'tr' && [...p.children].some((c) => c.localName === 'td'));
   }
 
   /**

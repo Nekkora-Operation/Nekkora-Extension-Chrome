@@ -222,6 +222,30 @@
   {
    "in": "Excel Quixadá",
    "out": null
+  },
+  {
+   "in": "Campo(s)",
+   "out": "Campo(s)"
+  },
+  {
+   "in": "Usuário(a)(s)",
+   "out": "Usuário(a)(s)"
+  },
+  {
+   "in": "Campo(x)",
+   "out": null
+  },
+  {
+   "in": "(s)",
+   "out": null
+  },
+  {
+   "in": "Joaquim(s)",
+   "out": null
+  },
+  {
+   "in": "Campo (s)",
+   "out": null
   }
  ],
  "identifiers": [
@@ -1028,6 +1052,42 @@
   {
    "in": "div#PanelForm > h3 > form > p > input#dsLogin",
    "out": true
+  },
+  {
+   "in": "//table//tr[th[normalize-space(.)=\"Nome completo\"]]//td",
+   "out": true
+  },
+  {
+   "in": "//tr[th[normalize-space(.)=\"Nascimento\"]]//td",
+   "out": true
+  },
+  {
+   "in": "//dd[preceding-sibling::dt[1][normalize-space(.)=\"Nacionalidade\"]]",
+   "out": true
+  },
+  {
+   "in": "//dd[preceding-sibling::dt[1][normalize-space(.)=\"Joaquim Maria\"]]",
+   "out": false
+  },
+  {
+   "in": "//tr[th[normalize-space(.)=\"Cônjuge\"]]//td",
+   "out": false
+  },
+  {
+   "in": "//td[following-sibling::td[1][normalize-space(.)=\"Nascimento\"]]",
+   "out": false
+  },
+  {
+   "in": "//header//input[@name=\"search\"]",
+   "out": true
+  },
+  {
+   "in": "//table//tr[th[normalize-space(.)=\"Campo(s)\"]]//td",
+   "out": true
+  },
+  {
+   "in": "//table//tr[th[normalize-space(.)=\"Cônjuge(s)\"]]//td",
+   "out": false
   }
  ],
  "attributes": [
@@ -1715,6 +1775,71 @@
   {
    "in": null,
    "out": null
+  }
+ ],
+ "rowHeaders": [
+  {
+   "tag": "th",
+   "role": null,
+   "scope": "row",
+   "rowHasDataCell": false,
+   "out": true
+  },
+  {
+   "tag": "th",
+   "role": null,
+   "scope": null,
+   "rowHasDataCell": true,
+   "out": true
+  },
+  {
+   "tag": "th",
+   "role": null,
+   "scope": "col",
+   "rowHasDataCell": false,
+   "out": false
+  },
+  {
+   "tag": "th",
+   "role": null,
+   "scope": null,
+   "rowHasDataCell": false,
+   "out": false
+  },
+  {
+   "tag": "dt",
+   "role": null,
+   "scope": null,
+   "rowHasDataCell": false,
+   "out": true
+  },
+  {
+   "tag": "div",
+   "role": "rowheader",
+   "scope": null,
+   "rowHasDataCell": false,
+   "out": true
+  },
+  {
+   "tag": "td",
+   "role": null,
+   "scope": "row",
+   "rowHasDataCell": true,
+   "out": false
+  },
+  {
+   "tag": "dd",
+   "role": null,
+   "scope": null,
+   "rowHasDataCell": false,
+   "out": false
+  },
+  {
+   "tag": "div",
+   "role": "columnheader",
+   "scope": null,
+   "rowHasDataCell": false,
+   "out": false
   }
  ]
 }

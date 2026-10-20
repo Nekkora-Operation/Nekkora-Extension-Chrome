@@ -7,7 +7,9 @@
   "+76 termos técnicos (papéis ARIA, tipos de campo, extensões de arquivo e segmentos técnicos de caminho), acrescentados manualmente na fase 4",
   "+termos públicos de FORNECEDORES de proteção, tirados do catálogo fechado contracts/protection-signatures.json (classes, campos e caminhos de reCAPTCHA, hCaptcha, Turnstile, Cloudflare, AWS WAF, Akamai, DataDome, PerimeterX, Imperva), para a detecção da CHROME-003 continuar sem exceção",
   "+termos de ESTADO de interface usados pelas dicas de classe do motor (invalid, feedback, hint, danger, is/has…)",
-  "+excel, +cloud (2026-10-18, NEKKORA-E2E-001, revisão aprovada pela usuária): \"excel\" é nome genérico de formato de arquivo, como csv/pdf/xml já presentes; \"cloud\" é termo técnico genérico e aparece em ligaduras de ícone (Material Icons \"cloud_download\", \"cloud_upload\"), que entram no nome acessível como texto. Necessários para o link \"Download Excel cloud_download\" do benchmark público RPA Challenge virar localizador TEXT/ROLE_NAME em vez de POSICIONAL. Não é exceção por cliente: vale para qualquer página, com a mesma regra (todo termo precisa estar na lista)"
+  "+excel, +cloud (2026-10-18, NEKKORA-E2E-001, revisão aprovada pela usuária): \"excel\" é nome genérico de formato de arquivo, como csv/pdf/xml já presentes; \"cloud\" é termo técnico genérico e aparece em ligaduras de ícone (Material Icons \"cloud_download\", \"cloud_upload\"), que entram no nome acessível como texto. Necessários para o link \"Download Excel cloud_download\" do benchmark público RPA Challenge virar localizador TEXT/ROLE_NAME em vez de POSICIONAL. Não é exceção por cliente: vale para qualquer página, com a mesma regra (todo termo precisa estar na lista)",
+  "+morte, +nacionalidade, +ocupacao (2026-10-20, NEKKORA-E2E-002, aprovado pela usuária — decisão D-E2E2-01): rótulos genéricos de formulário/ficha cadastral (como \"nascimento\" e \"cargo\", já presentes). Necessários para que o CABEÇALHO DE LINHA de uma ficha (th/dt) sirva de âncora do dado a ler (\"a célula da linha Morte\") em vez de localizador posicional. Não é exceção por site: vale para qualquer página, com a mesma regra (todo termo precisa estar na lista).",
+  "Regra (2026-10-20, NEKKORA-E2E-002, aprovada pela usuária — decisão D-E2E2-12): marcador de gênero/plural COLADO a uma palavra — (s), (es), (a), (as), (o), (os) — não é termo ao dividir o texto (\"Campo(s)\" conta como \"Campo\"). Nenhum termo novo entra; o marcador sozinho ou separado por espaço continua recusado."
  ],
  "rule": "Um texto ou identificador só é transportável se, depois de normalizado (minúsculas, sem acentos) e dividido em termos (espaços, pontuação, hífen, sublinhado e camelCase), TODO termo pertencer a esta lista ou for um número de até 2 dígitos. Qualquer outro termo suprime o valor inteiro (não há supressão parcial).",
  "excludedOnPurpose": [
@@ -645,6 +647,7 @@
   "momento",
   "month",
   "more",
+  "morte",
   "mostrar",
   "move",
   "mover",
@@ -653,6 +656,7 @@
   "muted",
   "my",
   "na",
+  "nacionalidade",
   "nada",
   "name",
   "names",
@@ -695,6 +699,7 @@
   "ocorrencia",
   "ocorrencias",
   "ocultar",
+  "ocupacao",
   "of",
   "off",
   "ok",

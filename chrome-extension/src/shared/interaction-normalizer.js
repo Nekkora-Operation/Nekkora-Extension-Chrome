@@ -12,7 +12,7 @@
  *     target: { key, control, sensitive, checked, option:{label,value}, comboboxKey, viaLabel }, detail, key, submitterKey }
  *   control: TEXT | CHECKBOX | RADIO | SELECT | CLICKABLE | COMBOBOX_OPTION | AMBIGUOUS | NONE
  * Interação (saída, onInteraction):
- *   { localSeq, action: CLICK|FILL|SELECT_OPTION|CHECK|UNCHECK|PRESS_KEY|UNKNOWN, targetKey, observation:
+ *   { localSeq, action: CLICK|FILL|SELECT_OPTION|CHECK|UNCHECK|PRESS_KEY|UNKNOWN|EXTRACT, targetKey, observation:
  *     INTERACTION_OBSERVED|PROPOSED, firstAt, lastAt, events, trigger, option, key, sensitive, evidence[], notes[] }
  * Evidência posterior (onEvidence): { localSeq, evidence } — ex.: FORM_SUBMITTED depois de um clique já emitido.
  *
@@ -34,6 +34,10 @@
  *  R9 opção de combobox personalizado com relação comprovada (aria-controls/owns) ⇒ SELECT_OPTION no combobox.
  *  R10 alvo ambíguo (sinal de clicável sem semântica) ⇒ UNKNOWN sem escolher ancestral; sem sinal ⇒ ignorado.
  *  R11 CAPTURE_ONLY: a captura (clique, Enter ou Espaço bloqueados) gera uma PROPOSTA pelo tipo de controle.
+ *  R12 SELECT_DATA (NEKKORA-E2E-002, "Selecionar dado para extrair"): o clique bloqueado num CONTÊINER DE DADO (célula,
+ *     termo/descrição, título, parágrafo, item de lista — o sensor já subiu do texto clicado até ele) gera uma PROPOSTA
+ *     EXTRACT: a intenção é LER o dado, não clicar. Nenhum texto da página vem junto; preenchimento, troca e teclas não
+ *     viram etapa nesse modo; sem contêiner de dado ⇒ descartado (NON_INTERACTIVE).
  */
 (function (root) {
   const DISCARD_REASONS = ['UNTRUSTED', 'NON_INTERACTIVE', 'FOCUS_ONLY', 'PROGRAMMATIC_SUBMIT', 'PROGRAMMATIC_CHANGE', 'ABSORBED', 'AFTER_STOP'];
@@ -73,12 +77,26 @@
       return t && t.revealedByHover ? ['REVEALED_BY_HOVER'] : [];
     }
 
+    function selecting() {
+      return mode === 'CAPTURE_ONLY' || mode === 'SELECT_DATA';
+    }
+
+    /** R12: seleção de dado para leitura. */
+    function onSelectData(o) {
+      const t = o.target || {};
+      if (!t.key || t.control !== 'DATA') {
+        discard('NON_INTERACTIVE');
+        return;
+      }
+      emit({ action: 'EXTRACT', targetKey: t.key, firstAt: o.at, lastAt: o.at, sensitive: !!t.sensitive });
+    }
+
     function emit(i) {
       const out = {
         localSeq: ++localSeq,
         action: i.action,
         targetKey: i.targetKey,
-        observation: mode === 'CAPTURE_ONLY' ? 'PROPOSED' : 'INTERACTION_OBSERVED',
+        observation: selecting() ? 'PROPOSED' : 'INTERACTION_OBSERVED',
         firstAt: i.firstAt,
         lastAt: i.lastAt,
         events: i.events || 1,
@@ -320,22 +338,28 @@
         }
         switch (o.type) {
           case 'click':
-            if (mode === 'CAPTURE_ONLY') {
+            if (mode === 'SELECT_DATA') {
+              onSelectData(o);
+            } else if (mode === 'CAPTURE_ONLY') {
               onCapture(o);
             } else {
               onClick(o);
             }
             break;
           case 'capture':
-            onCapture(o);
+            if (mode === 'SELECT_DATA') {
+              onSelectData(o);
+            } else {
+              onCapture(o);
+            }
             break;
           case 'input':
-            if (mode !== 'CAPTURE_ONLY') {
+            if (!selecting()) {
               onInput(o);
             }
             break;
           case 'change':
-            if (mode !== 'CAPTURE_ONLY') {
+            if (!selecting()) {
               onChange(o);
             }
             break;
@@ -347,7 +371,7 @@
             }
             break;
           case 'keydown':
-            if (mode !== 'CAPTURE_ONLY') {
+            if (!selecting()) {
               onKeydown(o);
             }
             break;
