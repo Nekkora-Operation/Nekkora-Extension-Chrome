@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Consulta de registro</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 24px; color: #222; }
+  form { display: flex; gap: 8px; align-items: end; max-width: 640px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; }
+  label { display: block; font-weight: 600; }
+  input { padding: 6px 8px; width: 240px; }
+  button { padding: 6px 14px; }
+  #area { margin: 12px 0; min-height: 40px; max-width: 616px; }
+  #resultado { padding: 8px 12px; background: #f4f4f4; border-radius: 6px; margin: 0; }
+  .acoes { display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+<!--
+  STUDIO-014 — Caso A (e Caso C): consulta de um registro FICTÍCIO pelo oráculo da STUDIO-009 (o servidor conta e responde;
+  esta página não guarda nada). O elemento do resultado só é CRIADO quando a resposta chega (a leitura não pega texto
+  antigo) e é focável, como uma área de status acessível: o Recorder descarta cliques em elementos não interativos, e
+  é assim que a gravação consegue apontar o resultado para a etapa Observar. "Sair" encerra a sessão local e volta ao login. "Calcular" (Caso C) é rótulo de interface, mas não diz se o
+  clique grava algo: o Studio precisa perguntar o efeito do clique.
+-->
+<h1>Consulta de registro</h1>
+<form id="formConsulta" aria-label="Consulta">
+  <div>
+    <label for="registro-codigo">Código do registro</label>
+    <input id="registro-codigo" name="codigo" type="search" autocomplete="off">
+  </div>
+  <button id="consultar" type="submit">Consultar</button>
+</form>
+<div id="area"></div>
+<div class="acoes">
+  <button id="processar" type="button">Calcular</button>
+  <button id="sair" type="button">Sair</button>
+</div>
+<p id="processado" role="status" hidden>Processado.</p>
+<script>
+  document.getElementById('formConsulta').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const area = document.getElementById('area');
+    area.replaceChildren();
+    const codigo = document.getElementById('registro-codigo').value;
+    fetch('/api/studio009/consulta?codigo=' + encodeURIComponent(codigo))
+      .then((r) => r.json())
+      .then((j) => {
+        const p = document.createElement('p');
+        p.id = 'resultado';
+        p.setAttribute('role', 'status');
+        p.setAttribute('aria-label', 'Resultado da consulta');
+        p.tabIndex = 0; // focável: a gravação consegue APONTAR a área (vira "interação não classificada"; no Studio, Observar)
+        p.textContent = j.encontrado ? 'Registro encontrado: situação ' + j.registro.situacao : 'Nenhum registro encontrado';
+        area.append(p);
+      });
+  });
+  document.getElementById('processar').addEventListener('click', () => { document.getElementById('processado').hidden = false; });
+  document.getElementById('sair').addEventListener('click', () => {
+    sessionStorage.removeItem('nk014.login');
+    location.href = '/lab/studio014/portal.html?saiu=1';
+  });
+</script>
+</body>
+</html>
