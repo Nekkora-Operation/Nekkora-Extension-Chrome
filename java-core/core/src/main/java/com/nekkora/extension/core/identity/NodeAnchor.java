@@ -26,7 +26,7 @@ public record NodeAnchor(String nodeId, String frameId, String scopeId, String r
         PageModel m = graph.model();
         RawNode row = rowOf(m, node);
         return new NodeAnchor(node.id(), node.frameId(), node.scopeId(), epochOf(m, node.frameId()), node.tag(),
-                graph.semantics().get(node.id()).kind().compatibilityFamily(), revision(m, node), row == null ? null : row.id(),
+                graph.semantics().get(node.id()).kind().compatibilityFamily(node.tag()), revision(m, node), row == null ? null : row.id(),
                 row == null ? 0 : revision(m, row));
     }
 

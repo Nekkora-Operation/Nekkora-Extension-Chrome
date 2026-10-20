@@ -451,6 +451,31 @@
     }
   }
 
+  /**
+   * Item de lista, parágrafo ou trecho DENTRO de uma célula de dados cuja linha tem cabeçalho próprio (th na mesma
+   * linha): o dado é a célula inteira — a linha da ficha nomeia o dado e o robô lê todos os itens dela. Nunca sobe além
+   * da tabela mais próxima.
+   */
+  function headedCell(el) {
+    if (el.tagName.toLowerCase() === 'td') {
+      return null;
+    }
+    for (let cur = parentOf(el), i = 0; cur && i < MAX_DEPTH; i++, cur = parentOf(cur)) {
+      const tag = cur.tagName.toLowerCase();
+      if (tag === 'table' || tag === 'body') {
+        return null;
+      }
+      if (tag === 'th') {
+        return null; // texto do próprio cabeçalho: é rótulo, não dado
+      }
+      if (tag === 'td') {
+        const row = cur.parentElement;
+        return row && row.tagName.toLowerCase() === 'tr' && [...row.children].some((c) => c.tagName.toLowerCase() === 'th') ? cur : null;
+      }
+    }
+    return null;
+  }
+
   /** Contêiner de dado mais próximo do ponto clicado (do texto clicado para cima); senão o próprio nó, se tem texto. */
   function dataTarget(event) {
     const path = event.composedPath ? event.composedPath() : [event.target];
@@ -462,7 +487,7 @@
       const tag = cur.tagName.toLowerCase();
       const role = (cur.getAttribute('role') || '').toLowerCase().trim().split(/\s+/)[0];
       if (DATA_TAGS.has(tag) || DATA_ROLES.has(role)) {
-        return cur;
+        return headedCell(cur) || cur;
       }
       if (tag === 'body' || tag === 'html') {
         break;

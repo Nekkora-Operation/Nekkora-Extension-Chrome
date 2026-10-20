@@ -44,7 +44,7 @@ public final class SignatureExtractor {
         String text = graph.model().textContent(node);
         return new IdentitySignature(
                 c.kind().name(),
-                c.kind().compatibilityFamily(),
+                c.kind().compatibilityFamily(node.tag()),
                 c.role(),
                 node.tag(),
                 emptyToNull(c.name().name()),
@@ -62,7 +62,7 @@ public final class SignatureExtractor {
                 f.row() == null ? null : f.row().cellTexts(),
                 f.column() == null ? null : emptyToNull(f.column().headerText()),
                 f.dialog() == null ? null : containerKeyOrName(f.dialog()),
-                f.region() == null ? null : containerKeyOrName(f.region()),
+                f.region() == null ? null : regionKey(f.region()),
                 emptyToNull(f.containerHeading()),
                 f.contextualTexts(),
                 scope);
@@ -77,6 +77,15 @@ public final class SignatureExtractor {
             return "[name=" + name + "]";
         }
         return null;
+    }
+
+    /**
+     * NEKKORA-E2E-002: região sem id, name ou nome acessível (o {@code <header>} típico) ainda é uma região — o marco pela
+     * tag. Distingue o campo do cabeçalho da cópia com o mesmo name fora dele.
+     */
+    private static String regionKey(NodeRef r) {
+        String k = containerKeyOrName(r);
+        return k != null ? k : "landmark:" + r.tag();
     }
 
     private static String containerKeyOrName(NodeRef r) {

@@ -147,6 +147,26 @@ class TargetResolverTest {
     }
 
     @Test
+    void editableComboboxIsTheSameSearchFieldAsTheSearchbox() { // NEKKORA-E2E-002: busca com sugestões recriada ao receber foco
+        HtmlSnapshot h = HtmlSnapshot.of("<header><form role=search><input type=search name=search role=combobox aria-label=\"Pesquisar\""
+                + " aria-autocomplete=list><button>Procurar</button></form></header>");
+        TargetIdentity id = Engine.register(Engine.analyze(h), h.idOf("input"));
+        h.dom().selectFirst("input").replaceWith(org.jsoup.Jsoup.parse("<input type=search name=search aria-label=\"Pesquisar\">").selectFirst("input"));
+        ResolutionResult r = Engine.resolve(id, Engine.analyze(h));
+        assertEquals(ResolutionStatus.RESOLVED, r.status(), String.join("\n", r.evidence()));
+        assertEquals(h.idOf("input"), r.resolvedNodeId());
+    }
+
+    @Test
+    void selectIsNotATextFieldEvenWithTheSameName() { // a família "choice" do select continua separada do campo editável
+        HtmlSnapshot h = HtmlSnapshot.of("<label for=uf>Estado</label><input id=uf name=uf role=combobox>");
+        TargetIdentity id = Engine.register(Engine.analyze(h), h.idOf("input"));
+        h.dom().selectFirst("input").replaceWith(org.jsoup.Jsoup.parse("<select id=uf name=uf><option>SP</option></select>").selectFirst("select"));
+        ResolutionResult r = Engine.resolve(id, Engine.analyze(h));
+        assertEquals(ResolutionStatus.IDENTITY_MISMATCH, r.status(), String.join("\n", r.evidence()));
+    }
+
+    @Test
     void incompatibleControlWithSameIdIsMismatch() { // Caso C
         HtmlSnapshot h = HtmlSnapshot.of("<label for=email>E-mail</label><input id=email type=email>");
         TargetIdentity id = Engine.register(Engine.analyze(h), h.idOf("input"));
