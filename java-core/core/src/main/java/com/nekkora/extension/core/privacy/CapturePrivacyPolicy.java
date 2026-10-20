@@ -835,7 +835,7 @@ public final class CapturePrivacyPolicy {
     private static final Pattern XPATH_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9._-]*");
     private static final List<String> XPATH_TEXT = List.of("normalize-space(.)", "normalize-space()", "text()");
 
-    /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::). */
+    /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::, preceding-sibling::). */
     private static final class XPath {
         private final String s;
         private final int n;
@@ -916,6 +916,8 @@ public final class CapturePrivacyPolicy {
         private boolean step(boolean axis) {
             if (axis && s.startsWith("ancestor::", i)) {
                 i += "ancestor::".length();
+            } else if (axis && s.startsWith("preceding-sibling::", i)) { // NEKKORA-E2E-002: termo (dt) de uma descrição (dd)
+                i += "preceding-sibling::".length();
             }
             if (i < n && ch(i) == '@') {
                 i++;
@@ -1187,6 +1189,19 @@ public final class CapturePrivacyPolicy {
             }
         }
         return Collections.unmodifiableMap(out);
+    }
+
+    /**
+     * NEKKORA-E2E-002 (D-E2E2-01): cabeçalho de LINHA (th[scope=row], role=rowheader, th numa linha com td) e termo de
+     * lista de definição (dt) também carregam rótulo de interface; o texto continua sujeito ao vocabulário fechado.
+     */
+    public static boolean isRowHeader(String tag, String role, String scope, boolean rowHasDataCell) {
+        String t = tag == null ? "" : tag.toLowerCase(Locale.ROOT);
+        String r = role == null ? "" : role.trim().split("\\s+")[0].toLowerCase(Locale.ROOT);
+        if (t.equals("dt") || r.equals("rowheader")) {
+            return true;
+        }
+        return t.equals("th") && ("row".equalsIgnoreCase(scope == null ? "" : scope.trim()) || rowHasDataCell);
     }
 
     /** Elemento que CARREGA nome de interface: o texto dentro dele pode ser metadado elegível. */

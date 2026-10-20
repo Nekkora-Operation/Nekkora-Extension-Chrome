@@ -173,12 +173,31 @@ public final class SnapshotPrivacy {
             if (VALUE_SUBTREES.contains(e.tag()) || editable(e)) {
                 return null;
             }
-            if (CapturePrivacyPolicy.isCarrier(e.tag(), e.attr("role"), e.hasAttr("href")) || pass.labelTargets().contains(e.id())) {
+            if (CapturePrivacyPolicy.isCarrier(e.tag(), e.attr("role"), e.hasAttr("href")) || pass.labelTargets().contains(e.id())
+                    || CapturePrivacyPolicy.isRowHeader(e.tag(), e.attr("role"), e.attr("scope"), rowHasDataCell(e, pass))) {
                 return e;
             }
             e = e.parentId() == null ? null : pass.look().apply(e.parentId());
         }
         return null;
+    }
+
+    /** th numa linha (tr) que também tem td: cabeçalho de LINHA, não de coluna. */
+    private static boolean rowHasDataCell(RawNode e, Pass pass) {
+        if (!"th".equals(e.tag()) || e.parentId() == null) {
+            return false;
+        }
+        RawNode row = pass.look().apply(e.parentId());
+        if (row == null || !"tr".equals(row.tag())) {
+            return false;
+        }
+        for (String cid : row.childIds()) {
+            RawNode c = pass.look().apply(cid);
+            if (c != null && "td".equals(c.tag())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean textEligible(RawNode n, Pass pass) {

@@ -529,7 +529,7 @@
   const XPATH_NAME = /^[A-Za-z_][A-Za-z0-9._-]*/;
   const XPATH_TEXT = ['normalize-space(.)', 'normalize-space()', 'text()'];
 
-  /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::). */
+  /** Subconjunto de XPath 1.0 que o motor produz (caminhos, posição, @atributo, texto normalizado, concat, ancestor::, preceding-sibling::). */
   function xpathSafe(s) {
     const n = s.length;
     let i = 0;
@@ -595,6 +595,8 @@
     function step(axis) {
       if (axis && s.startsWith('ancestor::', i)) {
         i += 'ancestor::'.length;
+      } else if (axis && s.startsWith('preceding-sibling::', i)) { // NEKKORA-E2E-002: termo (dt) de uma descrição (dd)
+        i += 'preceding-sibling::'.length;
       }
       if (ch(i) === '@') {
         i++;
@@ -942,9 +944,24 @@
     return CARRIER_ROLES.has(String(role || '').trim().split(/\s+/)[0].toLowerCase());
   }
 
+  /**
+   * NEKKORA-E2E-002 (D-E2E2-01, aprovado pela usuária): o CABEÇALHO DE LINHA (th[scope=row], role=rowheader ou th numa
+   * linha que também tem td) e o TERMO de uma lista de definição (dt) também carregam rótulo de interface — é o que
+   * nomeia o dado da linha ("Nascimento"). Mesma regra dos demais portadores: o texto inteiro precisa passar no
+   * vocabulário fechado; cabeçalho de COLUNA continua fora.
+   */
+  function isRowHeader(tag, role, scope, rowHasDataCell) {
+    const t = String(tag || '').toLowerCase();
+    const r = String(role || '').trim().split(/\s+/)[0].toLowerCase();
+    if (t === 'dt' || r === 'rowheader') {
+      return true;
+    }
+    return t === 'th' && (String(scope || '').trim().toLowerCase() === 'row' || rowHasDataCell === true);
+  }
+
   root.NekkoraCapturePolicy = Object.freeze({
     VERSION, WITHHELD, HOLE, MAX_LEN, STRUCTURAL, IDENTIFIERS, IDREFS, NAMING, DESCRIPTIVE, URLS,
-    NEUTRAL_TAG, clean, terms, vocabularyOnly, interfaceText, identifier, classes, urlTemplate, expressionSafe, attribute, isCarrier,
+    NEUTRAL_TAG, clean, terms, vocabularyOnly, interfaceText, identifier, classes, urlTemplate, expressionSafe, attribute, isCarrier, isRowHeader,
     tagName, title: interfaceText, DEV_IDENTIFIERS, developerIdentifier,
   });
 })(globalThis);

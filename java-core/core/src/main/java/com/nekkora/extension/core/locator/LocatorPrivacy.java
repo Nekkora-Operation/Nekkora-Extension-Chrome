@@ -51,6 +51,7 @@ public final class LocatorPrivacy {
             case Predicate.LabelTextEquals l -> CapturePrivacyPolicy.interfaceText(l.text()) != null;
             case Predicate.HasChildText h -> (h.tag() == null || CapturePrivacyPolicy.tagSafe(h.tag()))
                     && CapturePrivacyPolicy.interfaceText(h.text()) != null;
+            case Predicate.AfterTerm a -> CapturePrivacyPolicy.interfaceText(a.text()) != null;
         };
     }
 

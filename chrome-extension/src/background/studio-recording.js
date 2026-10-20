@@ -36,7 +36,7 @@ const PROTOCOL = 'nekkora-nm/1';
 const KEY = 'nk.srec.';
 const REFS_KEY = 'nk.tabrefs';
 const LOCK = 'studio-recorder';
-const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT']);
+const MODES = new Set(['CAPTURE_ONLY', 'CAPTURE_AND_INTERACT', 'SELECT_DATA']);
 const CAPABILITIES = new Set(['steps/1', 'evidence/1']);
 /** Limitações que tornam a captura de AÇÕES parcial (as demais descrevem só a captura técnica). */
 const ACTION_LIMITS = new Set(['PARTIAL_COVERAGE', 'INTERRUPTED', 'NEVER_ATTACHED', 'STEPS_UNCONFIRMED', 'STEPS_REJECTED', 'INTERACTIONS_LOST',

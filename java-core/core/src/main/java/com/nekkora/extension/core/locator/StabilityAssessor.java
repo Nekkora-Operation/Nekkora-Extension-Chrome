@@ -72,6 +72,9 @@ public final class StabilityAssessor {
                 } else if (p instanceof Predicate.HasChildText t) {
                     partial = StabilityLevel.HEURISTIC_STABLE;
                     reasons.add("âncora por conteúdo textual \"" + t.text() + "\"");
+                } else if (p instanceof Predicate.AfterTerm t) {
+                    partial = StabilityLevel.HEURISTIC_STABLE;
+                    reasons.add("âncora pelo termo \"" + t.text() + "\"");
                 } else if (p instanceof Predicate.NthOfType) {
                     partial = StabilityLevel.HEURISTIC_UNSTABLE;
                     reasons.add("depende de posição (nth-of-type)");
