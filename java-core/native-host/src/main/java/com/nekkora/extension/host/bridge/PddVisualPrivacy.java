@@ -3,6 +3,7 @@ package com.nekkora.extension.host.bridge;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nekkora.extension.core.privacy.CapturePrivacyPolicy;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -25,6 +26,11 @@ import javax.imageio.ImageIO;
  * <p>STUDIO-012 PDD-01 — {@code nekkora-visual/2} (representação documental): o host REPINTA a tela esperada a partir das
  * regiões declaradas (paleta fechada, na ordem de pintura) e exige que cada pixel fora dos portadores seja exatamente a
  * cor esperada naquele ponto; portador sobre campo, frame ou mídia e ordem trocada também reprovam.
+ *
+ * <p>NEKKORA-STUDIO-013 — {@code nekkora-visual/3} (inteiramente sintética): não há imagem. O host refaz a validação da
+ * DESCRIÇÃO com as próprias regras: tipos e campos fechados por tipo, ordem de pintura, tetos, geometria inteira dentro do
+ * viewport, barras TEXT quantizadas e, em cada LABEL, o texto INTEIRO aprovado pelo vocabulário controlado
+ * ({@link CapturePrivacyPolicy#interfaceText}, a mesma política Java das etapas). Um payload v3 com {@code png} reprova.
  */
 final class PddVisualPrivacy {
     static final String POLICY = "nekkora-visual/1";
@@ -71,6 +77,18 @@ final class PddVisualPrivacy {
     /** Lança se a imagem não estiver conforme. */
     static void check(ObjectNode p) {
         String policy = p.path("policy").asText();
+        if (POLICY_V3.equals(policy)) {
+            checkV3(p);
+            return;
+        }
+        if (POLICY_V4.equals(policy)) {
+            checkV4(p);
+            return;
+        }
+        if (POLICY_V5.equals(policy)) {
+            checkV5(p);
+            return;
+        }
         if (POLICY_V2.equals(policy)) {
             checkV2(p);
             return;
@@ -156,6 +174,172 @@ final class PddVisualPrivacy {
             }
         }
         if (violationsV2(img, regions) != 0) throw new IllegalArgumentException("pixels");
+    }
+
+    static final String POLICY_V3 = "nekkora-visual/3";
+    static final List<String> V3_KINDS = List.of("SURFACE", "MEDIA", "FRAME", "CONTROL", "FIELD", "TEXT", "LABEL");
+    static final Map<String, Integer> V3_MAX = Map.of("SURFACE", 48, "MEDIA", 24, "FRAME", 16, "CONTROL", 48, "FIELD", 96, "TEXT", 240, "LABEL", 96);
+    static final Map<String, List<String>> V3_FIELDS = Map.of(
+            "SURFACE", List.of("kind", "x", "y", "width", "height", "tone"),
+            "MEDIA", List.of("kind", "x", "y", "width", "height"),
+            "FRAME", List.of("kind", "x", "y", "width", "height"),
+            "CONTROL", List.of("kind", "x", "y", "width", "height"),
+            "FIELD", List.of("kind", "x", "y", "width", "height"),
+            "TEXT", List.of("kind", "x", "y", "width", "height", "ink"),
+            "LABEL", List.of("kind", "x", "y", "width", "height", "text", "size", "weight", "ink", "align"));
+    static final List<String> V3_PAYLOAD = List.of("captureId", "status", "policy", "observedAt", "viewport", "regions", "annotations", "limitations");
+    static final int V3_TEXT_QUANTUM = 16;
+
+    /** v3: só a descrição — nenhuma imagem; texto de rótulo revalidado pelo vocabulário. */
+    static void checkV3(ObjectNode p) {
+        p.fieldNames().forEachRemaining(f -> {
+            if (!V3_PAYLOAD.contains(f)) throw new IllegalArgumentException("campo");
+        });
+        JsonNode vp = p.path("viewport");
+        if (!vp.isObject() || vp.size() != 3) throw new IllegalArgumentException("viewport");
+        int vw = intOf(vp.path("width"));
+        int vh = intOf(vp.path("height"));
+        double dpr = vp.path("dpr").isNumber() ? vp.path("dpr").asDouble() : 0;
+        if (vw < 1 || vh < 1 || vw > 8192 || vh > 8192 || !(dpr > 0 && dpr <= 4)) throw new IllegalArgumentException("viewport");
+        if (!p.path("regions").isArray()) throw new IllegalArgumentException("regiões");
+        Map<String, Integer> count = new HashMap<>();
+        int rank = 0;
+        for (JsonNode r : p.path("regions")) {
+            if (!r.isObject()) throw new IllegalArgumentException("região");
+            String kind = r.path("kind").asText();
+            int k = V3_KINDS.indexOf(kind);
+            if (k < 0 || k < rank) throw new IllegalArgumentException("tipo/ordem");
+            rank = k;
+            List<String> allowed = V3_FIELDS.get(kind);
+            r.fieldNames().forEachRemaining(f -> {
+                if (!allowed.contains(f)) throw new IllegalArgumentException("campo da região");
+            });
+            if (count.merge(kind, 1, Integer::sum) > V3_MAX.get(kind)) throw new IllegalArgumentException("regiões");
+            int x = intOf(r.path("x")), y = intOf(r.path("y")), rw = intOf(r.path("width")), rh = intOf(r.path("height"));
+            if (x < 0 || y < 0 || rw < 1 || rh < 1 || (long) x + rw > vw || (long) y + rh > vh) throw new IllegalArgumentException("região");
+            switch (kind) {
+                case "SURFACE" -> {
+                    if (!V2_TONES.containsKey(r.path("tone").asText())) throw new IllegalArgumentException("tom");
+                }
+                case "TEXT" -> {
+                    if (!inks(r.path("ink").asText()) || rw % V3_TEXT_QUANTUM != 0) throw new IllegalArgumentException("barra");
+                }
+                case "LABEL" -> {
+                    JsonNode t = r.path("text");
+                    String text = t.isTextual() ? t.asText() : null;
+                    if (text == null || text.isEmpty() || !text.equals(CapturePrivacyPolicy.interfaceText(text))) throw new IllegalArgumentException("rótulo");
+                    int size = intOf(r.path("size"));
+                    if (size < 8 || size > 40 || !inks(r.path("ink").asText()) || !List.of("NORMAL", "BOLD").contains(r.path("weight").asText())
+                            || !List.of("START", "CENTER").contains(r.path("align").asText())) {
+                        throw new IllegalArgumentException("rótulo");
+                    }
+                }
+                default -> {
+                }
+            }
+        }
+    }
+
+    static final String POLICY_V4 = "nekkora-visual/4";
+    static final List<String> V4_KINDS = List.of("BLOCK", "FIELD", "TEXT");
+    static final Map<String, Integer> V4_MAX = Map.of("BLOCK", 96, "FIELD", 128, "TEXT", 600);
+    static final int MAX_PNG_BYTES_V4 = 8_000_000;
+    static final int V4_BLOCK_FILL = 0xEDF0F3;
+    static final int V4_BLOCK_BORDER = 0xC9D1D9;
+    static final Map<String, Integer> V4_BARS = Map.of("DARK", 0xC8CFD8, "LIGHT", 0x8792A2);
+    /** Revisão da usuária: print integral — a tela como está, só senhas (FIELD) e, se preciso, frames (BLOCK) cobertos. */
+    static final String POLICY_V5 = "nekkora-visual/5";
+    static final List<String> V5_KINDS = List.of("BLOCK", "FIELD");
+    static final List<String> V4_PAYLOAD = List.of("captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256",
+            "regions", "annotations", "limitations");
+
+    /**
+     * v4 (print real com o texto de dados mascarado): decodifica, confere tipos/ordem/tetos/geometria das máscaras e
+     * REPINTA cada uma — todo pixel dentro delas precisa ser exatamente a cor da máscara (fora, os pixels são da tela).
+     */
+    static void checkV4(ObjectNode p) {
+        checkMasks(p, V4_KINDS);
+    }
+
+    /** v5 (print integral): as mesmas conferências da v4, mas TEXT não existe — só as máscaras de senha e de frame. */
+    static void checkV5(ObjectNode p) {
+        checkMasks(p, V5_KINDS);
+    }
+
+    private static void checkMasks(ObjectNode p, List<String> kinds) {
+        p.fieldNames().forEachRemaining(f -> {
+            if (!V4_PAYLOAD.contains(f)) throw new IllegalArgumentException("campo");
+        });
+        byte[] png = Base64.getDecoder().decode(p.path("png").asText(""));
+        if (png.length == 0 || png.length > MAX_PNG_BYTES_V4) throw new IllegalArgumentException("tamanho");
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new ByteArrayInputStream(png));
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("png");
+        }
+        if (img == null) throw new IllegalArgumentException("png");
+        int w = p.path("width").asInt(-1);
+        int h = p.path("height").asInt(-1);
+        double dpr = p.path("devicePixelRatio").asDouble(0);
+        if (img.getWidth() != w || img.getHeight() != h || !(dpr > 0 && dpr <= 4)) throw new IllegalArgumentException("dimensões");
+        int[] expected = new int[w * h];
+        Arrays.fill(expected, -1);
+        Map<String, Integer> count = new HashMap<>();
+        int rank = 0;
+        for (JsonNode r : p.path("regions")) {
+            String kind = r.path("kind").asText();
+            int k = V4_KINDS.indexOf(kind);
+            if (k < 0 || k < rank || !kinds.contains(kind)) throw new IllegalArgumentException("tipo/ordem");
+            rank = k;
+            if (count.merge(kind, 1, Integer::sum) > V4_MAX.get(kind)) throw new IllegalArgumentException("regiões");
+            r.fieldNames().forEachRemaining(f -> {
+                if (!List.of("kind", "x", "y", "width", "height", "ink").contains(f) || ("ink".equals(f) && !"TEXT".equals(kind))) {
+                    throw new IllegalArgumentException("campo da região");
+                }
+            });
+            int x = intOf(r.path("x")), y = intOf(r.path("y")), rw = intOf(r.path("width")), rh = intOf(r.path("height"));
+            if (x < 0 || y < 0 || rw < 1 || rh < 1 || (long) x + rw > w || (long) y + rh > h) throw new IllegalArgumentException("região");
+            int fill;
+            int border;
+            if ("TEXT".equals(kind)) {
+                Integer bar = V4_BARS.get(r.path("ink").asText());
+                if (bar == null) throw new IllegalArgumentException("tinta");
+                fill = bar;
+                border = bar;
+            } else if ("FIELD".equals(kind)) {
+                fill = FIELD_FILL;
+                border = FIELD_BORDER;
+            } else {
+                fill = V4_BLOCK_FILL;
+                border = V4_BLOCK_BORDER;
+            }
+            for (int yy = y; yy < y + rh; yy++) {
+                for (int xx = x; xx < x + rw; xx++) {
+                    expected[yy * w + xx] = yy == y || yy == y + rh - 1 || xx == x || xx == x + rw - 1 ? border : fill;
+                }
+            }
+        }
+        boolean alpha = img.getColorModel().hasAlpha();
+        int[] row = new int[w];
+        for (int y = 0; y < h; y++) {
+            img.getRGB(0, y, w, 1, row, 0, w);
+            for (int x = 0; x < w; x++) {
+                int e = expected[y * w + x];
+                if (e < 0) continue;
+                int argb = row[x];
+                if ((alpha && (argb >>> 24) != 0xFF) || (argb & 0xFFFFFF) != e) throw new IllegalArgumentException("pixels");
+            }
+        }
+    }
+
+    private static boolean inks(String v) {
+        return "DARK".equals(v) || "LIGHT".equals(v);
+    }
+
+    /** Inteiro exato (sem fração, sem texto); -1 se não for. */
+    private static int intOf(JsonNode n) {
+        return n.isIntegralNumber() && n.canConvertToInt() ? n.asInt() : -1;
     }
 
     /** Região da v2 em px do dispositivo (x2/y2 exclusivos). */

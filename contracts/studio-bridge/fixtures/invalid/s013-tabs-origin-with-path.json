@@ -1,0 +1,24 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "browser.tabs.list",
+  "id": "c-13",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "tabs": [
+      {
+        "tabRef": "t-Hh28sKq0aaPz",
+        "title": null,
+        "host": "app.exemplo.test",
+        "access": "AUTHORIZED",
+        "origin": "https://app.exemplo.test:8443/pacientes/1",
+        "pddConsent": "SESSION",
+        "active": false,
+        "recording": false
+      }
+    ],
+    "truncated": false
+  },
+  "error": null
+}

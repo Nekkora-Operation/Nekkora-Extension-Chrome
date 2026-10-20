@@ -17,10 +17,23 @@
  *   4. studio.pdd.captured — PNG JÁ sanitizado + regiões (tipo e retângulo) + anotações normalizadas; ou só o código da
  *      falha. A imagem bruta nunca é gravada, registrada, enviada nem guardada em storage: existe só dentro de
  *      shoot(), e é liberada no finally (inclusive em exceção).
+ *
+ * NEKKORA-STUDIO-013 — sites autorizados. A lista compilada de origens saiu: fora do laboratório, a captura exige a
+ * permissão de site do Chrome E o consentimento PDD da origem exata (pdd-consent.js), concedido só pela interface
+ * confiável (comandos studio.pdd.consent.* do Studio ou o painel da extensão). Nesse perfil (AUTHORIZED_SITE) só vale a
+ * nekkora-visual/3: a extensão NÃO chama captureVisibleTab e envia apenas a descrição sintética já validada. A armação
+ * guarda a origem; mudança de origem, revogação da permissão do Chrome ou do consentimento PDD invalidam a armação e a
+ * captura em curso (PERMISSION_REVOKED / PDD_CONSENT_REVOKED / ORIGIN_CHANGED).
+ *
+ * Revisão da usuária (19/10/2026) — duas opções no site autorizado: a nekkora-visual/4 (print mascarado, padrão) e a
+ * nekkora-visual/5 (print integral: a tela como está, só senhas cobertas). A v5 exige o nível FULL no consentimento da
+ * origem, conferido na armação, antes e depois da captura; rebaixar o nível derruba a armação e a captura em curso.
  */
-import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICIES, MAX_PNG_BYTES, codeError, compose, composeV2, deviceRegions, deviceRegionsV2, violations,
-  violationsV2 } from './visual-sanitizer.js';
-import { visualProfile } from './visual-capture-profile.js';
+import { VISUAL_POLICY, VISUAL_POLICY_V2, VISUAL_POLICY_V3, VISUAL_POLICY_V4, VISUAL_POLICY_V5, VISUAL_POLICIES, MAX_PNG_BYTES, MAX_PNG_BYTES_V4,
+  codeError, compose, composeV2, composeV4, deviceRegions, deviceRegionsV2, deviceMasksV4, deviceMasksV5, violations, violationsV2, violationsV4,
+  validateV3 } from './visual-sanitizer.js';
+import { visualProfile, denialReason, levelAllows, POLICIES_BY_PROFILE } from './visual-capture-profile.js';
+import { originOf, canonicalOrigin, SCOPES, ACTORS, LEVELS } from './pdd-consent.js';
 
 const PROTOCOL = 'nekkora-nm/1';
 const ID = /^[A-Za-z0-9._:-]{1,80}$/;
@@ -31,7 +44,9 @@ export const SHORTCUT = 'nk-pdd-capturar';
 export const FAILURES = new Set(['VISUAL_CAPTURE_NOT_ALLOWED', 'NOT_ARMED', 'ARM_EXPIRED', 'TAB_MISMATCH', 'PAGE_CHANGED_DURING_CAPTURE',
   'GEOMETRY_MISMATCH', 'SANITIZATION_CHECK_FAILED', 'SANITIZED_IMAGE_TOO_LARGE', 'TAB_CLOSED', 'PAGE_CHANGED', 'PERMISSION_REVOKED', 'CAPTURE_BUSY',
   'CAPTURE_DENIED', 'REGION_OUT_OF_VIEWPORT', 'CARRIER_TOO_LARGE', 'CARRIER_OVERLAPS_FIELD', 'TOO_MANY_REGIONS', 'REGION_KIND_UNKNOWN', 'CONTENT_UNAVAILABLE',
-  'CANCELLED', 'ACTIVE_TAB_CHANGED', 'INTERNAL', 'REGION_ORDER', 'CARRIER_OVERLAPS_CONTENT']);
+  'CANCELLED', 'ACTIVE_TAB_CHANGED', 'INTERNAL', 'REGION_ORDER', 'CARRIER_OVERLAPS_CONTENT',
+  // STUDIO-013
+  'PDD_CONSENT_REVOKED', 'ORIGIN_CHANGED', 'REGION_FIELD_UNKNOWN', 'TEXT_NOT_QUANTIZED', 'LABEL_NOT_INTERFACE_TEXT']);
 const OMIT = new Set(['NOT_FOUND', 'AMBIGUOUS', 'IDENTITY_MISMATCH', 'STALE_TARGET', 'SCOPE_UNAVAILABLE', 'INSUFFICIENT_EVIDENCE', 'CONTEXT_UNAVAILABLE',
   'NODE_NOT_CONNECTED', 'TARGET_OUTSIDE_VIEWPORT', 'TARGET_IN_FRAME', 'NO_TARGET', 'RESOLUTION_FAILED']);
 
@@ -45,13 +60,20 @@ export function createStudioPdd(deps) {
   const currentCapture = deps.currentCapture;
   const imaging = deps.imaging || browserImaging(); // decodificar/codificar PNG (OffscreenCanvas no service worker)
   const now = () => (deps.now ? deps.now() : Date.now());
-  let armed = null; // { captureId, controller, tabId, tabRef, steps, expiresAt }
+  const consent = deps.consent || { get: () => null, load: async () => {}, list: async () => [] }; // sem módulo: só o laboratório
+  const textPolicy = () => deps.textPolicy || globalThis.NekkoraCapturePolicy;
+  let armed = null; // { captureId, controller, tabId, tabRef, steps, expiresAt, policy, profile, origin }
   let running = false;
   let inflight = null; // { captureId, controller, tabId, windowId, switched, cancelled } — do gesto até o evento
 
   const COMMANDS = {
     'studio.pdd.capture.arm': arm,
     'studio.pdd.capture.cancel': cancel,
+    // STUDIO-013 (nekkora-pdd-consent/1): consultar/conceder/revogar o consentimento PDD por origem exata
+    'studio.pdd.consent.status': consentStatus,
+    'studio.pdd.consent.grant': consentGrant,
+    'studio.pdd.consent.revoke': consentRevoke,
+    'studio.pdd.consent.list': consentList,
   };
 
   function fail(code, message, extra = {}) {
@@ -104,7 +126,8 @@ export function createStudioPdd(deps) {
   }
 
   async function arm(p, controller) {
-    assertOnly(p, ['captureId', 'tabRef', 'steps', 'leaseMs', 'policy']);
+    assertOnly(p, ['captureId', 'tabRef', 'steps', 'leaseMs', 'policy', 'origin']);
+    if (p.origin != null && !canonicalOriginOrLab(p.origin)) throw fail('BAD_REQUEST', 'origem inválida');
     // STUDIO-012 PDD-01: o Studio pede a política; sem o campo, a v1 (Studios anteriores continuam iguais)
     const visual = p.policy == null ? VISUAL_POLICY : p.policy;
     if (!VISUAL_POLICIES.includes(visual)) throw fail('BAD_REQUEST', 'política visual inválida');
@@ -121,21 +144,39 @@ export function createStudioPdd(deps) {
         actionType: s.actionType };
     });
     if (armed && armed.captureId === p.captureId && armed.controller === controller) {
-      return { captureId: p.captureId, armed: true, duplicate: true, shortcut: await shortcut(), ...(p.policy != null ? { policy: armed.policy } : {}) };
+      return { captureId: p.captureId, armed: true, duplicate: true, shortcut: await shortcut(), ...(p.policy != null ? { policy: armed.policy } : {}),
+        ...(p.origin != null ? { profile: armed.profile } : {}) };
     }
     if (running || armed) throw fail('INVALID_STATE', 'Já há uma captura armada ou em andamento.', { reason: 'CAPTURE_BUSY' });
     const tabId = tabs.tabOf(p.tabRef);
     const tab = tabId == null ? null : await chromeApi.tabs.get(tabId).catch(() => null);
     if (!tab) throw fail('TAB_NOT_FOUND', 'Aba não encontrada.');
+    await consent.load();
     const url = await policy.tabUrl(tabId).catch(() => null);
-    if (!visualProfile(policy.evaluate(url))) {
-      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A captura de tela para o PDD só existe no laboratório local ou em origem de benchmark autorizada.',
-        { reason: 'NOT_LAB_ORIGIN' });
+    const ev = policy.evaluate(url);
+    const c = ev.origin ? consent.get(ev.origin) : null;
+    // origem que o Studio mostrou ao usuário: se a aba (permitida) mudou de origem desde então, é isso que se diz primeiro
+    if (p.origin != null && ev.allowed && p.origin !== ev.origin) throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A aba mudou de origem.', { reason: 'ORIGIN_CHANGED' });
+    const profile = visualProfile(ev, c);
+    if (!profile) {
+      const reason = denialReason(ev, c);
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', reason === 'PDD_CONSENT_REQUIRED'
+        ? 'Esta página permite gravação, mas a captura de PDD ainda não está autorizada nesta origem.'
+        : 'A captura de tela para o PDD exige o laboratório local ou um site autorizado no Chrome e para o PDD.', { reason });
+    }
+    if (!POLICIES_BY_PROFILE[profile].includes(visual)) {
+      // Studio anterior (v1/v2) num site autorizado: recusado — a v2 copiaria pixels reais dos rótulos
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'Neste site a captura do PDD exige a política nekkora-visual/3 (atualize o Studio).',
+        { reason: 'POLICY_REQUIRES_V3' });
+    }
+    if (!levelAllows(profile, visual, c)) {
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'O print integral não está liberado neste site (só o print mascarado).', { reason: 'PDD_FULL_REQUIRED' });
     }
     if (tabs.recordingOn && tabs.recordingOn(tabId)) throw fail('INVALID_STATE', 'Há uma gravação nesta aba.', { reason: 'RECORDING_ACTIVE' });
-    armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs, policy: visual };
+    armed = { captureId: p.captureId, controller, tabId, tabRef: p.tabRef, steps, expiresAt: now() + p.leaseMs, policy: visual, profile, origin: ev.origin };
     badge(tabId, 'PDD');
-    return { captureId: p.captureId, armed: true, duplicate: false, shortcut: await shortcut(), ...(p.policy != null ? { policy: visual } : {}) }; // sem o pedido: resposta da v1, igual
+    return { captureId: p.captureId, armed: true, duplicate: false, shortcut: await shortcut(), ...(p.policy != null ? { policy: visual } : {}),
+      ...(p.origin != null ? { profile } : {}) }; // sem os pedidos: resposta da v1, igual
   }
 
   async function cancel(p, controller) {
@@ -149,6 +190,62 @@ export function createStudioPdd(deps) {
       return { captureId: p.captureId, cancelled: true };
     }
     return { captureId: typeof p.captureId === 'string' ? p.captureId.slice(0, 80) : '', cancelled: false };
+  }
+
+  /** Situação da aba para o PDD: acesso do Chrome, perfil e consentimento — origem sem caminho, nunca a URL. */
+  async function consentStatus(p) {
+    assertOnly(p, ['tabRef']);
+    if (typeof p.tabRef !== 'string' || !TAB_REF.test(p.tabRef)) throw fail('BAD_REQUEST', 'tabRef inválido');
+    const tabId = tabs.tabOf(p.tabRef);
+    const tab = tabId == null ? null : await chromeApi.tabs.get(tabId).catch(() => null);
+    if (!tab) throw fail('TAB_NOT_FOUND', 'Aba não encontrada.');
+    await consent.load();
+    const ev = policy.evaluate(await policy.tabUrl(tabId).catch(() => null));
+    const c = ev.allowed && ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
+    return { tabRef: p.tabRef, origin: ev.allowed ? ev.origin : null, access: ev.allowed ? ev.kind : ev.reason,
+      consent: !ev.allowed ? 'NONE' : ev.kind === 'LAB' ? 'NOT_REQUIRED' : c ? c.scope : 'NONE', ...(c ? { level: c.level, actor: c.actor, via: c.via } : {}),
+      visualCapture: visualProfile(ev, c), reason: denialReason(ev, c) };
+  }
+
+  /**
+   * Concede o consentimento PDD para a origem ATUAL da aba. O Studio manda a origem que mostrou ao usuário: se a aba já
+   * estiver em outra origem, nada é concedido (ORIGIN_CHANGED). Só vale para site já autorizado pelo Chrome.
+   */
+  async function consentGrant(p) {
+    assertOnly(p, ['tabRef', 'origin', 'scope', 'actor', 'level']);
+    if (typeof p.tabRef !== 'string' || !TAB_REF.test(p.tabRef)) throw fail('BAD_REQUEST', 'tabRef inválido');
+    if (!canonicalOrigin(p.origin)) throw fail('BAD_REQUEST', 'origem inválida');
+    if (!SCOPES.includes(p.scope)) throw fail('BAD_REQUEST', 'escopo inválido');
+    if (!ACTORS.includes(p.actor)) throw fail('BAD_REQUEST', 'quem decide é inválido');
+    if (p.level != null && !LEVELS.includes(p.level)) throw fail('BAD_REQUEST', 'nível inválido'); // ausente = MASKED (Studio anterior)
+    if (!deps.consent) throw fail('INVALID_STATE', 'Consentimento indisponível.');
+    const tabId = tabs.tabOf(p.tabRef);
+    const tab = tabId == null ? null : await chromeApi.tabs.get(tabId).catch(() => null);
+    if (!tab) throw fail('TAB_NOT_FOUND', 'Aba não encontrada.');
+    const ev = policy.evaluate(await policy.tabUrl(tabId).catch(() => null));
+    if (!ev.allowed || ev.kind !== 'AUTHORIZED') {
+      throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'Conceda primeiro o acesso ao site no Chrome.', { reason: ev.allowed ? 'NOT_REQUIRED' : ev.reason });
+    }
+    if (ev.origin !== p.origin) throw fail('VISUAL_CAPTURE_NOT_ALLOWED', 'A aba mudou de origem.', { reason: 'ORIGIN_CHANGED' });
+    const rec = await consent.grant(ev.origin, p.scope, p.actor, 'STUDIO', p.level || 'MASKED');
+    return { origin: rec.origin, consent: rec.scope, level: rec.level, actor: rec.actor, via: rec.via, grantedAt: rec.grantedAt };
+  }
+
+  async function consentRevoke(p) {
+    assertOnly(p, ['origin']);
+    if (!canonicalOrigin(p.origin)) throw fail('BAD_REQUEST', 'origem inválida');
+    if (!deps.consent) return { origin: p.origin, revoked: false };
+    return consent.revoke(p.origin); // o ouvinte de mudanças desarma/cancela o que estiver em curso nessa origem
+  }
+
+  async function consentList(p) {
+    assertOnly(p, []);
+    const out = [];
+    for (const r of await consent.list()) {
+      out.push({ origin: r.origin, consent: r.scope, level: r.level || 'MASKED', actor: r.actor, via: r.via, grantedAt: r.grantedAt,
+        chromeAccess: policy.evaluate(r.origin + '/').kind === 'AUTHORIZED' });
+    }
+    return { consents: out };
   }
 
   async function shortcut() {
@@ -176,7 +273,8 @@ export function createStudioPdd(deps) {
     }
     armed = null; // uso único: daqui em diante o gesto foi consumido
     running = true;
-    inflight = { captureId: a.captureId, controller: a.controller, tabId: a.tabId, windowId: tab.windowId, switched: false, cancelled: false };
+    inflight = { captureId: a.captureId, controller: a.controller, tabId: a.tabId, windowId: tab.windowId, switched: false, cancelled: false,
+      revoked: null, origin: a.origin, profile: a.profile, policy: a.policy };
     try {
       const out = await shoot(a, tab);
       await sameTab(); // conferência final: cancelamento ou troca durante a sanitização → nada é publicado
@@ -202,20 +300,49 @@ export function createStudioPdd(deps) {
     const f = inflight;
     if (!f) throw codeError('INTERNAL');
     if (f.cancelled) throw codeError('CANCELLED');
+    if (f.revoked) throw codeError(f.revoked);
     if (f.switched) throw codeError('ACTIVE_TAB_CHANGED');
     const t = await chromeApi.tabs.get(f.tabId).catch(() => null);
     if (!t) throw codeError('TAB_CLOSED');
     if (!t.active || t.windowId !== f.windowId) throw codeError('ACTIVE_TAB_CHANGED');
     const act = await chromeApi.tabs.query({ active: true, windowId: f.windowId }).catch(() => null);
     if (!Array.isArray(act) || act.length !== 1 || act[0].id !== f.tabId) throw codeError('ACTIVE_TAB_CHANGED');
+    await sameAuthorization(f);
     if (f.cancelled) throw codeError('CANCELLED');
+    if (f.revoked) throw codeError(f.revoked);
     if (f.switched) throw codeError('ACTIVE_TAB_CHANGED');
   }
 
+  /** A aba continua na MESMA origem da armação, com o mesmo perfil (Chrome e, fora do laboratório, consentimento PDD). */
+  async function sameAuthorization(f) {
+    const ev = policy.evaluate(await policy.tabUrl(f.tabId).catch(() => null));
+    if (!ev.allowed) throw codeError(ev.reason === 'PERMISSION_REQUIRED' ? 'PERMISSION_REVOKED' : 'VISUAL_CAPTURE_NOT_ALLOWED');
+    if (ev.origin !== f.origin) throw codeError('ORIGIN_CHANGED');
+    const c = ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
+    const profile = visualProfile(ev, c);
+    if (profile !== f.profile) throw codeError(f.profile === 'AUTHORIZED_SITE' && ev.kind === 'AUTHORIZED' ? 'PDD_CONSENT_REVOKED' : 'VISUAL_CAPTURE_NOT_ALLOWED');
+    if (!levelAllows(profile, f.policy, c)) throw codeError('PDD_CONSENT_REVOKED'); // o print integral foi rebaixado para mascarado
+  }
+
+  /**
+   * v5: os frames só ficam como na página se TODO frame da aba respondeu que não mostra campo de senha. Frame sem o
+   * content script (sem acesso do Chrome, about:blank) ou que não responde conta como "pode ter senha": os frames saem
+   * cobertos (BLOCK). Saber qual iframe é qual frame do Chrome seria frágil; cobrir todos é o lado seguro.
+   */
+  async function framesWithoutSecrets(tabId) {
+    const frames = await chromeApi.webNavigation.getAllFrames({ tabId }).catch(() => null);
+    if (!Array.isArray(frames)) return false;
+    for (const f of frames) {
+      if (f.frameId === 0) continue;
+      const r = await toContent(tabId, 'cs.pdd.secrets', {}, f.frameId).catch(() => null);
+      if (!r || r.ok !== true || r.secrets !== 0) return false;
+    }
+    return true;
+  }
+
   async function shoot(a, tab) {
-    await sameTab();
-    const url = await policy.tabUrl(a.tabId).catch(() => null);
-    if (!visualProfile(policy.evaluate(url))) throw codeError('VISUAL_CAPTURE_NOT_ALLOWED');
+    await sameTab(); // inclui origem, permissão do Chrome e consentimento PDD (sameAuthorization)
+    if (!POLICIES_BY_PROFILE[a.profile] || !POLICIES_BY_PROFILE[a.profile].includes(a.policy)) throw codeError('VISUAL_CAPTURE_NOT_ALLOWED');
     // 1. alvos das etapas pelo motor (somente leitura, por identidade — nunca por localizador)
     const resolved = new Map();
     let cap = null;
@@ -245,10 +372,15 @@ export function createStudioPdd(deps) {
         resolved.set(s.stepRef, { reason: 'RESOLUTION_FAILED' });
       }
     }
+    if (a.policy === VISUAL_POLICY_V3) return describeV3(a, resolved);
     // 2. plano visual + retângulos dos alvos, na MESMA ficha de layout
     const v2 = a.policy === VISUAL_POLICY_V2;
-    const plan = await toContent(a.tabId, 'cs.pdd.plan', v2 ? { policy: VISUAL_POLICY_V2 } : {}, 0).catch(() => null);
-    if (!plan || !plan.ok || (v2 && plan.policy !== VISUAL_POLICY_V2)) throw codeError('CONTENT_UNAVAILABLE');
+    const v5 = a.policy === VISUAL_POLICY_V5; // revisão da usuária: print integral (só senhas cobertas)
+    const v4 = a.policy === VISUAL_POLICY_V4 || v5; // STUDIO-013: print real com o texto de dados mascarado — a v5 usa as mesmas máscaras
+    const asked = v2 || v4 ? { policy: a.policy, ...(v5 ? { blockFrames: !(await framesWithoutSecrets(a.tabId)) } : {}) } : {};
+    const plan = await toContent(a.tabId, 'cs.pdd.plan', asked, 0).catch(() => null);
+    if (!plan || !plan.ok || ((v2 || v4) && plan.policy !== a.policy)) throw codeError('CONTENT_UNAVAILABLE');
+    if (v4 && plan.incomplete) throw codeError('TOO_MANY_REGIONS'); // página não mapeada inteira: nenhum print parcial
     const nodeIds = [...resolved.values()].filter((x) => x.nodeId).map((x) => x.nodeId);
     const rects = nodeIds.length ? await toContent(a.tabId, 'cs.pdd.rects', { nodeIds }, 0).catch(() => null) : { ok: true, rects: [], token: plan.token };
     if (!rects || !rects.ok || rects.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
@@ -267,14 +399,18 @@ export function createStudioPdd(deps) {
       if (!after || after.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
       decoded = await imaging.decode(raw);
       raw = null;
-      const regions = v2 ? deviceRegionsV2(plan, decoded.width, decoded.height) : deviceRegions(plan, decoded.width, decoded.height);
-      const pixels = v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
+      const regions = v5 ? deviceMasksV5(plan, decoded.width, decoded.height) : v4 ? deviceMasksV4(plan, decoded.width, decoded.height) : v2 ? deviceRegionsV2(plan, decoded.width, decoded.height)
+        : deviceRegions(plan, decoded.width, decoded.height);
+      const pixels = v4 ? composeV4(decoded.pixels, decoded.width, decoded.height, regions)
+        : v2 ? composeV2(decoded.pixels, decoded.width, decoded.height, regions) : compose(decoded.pixels, decoded.width, decoded.height, regions);
       decoded.release();
       decoded = { width: decoded.width, height: decoded.height, release() {} };
-      const bad = v2 ? violationsV2(pixels, decoded.width, decoded.height, regions) : violations(pixels, decoded.width, decoded.height, regions);
+      const bad = v4 ? violationsV4(pixels, decoded.width, decoded.height, regions)
+        : v2 ? violationsV2(pixels, decoded.width, decoded.height, regions) : violations(pixels, decoded.width, decoded.height, regions);
       if (bad !== 0) throw codeError('SANITIZATION_CHECK_FAILED');
       const png = await imaging.encode(pixels, decoded.width, decoded.height);
-      if (png.length > MAX_PNG_BYTES) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
+      if (v4) pixels.fill(0); // a composição v4 tem pixels reais fora das máscaras: zerada depois de codificar
+      if (png.length > (v4 ? MAX_PNG_BYTES_V4 : MAX_PNG_BYTES)) throw codeError('SANITIZED_IMAGE_TOO_LARGE');
       const vw = plan.viewport.width;
       const vh = plan.viewport.height;
       const byNode = new Map((rects.rects || []).map((r) => [r.nodeId, r]));
@@ -289,13 +425,16 @@ export function createStudioPdd(deps) {
       });
       const limitations = [];
       if (plan.rejected && Object.keys(plan.rejected).length) limitations.push('SOME_LABELS_HIDDEN');
-      if (plan.hasFrames) limitations.push('FRAMES_HIDDEN');
-      const outRegions = v2
+      if (v5 ? Array.isArray(plan.limitations) && plan.limitations.includes('FRAMES_HIDDEN') : plan.hasFrames) limitations.push('FRAMES_HIDDEN');
+      if (v4 && Array.isArray(plan.limitations) && plan.limitations.includes('TABLE_CONTENT_HIDDEN')) limitations.push('TABLE_CONTENT_HIDDEN');
+      const outRegions = v4
+        ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.ink ? { ink: r.ink } : {}) }))
+        : v2
         ? regions.map((r) => ({ kind: r.kind, x: r.x, y: r.y, width: r.x2 - r.x, height: r.y2 - r.y, ...(r.tone ? { tone: r.tone } : {}) }))
         : [...regions.carriers.map((c) => ({ kind: 'CARRIER', x: c.x, y: c.y, width: c.x2 - c.x, height: c.y2 - c.y })),
           ...regions.fields.map((f) => ({ kind: 'FIELD', x: f.x, y: f.y, width: f.x2 - f.x, height: f.y2 - f.y }))];
       return {
-        captureId: a.captureId, status: 'CAPTURED', policy: v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
+        captureId: a.captureId, status: 'CAPTURED', policy: v5 ? VISUAL_POLICY_V5 : v4 ? VISUAL_POLICY_V4 : v2 ? VISUAL_POLICY_V2 : VISUAL_POLICY, observedAt: new Date(now()).toISOString(),
         width: decoded.width, height: decoded.height, devicePixelRatio: plan.viewport.dpr,
         png: base64(png), sha256: await sha256(png),
         regions: outRegions,
@@ -308,9 +447,62 @@ export function createStudioPdd(deps) {
     }
   }
 
-  /** Navegação/aba fechada/permissão: a armação não vale mais. */
+  /**
+   * STUDIO-013 — nekkora-visual/3: SEM captureVisibleTab. Plano sintético do content script, retângulos dos alvos na
+   * mesma ficha, conferências da aba/origem/autorização antes e depois, e a descrição validada aqui (1ª barreira) antes de
+   * sair. Nenhum pixel da página existe em nenhum momento deste caminho.
+   */
+  async function describeV3(a, resolved) {
+    const plan = await toContent(a.tabId, 'cs.pdd.plan', { policy: VISUAL_POLICY_V3 }, 0).catch(() => null);
+    if (!plan || !plan.ok || plan.policy !== VISUAL_POLICY_V3) throw codeError('CONTENT_UNAVAILABLE');
+    const nodeIds = [...resolved.values()].filter((x) => x.nodeId).map((x) => x.nodeId);
+    const rects = nodeIds.length ? await toContent(a.tabId, 'cs.pdd.rects', { nodeIds }, 0).catch(() => null) : { ok: true, rects: [], token: plan.token };
+    if (!rects || !rects.ok || rects.token !== plan.token) throw codeError('PAGE_CHANGED_DURING_CAPTURE');
+    await sameTab();
+    const description = validateV3({ viewport: { width: plan.viewport.width, height: plan.viewport.height, dpr: plan.viewport.dpr }, regions: plan.regions },
+      textPolicy());
+    const vw = description.viewport.width;
+    const vh = description.viewport.height;
+    const byNode = new Map((rects.rects || []).map((r) => [r.nodeId, r]));
+    const annotations = a.steps.map((s) => {
+      const res = resolved.get(s.stepRef) || { reason: 'RESOLUTION_FAILED' };
+      const r = res.nodeId ? byNode.get(res.nodeId) : null;
+      if (!r || r.reason) {
+        return { stepRef: s.stepRef, status: 'OMITTED', x: 0, y: 0, width: 0, height: 0, reason: r && r.reason ? r.reason : res.reason || 'RESOLUTION_FAILED' };
+      }
+      return { stepRef: s.stepRef, status: 'PLACED', x: round6(r.x / vw), y: round6(r.y / vh), width: round6(r.width / vw), height: round6(r.height / vh),
+        reason: '' };
+    });
+    const limitations = new Set((Array.isArray(plan.limitations) ? plan.limitations : []).filter((x) => V3_LIMITATIONS.has(x)));
+    if (plan.rejected && Object.keys(plan.rejected).length) limitations.add('SOME_LABELS_HIDDEN');
+    if (plan.hasFrames) limitations.add('FRAMES_HIDDEN');
+    return {
+      captureId: a.captureId, status: 'CAPTURED', policy: VISUAL_POLICY_V3, observedAt: new Date(now()).toISOString(),
+      viewport: description.viewport, regions: description.regions, annotations, limitations: [...limitations],
+    };
+  }
+
+  /** Navegação/aba fechada/permissão: a armação não vale mais (e a captura em curso termina sem imagem). */
   function onPageChanged(tabId) {
     if (armed && armed.tabId === tabId) disarm('PAGE_CHANGED');
+    if (inflight && inflight.tabId === tabId && !inflight.revoked) inflight.revoked = 'PAGE_CHANGED';
+  }
+
+  /**
+   * STUDIO-013: a permissão do Chrome ou o consentimento PDD mudou (revogação). Reavalia a aba armada e a captura em
+   * curso: se o perfil deixou de valer, a armação cai e a captura em curso termina sem nada publicado.
+   */
+  async function onAccessChanged() {
+    for (const target of [armed, inflight]) {
+      if (!target) continue;
+      const ev = policy.evaluate(await policy.tabUrl(target.tabId).catch(() => null));
+      const c = ev.origin === target.origin && ev.kind === 'AUTHORIZED' ? consent.get(ev.origin) : null;
+      const profile = ev.origin === target.origin ? visualProfile(ev, c) : null;
+      if (profile === target.profile && levelAllows(profile, target.policy, c)) continue;
+      const code = !ev.allowed ? 'PERMISSION_REVOKED' : ev.origin !== target.origin ? 'ORIGIN_CHANGED' : 'PDD_CONSENT_REVOKED';
+      if (target === armed) disarm(code);
+      else if (!target.revoked) target.revoked = code;
+    }
   }
 
   function onTabRemoved(tabId) {
@@ -333,10 +525,24 @@ export function createStudioPdd(deps) {
   }
 
   function state() {
-    return { armed: !!armed, running, captureId: armed ? armed.captureId : inflight ? inflight.captureId : null };
+    return { armed: !!armed, running, captureId: armed ? armed.captureId : inflight ? inflight.captureId : null,
+      profile: armed ? armed.profile : inflight ? inflight.profile : null };
   }
 
-  return { COMMANDS, onShortcut, onPageChanged, onTabRemoved, onTabActivated, onTabMoved, checkLease, state };
+  return { COMMANDS, onShortcut, onPageChanged, onTabRemoved, onTabActivated, onTabMoved, onAccessChanged, checkLease, state };
+}
+
+const V3_LIMITATIONS = new Set(['PAGE_TOO_LARGE', 'TEXT_SIMPLIFIED', 'TABLE_CONTENT_HIDDEN', 'SOME_REGIONS_OMITTED']);
+
+/** Origem exata aceitável no pedido do Studio: a de consentimento ou a do laboratório local. */
+function canonicalOriginOrLab(v) {
+  if (canonicalOrigin(v)) return true;
+  try {
+    const u = new URL(v);
+    return (u.protocol === 'http:' || u.protocol === 'https:') && (u.hostname === '127.0.0.1' || u.hostname === 'localhost') && u.origin === v;
+  } catch (e) {
+    return false;
+  }
 }
 
 function round6(v) {

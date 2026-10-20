@@ -1,0 +1,76 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "event",
+  "type": "studio.pdd.captured",
+  "seq": 9,
+  "payload": {
+    "captureId": "cap-v3",
+    "status": "CAPTURED",
+    "policy": "nekkora-visual/3",
+    "observedAt": "2026-10-19T12:00:00Z",
+    "viewport": {
+      "width": 400,
+      "height": 300,
+      "dpr": 1.25,
+      "url": "https://app.exemplo.test:8443"
+    },
+    "regions": [
+      {
+        "kind": "SURFACE",
+        "x": 0,
+        "y": 0,
+        "width": 400,
+        "height": 40,
+        "tone": "DARK"
+      },
+      {
+        "kind": "MEDIA",
+        "x": 4,
+        "y": 4,
+        "width": 32,
+        "height": 32
+      },
+      {
+        "kind": "FIELD",
+        "x": 20,
+        "y": 100,
+        "width": 200,
+        "height": 24
+      },
+      {
+        "kind": "TEXT",
+        "x": 20,
+        "y": 60,
+        "width": 128,
+        "height": 8,
+        "ink": "DARK"
+      },
+      {
+        "kind": "LABEL",
+        "x": 20,
+        "y": 80,
+        "width": 60,
+        "height": 16,
+        "text": "Senha",
+        "size": 14,
+        "weight": "NORMAL",
+        "ink": "DARK",
+        "align": "START"
+      }
+    ],
+    "annotations": [
+      {
+        "stepRef": "step-1",
+        "status": "PLACED",
+        "x": 0.05,
+        "y": 0.33,
+        "width": 0.5,
+        "height": 0.08,
+        "reason": ""
+      }
+    ],
+    "limitations": [
+      "TABLE_CONTENT_HIDDEN"
+    ]
+  }
+}

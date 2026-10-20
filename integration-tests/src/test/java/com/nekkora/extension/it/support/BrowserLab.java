@@ -44,6 +44,8 @@ public final class BrowserLab {
     public static final String SITE_A = "site-a.nekkora.test";
     public static final String SITE_B = "site-b.nekkora.test";
     public static final String SITE_X = "site-x.nekkora.test";
+    /** STUDIO-013: subdomínio de site-a, com acesso do Chrome na construção de teste (o consentimento PDD de site-a não vale para ele). */
+    public static final String SUB_A = "sub.site-a.nekkora.test";
     /** Página real (Wikipedia) autorizada na construção de teste — usada somente pela suíte opcional real-web. */
     public static final String REAL_ORIGIN = "https://en.wikipedia.org";
     /** NEKKORA-E2E-001: desafio de treinamento autorizado pela usuária (origem exata; só a suíte opcional real-web). */
@@ -54,7 +56,7 @@ public final class BrowserLab {
      * "Acesso ao site" do próprio Chrome (chrome://extensions), sem automatizar diálogos de permissão.
      */
     public static final java.util.List<String> TEST_GRANTED_ORIGINS = java.util.List.of(
-            "http://" + SITE_A + "/*", "http://" + SITE_B + "/*", REAL_ORIGIN + "/*", CHALLENGE_ORIGIN + "/*");
+            "http://" + SITE_A + "/*", "http://" + SITE_B + "/*", "http://" + SUB_A + "/*", REAL_ORIGIN + "/*", CHALLENGE_ORIGIN + "/*");
     private static BrowserLab instance;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -125,7 +127,7 @@ public final class BrowserLab {
         o.addArguments("--load-extension=" + ext, "--disable-extensions-except=" + ext, "--window-size=1366,900",
                 "--no-first-run", "--no-default-browser-check", "--disable-search-engine-choice-screen",
                 "--user-data-dir=" + profile, "--lang=pt-BR",
-                "--host-resolver-rules=MAP " + SITE_A + " 127.0.0.1, MAP " + SITE_B + " 127.0.0.1, MAP " + SITE_X + " 127.0.0.1",
+                "--host-resolver-rules=MAP " + SITE_A + " 127.0.0.1, MAP " + SITE_B + " 127.0.0.1, MAP " + SITE_X + " 127.0.0.1, MAP " + SUB_A + " 127.0.0.1",
                 // Harness e página ficam em JANELAS separadas: sem estas opções o Chrome trataria a janela
                 // coberta como oculta (sem requestAnimationFrame e com timers estrangulados).
                 "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",

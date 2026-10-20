@@ -1,0 +1,13 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.pdd.consent.revoke",
+  "id": "c-13",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "origin": "https://app.exemplo.test:8443",
+    "revoked": true
+  },
+  "error": null
+}

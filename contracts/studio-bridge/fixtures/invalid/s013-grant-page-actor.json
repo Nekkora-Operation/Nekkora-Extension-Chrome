@@ -1,0 +1,13 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "command",
+  "type": "studio.pdd.consent.grant",
+  "id": "c-13",
+  "seq": 7,
+  "payload": {
+    "tabRef": "t-Hh28sKq0aaPz",
+    "origin": "https://app.exemplo.test:8443",
+    "scope": "SESSION",
+    "actor": "PAGE"
+  }
+}

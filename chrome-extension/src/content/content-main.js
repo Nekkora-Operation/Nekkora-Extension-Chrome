@@ -178,6 +178,33 @@
       const reject = (why) => { rejected[why] = (rejected[why] || 0) + 1; };
       const policy = root.NekkoraCapturePolicy;
       const viewport = { width: vw, height: vh, dpr: root.devicePixelRatio, scrollX: root.scrollX, scrollY: root.scrollY };
+      if (a && a.policy === 'nekkora-visual/5') {
+        // print integral (revisão da usuária): só senhas e, se pedido, frames saem como máscara
+        if (!NS.pddPlan || !NS.pddPlan.v5) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v5 = NS.pddPlan.v5(Math.floor(vw), Math.floor(vh), a.blockFrames !== false);
+        return { ok: true, policy: 'nekkora-visual/5', viewport, token: pdd.token(), regions: v5.regions, rejected, incomplete: v5.incomplete,
+          hasFrames: v5.hasFrames, limitations: v5.limitations };
+      }
+      if (a && a.policy === 'nekkora-visual/4') {
+        // print real com o texto de dados mascarado (pdd-plan.js): só as máscaras saem daqui
+        if (!policy || !NS.pddPlan || !NS.pddPlan.v4) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v4 = NS.pddPlan.v4(policy, Math.floor(vw), Math.floor(vh), reject);
+        return { ok: true, policy: 'nekkora-visual/4', viewport, token: pdd.token(), regions: v4.regions, rejected, incomplete: v4.incomplete,
+          labels: v4.labels, hasFrames: v4.hasFrames, limitations: v4.limitations };
+      }
+      if (a && a.policy === 'nekkora-visual/3') {
+        // NEKKORA-STUDIO-013: descrição inteiramente sintética (pdd-plan.js) — px CSS inteiros, nada de pixels da página
+        if (!policy || !NS.pddPlan || !NS.pddPlan.v3) {
+          return { ok: false, error: 'PLAN_UNAVAILABLE' };
+        }
+        const v3 = NS.pddPlan.v3(policy, Math.floor(vw), Math.floor(vh), reject);
+        return { ok: true, policy: 'nekkora-visual/3', viewport: { ...viewport, width: Math.floor(vw), height: Math.floor(vh) }, token: pdd.token(),
+          regions: v3.regions, rejected, hasFrames: v3.hasFrames, limitations: v3.limitations };
+      }
       if (a && a.policy === 'nekkora-visual/2') {
         // STUDIO-012 PDD-01: representação documental (pdd-plan.js) — mesma ficha de layout, mesmas recusas por código
         if (!policy || !NS.pddPlan) {
@@ -242,6 +269,8 @@
     },
     /** Ficha do layout: muda com rolagem, tamanho, escala ou qualquer mutação desde o plano. */
     'cs.pdd.token': () => ({ ok: true, token: pdd.token() }),
+    /** v5 (print integral): quantos campos de senha ESTE frame tem — só a contagem, nada do conteúdo. */
+    'cs.pdd.secrets': () => (NS.pddPlan && NS.pddPlan.secrets ? { ok: true, secrets: NS.pddPlan.secrets() } : { ok: false }),
     /** Retângulos (px CSS do viewport) dos nós já resolvidos pelo motor; nó desconectado ou fora do viewport → motivo. */
     'cs.pdd.rects': (a) => {
       const out = [];

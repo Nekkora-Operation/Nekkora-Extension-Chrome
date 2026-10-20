@@ -48,6 +48,9 @@ tr.primary-row td:first-child { border-left: 3px solid var(--nekkora-primary); }
 .access-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .access .confirm { margin-top: 6px; padding: 8px; border: 1px solid var(--nekkora-primary); border-radius: var(--nekkora-radius); background: #fff; }
 .access .confirm p { margin: 0 0 6px; font-size: 12px; }
+.access .pdd-level { margin: 0 0 6px; padding: 6px 8px; border: 1px solid #D0D7DE; border-radius: var(--nekkora-radius); font-size: 12px; }
+.access .pdd-level legend { padding: 0 4px; }
+.access .pdd-level label { display: block; margin: 2px 0; }
 #acc-state[data-kind="AUTHORIZED"]::before, #acc-state[data-kind="LAB"]::before { content: "● "; color: var(--nekkora-success); }
 #acc-state[data-kind="DENIED"]::before { content: "● "; color: var(--nekkora-danger); }
 /* CHROME-003: trajetória e diagnóstico. */

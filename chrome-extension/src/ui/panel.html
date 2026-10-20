@@ -50,6 +50,33 @@
     </div>
   </section>
 
+  <section id="pdd-consent" class="access" aria-labelledby="h-pdd">
+    <h2 id="h-pdd">Captura do PDD</h2>
+    <dl class="kv status-kv">
+      <dt>Site</dt><dd id="pdd-origin">—</dd>
+      <dt>Captura</dt><dd id="pdd-state" data-consent="">verificando…</dd>
+    </dl>
+    <p id="pdd-hint" class="explanation">A permissão do Chrome autoriza inspecionar e gravar. A captura de tela para o PDD
+      é uma autorização separada, por site. Por padrão, a imagem é o print integral: a tela como está, com os dados; só os
+      campos de senha saem cobertos. No print mascarado, campos, textos de dados, tabelas e frames saem cobertos.</p>
+    <div class="access-actions">
+      <fieldset id="pdd-level-box" class="pdd-level" hidden>
+        <legend>Imagem do PDD neste site</legend>
+        <label><input type="radio" name="pdd-level" value="FULL" checked> Print integral (padrão): a tela como está, só senhas cobertas</label>
+        <label><input type="radio" name="pdd-level" value="MASKED"> Print mascarado: dados cobertos por faixas</label>
+        <p id="pdd-level-note" class="explanation">No print integral, nomes, números e mensagens da tela vão para o PDF.</p>
+      </fieldset>
+      <button id="btn-pdd-grant" type="button" hidden>Autorizar captura PDD neste site</button>
+      <label id="pdd-remember-box" hidden><input id="pdd-remember" type="checkbox"> Lembrar este site (sem marcar: só até fechar o navegador)</label>
+      <button id="btn-pdd-level" type="button" hidden>Liberar print integral neste site</button>
+      <button id="btn-pdd-revoke" type="button" hidden>Revogar captura PDD neste site</button>
+    </div>
+    <details id="pdd-sites">
+      <summary>Sites autorizados para o PDD (<span id="pdd-count">0</span>)</summary>
+      <ul id="pdd-list" class="pdd-list"></ul>
+    </details>
+  </section>
+
   <section id="studio-link" class="access studio" aria-labelledby="h-studio">
     <h2 id="h-studio">Nekkora Studio</h2>
     <label class="studio-toggle"><input id="studio-enabled" type="checkbox"> Conectar ao Nekkora Studio</label>

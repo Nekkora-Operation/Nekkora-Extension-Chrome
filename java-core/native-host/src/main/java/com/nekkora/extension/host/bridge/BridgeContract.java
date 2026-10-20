@@ -34,7 +34,9 @@ public final class BridgeContract {
             "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
             "studio.debug.status", "studio.debug.renew", "studio.debug.probe",
             // STUDIO-010 (pdd-capture/1): armar/cancelar UMA captura visual sanitizada (o gesto no Chrome dispara)
-            "studio.pdd.capture.arm", "studio.pdd.capture.cancel");
+            "studio.pdd.capture.arm", "studio.pdd.capture.cancel",
+            // STUDIO-013 (nekkora-pdd-consent/1): consentimento PDD por origem exata (consultar, conceder, revogar, listar)
+            "studio.pdd.consent.status", "studio.pdd.consent.grant", "studio.pdd.consent.revoke", "studio.pdd.consent.list");
     /** Eventos da extensão que podem ser repassados ao Studio. */
     public static final Set<String> FORWARDED_EVENTS = Set.of("studio.recording.started", "studio.recording.paused", "studio.recording.resumed",
             "studio.recording.modeChanged", "studio.recording.finished", "studio.recording.cancelled", "studio.recording.degraded",

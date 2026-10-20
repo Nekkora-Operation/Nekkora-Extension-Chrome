@@ -97,7 +97,9 @@ public final class StudioLink implements HostRuntime.StudioChannel {
         void send(ObjectNode message) throws IOException {
             synchronized (writeLock) {
                 message.put("seq", seq.incrementAndGet());
-                BridgeFrames.write(out, message.toString());
+                boolean large = BridgeFrames.largeAllowed(message.path("kind").asText(), message.path("type").asText(),
+                        message.path("payload").path("policy").asText(null)); // STUDIO-013: só o print da v4 ou /5
+                BridgeFrames.write(out, message.toString(), large ? BridgeFrames.MAX_CAPTURE_FRAME_BYTES : BridgeFrames.MAX_FRAME_BYTES);
             }
         }
 

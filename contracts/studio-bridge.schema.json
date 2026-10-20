@@ -70,7 +70,9 @@
         "title": { "$ref": "#/$defs/TabSummary/properties/title" },
         "host": { "$ref": "#/$defs/TabSummary/properties/host" },
         "access": { "$ref": "#/$defs/Access" },
-        "visualCapture": { "enum": ["LAB", "BENCHMARK", null], "description": "NEKKORA-E2E-001 (aditivo): perfil de captura visual do PDD permitido nesta aba (nekkora-visual-capture-profile/1); null = captura recusada." },
+        "visualCapture": { "enum": ["LAB", "BENCHMARK", "AUTHORIZED_SITE", null], "description": "NEKKORA-E2E-001 (aditivo): perfil de captura visual do PDD permitido nesta aba; null = captura recusada. STUDIO-013 (nekkora-visual-capture-profile/2): AUTHORIZED_SITE = acesso do Chrome + consentimento PDD da origem; BENCHMARK só em extensões anteriores à 0.6.0." },
+        "origin": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/PddOrigin" }], "description": "STUDIO-013 (aditivo): origem exata (esquema + host + porta) da aba já permitida pelo Chrome; nunca caminho, consulta ou fragmento." },
+        "pddConsent": { "enum": ["NOT_REQUIRED", "NONE", "SESSION", "REMEMBERED"], "description": "STUDIO-013 (aditivo): consentimento PDD da origem (NOT_REQUIRED = laboratório local)." },
         "active": { "type": "boolean", "description": "Aba ativa da sua janela." },
         "recording": { "type": "boolean", "description": "Já existe gravação do Studio nesta aba." }
       }
@@ -311,7 +313,8 @@
         "studio.recording.evidence.ack", "studio.recording.evidence.sync",
         "studio.debug.start", "studio.debug.inspect", "studio.debug.highlight", "studio.debug.pick", "studio.debug.finish",
         "studio.debug.status", "studio.debug.renew", "studio.debug.probe",
-        "studio.pdd.capture.arm", "studio.pdd.capture.cancel"
+        "studio.pdd.capture.arm", "studio.pdd.capture.cancel",
+        "studio.pdd.consent.status", "studio.pdd.consent.grant", "studio.pdd.consent.revoke", "studio.pdd.consent.list"
       ]
     },
     "Command": {
@@ -346,7 +349,11 @@
         { "if": { "properties": { "type": { "enum": ["studio.debug.status", "studio.debug.renew"] } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugRef" } } } },
         { "if": { "properties": { "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbePayload" } } } },
         { "if": { "properties": { "type": { "const": "studio.pdd.capture.arm" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddArmPayload" } } } },
-        { "if": { "properties": { "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCaptureRef" } } } }
+        { "if": { "properties": { "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCaptureRef" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.consent.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentStatusPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.consent.grant" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentGrantPayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.consent.revoke" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentRevokePayload" } } } },
+        { "if": { "properties": { "type": { "const": "studio.pdd.consent.list" } } }, "then": { "properties": { "payload": { "type": "object", "additionalProperties": false, "maxProperties": 0 } } } }
       ]
     },
     "StartPayload": {
@@ -449,7 +456,11 @@
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.pick" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugPickResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.debug.probe" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/DebugProbeResult" } } } },
         { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.capture.arm" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddArmResult" } } } },
-        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCancelResult" } } } }
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.capture.cancel" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddCancelResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.consent.status" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentStatusResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.consent.grant" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentGrantResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.consent.revoke" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentRevokeResult" } } } },
+        { "if": { "properties": { "ok": { "const": true }, "type": { "const": "studio.pdd.consent.list" } } }, "then": { "properties": { "payload": { "$ref": "#/$defs/PddConsentListResult" } } } }
       ]
     },
     "StatusResult": {
@@ -1144,7 +1155,8 @@
         "captureId": { "$ref": "#/$defs/Id" },
         "tabRef": { "type": "string", "pattern": "^t-[A-Za-z0-9_-]{6,40}$" },
         "leaseMs": { "type": "integer", "minimum": 5000, "maximum": 120000 },
-        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2"], "description": "STUDIO-012 PDD-01: política visual pedida pelo Studio; ausente = nekkora-visual/1." },
+        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2", "nekkora-visual/3", "nekkora-visual/4", "nekkora-visual/5"], "description": "STUDIO-012 PDD-01: política visual pedida pelo Studio; ausente = nekkora-visual/1. STUDIO-013: em site autorizado (AUTHORIZED_SITE) só a nekkora-visual/3 (sintética) ou a /4 (print com o texto de dados mascarado). Revisão da usuária: a /5 (print integral) só com o nível FULL do consentimento (senão PDD_FULL_REQUIRED)." },
+        "origin": { "$ref": "#/$defs/PddOrigin", "description": "STUDIO-013: origem que o Studio mostrou ao usuário; se a aba estiver em outra origem, nada é armado (ORIGIN_CHANGED)." },
         "steps": {
           "type": "array", "minItems": 1, "maxItems": 32,
           "items": {
@@ -1170,7 +1182,8 @@
         "armed": { "type": "boolean" },
         "duplicate": { "type": "boolean" },
         "shortcut": { "type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9+ ]*$", "description": "Atalho configurado no Chrome (ex.: Alt+Shift+K); vazio se o usuário o removeu." },
-        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2"], "description": "STUDIO-012 PDD-01: política armada (só quando o Studio a pediu)." }
+        "policy": { "enum": ["nekkora-visual/1", "nekkora-visual/2", "nekkora-visual/3", "nekkora-visual/4", "nekkora-visual/5"], "description": "STUDIO-012 PDD-01: política armada (só quando o Studio a pediu)." },
+        "profile": { "enum": ["LAB", "AUTHORIZED_SITE"], "description": "STUDIO-013: perfil da armação (só quando o Studio mandou a origem)." }
       }
     },
     "PddCancelResult": {
@@ -1236,6 +1249,138 @@
           }
         },
         {
+          "type": "object", "additionalProperties": false,
+          "description": "Revisão da usuária (19/10/2026) — nekkora-visual/5: PRINT INTEGRAL. PNG da tela como está, dados inclusive; só pode ser pedida em site cujo consentimento PDD tem o nível FULL. Máscaras (px do dispositivo, na ordem BLOCK, FIELD): todo campo de senha (FIELD) e os frames (BLOCK) quando não se confirmou que nenhum frame mostra senha. A extensão, o host e o Studio repintam as máscaras e exigem cada pixel delas exato.",
+          "required": ["captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256", "regions", "annotations", "limitations"],
+          "properties": {
+            "captureId": { "$ref": "#/$defs/Id" },
+            "status": { "const": "CAPTURED" },
+            "policy": { "const": "nekkora-visual/5" },
+            "observedAt": { "type": "string", "maxLength": 40 },
+            "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "devicePixelRatio": { "type": "number", "minimum": 0.25, "maximum": 4 },
+            "png": { "type": "string", "maxLength": 10700000, "pattern": "^[A-Za-z0-9+/]+={0,2}$" },
+            "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "regions": {
+              "type": "array", "maxItems": 224,
+              "items": {
+                "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
+                "properties": {
+                  "kind": { "enum": ["BLOCK", "FIELD"] },
+                  "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                  "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                }
+              }
+            },
+            "annotations": { "$ref": "#/$defs/PddAnnotations" },
+            "limitations": { "type": "array", "maxItems": 8, "items": { "enum": ["SOME_LABELS_HIDDEN", "FRAMES_HIDDEN"] } }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "description": "STUDIO-013 (revisão) — nekkora-visual/4: PRINT REAL com o texto de dados mascarado. PNG da tela com máscaras de cor fechada (px do dispositivo, na ordem BLOCK, FIELD, TEXT) sobre tabela, frame, canvas, vídeo, imagem grande, fundo com imagem, pseudo-elemento com texto, campos e cada linha de texto que não é rótulo de interface. A extensão, o host e o Studio repintam as máscaras e exigem cada pixel delas exato.",
+          "required": ["captureId", "status", "policy", "observedAt", "width", "height", "devicePixelRatio", "png", "sha256", "regions", "annotations", "limitations"],
+          "properties": {
+            "captureId": { "$ref": "#/$defs/Id" },
+            "status": { "const": "CAPTURED" },
+            "policy": { "const": "nekkora-visual/4" },
+            "observedAt": { "type": "string", "maxLength": 40 },
+            "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
+            "devicePixelRatio": { "type": "number", "minimum": 0.25, "maximum": 4 },
+            "png": { "type": "string", "maxLength": 10700000, "pattern": "^[A-Za-z0-9+/]+={0,2}$" },
+            "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "regions": {
+              "type": "array", "maxItems": 824,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
+                    "properties": {
+                      "kind": { "enum": ["BLOCK", "FIELD"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height", "ink"],
+                    "properties": {
+                      "kind": { "const": "TEXT" }, "ink": { "enum": ["DARK", "LIGHT"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  }
+                ]
+              }
+            },
+            "annotations": { "$ref": "#/$defs/PddAnnotations" },
+            "limitations": { "type": "array", "maxItems": 8, "items": { "enum": ["SOME_LABELS_HIDDEN", "FRAMES_HIDDEN", "TABLE_CONTENT_HIDDEN"] } }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "description": "STUDIO-013 — nekkora-visual/3: DESCRIÇÃO inteiramente sintética, sem imagem. Geometria em px CSS inteiros do viewport, na ordem de pintura (SURFACE, MEDIA, FRAME, CONTROL, FIELD, TEXT, LABEL). TEXT é só uma barra (largura em múltiplos de 16); LABEL leva o texto de interface aprovado pelo vocabulário controlado (o host revalida). O Studio desenha a imagem.",
+          "required": ["captureId", "status", "policy", "observedAt", "viewport", "regions", "annotations", "limitations"],
+          "properties": {
+            "captureId": { "$ref": "#/$defs/Id" },
+            "status": { "const": "CAPTURED" },
+            "policy": { "const": "nekkora-visual/3" },
+            "observedAt": { "type": "string", "maxLength": 40 },
+            "viewport": {
+              "type": "object", "additionalProperties": false, "required": ["width", "height", "dpr"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 1, "maximum": 8192 }, "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
+                "dpr": { "type": "number", "exclusiveMinimum": 0, "maximum": 4 }
+              }
+            },
+            "regions": {
+              "type": "array", "maxItems": 568,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height"],
+                    "properties": {
+                      "kind": { "enum": ["MEDIA", "FRAME", "CONTROL", "FIELD"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height", "tone"],
+                    "properties": {
+                      "kind": { "const": "SURFACE" }, "tone": { "enum": ["LIGHT", "MID", "DARK"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height", "ink"],
+                    "properties": {
+                      "kind": { "const": "TEXT" }, "ink": { "enum": ["DARK", "LIGHT"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 16, "multipleOf": 16 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  },
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["kind", "x", "y", "width", "height", "text", "size", "weight", "ink", "align"],
+                    "properties": {
+                      "kind": { "const": "LABEL" },
+                      "text": { "type": "string", "minLength": 1, "maxLength": 80 },
+                      "size": { "type": "integer", "minimum": 8, "maximum": 40 },
+                      "weight": { "enum": ["NORMAL", "BOLD"] }, "ink": { "enum": ["DARK", "LIGHT"] }, "align": { "enum": ["START", "CENTER"] },
+                      "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 },
+                      "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }
+                    }
+                  }
+                ]
+              }
+            },
+            "annotations": { "$ref": "#/$defs/PddAnnotations" },
+            "limitations": { "type": "array", "maxItems": 8, "items": { "enum": ["SOME_LABELS_HIDDEN", "FRAMES_HIDDEN", "PAGE_TOO_LARGE", "TEXT_SIMPLIFIED", "TABLE_CONTENT_HIDDEN", "SOME_REGIONS_OMITTED"] } }
+          }
+        },
+        {
           "type": "object", "additionalProperties": false, "required": ["captureId", "status", "code", "observedAt"],
           "properties": {
             "captureId": { "type": "string", "maxLength": 80 },
@@ -1243,11 +1388,97 @@
             "code": { "enum": ["VISUAL_CAPTURE_NOT_ALLOWED", "NOT_ARMED", "ARM_EXPIRED", "TAB_MISMATCH", "PAGE_CHANGED_DURING_CAPTURE", "GEOMETRY_MISMATCH",
               "SANITIZATION_CHECK_FAILED", "SANITIZED_IMAGE_TOO_LARGE", "TAB_CLOSED", "PAGE_CHANGED", "PERMISSION_REVOKED", "CAPTURE_BUSY", "CAPTURE_DENIED",
               "REGION_OUT_OF_VIEWPORT", "CARRIER_TOO_LARGE", "CARRIER_OVERLAPS_FIELD", "TOO_MANY_REGIONS", "REGION_KIND_UNKNOWN", "CONTENT_UNAVAILABLE",
-              "CANCELLED", "ACTIVE_TAB_CHANGED", "INTERNAL", "REGION_ORDER", "CARRIER_OVERLAPS_CONTENT"] },
+              "CANCELLED", "ACTIVE_TAB_CHANGED", "INTERNAL", "REGION_ORDER", "CARRIER_OVERLAPS_CONTENT",
+              "PDD_CONSENT_REVOKED", "ORIGIN_CHANGED", "REGION_FIELD_UNKNOWN", "TEXT_NOT_QUANTIZED", "LABEL_NOT_INTERFACE_TEXT"] },
             "observedAt": { "type": "string", "maxLength": 40 }
           }
         }
       ]
+    },
+    "PddAnnotations": {
+      "type": "array", "maxItems": 32,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["stepRef", "status", "x", "y", "width", "height", "reason"],
+        "properties": {
+          "stepRef": { "$ref": "#/$defs/Id" },
+          "status": { "enum": ["PLACED", "OMITTED"] },
+          "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 },
+          "width": { "type": "number", "minimum": 0, "maximum": 1 }, "height": { "type": "number", "minimum": 0, "maximum": 1 },
+          "reason": { "type": "string", "pattern": "^([A-Z][A-Z0-9_]{0,59})?$" }
+        }
+      }
+    },
+    "PddOrigin": { "type": "string", "maxLength": 300, "pattern": "^https?://[^/?#@\\s]+$" },
+    "PddConsentScope": { "enum": ["SESSION", "REMEMBERED"] },
+    "PddConsentLevel": { "enum": ["MASKED", "FULL"], "description": "nekkora-pdd-consent/2 (revisão da usuária): MASKED = print mascarado (v4) ou descrição sintética (v3); FULL = também o print integral (v5), com os dados da tela; só senhas cobertas." },
+    "PddConsentActor": { "enum": ["DEVELOPER", "TEST_AGENT"], "description": "Quem decidiu: a pessoa (DEVELOPER) ou um agente de teste em modo de laboratório explícito (TEST_AGENT)." },
+    "PddConsentStatusPayload": {
+      "type": "object", "additionalProperties": false, "required": ["tabRef"],
+      "properties": { "tabRef": { "$ref": "#/$defs/TabRef" } }
+    },
+    "PddConsentGrantPayload": {
+      "type": "object", "additionalProperties": false, "required": ["tabRef", "origin", "scope", "actor"],
+      "description": "STUDIO-013 (nekkora-pdd-consent/1): concede o consentimento PDD à origem ATUAL da aba, que precisa ser a mesma mostrada ao usuário e já permitida pelo Chrome.",
+      "properties": {
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "origin": { "$ref": "#/$defs/PddOrigin" },
+        "scope": { "$ref": "#/$defs/PddConsentScope" },
+        "actor": { "$ref": "#/$defs/PddConsentActor" },
+        "level": { "$ref": "#/$defs/PddConsentLevel", "description": "Ausente = MASKED (Studio anterior). FULL só depois da confirmação explícita da pessoa no Studio." }
+      }
+    },
+    "PddConsentRevokePayload": {
+      "type": "object", "additionalProperties": false, "required": ["origin"],
+      "properties": { "origin": { "$ref": "#/$defs/PddOrigin" } }
+    },
+    "PddConsentStatusResult": {
+      "type": "object", "additionalProperties": false, "required": ["tabRef", "origin", "access", "consent", "visualCapture", "reason"],
+      "properties": {
+        "tabRef": { "$ref": "#/$defs/TabRef" },
+        "origin": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/PddOrigin" }] },
+        "access": { "$ref": "#/$defs/Access" },
+        "consent": { "enum": ["NOT_REQUIRED", "NONE", "SESSION", "REMEMBERED"] },
+        "level": { "$ref": "#/$defs/PddConsentLevel" },
+        "actor": { "$ref": "#/$defs/PddConsentActor" },
+        "via": { "enum": ["STUDIO", "EXTENSION"] },
+        "visualCapture": { "enum": ["LAB", "AUTHORIZED_SITE", null] },
+        "reason": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,59}$" }] }
+      }
+    },
+    "PddConsentGrantResult": {
+      "type": "object", "additionalProperties": false, "required": ["origin", "consent", "actor", "via", "grantedAt"],
+      "properties": {
+        "origin": { "$ref": "#/$defs/PddOrigin" },
+        "consent": { "$ref": "#/$defs/PddConsentScope" },
+        "level": { "$ref": "#/$defs/PddConsentLevel" },
+        "actor": { "$ref": "#/$defs/PddConsentActor" },
+        "via": { "enum": ["STUDIO", "EXTENSION"] },
+        "grantedAt": { "type": "string", "maxLength": 40 }
+      }
+    },
+    "PddConsentRevokeResult": {
+      "type": "object", "additionalProperties": false, "required": ["origin", "revoked"],
+      "properties": { "origin": { "$ref": "#/$defs/PddOrigin" }, "revoked": { "type": "boolean" } }
+    },
+    "PddConsentListResult": {
+      "type": "object", "additionalProperties": false, "required": ["consents"],
+      "properties": {
+        "consents": {
+          "type": "array", "maxItems": 200,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["origin", "consent", "actor", "via", "grantedAt", "chromeAccess"],
+            "properties": {
+              "origin": { "$ref": "#/$defs/PddOrigin" },
+              "consent": { "$ref": "#/$defs/PddConsentScope" },
+              "level": { "$ref": "#/$defs/PddConsentLevel" },
+              "actor": { "$ref": "#/$defs/PddConsentActor" },
+              "via": { "enum": ["STUDIO", "EXTENSION"] },
+              "grantedAt": { "type": "string", "maxLength": 40 },
+              "chromeAccess": { "type": "boolean", "description": "O Chrome ainda permite a origem (sem isso, a captura não vale)." }
+            }
+          }
+        }
+      }
     },
     "DebugProbeResult": {
       "type": "object",

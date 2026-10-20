@@ -1,0 +1,20 @@
+{
+  "protocol": "nekkora-bridge/1",
+  "kind": "response",
+  "type": "studio.pdd.consent.status",
+  "id": "c-13",
+  "seq": 7,
+  "ok": true,
+  "payload": {
+    "tabRef": "t-Hh28sKq0aaPz",
+    "origin": "https://app.exemplo.test:8443",
+    "access": "AUTHORIZED",
+    "consent": "SESSION",
+    "visualCapture": "AUTHORIZED_SITE",
+    "reason": null,
+    "level": "FULL",
+    "actor": "DEVELOPER",
+    "via": "STUDIO"
+  },
+  "error": null
+}

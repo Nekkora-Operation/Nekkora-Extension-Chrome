@@ -142,11 +142,16 @@ class Studio010SafeCaptureIT extends SessionIT {
                 + " [DllImport(\"user32.dll\")] public static extern IntPtr GetForegroundWindow();"
                 + " [DllImport(\"user32.dll\")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint p); }';"
                 + " $p = [uint32]0; [void][NkFg]::GetWindowThreadProcessId([NkFg]::GetForegroundWindow(), [ref]$p); (Get-Process -Id $p).Path";
+        // STUDIO-013: sem console, o PowerShell pode mandar registros de progresso (CLIXML) no fluxo de erro — ficam de fora
+        ps = "$ProgressPreference = 'SilentlyContinue'; " + ps;
         String encoded = Base64.getEncoder().encodeToString(ps.getBytes(java.nio.charset.StandardCharsets.UTF_16LE));
-        Process pr = new ProcessBuilder("powershell", "-NoProfile", "-EncodedCommand", encoded).redirectErrorStream(true).start();
+        Process pr = new ProcessBuilder("powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded)
+                .redirectError(ProcessBuilder.Redirect.DISCARD).start();
         String out = new String(pr.getInputStream().readAllBytes()).trim();
         pr.waitFor();
-        return out;
+        String last = "";
+        for (String line : out.split("\\R")) if (!line.isBlank() && !line.startsWith("#<")) last = line.trim();
+        return last;
     }
 
     private void zoom(Page p, int steps) throws Exception {

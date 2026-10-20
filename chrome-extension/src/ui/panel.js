@@ -279,7 +279,73 @@ function renderAccess(d) {
   }
 }
 
+// STUDIO-013 — consentimento de captura do PDD (separado do acesso do Chrome)
+const PDD_STATE = {
+  NOT_REQUIRED: 'Laboratório local (não precisa de autorização)',
+  NONE: 'Não autorizada neste site',
+  SESSION: 'Autorizada até fechar o navegador',
+  REMEMBERED: 'Autorizada (site lembrado)',
+};
+const ACTOR_TEXT = { DEVELOPER: 'desenvolvedor', TEST_AGENT: 'agente de teste' };
+const LEVEL_TEXT = { MASKED: 'print mascarado', FULL: 'print integral' };
+let pdd = null;
+
+function renderPdd(d) {
+  pdd = d;
+  setText($('pdd-origin'), d.origin || '—');
+  $('pdd-state').dataset.consent = d.consent;
+  const who = d.actor ? ' — decidido por ' + (ACTOR_TEXT[d.actor] || d.actor) + (d.via === 'STUDIO' ? ', no Studio' : ', na extensão') : '';
+  const granted = d.consent === 'SESSION' || d.consent === 'REMEMBERED';
+  const level = granted ? ' · ' + (LEVEL_TEXT[d.level] || LEVEL_TEXT.MASKED) : '';
+  setText($('pdd-state'), d.access === 'AUTHORIZED' || d.access === 'LAB' ? (PDD_STATE[d.consent] || d.consent) + level + who
+    : 'Indisponível: conceda antes o acesso ao site');
+  const can = d.access === 'AUTHORIZED';
+  $('btn-pdd-grant').hidden = !can || d.consent !== 'NONE';
+  $('pdd-remember-box').hidden = !can || d.consent !== 'NONE';
+  $('pdd-level-box').hidden = !can || d.consent !== 'NONE';
+  $('btn-pdd-level').hidden = !can || !granted;
+  setText($('btn-pdd-level'), d.level === 'FULL' ? 'Voltar ao print mascarado neste site' : 'Liberar print integral neste site');
+  $('btn-pdd-revoke').hidden = !can || !granted;
+}
+
+async function refreshPdd() {
+  if (tabId == null) {
+    return;
+  }
+  try {
+    renderPdd(await call('pdd.consent.describe'));
+  } catch (e) {
+    renderPdd({ origin: null, access: 'URL_UNAVAILABLE', consent: 'NONE' });
+  }
+  try {
+    const { consents } = await call('pdd.consent.list');
+    setText($('pdd-count'), String(consents.length));
+    const ul = $('pdd-list');
+    ul.replaceChildren();
+    for (const c of consents) {
+      const li = document.createElement('li');
+      const label = document.createElement('span');
+      label.textContent = c.origin + ' · ' + (c.scope === 'REMEMBERED' ? 'lembrado' : 'nesta sessão') + ' · ' + (LEVEL_TEXT[c.level] || LEVEL_TEXT.MASKED)
+        + ' · ' + (ACTOR_TEXT[c.actor] || c.actor);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = 'Revogar';
+      b.setAttribute('aria-label', 'Revogar captura PDD em ' + c.origin);
+      b.onclick = (e) => run(e.target, async () => {
+        await call('pdd.consent.revoke', { origin: c.origin });
+        message('Captura PDD revogada em ' + c.origin + '.', true);
+        await refreshPdd();
+      });
+      li.append(label, b);
+      ul.append(li);
+    }
+  } catch (e) {
+    setText($('pdd-count'), '?');
+  }
+}
+
 async function refreshAccess() {
+  await refreshPdd();
   if (tabId == null) {
     return;
   }
@@ -434,6 +500,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       access: { origin: $('acc-origin').textContent, state: $('acc-state').textContent, kind: $('acc-state').dataset.kind,
         hint: $('acc-hint').textContent, authorize: !$('btn-authorize').hidden, authorizeAll: !$('btn-authorize-all').hidden,
         revoke: !$('btn-revoke').hidden }, studio: { enabled: $('studio-enabled').checked, state: $('studio-state').textContent },
+      pdd: { origin: $('pdd-origin').textContent, state: $('pdd-state').textContent, consent: $('pdd-state').dataset.consent,
+        grant: !$('btn-pdd-grant').hidden, revoke: !$('btn-pdd-revoke').hidden, sites: [...$('pdd-list').children].map((li) => li.firstChild.textContent) },
       message: $('message').hidden ? '' : $('message').textContent });
   } else if (msg.cmd === 'panel.click' && $(msg.id)) {
     $(msg.id).click();
@@ -454,6 +522,10 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
   if (msg.event === 'access-changed') {
     refreshAccess();
+    return;
+  }
+  if (msg.event === 'pdd-consent-changed') {
+    refreshPdd();
     return;
   }
   if (msg.event === 'studio-link') {
@@ -544,6 +616,29 @@ async function switchTab(id) {
     $('acc-confirm-all').hidden = true;
     requestOrigins(BROAD);
   };
+  // STUDIO-013: só o clique do usuário no painel concede (a origem é a da aba, conferida de novo no service worker)
+  // pedido da usuária: o print integral é o padrão e não pede segundo clique (o aviso fica fixo na escolha)
+  const pddGrant = async (level, scope) => {
+    const r = await call('pdd.consent.grant', { origin: pdd && pdd.origin, scope, level });
+    $('pdd-remember').checked = false;
+    for (const el of document.querySelectorAll('input[name="pdd-level"]')) el.checked = el.value === 'FULL';
+    message('Captura PDD autorizada em ' + r.origin + ' (' + LEVEL_TEXT[r.level] + ')'
+      + (r.scope === 'REMEMBERED' ? ', site lembrado.' : ', até fechar o navegador.'), true);
+    await refreshPdd();
+  };
+  const levelChosen = () => (document.querySelector('input[name="pdd-level"]:checked') || {}).value === 'FULL' ? 'FULL' : 'MASKED';
+  $('btn-pdd-grant').onclick = (e) => run(e.target, async () => {
+    await pddGrant(levelChosen(), $('pdd-remember').checked ? 'REMEMBERED' : 'SESSION');
+  });
+  $('btn-pdd-level').onclick = (e) => run(e.target, async () => {
+    const scope = pdd && pdd.consent === 'REMEMBERED' ? 'REMEMBERED' : 'SESSION';
+    await pddGrant(pdd && pdd.level === 'FULL' ? 'MASKED' : 'FULL', scope);
+  });
+  $('btn-pdd-revoke').onclick = (e) => run(e.target, async () => {
+    await call('pdd.consent.revoke', { origin: pdd && pdd.origin });
+    message('Captura PDD revogada neste site.', true);
+    await refreshPdd();
+  });
   $('btn-revoke').onclick = (e) => run(e.target, async () => {
     const r = await call('access.revoke', { pattern: access && access.pattern });
     message(r.removed ? 'Autorização revogada (' + r.pattern + ').' : 'O Chrome não removeu a autorização.', r.removed);
