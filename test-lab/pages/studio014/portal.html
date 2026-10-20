@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Entrar</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 24px; color: #222; }
+  form { display: grid; gap: 10px; max-width: 320px; padding: 16px; border: 1px solid #ccc; border-radius: 6px; }
+  label { font-weight: 600; }
+  input { padding: 6px 8px; }
+  button { padding: 6px 14px; justify-self: start; }
+  .nota { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+<!--
+  STUDIO-014 — laboratório do Caso A (dados 100% fictícios, origem local): login → consulta → ler o resultado → sair.
+  Sem iframe, sem shadow DOM. O login é local (qualquer usuário e senha não vazios) e nunca põe valores na URL; o fato do
+  login fica só no sessionStorage. A consulta usa o MESMO oráculo de servidor da STUDIO-009 (/api/studio009/consulta e
+  /api/studio009/estado), que conta as consultas efetivamente feitas.
+-->
+<h1>Entrar</h1>
+<p class="nota" id="saida" hidden>Sessão encerrada.</p>
+<form id="formLogin" aria-label="Entrar" autocomplete="off">
+  <label for="usuario">Usuário</label>
+  <input id="usuario" name="usuario" autocomplete="off">
+  <label for="senha">Senha</label>
+  <input id="senha" name="senha" type="password" autocomplete="off">
+  <button id="entrar" type="submit">Entrar</button>
+  <p id="erro" role="alert" hidden>Usuário ou senha inválidos</p>
+</form>
+<script>
+  if (new URLSearchParams(location.search).get('saiu') === '1') document.getElementById('saida').hidden = false;
+  document.getElementById('formLogin').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('usuario').value;
+    const s = document.getElementById('senha').value;
+    if (!u || !s) {
+      document.getElementById('erro').hidden = false;
+      return;
+    }
+    sessionStorage.setItem('nk014.login', 'ok'); // só o FATO do login, nunca os valores
+    setTimeout(() => { location.href = '/lab/studio014/consulta.html'; }, 80);
+  });
+</script>
+</body>
+</html>

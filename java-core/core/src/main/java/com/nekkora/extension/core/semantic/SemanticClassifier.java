@@ -364,7 +364,7 @@ public final class SemanticClassifier {
 
     /** O nome veio (também) de alguma fonte com texto retido? Conteúdo do próprio nó, rótulos e referências. */
     private static boolean incompleteName(RawNode node, AccessibleName name, PageModel model) {
-        if (name.source() == NameSource.CONTENT && model.textSuppressedWithin(node)) {
+        if (name.source() == NameSource.CONTENT && model.exposedTextSuppressedWithin(node)) {
             return true;
         }
         for (String id : name.sourceNodeIds()) {

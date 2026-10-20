@@ -423,10 +423,15 @@ class Chrome002DynamicIT extends SessionIT {
         cases.put("#c-descrito", "E-mail");
         cases.put("#c-rua", "Rua");
         cases.put("#a-texto", "Ver detalhes do pedido");
+        cases.put("#a-seta", "Next"); // seta decorativa aria-hidden fora do vocabulário não retém o nome (sites públicos, STUDIO-014)
         cases.put("#r-botao", "Atualizar lista");
         for (Map.Entry<String, String> e : cases.entrySet()) {
             compareName(p, e.getKey(), e.getValue());
         }
+        // ...e o texto da subárvore decorativa nunca sai na captura
+        // (o "→" do produto em detalhes de relação, "aria-labelledby → n11", não é texto da página)
+        String exported = exportMap(p).toString();
+        assertTrue(!exported.contains("\"→\"") && !exported.contains("Next →"), "seta decorativa fora da captura");
         JsonNode described = select(p, "#c-descrito").at("/inspection/classification/name");
         // descrição acessível é texto livre da página (aria-describedby): nunca atravessa
         assertEquals("", described.get("description").asText());

@@ -28,6 +28,7 @@ public final class PageModel {
     private final Map<String, String> textCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, String> visibleTextCache = new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<String, Boolean> suppressedCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, Boolean> exposedSuppressedCache = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.Set<String> VALUE_SUBTREES = java.util.Set.of("select", "option", "optgroup", "datalist", "textarea");
 
     private PageModel(RawSnapshot snapshot) {
@@ -296,20 +297,35 @@ public final class PageModel {
      * pela política? Um nome composto dela estaria incompleto. Memorizado por nó (O(n) no total).
      */
     public boolean textSuppressedWithin(RawNode node) {
-        Boolean cached = suppressedCache.get(node.id());
+        return textSuppressedWithin(node, false, suppressedCache);
+    }
+
+    /**
+     * Como {@link #textSuppressedWithin(RawNode)}, mas só no conteúdo EXPOSTO ao nome por conteúdo: descendentes
+     * aria-hidden="true" não compõem esse nome (texto retido neles não o deixa incompleto).
+     */
+    public boolean exposedTextSuppressedWithin(RawNode node) {
+        return textSuppressedWithin(node, true, exposedSuppressedCache);
+    }
+
+    private boolean textSuppressedWithin(RawNode node, boolean exposedOnly, Map<String, Boolean> cache) {
+        Boolean cached = cache.get(node.id());
         if (cached != null) {
             return cached;
         }
         boolean r = Boolean.TRUE.equals(node.textSuppressed());
         if (!r) {
             for (RawNode c : children(node)) {
-                if (!VALUE_SUBTREES.contains(c.tag()) && !"true".equals(c.attr("contenteditable")) && textSuppressedWithin(c)) {
+                if (exposedOnly && "true".equals(c.attr("aria-hidden"))) {
+                    continue;
+                }
+                if (!VALUE_SUBTREES.contains(c.tag()) && !"true".equals(c.attr("contenteditable")) && textSuppressedWithin(c, exposedOnly, cache)) {
                     r = true;
                     break;
                 }
             }
         }
-        suppressedCache.put(node.id(), r);
+        cache.put(node.id(), r);
         return r;
     }
 
