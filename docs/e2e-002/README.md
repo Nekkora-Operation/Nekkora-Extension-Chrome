@@ -20,8 +20,10 @@ evidências estão em `Nekkora-Studio/docs/e2e-002/`.
   `DescriptorIdentityTest` (região separa a busca do cabeçalho da cópia; sem região não decide; região que seleciona dois
   não decide; chave `landmark:<tag>`), `E2e002SelectDataIT`.
 - Mutações conferidas à mão: sem a promoção para a célula, `E2e002SelectDataIT` falha (a etapa vira item de lista).
-- ITs: a suíte completa foi interrompida pelo sistema por memória baixa depois de 16 classes (129 testes, 0 falhas);
-  as demais classes ficaram pendentes de nova rodada (ver o relatório do Studio).
+- ITs da suíte padrão: **40/40 classes, 305 testes, 0 falhas** — 129 da rodada completa (interrompida pelo sistema por
+  memória baixa) + 176 em 8 grupos sequenciais de até 3 classes, com memória amostrada ([c12-matriz.md](c12-matriz.md)).
+  Defeito PRÉ-EXISTENTE (também na base `main`) corrigido: `Studio013SitesIT` S013-06/S013-09 dependiam de a captura
+  demorar mais que 1,2 s; agora a página é ocupada antes do gesto (cenário "durante a captura" determinístico).
 
 ## Privacidade
 
